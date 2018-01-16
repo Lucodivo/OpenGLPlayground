@@ -8,12 +8,33 @@
 #define VIEWPORT_HEIGHT 600
 
 int main() {
+    loadGLFW();
+    GLFWwindow* window = createWindow();
+    glfwMakeContextCurrent(window);
+
+    initializeGLAD();
+
+    glViewport(0, // int x: left-x of viewport rect
+               0, // int y: bottom-y of viewport rect
+               VIEWPORT_WIDTH, // int width
+               VIEWPORT_HEIGHT); // int height
+
+    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+    gameLoop(window);
+
+    glfwTerminate(); // clean up gl resources
+    return 0;
+}
+
+void loadGLFW() {
     int loadSucceeded = glfwInit();
     if (loadSucceeded == GL_FALSE) {
         std::cout << "Failed to load GLFW" << std::endl;
-        return -1;
+        exit(-1);
     }
+}
 
+GLFWwindow* createWindow() {
     // set what kind of window desired
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3); // OpenGL version x._
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3); // OpenGL version _.x
@@ -22,30 +43,28 @@ int main() {
 
     // create window
     GLFWwindow* window = glfwCreateWindow(VIEWPORT_WIDTH, // int Width
-                                          VIEWPORT_HEIGHT, // int Height
-                                          "LearnOpenGL", // const char* Title
-                                          NULL, // GLFWmonitor* Monitor: Specified for which monitor for fullscreen, NULL for windowed mode
-                                          NULL); // GLFWwindow* Share: window to share resources with
+                                        VIEWPORT_HEIGHT, // int Height
+                                        "LearnOpenGL", // const char* Title
+                                        NULL, // GLFWmonitor* Monitor: Specified for which monitor for fullscreen, NULL for windowed mode
+                                        NULL); // GLFWwindow* Share: window to share resources with
     if (window == NULL) {
         std::cout << "Failed to create GLFW window" << std::endl;
         glfwTerminate();
-        return -1;
+        exit(-1);
     }
-    glfwMakeContextCurrent(window);
 
+    return window;
+}
+
+void initializeGLAD() {
     // intialize GLAD to help manage function pointers for OpenGL
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
         std::cout << "Failed to initialize GLAD" << std::endl;
-        return -1;
+        exit(-1);
     }
+}
 
-    glViewport(0, // int x: left-x of viewport rect
-               0, // int y: bottom-y of viewport rect
-               VIEWPORT_WIDTH, // int width
-               VIEWPORT_HEIGHT); // int height
-
-    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-
+void gameLoop(GLFWwindow *window) {
     // NOTE: render/game loop
     while (glfwWindowShouldClose(window) == GL_FALSE) {
         // check for input
@@ -58,9 +77,6 @@ int main() {
         glfwSwapBuffers(window); // swaps double buffers (call after all render commands are completed)
         glfwPollEvents(); // checks for events (ex: keyboard/mouse input)
     }
-
-    glfwTerminate(); // clean up gl resources
-    return 0;
 }
 
 void processInput(GLFWwindow *window) {
