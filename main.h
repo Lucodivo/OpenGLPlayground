@@ -6,7 +6,7 @@ GLFWwindow * createWindow();
 
 void initializeGLAD();
 
-void gameLoop(GLFWwindow * window);
+void renderLoop(GLFWwindow * window);
 
 void processInput(GLFWwindow * window);
 

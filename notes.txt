@@ -1,0 +1,36 @@
+Immediate Mode (fixed function pipeline): Old way of OpenGL, easier but developers have less freedom
+Core-Profile Mode: Requires developer to truly understand OpenGL/graphics, but more flexible/efficient
+
+Context: The state of OpenGL
+Graphics Pipeline: Process of transforming 3D coordinates => 2D coordinate => colored pixels
+OpenGL Shading Language (GLSL): Language shaders are written in
+Vertex: Collection of data per 3D coordinate
+Vertex Attributes: Any date associated with vertex (ex: 3D position, color value)
+Primitives: Hints that tell OpenGL how to render data (ex: points, triangles, line)
+
+== GRAPHICS PIPLINE ==
+1. Vertex Shader: 3D coordinates => 3D coordinates & some basic processing on vertex attributes
+2. Primitive (Shape) Assembly: Takes all vertices from vertex shader that form a primitive and assembles all the points in the primitive shape given
+3. Geometry Shader: Takes in a collection of vertices that form a primitive and has the ability to generate other shapes by emitting new vertices to form new (or other) primitives.
+4. Rasterization Stage: Maps the resulting primitives (of Geometry Shader) to the corresponding pixels on the final screen, resulting in fragments for the fragment shader to use.
+	- Clipping: Before fragment shaders run, clipping discards all fragments that are outside your view, increasing performance.
+5. Fragment Shader: Calculate the final color of a pixel. Usualy the stage where all the advacned OpenGL effects occur (ex: lighting, shadows, color of the light).
+6. Alpha Test & Blending: Checks the corresponding depth (and stencil) value of the fragment and uses those to check if the resulting fragment is in front or behind other objects and should be discarded accordingly.
+	- NOTE: even if a pixel output color is calculated in the fragment shader, the final pixel color could still be something entirely different when rendering multiple triangles.
+
+Fragment: All the data required for OpenGL to render a single pixel
+Shaders: Small programs on the GPU for each step of the graphics pipeline
+Normalized Device Coordinates: 3D coordinates in a specific range betweoon [-1.0, +1.0]
+Vertex Buffer Objects (VBO): Memory that can store a large number of vertices in the GPU's memory.
+
+== ECT ==
+- The areas of the graphics pipeline that are configureable are the Vertex Shader, Geometry Shader, and Fragment Shader
+- In Modern OpenGL we are REQUIRED to define at least a vertex and fragment shader of our own (There are no default vertex/fragment shaders on the GPU)
+- Geometry shader is optional and usually left to its default shader
+- OpenGL only processes 3D normalized device coordinates, any coordinates outside of the range [-1.0,+1.0] will be clipped/discarded.
+- Unlike usual screen coordinates, the pisitive y-axis points in the up direction and (0,0,0) coordinate is in the center.
+
+
+
+LEFT OFF AT
+Compiling a shader on https://learnopengl.com/#!Getting-started/Hello-Triangle

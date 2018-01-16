@@ -20,7 +20,7 @@ int main() {
                VIEWPORT_HEIGHT); // int height
 
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-    gameLoop(window);
+    renderLoop(window);
 
     glfwTerminate(); // clean up gl resources
     return 0;
@@ -64,7 +64,22 @@ void initializeGLAD() {
     }
 }
 
-void gameLoop(GLFWwindow *window) {
+float vertices[] = {
+    -0.5f, -0.5f, 0.0f,
+    0.5f, -0.5f, 0.0f,
+    0.0f, 0.5f, 0.0f
+};
+
+void renderLoop(GLFWwindow *window) {
+    unsigned int VBO;
+    glGenBuffers(1,     // Num objects to generate 
+                 &VBO);  // Out parameters to store IDs of gen objects
+    glBindBuffer(GL_ARRAY_BUFFER, VBO); // bind object to array buffer
+    glBufferData(GL_ARRAY_BUFFER, // which buffer data is being entered in
+                sizeof(vertices), // size of data being placed in array buffer
+                vertices,        // data to store in array buffer       
+                GL_STATIC_DRAW); // GL_STATIC_DRAW (most likely not change), GL_DYNAMIC_DRAW (likely to change), GL_STREAM_DRAW (changes every time drawn)
+
     // NOTE: render/game loop
     while (glfwWindowShouldClose(window) == GL_FALSE) {
         // check for input
