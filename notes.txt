@@ -29,8 +29,3 @@ Vertex Buffer Objects (VBO): Memory that can store a large number of vertices in
 - Geometry shader is optional and usually left to its default shader
 - OpenGL only processes 3D normalized device coordinates, any coordinates outside of the range [-1.0,+1.0] will be clipped/discarded.
 - Unlike usual screen coordinates, the pisitive y-axis points in the up direction and (0,0,0) coordinate is in the center.
-
-
-
-LEFT OFF AT
-Compiling a shader on https://learnopengl.com/#!Getting-started/Hello-Triangle
