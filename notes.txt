@@ -22,6 +22,11 @@ Fragment: All the data required for OpenGL to render a single pixel
 Shaders: Small programs on the GPU for each step of the graphics pipeline
 Normalized Device Coordinates: 3D coordinates in a specific range betweoon [-1.0, +1.0]
 Vertex Buffer Objects (VBO): Memory that can store a large number of vertices in the GPU's memory.
+    - After binding the buffer using glBindBuffer(), glBufferData() function can be used to store data in VBO
+Vertex Array Object (VAO): Memory that can store vertex attribute configurations
+    - After bound using glBindVertexArrayS(), any subsequent vertex attribute calls from that point will be stored in VAO
+Element Buffer Objects (EBO): A buffer that stores indices that OpenGL uses to decide what vertices to draw
+    - The EBO currently bound while a VAO is bound, is stored as the VAO's EBO.
 
 == ECT ==
 - The areas of the graphics pipeline that are configureable are the Vertex Shader, Geometry Shader, and Fragment Shader
@@ -29,3 +34,8 @@ Vertex Buffer Objects (VBO): Memory that can store a large number of vertices in
 - Geometry shader is optional and usually left to its default shader
 - OpenGL only processes 3D normalized device coordinates, any coordinates outside of the range [-1.0,+1.0] will be clipped/discarded.
 - Unlike usual screen coordinates, the pisitive y-axis points in the up direction and (0,0,0) coordinate is in the center.
+- A VAO stores the glBindBuffer calls when the target is GL_ELEMENT_ARRAY_BUFFER. 
+    - This also means it stores its unbind calls so don't unbind the element array buffer before unbinding your VAO
+
+
+LEFT OFF @ Element Buffer Objects on https://learnopengl.com/#!Getting-started/Hello-Triangle

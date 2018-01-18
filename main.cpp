@@ -11,11 +11,31 @@
 const char *vertexShaderFile = "VertexShader.glsl";
 const char *fragmentShaderFile = "FragmentShader.glsl";
 
+//float vertices[] = {
+//    // First triangle
+//    -0.5f, -0.5f, 0.0f, // bottom left
+//    0.5f, -0.5f, 0.0f,  // bottom right
+//    0.0f, 0.5f, 0.0f,   // top (same point as bottom)
+//    // Second triangle
+//    -0.25f, 0.75f, 0.0f, // top left
+//    0.25f, 0.75f, 0.0f, // top right
+//    0.0f, 0.5f, 0.0f   // bottom (same point as top)
+//};
 float vertices[] = {
-    -0.5f, -0.5f, 0.0f,
-    0.5f, -0.5f, 0.0f,
-    0.0f, 0.5f, 0.0f
+    // First triangle
+    -0.5f, -0.5f, 0.0f, // bottom left
+    0.5f, -0.5f, 0.0f,  // bottom right
+    0.0f, 0.5f, 0.0f,   // top (same point as bottom)
+    // Second triangle
+    -0.25f, 0.75f, 0.0f, // top left
+    0.25f, 0.75f, 0.0f, // top right
+    // use first triangle's top for bottom point
 };
+unsigned int indices[]{
+    0, 1, 2,    // first triangle
+    3, 4, 2     // second triangle
+};
+
 
 int main() {
     loadGLFW();
@@ -75,9 +95,6 @@ void initializeGLAD() {
 }
 
 void renderLoop(GLFWwindow *window) {
-    GLuint VAO;
-    glGenVertexArrays(1, &VAO);
-    glBindVertexArray(VAO);
 
     GLuint VBO;
     glGenBuffers(1,     // Num objects to generate 
@@ -88,6 +105,26 @@ void renderLoop(GLFWwindow *window) {
                 vertices,        // data to store in array buffer       
                 GL_STATIC_DRAW); // GL_STATIC_DRAW (most likely not change), GL_DYNAMIC_DRAW (likely to change), GL_STREAM_DRAW (changes every time drawn)
 
+    GLuint VAO;
+    glGenVertexArrays(1, &VAO);
+    glBindVertexArray(VAO);
+    glVertexAttribPointer(0, // position vertex attribute (used for location = 0 of Vertex Shader false) 
+        3, // size of vertex attribute (we're using vec3)
+        GL_FLOAT, // type of data being passed 
+        GL_FALSE, // whether the data needs to be normalized
+        3 * sizeof(float), // stride: space between consecutive vertex attribute sets
+        (void*)0); // offset of where the data starts in the array
+    glEnableVertexAttribArray(0);
+
+    GLuint EBO;
+    glGenBuffers(1, &EBO);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+    
+    // unbind VBO & VAO
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+
     GLuint vertexShader = loadVertexShader();
     GLuint fragmentShader = loadFragmentShader();
     GLuint shaderProgram = loadShaderProgram(vertexShader, fragmentShader);
@@ -95,16 +132,7 @@ void renderLoop(GLFWwindow *window) {
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
 
-    glVertexAttribPointer(0, // position vertex attribute (used for location = 0 of Vertex Shader false) 
-                          3, // size of vertex attribute (we're using vec3)
-                          GL_FLOAT, // type of data being passed 
-                          GL_FALSE, // whether the data needs to be normalized
-                          3 * sizeof(float), // stride: space between consecutive vertex attribute sets
-                          (void*)0); // offset of where the data starts in the array
-    glEnableVertexAttribArray(0);
-
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
+    //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
     // NOTE: render/game loop
     while (glfwWindowShouldClose(window) == GL_FALSE) {
@@ -119,9 +147,14 @@ void renderLoop(GLFWwindow *window) {
         // User fragment shaders to draw a triangle
         glUseProgram(shaderProgram);
         glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, // drawing mode: type of primitive to render
-            0, // starting index in the enabled arrays
-            3); // number of vertices to render
+        glDrawElements(GL_TRIANGLES, // drawing mode
+                        6, // number of elements to draw (6 vertices)
+                        GL_UNSIGNED_INT, // type of the indices
+                        0); // offset in the EBO
+        glBindVertexArray(0);
+        //glDrawArrays(GL_TRIANGLES, // drawing mode: type of primitive to render
+        //    0, // starting index in the enabled arrays
+        //    3); // number of vertices to render
 
         glfwSwapBuffers(window); // swaps double buffers (call after all render commands are completed)
         glfwPollEvents(); // checks for events (ex: keyboard/mouse input)
