@@ -1,12 +1,12 @@
 #version 330 core
 out vec4 FragColor;
 
-in vec4 vertexColor; // input variable from vertex shader
+in vec3 vertexColor; // input variable from vertex shader
 
-uniform vec4 programColor;
+uniform vec3 sineVals; // uniform variable from program
 
 void main()
 {
-	FragColor = programColor;
-    //FragColor = vertexColor;
+	FragColor = vec4(vertexColor * sineVals, 1.0f);
+    //FragColor = vec4(sineVals, 1.0f);
 }

@@ -23,13 +23,13 @@ const char *fragmentShaderFile = "FragmentShader.glsl";
 //};
 float vertices[] = {
     // First triangle
-    -0.5f, -0.5f, 0.0f, // bottom left
-    0.5f, -0.5f, 0.0f,  // bottom right
-    0.0f, 0.5f, 0.0f,   // top (same point as bottom)
+    // positions            // colors
+    -0.5f, -0.5f, 0.0f,     1.0f, 0.0f, 0.0f, // bottom left
+    0.5f, -0.5f, 0.0f,      0.0f, 0.0f, 1.0f,  // bottom right
+    0.0f, 0.5f, 0.0f,       0.0f, 1.0f, 0.0f,   // top (for first triangle) / bottom (for second triangle)
     // Second triangle
-    -0.25f, 0.75f, 0.0f, // top left
-    0.25f, 0.75f, 0.0f, // top right
-    // use first triangle's top for bottom point
+    -0.25f, 0.75f, 0.0f,    0.0f, 0.0f, 1.0f, // top left
+    0.25f, 0.75f, 0.0f,     1.0f, 0.0f, 0.0f // top right
 };
 unsigned int indices[]{
     0, 1, 2,    // first triangle
@@ -109,13 +109,22 @@ void renderLoop(GLFWwindow *window) {
     unsigned int VAO;
     glGenVertexArrays(1, &VAO);
     glBindVertexArray(VAO);
+    // position attribute
     glVertexAttribPointer(0, // position vertex attribute (used for location = 0 of Vertex Shader false) 
         3, // size of vertex attribute (we're using vec3)
         GL_FLOAT, // type of data being passed 
         GL_FALSE, // whether the data needs to be normalized
-        3 * sizeof(float), // stride: space between consecutive vertex attribute sets
-        (void*)0); // offset of where the data starts in the array
+        2 * 3 * sizeof(float), // stride: space between consecutive vertex attribute sets
+        (void*)(0 * sizeof(float))); // offset of where the data starts in the array
     glEnableVertexAttribArray(0);
+    // color attribute
+    glVertexAttribPointer(1,
+        3,
+        GL_FLOAT,
+        GL_FALSE,
+        2 * 3 * sizeof(float),
+        (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
 
     unsigned int EBO;
     glGenBuffers(1, &EBO);
@@ -148,17 +157,17 @@ void renderLoop(GLFWwindow *window) {
         glClear(GL_COLOR_BUFFER_BIT);           // OpenGL state-using function
 
         float t = glfwGetTime();
-        float red = (sin(t) / 2.0f) + 0.5f;
-        float green = (sin(t/2) / 2.0f) + 0.5f;
-        float blue = (sin(t/3) / 2.0f) + 0.5f;
+        float sineVal1 = (sin(t) / 2.0f) + 0.5f;
+        float sineVal2 = (sin(t/2) / 2.0f) + 0.5f;
+        float sineVal3 = (sin(t/3) / 2.0f) + 0.5f;
         float alpha = 1.0f;
 
-        int vertexColorLocation = glGetUniformLocation(shaderProgram, "programColor");
+        int sineValsLocation = glGetUniformLocation(shaderProgram, "sineVals");
 
         // User fragment shaders to draw a triangle
         glUseProgram(shaderProgram);
         glBindVertexArray(VAO);
-        glUniform4f(vertexColorLocation, red, green, blue, alpha);
+        glUniform3f(sineValsLocation, sineVal1, sineVal2, sineVal3);
         glDrawElements(GL_TRIANGLES, // drawing mode
                         6, // number of elements to draw (6 vertices)
                         GL_UNSIGNED_INT, // type of the indices

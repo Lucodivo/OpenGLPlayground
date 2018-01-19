@@ -67,3 +67,7 @@ Uniforms: Global variables that can be accessed from any shader at any stage in 
 
 == ECT ==
 - If you declare a uniform that isn't used anywhere in your GLSL coed, the compiler will silently remove the variable from the compiled version
+- Finding the uniform location does not require you to use the shader program first 
+- Updating a uniform requires you to first use the program (glUseProgram), it sets the uniform on the currently active shader program
+
+LEFT OFF AT Our Own Shader Class @ https://learnopengl.com/#!Getting-started/Shaders
