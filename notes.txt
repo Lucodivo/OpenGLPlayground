@@ -1,3 +1,5 @@
+# Learn OpenGL NOTES
+
 Immediate Mode (fixed function pipeline): Old way of OpenGL, easier but developers have less freedom
 Core-Profile Mode: Requires developer to truly understand OpenGL/graphics, but more flexible/efficient
 
@@ -37,5 +39,31 @@ Element Buffer Objects (EBO): A buffer that stores indices that OpenGL uses to d
 - A VAO stores the glBindBuffer calls when the target is GL_ELEMENT_ARRAY_BUFFER. 
     - This also means it stores its unbind calls so don't unbind the element array buffer before unbinding your VAO
 
++++ GLSL +++
 
-LEFT OFF @ Element Buffer Objects on https://learnopengl.com/#!Getting-started/Hello-Triangle
+### Swizzling:
+vec2 someVec;
+vec4 differentVec = someVec.xyxx;
+vec3 anotherVec = differentVec.zyw;
+vec4 otherVec = someVec.xxxx + anotherVec.yxzy;
+
+### Input Variables & Output Variables
+Vertex Shaders:
+- Receives its input straight from the vertex data (stored using glBindBuffer/glBufferData functions)
+
+Fragment Shaders:
+- Requires a vec4 color output variable, since fragment shaders need to generate final output color
+    - failing to specify an output color will render your object black (or white)
+
+### Accessing Vector Data
+vec4 aVec = vec4(0.1, 0.2, 0.3. 0.4)
+aVec.x = aVec.r = aVec.s = 0.1
+aVec.y = aVec.g = aVec.t = 0.2
+aVec.z = aVec.b = aVec.p = 0.3
+aVec.w = aVec.a = aVec.q = 0.4
+
+Uniforms: Global variables that can be accessed from any shader at any stage in the shader program.
+    - Whatever the uniform value is set to, it will keep its value until it is reset or update
+
+== ECT ==
+- If you declare a uniform that isn't used anywhere in your GLSL coed, the compiler will silently remove the variable from the compiled version
