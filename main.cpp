@@ -3,6 +3,7 @@
 #include <iostream>
 
 #include "FileHelper.h"
+#include "Shader.h"
 #include "main.h"
 
 #define VIEWPORT_WIDTH 800
@@ -137,12 +138,7 @@ void renderLoop(GLFWwindow *window) {
     // Must unbind EBO AFTER unbinding VAO, since VAO stores all glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _) calls
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-    unsigned int vertexShader = loadVertexShader();
-    unsigned int fragmentShader = loadFragmentShader();
-    unsigned int shaderProgram = loadShaderProgram(vertexShader, fragmentShader);
-    // Once we've linked the shaders into the program object, we no longer need them
-    glDeleteShader(vertexShader);
-    glDeleteShader(fragmentShader);
+    Shader shader = Shader(vertexShaderFile, fragmentShaderFile);
 
     // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Only outlines of objects visible (no fill)
 
@@ -156,18 +152,19 @@ void renderLoop(GLFWwindow *window) {
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);   // OpenGL state-setting function
         glClear(GL_COLOR_BUFFER_BIT);           // OpenGL state-using function
 
-        float t = glfwGetTime();
+        float t = static_cast<float>(glfwGetTime());
         float sineVal1 = (sin(t) / 2.0f) + 0.5f;
         float sineVal2 = (sin(t/2) / 2.0f) + 0.5f;
         float sineVal3 = (sin(t/3) / 2.0f) + 0.5f;
         float alpha = 1.0f;
 
-        int sineValsLocation = glGetUniformLocation(shaderProgram, "sineVals");
+        shader.setFloat("sineVal1", sineVal1);
+        shader.setFloat("sineVal2", sineVal2);
+        shader.setFloat("sineVal3", sineVal3);
 
         // User fragment shaders to draw a triangle
-        glUseProgram(shaderProgram);
+        shader.use();
         glBindVertexArray(VAO);
-        glUniform3f(sineValsLocation, sineVal1, sineVal2, sineVal3);
         glDrawElements(GL_TRIANGLES, // drawing mode
                         6, // number of elements to draw (6 vertices)
                         GL_UNSIGNED_INT, // type of the indices
@@ -180,63 +177,6 @@ void renderLoop(GLFWwindow *window) {
         glfwSwapBuffers(window); // swaps double buffers (call after all render commands are completed)
         glfwPollEvents(); // checks for events (ex: keyboard/mouse input)
     }
-}
-
-// load/compile vertex shader from file
-unsigned int loadVertexShader() {
-    unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    std::string vertexShaderString = readFile(vertexShaderFile);
-    const char *vertexShaderSource = vertexShaderString.c_str();
-    glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
-    glCompileShader(vertexShader);
-
-    // ensure that shader loaded successfully
-    int vertexSuccess;
-    glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &vertexSuccess);
-    if (vertexSuccess != GL_TRUE) {
-        char infoLog[512];
-        glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
-        std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
-    }
-
-    return vertexShader;
-}
-
-// load/compile fragment shader from file
-unsigned int loadFragmentShader() {
-    unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    std::string fragmentShaderString = readFile(fragmentShaderFile);
-    const char *fragmentShaderSource = fragmentShaderString.c_str();
-    glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
-    glCompileShader(fragmentShader);
-
-    // ensure that fragment shader loaded successfully
-    int fragmentSuccess;
-    glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &fragmentSuccess);
-    if (fragmentSuccess != GL_TRUE) {
-        char infoLog[512];
-        glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
-        std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
-    }
-
-    return fragmentShader;
-}
-
-unsigned int loadShaderProgram(unsigned int vertexShader, unsigned int fragmentShader) {
-    unsigned int shaderProgram = glCreateProgram(); // NOTE: returns 0 if error occurs when creating program
-    glAttachShader(shaderProgram, vertexShader);
-    glAttachShader(shaderProgram, fragmentShader);
-    glLinkProgram(shaderProgram);
-
-    int linkSuccess;
-    glGetProgramiv(shaderProgram, GL_LINK_STATUS, &linkSuccess);
-    if (!linkSuccess) {
-        char infoLog[512];
-        glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
-        std::cout << "ERROR::PROGRAM::SHADER::LINK_FAILED\n" << infoLog << std::endl;
-    }
-
-    return shaderProgram;
 }
 
 void processInput(GLFWwindow *window) {
