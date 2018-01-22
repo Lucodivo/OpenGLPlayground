@@ -17,18 +17,8 @@ const char *fragmentShaderFile = "FragmentShader.glsl";
 const char *textureImgLoc1 = "Data/kanye_triangle.jpg";
 const char *textureImgLoc2 = "Data/kanye_triangle2.jpg";
 
-//float vertices[] = {
-//    // First triangle
-//    -0.5f, -0.5f, 0.0f, // bottom left
-//    0.5f, -0.5f, 0.0f,  // bottom right
-//    0.0f, 0.5f, 0.0f,   // top (same point as bottom)
-//    // Second triangle
-//    -0.25f, 0.75f, 0.0f, // top left
-//    0.25f, 0.75f, 0.0f, // top right
-//    0.0f, 0.5f, 0.0f   // bottom (same point as top)
-//};
 const unsigned int vertexAttSize = 8;
-const unsigned int numElements = 1;
+const unsigned int numElements = 2;
 float vertices[] = {
     // First triangle
     // positions            // colors           // texture coords
@@ -36,12 +26,12 @@ float vertices[] = {
     0.5f, -0.5f, 0.0f,      0.0f, 0.0f, 1.0f,   1.0f, 0.0f, // bottom right
     0.0f, 0.5f, 0.0f,       0.0f, 1.0f, 0.0f,   0.5, 1.0f,  // top (for first triangle) / bottom (for second triangle)
     // Second triangle
-//    -0.25f, 0.75f, 0.0f,    0.0f, 0.0f, 1.0f,   0.0f, 1.0f, // top left
-//    0.25f, 0.75f, 0.0f,     1.0f, 0.0f, 0.0f,   1.0f, 1.0f  // top right
+    -0.25f, 0.75f, 0.0f,    0.0f, 0.0f, 1.0f,   0.0f, 0.0f, // top left
+    0.25f, 0.75f, 0.0f,     1.0f, 0.0f, 0.0f,   1.0f, 0.0f  // top right
 };
 unsigned int indices[]{
     0, 1, 2,    // first triangle
-//    2, 3, 4     // second triangle
+    2, 3, 4     // second triangle
 };
 
 
@@ -59,8 +49,13 @@ int main() {
 
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
-    renderLoop(window);
+    unsigned int VAO, VBO, EBO;
+    initializeBuffers(VAO, VBO, EBO);
+    renderLoop(window, VAO);
 
+    glDeleteVertexArrays(1, &VAO);
+    glDeleteBuffers(1, &VBO);
+    glDeleteBuffers(1, &EBO);
     glfwTerminate(); // clean up gl resources
     return 0;
 }
@@ -103,21 +98,19 @@ void initializeGLAD() {
     }
 }
 
-void renderLoop(GLFWwindow *window) {
-
-    unsigned int VBO;
-    glGenBuffers(1,     // Num objects to generate 
-                 &VBO);  // Out parameters to store IDs of gen objects
-    glBindBuffer(GL_ARRAY_BUFFER, VBO); // bind object to array buffer
-    glBufferData(GL_ARRAY_BUFFER, // which buffer data is being entered in
-                sizeof(vertices), // size of data being placed in array buffer
-                vertices,        // data to store in array buffer       
-                GL_STATIC_DRAW); // GL_STATIC_DRAW (most likely not change), GL_DYNAMIC_DRAW (likely to change), GL_STREAM_DRAW (changes every time drawn)
-
-    unsigned int VAO;
+void initializeBuffers(unsigned int &VAO, unsigned int &VBO, unsigned int &EBO) {
     glGenVertexArrays(1, &VAO);
     glBindVertexArray(VAO);
-    // position attribute
+
+    glGenBuffers(1,     // Num objects to generate 
+        &VBO);  // Out parameters to store IDs of gen objects
+    glBindBuffer(GL_ARRAY_BUFFER, VBO); // bind object to array buffer
+    glBufferData(GL_ARRAY_BUFFER, // which buffer data is being entered in
+        sizeof(vertices), // size of data being placed in array buffer
+        vertices,        // data to store in array buffer       
+        GL_STATIC_DRAW); // GL_STATIC_DRAW (most likely not change), GL_DYNAMIC_DRAW (likely to change), GL_STREAM_DRAW (changes every time drawn)
+
+                         // position attribute
     glVertexAttribPointer(0, // position vertex attribute (used for location = 0 of Vertex Shader false) 
         3, // size of vertex attribute (we're using vec3)
         GL_FLOAT, // type of data being passed 
@@ -142,32 +135,20 @@ void renderLoop(GLFWwindow *window) {
         (void*)(6 * sizeof(float)));
     glEnableVertexAttribArray(2);
 
-    unsigned int EBO;
     glGenBuffers(1, &EBO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
-    Shader shader = Shader(vertexShaderFile, fragmentShaderFile);
-
-    // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Only outlines of objects visible (no fill)
-
-    // Texture
-    // set texture options
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, /*GL_CLAMP_TO_EDGE*/ GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, /*GL_CLAMP_TO_EDGE*/ GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    shader.use(); // must activate/use the shader before setting the uniforms!
-    loadTexture(textureImgLoc1, 0);
-    shader.setInt("aTexture", 0);
-    loadTexture(textureImgLoc2, 1);
-    shader.setInt("bTexture", 1);
 
     // unbind VBO, VAO, & EBO
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
     // Must unbind EBO AFTER unbinding VAO, since VAO stores all glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _) calls
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+}
+
+void renderLoop(GLFWwindow *window, unsigned int &VAO) {
+    Shader shader = Shader(vertexShaderFile, fragmentShaderFile);
+    initializeTextures(shader);
 
     // NOTE: render/game loop
     while (glfwWindowShouldClose(window) == GL_FALSE) {
@@ -197,17 +178,23 @@ void renderLoop(GLFWwindow *window) {
                         GL_UNSIGNED_INT, // type of the indices
                         0); // offset in the EBO
         glBindVertexArray(0);
-        //glDrawArrays(GL_TRIANGLES, // drawing mode: type of primitive to render
-        //    0, // starting index in the enabled arrays
-        //    3); // number of vertices to render
 
         glfwSwapBuffers(window); // swaps double buffers (call after all render commands are completed)
         glfwPollEvents(); // checks for events (ex: keyboard/mouse input)
     }
+}
 
-    glDeleteVertexArrays(1, &VAO);
-    glDeleteBuffers(1, &VBO);
-    glDeleteBuffers(1, &EBO);
+void initializeTextures(Shader &shader) {
+    // set texture options
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, /*GL_CLAMP_TO_EDGE*/ GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, /*GL_CLAMP_TO_EDGE*/ GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    shader.use(); // must activate/use the shader before setting the uniforms!
+    loadTexture(textureImgLoc1, 0);
+    shader.setInt("aTexture", 0);
+    loadTexture(textureImgLoc2, 1);
+    shader.setInt("bTexture", 1);
 }
 
 void loadTexture(const char* imgLocation, unsigned int textureOffset) {
