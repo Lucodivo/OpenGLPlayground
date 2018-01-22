@@ -2,15 +2,20 @@
 #include <GLFW/glfw3.h>
 #include <iostream>
 
-#include "FileHelper.h"
 #include "Shader.h"
+#include "stb_image.h"
 #include "main.h"
 
 #define VIEWPORT_WIDTH 800
 #define VIEWPORT_HEIGHT 600
 
+// shader information
 const char *vertexShaderFile = "VertexShader.glsl";
 const char *fragmentShaderFile = "FragmentShader.glsl";
+
+// texture 
+const char *textureImgLoc1 = "Data/kanye_triangle.jpg";
+const char *textureImgLoc2 = "Data/kanye_triangle2.jpg";
 
 //float vertices[] = {
 //    // First triangle
@@ -22,19 +27,21 @@ const char *fragmentShaderFile = "FragmentShader.glsl";
 //    0.25f, 0.75f, 0.0f, // top right
 //    0.0f, 0.5f, 0.0f   // bottom (same point as top)
 //};
+const unsigned int vertexAttSize = 8;
+const unsigned int numElements = 1;
 float vertices[] = {
     // First triangle
-    // positions            // colors
-    -0.5f, -0.5f, 0.0f,     1.0f, 0.0f, 0.0f, // bottom left
-    0.5f, -0.5f, 0.0f,      0.0f, 0.0f, 1.0f,  // bottom right
-    0.0f, 0.5f, 0.0f,       0.0f, 1.0f, 0.0f,   // top (for first triangle) / bottom (for second triangle)
+    // positions            // colors           // texture coords
+    -0.5f, -0.5f, 0.0f,     1.0f, 0.0f, 0.0f,   0.0f, 0.0f, // bottom left
+    0.5f, -0.5f, 0.0f,      0.0f, 0.0f, 1.0f,   1.0f, 0.0f, // bottom right
+    0.0f, 0.5f, 0.0f,       0.0f, 1.0f, 0.0f,   0.5, 1.0f,  // top (for first triangle) / bottom (for second triangle)
     // Second triangle
-    -0.25f, 0.75f, 0.0f,    0.0f, 0.0f, 1.0f, // top left
-    0.25f, 0.75f, 0.0f,     1.0f, 0.0f, 0.0f // top right
+//    -0.25f, 0.75f, 0.0f,    0.0f, 0.0f, 1.0f,   0.0f, 1.0f, // top left
+//    0.25f, 0.75f, 0.0f,     1.0f, 0.0f, 0.0f,   1.0f, 1.0f  // top right
 };
 unsigned int indices[]{
     0, 1, 2,    // first triangle
-    3, 4, 2     // second triangle
+//    2, 3, 4     // second triangle
 };
 
 
@@ -115,7 +122,7 @@ void renderLoop(GLFWwindow *window) {
         3, // size of vertex attribute (we're using vec3)
         GL_FLOAT, // type of data being passed 
         GL_FALSE, // whether the data needs to be normalized
-        2 * 3 * sizeof(float), // stride: space between consecutive vertex attribute sets
+        vertexAttSize * sizeof(float), // stride: space between consecutive vertex attribute sets
         (void*)(0 * sizeof(float))); // offset of where the data starts in the array
     glEnableVertexAttribArray(0);
     // color attribute
@@ -123,24 +130,44 @@ void renderLoop(GLFWwindow *window) {
         3,
         GL_FLOAT,
         GL_FALSE,
-        2 * 3 * sizeof(float),
+        vertexAttSize * sizeof(float),
         (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
+    // texture coords attribute
+    glVertexAttribPointer(2,
+        2,
+        GL_FLOAT,
+        GL_FALSE,
+        vertexAttSize * sizeof(float),
+        (void*)(6 * sizeof(float)));
+    glEnableVertexAttribArray(2);
 
     unsigned int EBO;
     glGenBuffers(1, &EBO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-    
+
+    Shader shader = Shader(vertexShaderFile, fragmentShaderFile);
+
+    // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Only outlines of objects visible (no fill)
+
+    // Texture
+    // set texture options
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, /*GL_CLAMP_TO_EDGE*/ GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, /*GL_CLAMP_TO_EDGE*/ GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    shader.use(); // must activate/use the shader before setting the uniforms!
+    loadTexture(textureImgLoc1, 0);
+    shader.setInt("aTexture", 0);
+    loadTexture(textureImgLoc2, 1);
+    shader.setInt("bTexture", 1);
+
     // unbind VBO, VAO, & EBO
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
     // Must unbind EBO AFTER unbinding VAO, since VAO stores all glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _) calls
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-    Shader shader = Shader(vertexShaderFile, fragmentShaderFile);
-
-    // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Only outlines of objects visible (no fill)
 
     // NOTE: render/game loop
     while (glfwWindowShouldClose(window) == GL_FALSE) {
@@ -166,7 +193,7 @@ void renderLoop(GLFWwindow *window) {
         shader.use();
         glBindVertexArray(VAO);
         glDrawElements(GL_TRIANGLES, // drawing mode
-                        6, // number of elements to draw (6 vertices)
+                        numElements * 3, // number of elements to draw (6 vertices)
                         GL_UNSIGNED_INT, // type of the indices
                         0); // offset in the EBO
         glBindVertexArray(0);
@@ -177,6 +204,38 @@ void renderLoop(GLFWwindow *window) {
         glfwSwapBuffers(window); // swaps double buffers (call after all render commands are completed)
         glfwPollEvents(); // checks for events (ex: keyboard/mouse input)
     }
+
+    glDeleteVertexArrays(1, &VAO);
+    glDeleteBuffers(1, &VBO);
+    glDeleteBuffers(1, &EBO);
+}
+
+void loadTexture(const char* imgLocation, unsigned int textureOffset) {
+    unsigned int texture; // stores id of generated texture
+    glGenTextures(1, &texture);
+    glActiveTexture(GL_TEXTURE0 + textureOffset); // activate texture unit (by defauly it is bound to GL_TEXTURE0
+    glBindTexture(GL_TEXTURE_2D, texture);
+
+    // load image data
+    int width, height, numChannels;
+    stbi_set_flip_vertically_on_load(true);
+    unsigned char *data = stbi_load(imgLocation, &width, &height, &numChannels, 0);
+    if (data) {
+        glTexImage2D(GL_TEXTURE_2D, // target
+            0, // level of detail (level n is the nth mipmap reduction image)
+            GL_RGB, // kind of format we want to store the texture
+            width, // width of texture
+            height, // height of texture
+            0, // border (legacy stuff, MUST BE 0)
+            GL_RGB, // Specifies format of the pixel data
+            GL_UNSIGNED_BYTE, // specifies data type of pixel data
+            data); // pointer to the image data
+        glGenerateMipmap(GL_TEXTURE_2D);
+    }
+    else {
+        std::cout << "Failed to load texture" << std::endl;
+    }
+    stbi_image_free(data); // free texture image memory
 }
 
 void processInput(GLFWwindow *window) {

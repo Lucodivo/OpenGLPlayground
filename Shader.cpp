@@ -2,7 +2,7 @@
 
 Shader::Shader(const char* vertexPath, const char* fragmentPath)
 {
-    // 1. retrieve the vertex/fragment source code from filePath
+    // retrieve the vertex/fragment source code from filePath
     std::string vertexCode;
     std::string fragmentCode;
     std::ifstream vShaderFile;
@@ -32,11 +32,6 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath)
     }
     const char* vShaderCode = vertexCode.c_str();
     const char* fShaderCode = fragmentCode.c_str();
-
-    // 2. compile shaders
-    unsigned int vertex, fragment;
-    int success;
-    char infoLog[512];
 
     // vertex Shader
     unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
