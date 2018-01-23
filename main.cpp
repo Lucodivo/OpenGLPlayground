@@ -1,9 +1,9 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
+#include <stb/stb_image.h>
 
 #include "Shader.h"
-#include "stb_image.h"
 #include "main.h"
 
 #define VIEWPORT_WIDTH 800
@@ -14,7 +14,7 @@ const char *vertexShaderFile = "VertexShader.glsl";
 const char *fragmentShaderFile = "FragmentShader.glsl";
 
 // texture 
-const char *textureImgLoc1 = "Data/kanye_triangle.jpg";
+const char *textureImgLoc1 = "Data/kanye_triangle1.jpg";
 const char *textureImgLoc2 = "Data/kanye_triangle2.jpg";
 
 const unsigned int vertexAttSize = 8;
