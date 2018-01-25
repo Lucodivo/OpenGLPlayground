@@ -84,14 +84,33 @@ void Shader::use() {
     glUseProgram(this->ID);
 }
 
-void Shader::setBool(const std::string &name, bool value) const {
+void Shader::setUniform(const std::string &name, bool value) const {
     glUniform1i(glGetUniformLocation(ID, name.c_str()), (int)value);
 }
 
-void Shader::setInt(const std::string &name, int value) const {
+void Shader::setUniform(const std::string &name, int value) const {
     glUniform1i(glGetUniformLocation(ID, name.c_str()), value);
 }
 
-void Shader::setFloat(const std::string &name, float value) const {
+void Shader::setUniform(const std::string &name, float value) const {
     glUniform1f(glGetUniformLocation(ID, name.c_str()), value);
+}
+
+void Shader::setUniform(const std::string &name, float value1, float value2) const {
+    glUniform2f(glGetUniformLocation(ID, name.c_str()), value1, value2);
+}
+
+void Shader::setUniform(const std::string &name, float value1, float value2, float value3) const {
+    glUniform3f(glGetUniformLocation(ID, name.c_str()), value1, value2, value3);
+}
+
+void Shader::setUniform(const std::string &name, float value1, float value2, float value3, float value4) const {
+    glUniform4f(glGetUniformLocation(ID, name.c_str()), value1, value2, value3, value4);
+}
+
+void Shader::setUniform(const std::string &name, const glm::mat4 &trans) const {
+    glUniformMatrix4fv(glGetUniformLocation(ID, name.c_str()), 
+                       1, // count 
+                       GL_FALSE, // transpose: swap columns and rows (true or false)
+                       glm::value_ptr(trans)); // pointer to float values
 }

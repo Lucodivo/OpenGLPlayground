@@ -2,6 +2,8 @@
 #define SHADER_H
 
 #include <glad/glad.h> // include glad to get all the required OpenGL headers
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 #include <string>
 #include <fstream>
@@ -20,9 +22,15 @@ public:
     // use/activate the shader
     void use();
     // utility uniform functions
-    void setBool(const std::string &name, bool value) const;
-    void setInt(const std::string &name, int value) const;
-    void setFloat(const std::string &name, float value) const;
+    void setUniform(const std::string &name, bool value) const;
+    
+    void setUniform(const std::string &name, int value) const;
+    
+    void setUniform(const std::string &name, float value) const;
+    void setUniform(const std::string &name, float value1, float value2) const;
+    void setUniform(const std::string &name, float value1, float value2, float value3) const;
+    void setUniform(const std::string &name, float value1, float value2, float value3, float value4) const;
+    void setUniform(const std::string &name, const glm::mat4 &trans) const;
 };
 
 #endif

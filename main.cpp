@@ -3,6 +3,9 @@
 #include <iostream>
 #include <stb/stb_image.h>
 
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+
 #include "Shader.h"
 #include "main.h"
 
@@ -150,6 +153,8 @@ void renderLoop(GLFWwindow *window, unsigned int &VAO) {
     Shader shader = Shader(vertexShaderFile, fragmentShaderFile);
     initializeTextures(shader);
 
+    float runningRad = 0.0f;
+
     // NOTE: render/game loop
     while (glfwWindowShouldClose(window) == GL_FALSE) {
         // check for input
@@ -166,9 +171,16 @@ void renderLoop(GLFWwindow *window, unsigned int &VAO) {
         float sineVal3 = (sin(t/3) / 2.0f) + 0.5f;
         float alpha = 1.0f;
 
-        shader.setFloat("sineVal1", sineVal1);
-        shader.setFloat("sineVal2", sineVal2);
-        shader.setFloat("sineVal3", sineVal3);
+        glm::mat4 trans;
+        trans = glm::translate(trans, glm::vec3(sineVal1 - 0.5f, sineVal2 - 0.5f, 0.0f));
+        trans = glm::rotate(trans, glm::radians(runningRad), glm::vec3(0.0f, 0.0, 1.0));
+        trans = glm::rotate(trans, glm::radians(runningRad/2.0f), glm::vec3(0.0f, 1.0, 0.0));
+        trans = glm::rotate(trans, glm::radians(runningRad/4.0f), glm::vec3(1.0f, 0.0, 0.0));
+        trans = glm::scale(trans, glm::vec3(sineVal3 + 0.5, sineVal3 + 0.5, sineVal3 + 0.5));
+        shader.setUniform("rot90MinimizeMat", trans);
+        runningRad += 1.0f;
+
+        shader.setUniform("sineVal", sineVal3);
 
         // User fragment shaders to draw a triangle
         shader.use();
@@ -192,9 +204,9 @@ void initializeTextures(Shader &shader) {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     shader.use(); // must activate/use the shader before setting the uniforms!
     loadTexture(textureImgLoc1, 0);
-    shader.setInt("aTexture", 0);
+    shader.setUniform("aTexture", 0);
     loadTexture(textureImgLoc2, 1);
-    shader.setInt("bTexture", 1);
+    shader.setUniform("bTexture", 1);
 }
 
 void loadTexture(const char* imgLocation, unsigned int textureOffset) {
