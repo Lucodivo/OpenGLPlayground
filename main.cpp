@@ -20,24 +20,6 @@ const char *fragmentShaderFile = "FragmentShader.glsl";
 const char *textureImgLoc1 = "Data/kanye_triangle1.jpg";
 const char *textureImgLoc2 = "Data/kanye_triangle2.jpg";
 
-const unsigned int vertexAttSize = 8;
-const unsigned int numElements = 2;
-float vertices[] = {
-    // First triangle
-    // positions            // colors           // texture coords
-    -0.5f, -0.5f, 0.0f,     1.0f, 0.0f, 0.0f,   0.0f, 0.0f, // bottom left
-    0.5f, -0.5f, 0.0f,      0.0f, 0.0f, 1.0f,   1.0f, 0.0f, // bottom right
-    0.0f, 0.5f, 0.0f,       0.0f, 1.0f, 0.0f,   0.5, 1.0f,  // top (for first triangle) / bottom (for second triangle)
-    // Second triangle
-    -0.25f, 0.75f, 0.0f,    0.0f, 0.0f, 1.0f,   0.0f, 0.0f, // top left
-    0.25f, 0.75f, 0.0f,     1.0f, 0.0f, 0.0f,   1.0f, 0.0f  // top right
-};
-unsigned int indices[]{
-    0, 1, 2,    // first triangle
-    2, 3, 4     // second triangle
-};
-
-
 int main() {
     loadGLFW();
     GLFWwindow* window = createWindow();
@@ -109,51 +91,65 @@ void initializeBuffers(unsigned int &VAO, unsigned int &VBO, unsigned int &EBO) 
         &VBO);  // Out parameters to store IDs of gen objects
     glBindBuffer(GL_ARRAY_BUFFER, VBO); // bind object to array buffer
     glBufferData(GL_ARRAY_BUFFER, // which buffer data is being entered in
-        sizeof(vertices), // size of data being placed in array buffer
-        vertices,        // data to store in array buffer       
+        sizeof(cubeVertices), // size of data being placed in array buffer
+        cubeVertices,        // data to store in array buffer       
         GL_STATIC_DRAW); // GL_STATIC_DRAW (most likely not change), GL_DYNAMIC_DRAW (likely to change), GL_STREAM_DRAW (changes every time drawn)
 
-                         // position attribute
+    // position attribute
     glVertexAttribPointer(0, // position vertex attribute (used for location = 0 of Vertex Shader false) 
         3, // size of vertex attribute (we're using vec3)
         GL_FLOAT, // type of data being passed 
         GL_FALSE, // whether the data needs to be normalized
-        vertexAttSize * sizeof(float), // stride: space between consecutive vertex attribute sets
+        cubeVertexAttSize * sizeof(float), // stride: space between consecutive vertex attribute sets
         (void*)(0 * sizeof(float))); // offset of where the data starts in the array
     glEnableVertexAttribArray(0);
     // color attribute
-    glVertexAttribPointer(1,
+    /*glVertexAttribPointer(1,
         3,
         GL_FLOAT,
         GL_FALSE,
         vertexAttSize * sizeof(float),
         (void*)(3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
+    glEnableVertexAttribArray(1);*/
     // texture coords attribute
     glVertexAttribPointer(2,
         2,
         GL_FLOAT,
         GL_FALSE,
-        vertexAttSize * sizeof(float),
-        (void*)(6 * sizeof(float)));
+        cubeVertexAttSize * sizeof(float),
+        (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(2);
 
-    glGenBuffers(1, &EBO);
+    /*glGenBuffers(1, &EBO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);*/
 
     // unbind VBO, VAO, & EBO
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
     // Must unbind EBO AFTER unbinding VAO, since VAO stores all glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _) calls
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
 void renderLoop(GLFWwindow *window, unsigned int &VAO) {
     Shader shader = Shader(vertexShaderFile, fragmentShaderFile);
     initializeTextures(shader);
 
-    float runningRad = 0.0f;
+    glEnable(GL_DEPTH_TEST);
+
+    // model matrix
+    //glm::mat4 model;
+    //model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+    // view matrix
+    glm::mat4 view;
+    view = glm::translate(view, glm::vec3(0.0f, 0.0f, -2.0f));
+    // projection matrix
+    glm::mat4 projection;
+    projection = glm::perspective(glm::radians(45.0f), (float)VIEWPORT_WIDTH / (float)VIEWPORT_HEIGHT, 0.1f, 100.0f);
+
+    //shader.setUniform("model", model);
+    shader.setUniform("view", view);
+    shader.setUniform("projection", projection);
 
     // NOTE: render/game loop
     while (glfwWindowShouldClose(window) == GL_FALSE) {
@@ -163,32 +159,26 @@ void renderLoop(GLFWwindow *window, unsigned int &VAO) {
         // == RENDERING COMMANDS ==
         // clear the background
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);   // OpenGL state-setting function
-        glClear(GL_COLOR_BUFFER_BIT);           // OpenGL state-using function
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);           // OpenGL state-using function
 
         float t = static_cast<float>(glfwGetTime());
-        float sineVal1 = (sin(t) / 2.0f) + 0.5f;
-        float sineVal2 = (sin(t/2) / 2.0f) + 0.5f;
+        /*float sineVal1 = (sin(t) / 2.0f) + 0.5f;
+        float sineVal2 = (sin(t/2) / 2.0f) + 0.5f;*/
         float sineVal3 = (sin(t/3) / 2.0f) + 0.5f;
-        float alpha = 1.0f;
-
-        glm::mat4 trans;
-        trans = glm::translate(trans, glm::vec3(sineVal1 - 0.5f, sineVal2 - 0.5f, 0.0f));
-        trans = glm::rotate(trans, glm::radians(runningRad), glm::vec3(0.0f, 0.0, 1.0));
-        trans = glm::rotate(trans, glm::radians(runningRad/2.0f), glm::vec3(0.0f, 1.0, 0.0));
-        trans = glm::rotate(trans, glm::radians(runningRad/4.0f), glm::vec3(1.0f, 0.0, 0.0));
-        trans = glm::scale(trans, glm::vec3(sineVal3 + 0.5, sineVal3 + 0.5, sineVal3 + 0.5));
-        shader.setUniform("rot90MinimizeMat", trans);
-        runningRad += 1.0f;
-
         shader.setUniform("sineVal", sineVal3);
+
+        glm::mat4 model;
+        model = glm::rotate(model, t * glm::radians(-50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
+        shader.setUniform("model", model);
 
         // User fragment shaders to draw a triangle
         shader.use();
         glBindVertexArray(VAO);
-        glDrawElements(GL_TRIANGLES, // drawing mode
-                        numElements * 3, // number of elements to draw (6 vertices)
-                        GL_UNSIGNED_INT, // type of the indices
-                        0); // offset in the EBO
+        //glDrawElements(GL_TRIANGLES, // drawing mode
+        //                triangleNumElements * 3, // number of elements to draw (6 vertices)
+        //                GL_UNSIGNED_INT, // type of the indices
+        //                0); // offset in the EBO
+        glDrawArrays(GL_TRIANGLES, 0, cubeNumElements * 3);
         glBindVertexArray(0);
 
         glfwSwapBuffers(window); // swaps double buffers (call after all render commands are completed)

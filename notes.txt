@@ -114,3 +114,49 @@ Rotaion matrix aruound the Z-axis
 |sinA  cosA  0 0| |Y| = |XsinA+YcosA|
 |0     0     0 0| |Z| = |Z          | 
 |0     0     0 1| |1| = |1          |
+
+++ Cordinate Systems ++
+There are 5 coordinate systems important to us:
+- Local Space (Object Space)
+    - Coordinate system that is local to the object
+- World Space
+    - Coordinates of all the vertices relative to the game world
+- View Space (Camera Space or Eye Space)
+    - Coordinates of all vertices relative to the user's view
+- Clip Space
+    - OpenGL expects the coordinates to be within a specific range and any coordinate that falls outside of this range is clipped
+- Screen Space
+
+Transformation Matrices for transforming coordinates between spaces:
+- Model Matrix
+    - Local Space => World Space
+    - A transformation matrix that translates, scales, and/or rotates objects to place it in the world at a location/orientation it belongs to
+- View Matrix
+    - World Space => View Space
+- Projection Matrix
+    - View Space => Clip Space
+    - Transforms coordinates within a specified range (e.g. -1000 to 1000 in each dimension) to device coordinates, (-1.0, 1.0).
+        - All coordinates outside of this rantge will not be mapped between (-1.0, 1.0) and therefore be clipped.
+        - If only a part of a primitieve is outside the clipping volume, OpenGL will reconstruct the triangle as one or more trinagels to fit inside clipping range
+
+Vertex coordinates first start in local space as local coordinates then are further processed to world coordinates, view coordinates, clip coordinates and eventually end up as screen coordinates.
+LOCAL SPACE ===MODEL MATRIX===> WORLD SPACE ===VIEW MATRIX===> VIEW SPACE ===PROJECTION MATRIX===> CLIP SPACE ===VIEWPORT TRANSFORMATION===> SCReEN SPACE
+    - A nice illustration can be found here (https://learnopengl.com/Getting-started/Coordinate-Systems)
+- When modifying your object, it makes most sense to do this in local space
+- When calculating certain operations on the object with respect to the position of other objects, it makes most sense in world coordinates
+
+Frustum: Viewing box that a projection matrix creates
+    - Each coordinate that ends up inside the frustrum will end up on the user's screen
+Projection: Process of converting coordinates within a specified range to NDC (Normal Device Coordinates) that can easily be mapped to 2D view-space coordinates
+    - "projects" 3D coordinates to the easy-to-map-to-2D NDCs
+Perspective Division: Dividing the x, y, and z components of the position vectors by the vector's homogeneous w component
+    - transforms the 4D clip space coordinates to 3D normalized device coordinates
+Orthographic projection matrix defines a cube-like frustrum
+    - defines the visible coordinates and is specified by a width, a height, and a near and far plane
+    - produces unrealistic results since the projection doesn't take perspective into account
+Perspective projection matrix maps a given frustum range to clip space
+    - Manipulates the w value of each vertex coordinate in wuch a way that the further away a vertex coordinate is from the viewer, the higher this w component become
+V(clip) = M(projection) * M(view) * M(model) * V(local)
+    - Note that the order of matrix multiplication is reversed (we need to read matrix multiplication from right to left)
+
+LEFT OFF AT Going 3D @ https://learnopengl.com/Getting-started/Coordinate-Systems
