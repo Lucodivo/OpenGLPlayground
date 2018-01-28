@@ -20,6 +20,11 @@ const char *fragmentShaderFile = "FragmentShader.glsl";
 const char *textureImgLoc1 = "Data/kanye_triangle1.jpg";
 const char *textureImgLoc2 = "Data/kanye_triangle2.jpg";
 
+// camera positions
+float cameraZValue = 3.0f;
+float cameraXValue = 0.0f;
+float cameraYValue = 0.0f;
+
 int main() {
     loadGLFW();
     GLFWwindow* window = createWindow();
@@ -141,14 +146,14 @@ void renderLoop(GLFWwindow *window, unsigned int &VAO) {
     //glm::mat4 model;
     //model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
     // view matrix
-    glm::mat4 view;
-    view = glm::translate(view, glm::vec3(0.0f, 0.0f, -2.0f));
+    //glm::mat4 view;
+    //view = glm::translate(view, glm::vec3(0.0f, 0.0f, cameraZValue));
     // projection matrix
     glm::mat4 projection;
     projection = glm::perspective(glm::radians(45.0f), (float)VIEWPORT_WIDTH / (float)VIEWPORT_HEIGHT, 0.1f, 100.0f);
 
     //shader.setUniform("model", model);
-    shader.setUniform("view", view);
+    //shader.setUniform("view", view);
     shader.setUniform("projection", projection);
 
     // NOTE: render/game loop
@@ -167,18 +172,26 @@ void renderLoop(GLFWwindow *window, unsigned int &VAO) {
         float sineVal3 = (sin(t/3) / 2.0f) + 0.5f;
         shader.setUniform("sineVal", sineVal3);
 
-        glm::mat4 model;
-        model = glm::rotate(model, t * glm::radians(-50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
-        shader.setUniform("model", model);
-
         // User fragment shaders to draw a triangle
         shader.use();
+
+        glm::mat4 view;
+        view = glm::translate(view, glm::vec3(-cameraXValue, -cameraYValue, -cameraZValue));
+        shader.setUniform("view", view);
+
         glBindVertexArray(VAO);
-        //glDrawElements(GL_TRIANGLES, // drawing mode
-        //                triangleNumElements * 3, // number of elements to draw (6 vertices)
-        //                GL_UNSIGNED_INT, // type of the indices
-        //                0); // offset in the EBO
-        glDrawArrays(GL_TRIANGLES, 0, cubeNumElements * 3);
+        for (unsigned int i = 0; i < 10; i++) {
+            glm::mat4 model;
+            model = glm::translate(model, cubePositions[i]);
+            float angle = 7.3f * (i + 1);
+            model = glm::rotate(model, t * glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+            shader.setUniform("model", model);
+            //glDrawElements(GL_TRIANGLES, // drawing mode
+            //                triangleNumElements * 3, // number of elements to draw (6 vertices)
+            //                GL_UNSIGNED_INT, // type of the indices
+            //                0); // offset in the EBO
+            glDrawArrays(GL_TRIANGLES, 0, cubeNumElements * 3);
+        }
         glBindVertexArray(0);
 
         glfwSwapBuffers(window); // swaps double buffers (call after all render commands are completed)
@@ -230,6 +243,26 @@ void loadTexture(const char* imgLocation, unsigned int textureOffset) {
 void processInput(GLFWwindow *window) {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
         glfwSetWindowShouldClose(window, GL_TRUE);
+    }
+    float speedMult = (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) ? 3.0f : 1.0f;
+    float movSpeed = speedMult * 0.07f;
+    if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
+        cameraZValue -= movSpeed;
+    }
+    if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
+        cameraZValue += movSpeed;
+    }
+    if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
+        cameraXValue -= movSpeed;
+    }
+    if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
+        cameraXValue += movSpeed;
+    }
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+        cameraYValue += movSpeed;
+    }
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+        cameraYValue -= movSpeed;
     }
 }
 
