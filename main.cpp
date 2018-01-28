@@ -21,9 +21,11 @@ const char *textureImgLoc1 = "Data/kanye_triangle1.jpg";
 const char *textureImgLoc2 = "Data/kanye_triangle2.jpg";
 
 // camera positions
-float cameraZValue = 3.0f;
-float cameraXValue = 0.0f;
-float cameraYValue = 0.0f;
+float cameraZPos = 3.0f;
+float cameraXPos = 0.0f;
+float cameraYPos = 0.0f; 
+float cameraXRot = 0.0f;
+float cameraYRot = 0.0f;
 
 int main() {
     loadGLFW();
@@ -125,15 +127,15 @@ void initializeBuffers(unsigned int &VAO, unsigned int &VBO, unsigned int &EBO) 
         (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(2);
 
-    /*glGenBuffers(1, &EBO);
+    glGenBuffers(1, &EBO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);*/
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(cubeIndices), cubeIndices, GL_STATIC_DRAW);
 
     // unbind VBO, VAO, & EBO
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
     // Must unbind EBO AFTER unbinding VAO, since VAO stores all glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _) calls
-    //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
 void renderLoop(GLFWwindow *window, unsigned int &VAO) {
@@ -176,21 +178,27 @@ void renderLoop(GLFWwindow *window, unsigned int &VAO) {
         shader.use();
 
         glm::mat4 view;
-        view = glm::translate(view, glm::vec3(-cameraXValue, -cameraYValue, -cameraZValue));
+        // translate based on "camera" position
+        view = glm::translate(view, glm::vec3(-cameraXPos, -cameraYPos, -cameraZPos));
         shader.setUniform("view", view);
 
         glBindVertexArray(VAO);
         for (unsigned int i = 0; i < 10; i++) {
             glm::mat4 model;
+            // rotate using based on camera position
+            model = glm::rotate(model, glm::radians(cameraXRot), glm::vec3(1.0f, 0.0f, 0.0f));
+            model = glm::rotate(model, glm::radians(cameraYRot), glm::vec3(0.0f, 1.0f, 0.0f));
+            // translate to position in world
             model = glm::translate(model, cubePositions[i]);
+            // rotate with time
             float angle = 7.3f * (i + 1);
             model = glm::rotate(model, t * glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
             shader.setUniform("model", model);
-            //glDrawElements(GL_TRIANGLES, // drawing mode
-            //                triangleNumElements * 3, // number of elements to draw (6 vertices)
-            //                GL_UNSIGNED_INT, // type of the indices
-            //                0); // offset in the EBO
-            glDrawArrays(GL_TRIANGLES, 0, cubeNumElements * 3);
+            glDrawElements(GL_TRIANGLES, // drawing mode
+                cubeNumElements * 3, // number of elements to draw (6 vertices)
+                GL_UNSIGNED_INT, // type of the indices
+                0); // offset in the EBO
+            //glDrawArrays(GL_TRIANGLES, 0, cubeNumElements * 3);
         }
         glBindVertexArray(0);
 
@@ -246,23 +254,36 @@ void processInput(GLFWwindow *window) {
     }
     float speedMult = (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) ? 3.0f : 1.0f;
     float movSpeed = speedMult * 0.07f;
+    float rotSpeed = speedMult * 0.4f;
     if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
-        cameraZValue -= movSpeed;
+        cameraYPos += movSpeed;
     }
     if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
-        cameraZValue += movSpeed;
+        cameraYPos -= movSpeed;
     }
     if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
-        cameraXValue -= movSpeed;
+        cameraXPos -= movSpeed;
     }
     if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
-        cameraXValue += movSpeed;
+        cameraXPos += movSpeed;
     }
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-        cameraYValue += movSpeed;
+        cameraXRot -= rotSpeed;
     }
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-        cameraYValue -= movSpeed;
+        cameraXRot += rotSpeed;
+    }
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
+        cameraYRot -= rotSpeed;
+    }
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+        cameraYRot += rotSpeed;
+    }
+    if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) {
+        cameraZPos -= movSpeed;
+    }
+    if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) {
+        cameraZPos += movSpeed;
     }
 }
 
