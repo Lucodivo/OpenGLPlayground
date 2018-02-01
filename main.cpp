@@ -7,6 +7,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "Shader.h"
+#include "Camera.h"
 #include "main.h"
 
 #define VIEWPORT_WIDTH 800
@@ -23,16 +24,10 @@ const char *textureImgLoc2 = "Data/kanye_triangle2.jpg";
 // frame rate
 float deltaTime = 0.0f;	// Time between current frame and last frame
 float lastFrame = 0.0f; // Time of last frame
-
-// camera
-glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
-glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
-glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 float lastX = VIEWPORT_WIDTH / 2;
 float lastY = VIEWPORT_HEIGHT / 2;
-float pitch = 0.0f;
-float yaw = -90.0f;
-float fov = 45.0f;
+
+Camera camera = Camera();
 
 int main() {
     loadGLFW();
@@ -157,7 +152,6 @@ void renderLoop(GLFWwindow *window, unsigned int &VAO) {
     glm::mat4 projection;
     glm::mat4 view;
 
-
     // NOTE: render/game loop
     while (glfwWindowShouldClose(window) == GL_FALSE) {
         // check for input
@@ -178,10 +172,8 @@ void renderLoop(GLFWwindow *window, unsigned int &VAO) {
         // User fragment shaders to draw a triangle
         shader.use();
 
-        projection = glm::perspective(glm::radians(fov), (float)VIEWPORT_WIDTH / (float)VIEWPORT_HEIGHT, 0.1f, 100.0f);
-        view = glm::lookAt(cameraPos, // camera position
-                           cameraPos + cameraFront, // target position
-                           cameraUp); // up vector
+        projection = glm::perspective(glm::radians(camera.Zoom), (float)VIEWPORT_WIDTH / (float)VIEWPORT_HEIGHT, 0.1f, 100.0f);
+        view = camera.GetViewMatrix();
 
         shader.setUniform("projection", projection);
         shader.setUniform("view", view);
@@ -253,40 +245,17 @@ void processInput(GLFWwindow *window) {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
         glfwSetWindowShouldClose(window, GL_TRUE);
     }
-    float speedMult = (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) ? 90.0f : 30.0f;
-    speedMult *= deltaTime;
-    float movSpeed = speedMult * 0.07f;
-    float rotSpeed = speedMult * 1.5f;
-    if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
-        // TODO: implement
-    }
-    if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
-        // TODO: implement
-    }
-    if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
-        // TODO: implement
-    }
-    if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
-        // TODO: implement
-    }
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-        cameraPos += movSpeed * cameraFront;
-    }
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-        cameraPos -= movSpeed * cameraFront;
-    }
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-        cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * movSpeed;
-    }
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-        cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * movSpeed;
-    }
-    if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) {
-        // TODO: implement
-    }
-    if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) {
-        // TODO: implement
-    }
+
+    camera.MovementSpeed = (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) ? SPEED * 2 : SPEED;
+
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+        camera.ProcessKeyboard(FORWARD, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+        camera.ProcessKeyboard(BACKWARD, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+        camera.ProcessKeyboard(LEFT, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+        camera.ProcessKeyboard(RIGHT, deltaTime);
 
     static bool windowMode = true;
     static double windowModeSwitchTimer = glfwGetTime();
@@ -306,47 +275,34 @@ void processInput(GLFWwindow *window) {
     }
 }
 
-void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
+// Callback function for when user resizes our window
+void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
+    glViewport(0, 0, width, height);
+}
+
+
+// Callback function for when user moves mouse
+void mouse_callback(GLFWwindow* window, double xpos, double ypos)
+{
     static bool firstMouse = true;
     if (firstMouse)
     {
         lastX = xpos;
         lastY = ypos;
         firstMouse = false;
-        return;
     }
 
     float xoffset = xpos - lastX;
-    float yoffset = lastY - ypos; // reversed since y-coordinates range from bottom to top
+    float yoffset = lastY - ypos; // reversed since y-coordinates go from bottom to top
+
     lastX = xpos;
     lastY = ypos;
 
-    float sensitivity = 0.05f;
-    xoffset *= sensitivity;
-    yoffset *= sensitivity;
-    yaw += xoffset;
-    pitch += yoffset;
-    if (pitch > 89.0f) pitch = 89.0f;
-    if (pitch < -89.0f) pitch = -89.0f;
-
-    glm::vec3 front;
-    front.x = cos(glm::radians(pitch)) * cos(glm::radians(yaw));
-    front.y = sin(glm::radians(pitch));
-    front.z = cos(glm::radians(pitch)) * sin(glm::radians(yaw));
-    cameraFront = glm::normalize(front);
+    camera.ProcessMouseMovement(xoffset, yoffset);
 }
 
+// Callback function for when user scrolls with mouse wheel
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
-    if (fov >= 1.0f && fov <= 45.0f)
-        fov -= yoffset;
-    if (fov <= 1.0f)
-        fov = 1.0f;
-    if (fov >= 45.0f)
-        fov = 45.0f;
-}
-
-// Callback function for when user resizes our window
-void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
-    glViewport(0, 0, width, height);
+    camera.ProcessMouseScroll(yoffset);
 }
