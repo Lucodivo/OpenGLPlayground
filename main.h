@@ -8,6 +8,8 @@ void renderLoop(GLFWwindow * window, unsigned int &VAO);
 void initializeTextures(Shader & shader);
 void loadTexture(const char * imgLocation, unsigned int textureOffset);
 void processInput(GLFWwindow * window);
+void mouse_callback(GLFWwindow * window, double xpos, double ypos);
+void scroll_callback(GLFWwindow * window, double xoffset, double yoffset);
 void framebuffer_size_callback(GLFWwindow * window, int width, int height);
 
 

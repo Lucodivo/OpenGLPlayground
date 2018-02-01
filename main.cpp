@@ -20,12 +20,19 @@ const char *fragmentShaderFile = "FragmentShader.glsl";
 const char *textureImgLoc1 = "Data/kanye_triangle1.jpg";
 const char *textureImgLoc2 = "Data/kanye_triangle2.jpg";
 
-// camera positions
-float cameraZPos = 3.0f;
-float cameraXPos = 0.0f;
-float cameraYPos = 0.0f; 
-float cameraXRot = 0.0f;
-float cameraYRot = 0.0f;
+// frame rate
+float deltaTime = 0.0f;	// Time between current frame and last frame
+float lastFrame = 0.0f; // Time of last frame
+
+// camera
+glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
+glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
+glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+float lastX = VIEWPORT_WIDTH / 2;
+float lastY = VIEWPORT_HEIGHT / 2;
+float pitch = 0.0f;
+float yaw = -90.0f;
+float fov = 45.0f;
 
 int main() {
     loadGLFW();
@@ -40,6 +47,9 @@ int main() {
                VIEWPORT_HEIGHT); // int height
 
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwSetCursorPosCallback(window, mouse_callback);
+    glfwSetScrollCallback(window, scroll_callback);
 
     unsigned int VAO, VBO, EBO;
     initializeBuffers(VAO, VBO, EBO);
@@ -144,19 +154,9 @@ void renderLoop(GLFWwindow *window, unsigned int &VAO) {
 
     glEnable(GL_DEPTH_TEST);
 
-    // model matrix
-    //glm::mat4 model;
-    //model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-    // view matrix
-    //glm::mat4 view;
-    //view = glm::translate(view, glm::vec3(0.0f, 0.0f, cameraZValue));
-    // projection matrix
     glm::mat4 projection;
-    projection = glm::perspective(glm::radians(45.0f), (float)VIEWPORT_WIDTH / (float)VIEWPORT_HEIGHT, 0.1f, 100.0f);
+    glm::mat4 view;
 
-    //shader.setUniform("model", model);
-    //shader.setUniform("view", view);
-    shader.setUniform("projection", projection);
 
     // NOTE: render/game loop
     while (glfwWindowShouldClose(window) == GL_FALSE) {
@@ -169,25 +169,26 @@ void renderLoop(GLFWwindow *window, unsigned int &VAO) {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);           // OpenGL state-using function
 
         float t = static_cast<float>(glfwGetTime());
-        /*float sineVal1 = (sin(t) / 2.0f) + 0.5f;
-        float sineVal2 = (sin(t/2) / 2.0f) + 0.5f;*/
         float sineVal3 = (sin(t/3) / 2.0f) + 0.5f;
         shader.setUniform("sineVal", sineVal3);
+
+        deltaTime = t - lastFrame;
+        lastFrame = t;
 
         // User fragment shaders to draw a triangle
         shader.use();
 
-        glm::mat4 view;
-        // translate based on "camera" position
-        view = glm::translate(view, glm::vec3(-cameraXPos, -cameraYPos, -cameraZPos));
+        projection = glm::perspective(glm::radians(fov), (float)VIEWPORT_WIDTH / (float)VIEWPORT_HEIGHT, 0.1f, 100.0f);
+        view = glm::lookAt(cameraPos, // camera position
+                           cameraPos + cameraFront, // target position
+                           cameraUp); // up vector
+
+        shader.setUniform("projection", projection);
         shader.setUniform("view", view);
 
         glBindVertexArray(VAO);
         for (unsigned int i = 0; i < 10; i++) {
             glm::mat4 model;
-            // rotate using based on camera position
-            model = glm::rotate(model, glm::radians(cameraXRot), glm::vec3(1.0f, 0.0f, 0.0f));
-            model = glm::rotate(model, glm::radians(cameraYRot), glm::vec3(0.0f, 1.0f, 0.0f));
             // translate to position in world
             model = glm::translate(model, cubePositions[i]);
             // rotate with time
@@ -252,39 +253,97 @@ void processInput(GLFWwindow *window) {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
         glfwSetWindowShouldClose(window, GL_TRUE);
     }
-    float speedMult = (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) ? 3.0f : 1.0f;
+    float speedMult = (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) ? 90.0f : 30.0f;
+    speedMult *= deltaTime;
     float movSpeed = speedMult * 0.07f;
-    float rotSpeed = speedMult * 0.4f;
+    float rotSpeed = speedMult * 1.5f;
     if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
-        cameraYPos += movSpeed;
+        // TODO: implement
     }
     if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
-        cameraYPos -= movSpeed;
+        // TODO: implement
     }
     if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
-        cameraXPos -= movSpeed;
+        // TODO: implement
     }
     if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
-        cameraXPos += movSpeed;
+        // TODO: implement
     }
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-        cameraXRot -= rotSpeed;
+        cameraPos += movSpeed * cameraFront;
     }
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-        cameraXRot += rotSpeed;
+        cameraPos -= movSpeed * cameraFront;
     }
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-        cameraYRot -= rotSpeed;
+        cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * movSpeed;
     }
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-        cameraYRot += rotSpeed;
+        cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * movSpeed;
     }
     if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) {
-        cameraZPos -= movSpeed;
+        // TODO: implement
     }
     if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) {
-        cameraZPos += movSpeed;
+        // TODO: implement
     }
+
+    static bool windowMode = true;
+    static double windowModeSwitchTimer = glfwGetTime();
+    if (glfwGetKey(window, GLFW_KEY_RIGHT_ALT) == GLFW_PRESS &&
+        glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS &&
+        glfwGetTime() - windowModeSwitchTimer > 1.5f) {
+        GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+        const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+        if (windowMode) {
+            glfwSetWindowMonitor(window, monitor, 0, 0, mode->width, mode->height, GLFW_DONT_CARE);
+        }
+        else {
+            glfwSetWindowMonitor(window, NULL, (mode->width/4), (mode->height/4), VIEWPORT_WIDTH, VIEWPORT_HEIGHT, GLFW_DONT_CARE);
+        }
+        windowMode = !windowMode;
+        windowModeSwitchTimer = glfwGetTime();
+    }
+}
+
+void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
+    static bool firstMouse = true;
+    if (firstMouse)
+    {
+        lastX = xpos;
+        lastY = ypos;
+        firstMouse = false;
+        return;
+    }
+
+    float xoffset = xpos - lastX;
+    float yoffset = lastY - ypos; // reversed since y-coordinates range from bottom to top
+    lastX = xpos;
+    lastY = ypos;
+
+    float sensitivity = 0.05f;
+    xoffset *= sensitivity;
+    yoffset *= sensitivity;
+    yaw += xoffset;
+    pitch += yoffset;
+    if (pitch > 89.0f) pitch = 89.0f;
+    if (pitch < -89.0f) pitch = -89.0f;
+
+    glm::vec3 front;
+    front.x = cos(glm::radians(pitch)) * cos(glm::radians(yaw));
+    front.y = sin(glm::radians(pitch));
+    front.z = cos(glm::radians(pitch)) * sin(glm::radians(yaw));
+    cameraFront = glm::normalize(front);
+}
+
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+{
+    if (fov >= 1.0f && fov <= 45.0f)
+        fov -= yoffset;
+    if (fov <= 1.0f)
+        fov = 1.0f;
+    if (fov >= 45.0f)
+        fov = 45.0f;
 }
 
 // Callback function for when user resizes our window

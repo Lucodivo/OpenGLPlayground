@@ -159,4 +159,20 @@ Perspective projection matrix maps a given frustum range to clip space
 V(clip) = M(projection) * M(view) * M(model) * V(local)
     - Note that the order of matrix multiplication is reversed (we need to read matrix multiplication from right to left)
 
-LEFT OFF AT Going 3D @ https://learnopengl.com/Getting-started/Coordinate-Systems
+== Camera ==
+1. Camera position: Vector in world space that points to the camera's position
+2. Camera direction: Normalized vector in that points in the directrion from the camera's position to the camera's target  (in practice, points in opposite direction)
+    * normalize((Camera Position Vector) - (Camera Target Vector))
+3. Right axis: A right vector that represents the positive x-axis of the camera space
+    * normalize(cross(vec3(0,0,1), cameraDirection))
+4. Up Axis: a vector that points in the camera's positive y-axis
+    * cross(cameraDirection, cameraRight)
+
+Three Euler angles:
+* Imagine a plane sitting on the origin with it's head and tail pointing towards +Z/-Z
+    1. Pitch: When the plan rotates around the X-axis
+        * This causes the plane to look up or down
+    2. Yaw: When the plan rotane tes around the Y-axis
+        * This causes the plane to look left or right
+    3. Roll: When the plan rotates around the Z-axis
+        * This determines how much the left wing points up or down (and inversely for the right wing)
