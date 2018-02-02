@@ -37,9 +37,9 @@ int main() {
     initializeGLAD();
 
     glViewport(0, // int x: left-x of viewport rect
-               0, // int y: bottom-y of viewport rect
-               VIEWPORT_WIDTH, // int width
-               VIEWPORT_HEIGHT); // int height
+        0, // int y: bottom-y of viewport rect
+        VIEWPORT_WIDTH, // int width
+        VIEWPORT_HEIGHT); // int height
 
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -74,10 +74,10 @@ GLFWwindow* createWindow() {
 
     // create window
     GLFWwindow* window = glfwCreateWindow(VIEWPORT_WIDTH, // int Width
-                                        VIEWPORT_HEIGHT, // int Height
-                                        "LearnOpenGL", // const char* Title
-                                        NULL, // GLFWmonitor* Monitor: Specified for which monitor for fullscreen, NULL for windowed mode
-                                        NULL); // GLFWwindow* Share: window to share resources with
+        VIEWPORT_HEIGHT, // int Height
+        "LearnOpenGL", // const char* Title
+        NULL, // GLFWmonitor* Monitor: Specified for which monitor for fullscreen, NULL for windowed mode
+        NULL); // GLFWwindow* Share: window to share resources with
     if (window == NULL) {
         std::cout << "Failed to create GLFW window" << std::endl;
         glfwTerminate();
@@ -163,7 +163,7 @@ void renderLoop(GLFWwindow *window, unsigned int &VAO) {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);           // OpenGL state-using function
 
         float t = static_cast<float>(glfwGetTime());
-        float sineVal3 = (sin(t/3) / 2.0f) + 0.5f;
+        float sineVal3 = (sin(t / 3) / 2.0f) + 0.5f;
         shader.setUniform("sineVal", sineVal3);
 
         deltaTime = t - lastFrame;
@@ -173,7 +173,7 @@ void renderLoop(GLFWwindow *window, unsigned int &VAO) {
         shader.use();
 
         projection = glm::perspective(glm::radians(camera.Zoom), (float)VIEWPORT_WIDTH / (float)VIEWPORT_HEIGHT, 0.1f, 100.0f);
-        view = camera.GetViewMatrix();
+        view = camera.GetViewMatrix(deltaTime);
 
         shader.setUniform("projection", projection);
         shader.setUniform("view", view);
@@ -234,8 +234,7 @@ void loadTexture(const char* imgLocation, unsigned int textureOffset) {
             GL_UNSIGNED_BYTE, // specifies data type of pixel data
             data); // pointer to the image data
         glGenerateMipmap(GL_TEXTURE_2D);
-    }
-    else {
+    } else {
         std::cout << "Failed to load texture" << std::endl;
     }
     stbi_image_free(data); // free texture image memory
@@ -249,13 +248,15 @@ void processInput(GLFWwindow *window) {
     camera.MovementSpeed = (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) ? SPEED * 2 : SPEED;
 
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        camera.ProcessKeyboard(FORWARD, deltaTime);
+        camera.ProcessKeyboard(FORWARD);
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        camera.ProcessKeyboard(BACKWARD, deltaTime);
+        camera.ProcessKeyboard(BACKWARD);
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        camera.ProcessKeyboard(LEFT, deltaTime);
+        camera.ProcessKeyboard(LEFT);
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        camera.ProcessKeyboard(RIGHT, deltaTime);
+        camera.ProcessKeyboard(RIGHT);
+    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+        camera.ProcessKeyboard(JUMP);
 
     static bool windowMode = true;
     static double windowModeSwitchTimer = glfwGetTime();
@@ -266,9 +267,8 @@ void processInput(GLFWwindow *window) {
         const GLFWvidmode* mode = glfwGetVideoMode(monitor);
         if (windowMode) {
             glfwSetWindowMonitor(window, monitor, 0, 0, mode->width, mode->height, GLFW_DONT_CARE);
-        }
-        else {
-            glfwSetWindowMonitor(window, NULL, (mode->width/4), (mode->height/4), VIEWPORT_WIDTH, VIEWPORT_HEIGHT, GLFW_DONT_CARE);
+        } else {
+            glfwSetWindowMonitor(window, NULL, (mode->width / 4), (mode->height / 4), VIEWPORT_WIDTH, VIEWPORT_HEIGHT, GLFW_DONT_CARE);
         }
         windowMode = !windowMode;
         windowModeSwitchTimer = glfwGetTime();
@@ -285,8 +285,7 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
 void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 {
     static bool firstMouse = true;
-    if (firstMouse)
-    {
+    if (firstMouse) {
         lastX = xpos;
         lastY = ypos;
         firstMouse = false;

@@ -13,7 +13,8 @@ enum Camera_Movement {
     FORWARD,
     BACKWARD,
     LEFT,
-    RIGHT
+    RIGHT,
+    JUMP
 };
 
 const float PITCH = 0.0f;
@@ -38,9 +39,13 @@ public:
     float MovementSpeed;
     float MouseSensitivity;
     float Zoom;
+    glm::vec3 deltaPosition = glm::vec3(0.0f, 0.0f, 0.0f);
+    // Jump values
+    bool jumping = false;
+    float jumpVal = 0.0f;
 
     // Constructor with vectors
-    Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 3.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float yaw = YAW, float pitch = PITCH) 
+    Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 3.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float yaw = YAW, float pitch = PITCH)
         : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVTY), Zoom(ZOOM)
     {
         Position = position;
@@ -60,23 +65,52 @@ public:
     }
 
     // Returns the view matrix calculated using Eular Angles and the LookAt Matrix
-    glm::mat4 GetViewMatrix()
+    glm::mat4 GetViewMatrix(float deltaTime)
     {
+        changePositioning(deltaTime);
+
         return glm::lookAt(Position, Position + Front, Up);
     }
 
+    void changePositioning(float deltaTime) {
+        if (jumping) {
+            jumpVal += 0.08f;
+            float verticalOffset = sin(jumpVal) / 1.3f;
+            if (verticalOffset < 0.0f) {
+                Position.y = 0.0f;
+                jumpVal = 0.0f;
+                jumping = false;
+            } else {
+                Position.y = verticalOffset;
+            }
+        }
+
+        // multiplying a vec3(0,0,0) by small fractions may lead to NAN values
+        if (deltaPosition.x != 0.0f || deltaPosition.y != 0.0f || deltaPosition.z != 0.0f) {
+            // normalizing the deltaPosition helps:
+            // - accomodate for slower movement when looking up or down
+            //      due to the front.xz values creating a < 1 magnitude vector
+            float velocity = MovementSpeed * deltaTime;            
+            Position += glm::normalize(deltaPosition) * velocity;
+        }
+        deltaPosition = glm::vec3(0.0f, 0.0f, 0.0f);
+    }
+
     // Processes input received from any keyboard-like input system. Accepts input parameter in the form of camera defined ENUM (to abstract it from windowing systems)
-    void ProcessKeyboard(Camera_Movement direction, float deltaTime)
+    void ProcessKeyboard(Camera_Movement direction)
     {
-        float velocity = MovementSpeed * deltaTime;
         if (direction == FORWARD)
-            Position += Front * velocity;
+            deltaPosition += glm::vec3(Front.x, 0.0f, Front.z);
         if (direction == BACKWARD)
-            Position -= Front * velocity;
+            deltaPosition -= glm::vec3(Front.x, 0.0f, Front.z);
         if (direction == LEFT)
-            Position -= Right * velocity;
+            deltaPosition -= Right;
         if (direction == RIGHT)
-            Position += Right * velocity;
+            deltaPosition += Right;
+
+        if (!jumping && direction == JUMP) {
+            jumping = true;
+        }
     }
 
     // Processes input received from a mouse input system. Expects the offset value in both the x and y direction.
@@ -89,8 +123,7 @@ public:
         Pitch += yoffset;
 
         // Make sure that when pitch is out of bounds, screen doesn't get flipped
-        if (constrainPitch)
-        {
+        if (constrainPitch) {
             if (Pitch > 89.0f)
                 Pitch = 89.0f;
             if (Pitch < -89.0f)

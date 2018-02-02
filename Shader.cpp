@@ -10,8 +10,7 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath)
     // ensure ifstream objects can throw exceptions:
     vShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
     fShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-    try
-    {
+    try {
         // open files
         vShaderFile.open(vertexPath);
         fShaderFile.open(fragmentPath);
@@ -25,9 +24,7 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath)
         // convert stream into string
         vertexCode = vShaderStream.str();
         fragmentCode = fShaderStream.str();
-    }
-    catch (std::ifstream::failure e)
-    {
+    } catch (std::ifstream::failure e) {
         std::cout << "ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ" << std::endl;
     }
     const char* vShaderCode = vertexCode.c_str();
@@ -109,8 +106,8 @@ void Shader::setUniform(const std::string &name, float value1, float value2, flo
 }
 
 void Shader::setUniform(const std::string &name, const glm::mat4 &trans) const {
-    glUniformMatrix4fv(glGetUniformLocation(ID, name.c_str()), 
-                       1, // count 
-                       GL_FALSE, // transpose: swap columns and rows (true or false)
-                       glm::value_ptr(trans)); // pointer to float values
+    glUniformMatrix4fv(glGetUniformLocation(ID, name.c_str()),
+        1, // count 
+        GL_FALSE, // transpose: swap columns and rows (true or false)
+        glm::value_ptr(trans)); // pointer to float values
 }
