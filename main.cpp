@@ -123,14 +123,22 @@ void initializeShapeBuffers(unsigned int &VAO, unsigned int &VBO, unsigned int &
         cubeVertexAttSize * sizeof(float), // stride: space between consecutive vertex attribute sets
         (void*)(0 * sizeof(float))); // offset of where the data starts in the array
     glEnableVertexAttribArray(0);
-    // normal attribute
+    // texture coords attribute
     glVertexAttribPointer(1,
-        3,
+        2,
         GL_FLOAT,
         GL_FALSE,
         cubeVertexAttSize * sizeof(float),
         (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
+    // normal attribute
+    glVertexAttribPointer(2,
+        3,
+        GL_FLOAT,
+        GL_FALSE,
+        cubeVertexAttSize * sizeof(float),
+        (void*)(5 * sizeof(float)));
+    glEnableVertexAttribArray(2);
 
     glGenBuffers(1, &EBO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
@@ -212,8 +220,10 @@ void renderLoop(GLFWwindow *window, unsigned int &shapesVAO, unsigned int &light
         shapesShader.setUniform("projection", projection);
         shapesShader.setUniform("view", view);
         shapesShader.setUniform("objectColor", 0.5f, 0.0f, 0.0f);
-        shapesShader.setUniform("lightColor", 0.5f, 0.0f, 0.0f);
+        shapesShader.setUniform("lightColor", 1.0f, 1.0f, 1.0f);
         shapesShader.setUniform("lightPos", worldLightPos.x, worldLightPos.y, worldLightPos.z);
+        float sineVal3 = (sin(t / 3) / 2.0f) + 0.5f;
+        shapesShader.setUniform("sineVal", sineVal3);
 
         // draw cube
         glBindVertexArray(shapesVAO);
