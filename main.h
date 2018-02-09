@@ -3,8 +3,9 @@
 void loadGLFW();
 GLFWwindow * createWindow();
 void initializeGLAD();
-void initializeBuffers(unsigned int & VAO, unsigned int & VBO, unsigned int & EBO);
-void renderLoop(GLFWwindow * window, unsigned int &VAO);
+void initializeShapeBuffers(unsigned int & VAO, unsigned int & VBO, unsigned int & EBO);
+void initializeLightBuffers(unsigned int & VAO, unsigned int & VBO, const unsigned int & EBO);
+void renderLoop(GLFWwindow *window, unsigned int &shapesVAO, unsigned int &lightVAO);
 void initializeTextures(Shader & shader);
 void loadTexture(const char * imgLocation, unsigned int textureOffset);
 void processInput(GLFWwindow * window);
@@ -16,6 +17,7 @@ void framebuffer_size_callback(GLFWwindow * window, int width, int height);
 // ===== cube values =====
 const unsigned int cubeVertexAttSize = 5;
 const unsigned int cubeNumElements = 12;
+const unsigned int numCubes = 1;
 float cubeVertices[] = {
     // positions          // texture positions
     // face #1

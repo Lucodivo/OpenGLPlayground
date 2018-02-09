@@ -69,7 +69,33 @@ public:
     {
         changePositioning(deltaTime);
 
-        return glm::lookAt(Position, Position + Front, Up);
+        return lookAt();
+    }
+
+    glm::mat4 lookAt() {
+        glm::vec3 target = Position + Front;
+
+        // Calculate cameraDirection
+        glm::vec3 zaxis = glm::normalize(Position - target);
+        // Get positive right axis vector
+        glm::vec3 xaxis = glm::normalize(glm::cross(glm::normalize(Up), zaxis));
+        // Calculate camera up vector
+        glm::vec3 yaxis = glm::cross(zaxis, xaxis);
+
+        // In glm we access elements as mat[col][row] due to column-major layout
+        auto translation = glm::mat4(
+            1.0f, 0.0f, 0.0f, 0.0f,
+            0.0f, 1.0f, 0.0f, 0.0f,
+            0.0f, 0.0f, 1.0f, 0.0f,
+            -Position.x, -Position.y, -Position.z, 1.0f);
+        auto rotation = glm::mat4(
+            xaxis.x, yaxis.x, zaxis.x, 0.0f,
+            xaxis.y, yaxis.y, zaxis.y, 0.0f,
+            xaxis.z, yaxis.z, zaxis.z, 0.0f,
+            0.0f, 0.0f, 0.0f, 1.0f);
+
+        // Return lookAt matrix as combination of translation and rotation matrix
+        return rotation * translation; // Remember to read from right to left (first translation then rotation)
     }
 
     void changePositioning(float deltaTime) {
