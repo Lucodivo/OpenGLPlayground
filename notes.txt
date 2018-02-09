@@ -176,3 +176,12 @@ Three Euler angles:
         * This causes the plane to look left or right
     3. Roll: When the plan rotates around the Z-axis
         * This determines how much the left wing points up or down (and inversely for the right wing)
+
+
++++ Lighting +++
+Ambient Lighting: Even when dark usually light somewhere in the world (moon, distant light)
+    - this ambient light is a constant that will give every object some color.
+Diffuse Lighting: Directional impact a light object has on an object.
+    - The more a part of an object faces the light source, the brighter it becomes
+Specular Lighting: Bright part of a light taht appears on shiny objects
+    - Specular highlights are often more inclined to the color of the light than the color of the object

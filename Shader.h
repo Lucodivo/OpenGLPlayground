@@ -31,6 +31,7 @@ public:
     void setUniform(const std::string &name, float value1, float value2, float value3) const;
     void setUniform(const std::string &name, float value1, float value2, float value3, float value4) const;
     void setUniform(const std::string &name, const glm::mat4 &trans) const;
+    void setUniform(const std::string & name, const glm::vec3 & vector3);
 };
 
 #endif

@@ -123,22 +123,14 @@ void initializeShapeBuffers(unsigned int &VAO, unsigned int &VBO, unsigned int &
         cubeVertexAttSize * sizeof(float), // stride: space between consecutive vertex attribute sets
         (void*)(0 * sizeof(float))); // offset of where the data starts in the array
     glEnableVertexAttribArray(0);
-    // color attribute
-    /*glVertexAttribPointer(1,
+    // normal attribute
+    glVertexAttribPointer(1,
         3,
-        GL_FLOAT,
-        GL_FALSE,
-        vertexAttSize * sizeof(float),
-        (void*)(3 * sizeof(float)));
-    glEnableVertexAttribArray(1);*/
-    // texture coords attribute
-    glVertexAttribPointer(2,
-        2,
         GL_FLOAT,
         GL_FALSE,
         cubeVertexAttSize * sizeof(float),
         (void*)(3 * sizeof(float)));
-    glEnableVertexAttribArray(2);
+    glEnableVertexAttribArray(1);
 
     glGenBuffers(1, &EBO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
@@ -163,7 +155,7 @@ void initializeLightBuffers(unsigned int &VAO, unsigned int &VBO, const unsigned
         cubeVertices,        // data to store in array buffer       
         GL_STATIC_DRAW); // GL_STATIC_DRAW (most likely not change), GL_DYNAMIC_DRAW (likely to change), GL_STREAM_DRAW (changes every time drawn)
     // set the vertex attributes (only position data for our lamp)
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, cubeVertexAttSize * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
     // bind element buffer object to give indices
@@ -194,7 +186,7 @@ void renderLoop(GLFWwindow *window, unsigned int &shapesVAO, unsigned int &light
 
         // == RENDERING COMMANDS ==
         // clear the background
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);   // OpenGL state-setting function
+        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);   // OpenGL state-setting function
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);           // OpenGL state-using function
 
         float t = static_cast<float>(glfwGetTime());
@@ -204,6 +196,16 @@ void renderLoop(GLFWwindow *window, unsigned int &shapesVAO, unsigned int &light
         projection = glm::perspective(glm::radians(camera.Zoom), (float)VIEWPORT_WIDTH / (float)VIEWPORT_HEIGHT, 0.1f, 100.0f);
         view = camera.GetViewMatrix(deltaTime);
 
+        glm::mat4 lightModel;
+        // translate to position in world
+        float lightScale = 0.2f;
+        glm::vec3 lightPosition(1.2f, 1.0f, 2.0f);
+        float lightRadius = 20.0f;
+        lightModel = glm::rotate(lightModel, t * glm::radians(lightRadius), glm::vec3(0.0f, 1.0f, 0.0f));
+        lightModel = glm::translate(lightModel, lightPosition);
+        lightModel = glm::scale(lightModel, glm::vec3(lightScale));
+        glm::vec4 worldLightPos = lightModel * glm::vec4(lightPosition, 1.0f);
+
 
         // User fragment shaders to draw a triangle
         shapesShader.use();
@@ -211,6 +213,7 @@ void renderLoop(GLFWwindow *window, unsigned int &shapesVAO, unsigned int &light
         shapesShader.setUniform("view", view);
         shapesShader.setUniform("objectColor", 0.5f, 0.0f, 0.0f);
         shapesShader.setUniform("lightColor", 0.5f, 0.0f, 0.0f);
+        shapesShader.setUniform("lightPos", worldLightPos.x, worldLightPos.y, worldLightPos.z);
 
         // draw cube
         glBindVertexArray(shapesVAO);
@@ -232,12 +235,6 @@ void renderLoop(GLFWwindow *window, unsigned int &shapesVAO, unsigned int &light
         lightShader.use();
         lightShader.setUniform("projection", projection);
         lightShader.setUniform("view", view);
-        glm::mat4 lightModel;
-        // translate to position in world
-        glm::vec3 lightPosition(1.2f, 1.0f, 2.0f);
-        float lightScale = 0.2f;
-        lightModel = glm::translate(lightModel, lightPosition);
-        lightModel = glm::scale(lightModel, glm::vec3(lightScale));
         // rotate with time
         lightShader.setUniform("model", lightModel);
         glDrawElements(GL_TRIANGLES, // drawing mode

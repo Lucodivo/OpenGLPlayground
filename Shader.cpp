@@ -111,3 +111,7 @@ void Shader::setUniform(const std::string &name, const glm::mat4 &trans) const {
         GL_FALSE, // transpose: swap columns and rows (true or false)
         glm::value_ptr(trans)); // pointer to float values
 }
+
+void Shader::setUniform(const std::string &name, const glm::vec3 &vector3) {
+    Shader::setUniform(name, vector3.x, vector3.y, vector3.z);
+}
