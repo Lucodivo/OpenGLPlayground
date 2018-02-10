@@ -6,7 +6,6 @@ uniform vec3 lightColor;
 uniform vec3 lightPos;
 uniform float sineVal;
 uniform sampler2D aTexture;
-uniform sampler2D bTexture;
 
 in vec3 Normal;
 in vec3 FragPos;
@@ -23,7 +22,12 @@ void main()
 	float ambientStrength = 0.1;
 	vec3 ambient = ambientStrength * lightColor;
 
-	vec4 textureColor = mix(texture(aTexture, TextureCoord), texture(bTexture, TextureCoord), sineVal);
+	vec4 textureColor;
+	if(sineVal > 0) {
+		textureColor = texture(aTexture, TextureCoord);
+	} else {
+		textureColor = texture(aTexture, vec2(-TextureCoord.x, TextureCoord.y));
+	}
 	vec3 result = min(ambient + diffuse, 1.0) * textureColor.xyz;
     FragColor = vec4(result, 1.0);
 }

@@ -20,8 +20,7 @@ const char *lightVertexShaderFile = "LightVertexShader.glsl";
 const char *lightFragmentShaderFile = "LightFragmentShader.glsl";
 
 // texture 
-const char *textureImgLoc1 = "Data/kanye_triangle1.jpg";
-const char *textureImgLoc2 = "Data/kanye_triangle2.jpg";
+const char *textureImgLoc1 = "Data/texture1.gif";
 
 // frame rate
 float deltaTime = 0.0f;	// Time between current frame and last frame
@@ -197,7 +196,7 @@ void renderLoop(GLFWwindow *window, unsigned int &shapesVAO, unsigned int &light
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);   // OpenGL state-setting function
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);           // OpenGL state-using function
 
-        float t = static_cast<float>(glfwGetTime());
+        float t = (float)glfwGetTime();
         deltaTime = t - lastFrame;
         lastFrame = t;
 
@@ -222,8 +221,8 @@ void renderLoop(GLFWwindow *window, unsigned int &shapesVAO, unsigned int &light
         shapesShader.setUniform("objectColor", 0.5f, 0.0f, 0.0f);
         shapesShader.setUniform("lightColor", 1.0f, 1.0f, 1.0f);
         shapesShader.setUniform("lightPos", worldLightPos.x, worldLightPos.y, worldLightPos.z);
-        float sineVal3 = (sin(t / 3) / 2.0f) + 0.5f;
-        shapesShader.setUniform("sineVal", sineVal3);
+        float sineVal = sin(t * 8.0f);
+        shapesShader.setUniform("sineVal", sineVal);
 
         // draw cube
         glBindVertexArray(shapesVAO);
@@ -267,8 +266,6 @@ void initializeTextures(Shader &shader) {
     shader.use(); // must activate/use the shader before setting the uniforms!
     loadTexture(textureImgLoc1, 0);
     shader.setUniform("aTexture", 0);
-    loadTexture(textureImgLoc2, 1);
-    shader.setUniform("bTexture", 1);
 }
 
 void loadTexture(const char* imgLocation, unsigned int textureOffset) {
