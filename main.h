@@ -15,41 +15,45 @@ void framebuffer_size_callback(GLFWwindow * window, int width, int height);
 
 
 // ===== cube values =====
+#define BottomLeftTexture 0.0f, 0.0f,
+#define BottomRightTexture 1.0f, 0.0f,
+#define TopLeftTexture 0.0f, 1.0f,
+#define TopRightTexture 1.0f, 1.0f,
 const unsigned int cubeVertexAttSize = 8;
 const unsigned int cubeNumElements = 12;
 const unsigned int numCubes = 1; 
 float cubeVertices[] = {
-    // positions          // texture positions
+    // positions          // texture positions  // normals
     // face #1
-    -0.5f, -0.5f, -0.5f,  0.0f, 0.0f, 0.0f,  0.0f, -1.0f,
-    0.5f, -0.5f, -0.5f,  1.0f, 0.0f, 0.0f,  0.0f, -1.0f,
-    0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 0.0f,  0.0f, -1.0f,
-    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f, 0.0f,  0.0f, -1.0f,
+    -0.5f, -0.5f, -0.5f,  BottomLeftTexture     0.0f,  0.0f, -1.0f, // bottom left
+    0.5f, -0.5f, -0.5f,   BottomRightTexture    0.0f,  0.0f, -1.0f, // bottom right
+    0.5f,  0.5f, -0.5f,   TopRightTexture       0.0f,  0.0f, -1.0f, // top right
+    -0.5f,  0.5f, -0.5f,  TopLeftTexture        0.0f,  0.0f, -1.0f, // top left
     // face #2
-    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,  0.0f,  0.0f, 1.0f,
-    0.5f, -0.5f,  0.5f,  1.0f, 0.0f,  0.0f,  0.0f, 1.0f,
-    0.5f,  0.5f,  0.5f,  1.0f, 1.0f,  0.0f,  0.0f, 1.0f,
-    -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,  0.0f,  0.0f, 1.0f,
+    -0.5f, -0.5f,  0.5f,  BottomLeftTexture     0.0f,  0.0f, 1.0f, // bottom left
+    0.5f, -0.5f,  0.5f,   BottomRightTexture    0.0f,  0.0f, 1.0f, // bottom right
+    0.5f,  0.5f,  0.5f,   TopRightTexture       0.0f,  0.0f, 1.0f, // top right
+    -0.5f,  0.5f,  0.5f,  TopLeftTexture        0.0f,  0.0f, 1.0f, // top left
     // face #3
-    -0.5f,  0.5f,  0.5f,  1.0f, 0.0f, -1.0f,  0.0f,  0.0f,
-    -0.5f,  0.5f, -0.5f,  1.0f, 1.0f, -1.0f,  0.0f,  0.0f,
-    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f, -1.0f,  0.0f,  0.0f,
-    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f, -1.0f,  0.0f,  0.0f,
+    -0.5f,  0.5f,  0.5f,  BottomRightTexture    -1.0f,  0.0f,  0.0f, // bottom right
+    -0.5f,  0.5f, -0.5f,  TopRightTexture       -1.0f,  0.0f,  0.0f, // top right
+    -0.5f, -0.5f, -0.5f,  TopLeftTexture        -1.0f,  0.0f,  0.0f, // top left
+    -0.5f, -0.5f,  0.5f,  BottomLeftTexture     -1.0f,  0.0f,  0.0f, // bottom left
     // face #4
-    0.5f,  0.5f,  0.5f,  1.0f, 0.0f,  1.0f,  0.0f,  0.0f,
-    0.5f,  0.5f, -0.5f,  1.0f, 1.0f,  1.0f,  0.0f,  0.0f,
-    0.5f, -0.5f, -0.5f,  0.0f, 1.0f,  1.0f,  0.0f,  0.0f,
-    0.5f, -0.5f,  0.5f,  0.0f, 0.0f,  1.0f,  0.0f,  0.0f,
+    0.5f,  0.5f,  0.5f,   BottomRightTexture    1.0f,  0.0f,  0.0f, // bottom right
+    0.5f,  0.5f, -0.5f,   TopRightTexture       1.0f,  0.0f,  0.0f, // top right
+    0.5f, -0.5f, -0.5f,   TopLeftTexture        1.0f,  0.0f,  0.0f, // top left
+    0.5f, -0.5f,  0.5f,   BottomLeftTexture     1.0f,  0.0f,  0.0f, // bottom left
     // face #5
-    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,  0.0f, -1.0f,  0.0f,
-    0.5f, -0.5f, -0.5f,  1.0f, 1.0f,  0.0f, -1.0f,  0.0f,
-    0.5f, -0.5f,  0.5f,  1.0f, 0.0f,  0.0f, -1.0f,  0.0f,
-    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,  0.0f, -1.0f,  0.0f,
+    -0.5f, -0.5f, -0.5f,  TopLeftTexture        0.0f, -1.0f,  0.0f, // top left
+    0.5f, -0.5f, -0.5f,   TopRightTexture       0.0f, -1.0f,  0.0f, // top right
+    0.5f, -0.5f,  0.5f,   BottomRightTexture    0.0f, -1.0f,  0.0f, // bottom right
+    -0.5f, -0.5f,  0.5f,  BottomLeftTexture     0.0f, -1.0f,  0.0f, // bottom left
     // face #6
-    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,  0.0f,  1.0f,  0.0f,
-    0.5f,  0.5f, -0.5f,  1.0f, 1.0f,  0.0f,  1.0f,  0.0f,
-    0.5f,  0.5f,  0.5f,  1.0f, 0.0f,  0.0f,  1.0f,  0.0f,
-    -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,  0.0f,  1.0f,  0.0f,
+    -0.5f,  0.5f, -0.5f,  TopLeftTexture        0.0f,  1.0f,  0.0f, // top left
+    0.5f,  0.5f, -0.5f,   TopRightTexture       0.0f,  1.0f,  0.0f, // top right
+    0.5f,  0.5f,  0.5f,   BottomRightTexture    0.0f,  1.0f,  0.0f, // bottom right
+    -0.5f,  0.5f,  0.5f,  BottomLeftTexture     0.0f,  1.0f,  0.0f  // bottom left
 };
 unsigned int cubeIndices[]{
     0, 1, 2,

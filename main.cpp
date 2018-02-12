@@ -199,16 +199,18 @@ void renderLoop(GLFWwindow *window, unsigned int &shapesVAO, unsigned int &light
         float t = (float)glfwGetTime();
         deltaTime = t - lastFrame;
         lastFrame = t;
+        float sineVal = sin(t);
+        float sineVal8 = sin(8 * t);
 
         projection = glm::perspective(glm::radians(camera.Zoom), (float)VIEWPORT_WIDTH / (float)VIEWPORT_HEIGHT, 0.1f, 100.0f);
         view = camera.GetViewMatrix(deltaTime);
 
         glm::mat4 lightModel;
         // translate to position in world
-        float lightScale = 0.2f;
-        glm::vec3 lightPosition(1.2f, 1.0f, 2.0f);
-        float lightRadius = 20.0f;
-        lightModel = glm::rotate(lightModel, t * glm::radians(lightRadius), glm::vec3(0.0f, 1.0f, 0.0f));
+        const float lightScale = 0.2f;
+        glm::vec3 lightPosition(2.0f, 0.0f + sineVal, 2.0f);
+        const float lightRotSpeed = 20.0f;
+        lightModel = glm::rotate(lightModel, t * glm::radians(lightRotSpeed), glm::vec3(0.0f, 1.0f, 0.0f));
         lightModel = glm::translate(lightModel, lightPosition);
         lightModel = glm::scale(lightModel, glm::vec3(lightScale));
         glm::vec4 worldLightPos = lightModel * glm::vec4(lightPosition, 1.0f);
@@ -218,11 +220,11 @@ void renderLoop(GLFWwindow *window, unsigned int &shapesVAO, unsigned int &light
         shapesShader.use();
         shapesShader.setUniform("projection", projection);
         shapesShader.setUniform("view", view);
-        shapesShader.setUniform("objectColor", 0.5f, 0.0f, 0.0f);
+        //shapesShader.setUniform("objectColor", 0.5f, 0.0f, 0.0f);
         shapesShader.setUniform("lightColor", 1.0f, 1.0f, 1.0f);
         shapesShader.setUniform("lightPos", worldLightPos.x, worldLightPos.y, worldLightPos.z);
-        float sineVal = sin(t * 8.0f);
-        shapesShader.setUniform("sineVal", sineVal);
+        shapesShader.setUniform("sineVal", sineVal8);
+        shapesShader.setUniform("viewPos", camera.Position);
 
         // draw cube
         glBindVertexArray(shapesVAO);
@@ -279,13 +281,14 @@ void loadTexture(const char* imgLocation, unsigned int textureOffset) {
     stbi_set_flip_vertically_on_load(true);
     unsigned char *data = stbi_load(imgLocation, &width, &height, &numChannels, 0);
     if (data) {
+        auto pixelFormat = (numChannels == 3) ? GL_RGB : GL_RGBA;
         glTexImage2D(GL_TEXTURE_2D, // target
             0, // level of detail (level n is the nth mipmap reduction image)
             GL_RGB, // kind of format we want to store the texture
             width, // width of texture
             height, // height of texture
             0, // border (legacy stuff, MUST BE 0)
-            GL_RGB, // Specifies format of the pixel data
+            pixelFormat, // Specifies format of the pixel data
             GL_UNSIGNED_BYTE, // specifies data type of pixel data
             data); // pointer to the image data
         glGenerateMipmap(GL_TEXTURE_2D);
