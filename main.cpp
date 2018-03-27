@@ -16,8 +16,8 @@
 // shader information
 const char *vertexShaderFile = "VertexShader.glsl";
 const char *fragmentShaderFile = "FragmentShader.glsl";
-const char *lightVertexShaderFile = "LightVertexShader.glsl";
-const char *lightFragmentShaderFile = "LightFragmentShader.glsl";
+const char *lightVertexShaderFile = "LightSourceVertexShader.glsl";
+const char *lightFragmentShaderFile = "LightSourceFragmentShader.glsl";
 
 // texture 
 const char *textureImgLoc1 = "Data/texture1.gif";
@@ -205,19 +205,44 @@ void renderLoop(GLFWwindow *window, unsigned int &shapesVAO, unsigned int &light
         projection = glm::perspective(glm::radians(camera.Zoom), (float)VIEWPORT_WIDTH / (float)VIEWPORT_HEIGHT, 0.1f, 100.0f);
         view = camera.GetViewMatrix(deltaTime);
 
+        // Create light model to position the light in the world
         glm::mat4 lightModel;
-        // translate to position in world
-        const float lightScale = 0.2f;
-        glm::vec3 lightPosition(2.0f, 0.0f + sineVal, 2.0f);
-        const float lightRotSpeed = 20.0f;
-        lightModel = glm::rotate(lightModel, t * glm::radians(lightRotSpeed), glm::vec3(0.0f, 1.0f, 0.0f));
-        lightModel = glm::translate(lightModel, lightPosition);
-        lightModel = glm::scale(lightModel, glm::vec3(lightScale));
-        glm::vec4 worldLightPos = lightModel * glm::vec4(lightPosition, 1.0f);
 
+        const float lightRotSpeed = 20.0f;
+        const glm::vec3 lightAxisRot(0.0f, 1.0f, 0.0f);
+        lightModel = glm::rotate(lightModel, t * glm::radians(lightRotSpeed), lightAxisRot);
+
+        const glm::vec3 lightPosition(2.0f, 0.0f + sineVal, 2.0f);
+        lightModel = glm::translate(lightModel, lightPosition);
+
+        const float lightScale = 0.2f;
+        lightModel = glm::scale(lightModel, glm::vec3(lightScale));
+
+        // draw light
+        lightShader.use();
+        glBindVertexArray(lightVAO);
+        lightShader.setUniform("projection", projection);
+        lightShader.setUniform("view", view);
+        // rotate with time
+        lightShader.setUniform("model", lightModel);
+        glDrawElements(GL_TRIANGLES, // drawing mode
+            cubeNumElements * 3, // number of elements to draw (6 vertices)
+            GL_UNSIGNED_INT, // type of the indices
+            0); // offset in the EBO
+        glBindVertexArray(0);
 
         // User fragment shaders to draw a triangle
+        glm::vec4 worldLightPos = lightModel * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+        glm::mat4 cubeModel;
+        // translate to position in world
+        cubeModel = glm::translate(cubeModel, cubePositions[0]);
+        // rotate with time
+        float angle = 7.3f;
+        cubeModel = glm::rotate(cubeModel, t * glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+
+        // draw cube
         shapesShader.use();
+        glBindVertexArray(shapesVAO);
         shapesShader.setUniform("projection", projection);
         shapesShader.setUniform("view", view);
         //shapesShader.setUniform("objectColor", 0.5f, 0.0f, 0.0f);
@@ -225,29 +250,11 @@ void renderLoop(GLFWwindow *window, unsigned int &shapesVAO, unsigned int &light
         shapesShader.setUniform("lightPos", worldLightPos.x, worldLightPos.y, worldLightPos.z);
         shapesShader.setUniform("sineVal", sineVal8);
         shapesShader.setUniform("viewPos", camera.Position);
-
-        // draw cube
-        glBindVertexArray(shapesVAO);
-        glm::mat4 cubeModel;
-        // translate to position in world
-        cubeModel = glm::translate(cubeModel, cubePositions[0]);
-        // rotate with time
-        float angle = 7.3f;
-        cubeModel = glm::rotate(cubeModel, t * glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+        shapesShader.setUniform("material.ambient", 1.0f, 0.5f, 0.31f);
+        shapesShader.setUniform("material.diffuse", 1.0f, 0.5f, 0.31f);
+        shapesShader.setUniform("material.specular", 0.5f, 0.5f, 0.5f);
+        shapesShader.setUniform("material.shininess", 32.0f);
         shapesShader.setUniform("model", cubeModel);
-        glDrawElements(GL_TRIANGLES, // drawing mode
-            cubeNumElements * 3, // number of elements to draw (6 vertices)
-            GL_UNSIGNED_INT, // type of the indices
-            0); // offset in the EBO
-        glBindVertexArray(0);
-
-        // draw light
-        glBindVertexArray(lightVAO);
-        lightShader.use();
-        lightShader.setUniform("projection", projection);
-        lightShader.setUniform("view", view);
-        // rotate with time
-        lightShader.setUniform("model", lightModel);
         glDrawElements(GL_TRIANGLES, // drawing mode
             cubeNumElements * 3, // number of elements to draw (6 vertices)
             GL_UNSIGNED_INT, // type of the indices
