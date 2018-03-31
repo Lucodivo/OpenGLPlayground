@@ -21,7 +21,7 @@ void framebuffer_size_callback(GLFWwindow * window, int width, int height);
 const unsigned int cubeVertexAttSize = 8;
 const unsigned int cubeNumElements = 12;
 const unsigned int numCubes = 1; 
-float cubeVertices[] = {
+const float cubeVertices[] = {
     // positions          // texture positions  // normals
     // face #1
     -0.5f, -0.5f, -0.5f,  BottomLeftTexture,     0.0f,  0.0f, -1.0f, // bottom left
@@ -54,7 +54,8 @@ float cubeVertices[] = {
     0.5f,  0.5f,  0.5f,   BottomRightTexture,    0.0f,  1.0f,  0.0f, // bottom right
     -0.5f,  0.5f,  0.5f,  BottomLeftTexture,     0.0f,  1.0f,  0.0f  // bottom left
 };
-unsigned int cubeIndices[]{
+
+const unsigned int cubeIndices[]{
     0, 1, 2,
     2, 3, 0,
     4, 5, 6,
@@ -68,7 +69,8 @@ unsigned int cubeIndices[]{
     20, 21, 22,
     22, 23, 20
 };
-glm::vec3 cubePositions[] = {
+
+const glm::vec3 cubePositions[] = {
     glm::vec3(0.0f,  0.0f,  0.0f),
     glm::vec3(2.0f,  5.0f, -15.0f),
     glm::vec3(-1.5f, -2.2f, -2.5f),
@@ -85,7 +87,7 @@ glm::vec3 cubePositions[] = {
 // ===== double triangle values =====
 const unsigned int triangleVertexAttSize = 8;
 const unsigned int triangleNumElements = 2;
-float triangleVertices[] = {
+const float triangleVertices[] = {
     // First triangle
     // positions            // colors           // texture coords
     -0.5f, -0.5f, 0.0f,     1.0f, 0.0f, 0.0f,   0.0f, 0.0f, // bottom left
@@ -95,7 +97,7 @@ float triangleVertices[] = {
     -0.25f, 0.75f, 0.0f,    0.0f, 0.0f, 1.0f,   0.0f, 0.0f, // top left
     0.25f, 0.75f, 0.0f,     1.0f, 0.0f, 0.0f,   1.0f, 0.0f  // top right
 };
-unsigned int indices[]{
+const unsigned int indices[]{
     0, 1, 2,    // first triangle
     2, 3, 4     // second triangle
 };

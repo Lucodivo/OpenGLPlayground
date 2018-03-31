@@ -10,8 +10,10 @@
 #include "Camera.h"
 #include "main.h"
 
-#define VIEWPORT_WIDTH 800
-#define VIEWPORT_HEIGHT 600
+#define VIEWPORT_INIT_WIDTH 800
+#define VIEWPORT_INIT_HEIGHT 600
+
+#define local_persist static
 
 // shader information
 const char *vertexShaderFile = "VertexShader.glsl";
@@ -25,8 +27,8 @@ const char *textureImgLoc1 = "Data/texture1.gif";
 // frame rate
 float deltaTime = 0.0f;	// Time between current frame and last frame
 float lastFrame = 0.0f; // Time of last frame
-float lastX = VIEWPORT_WIDTH / 2;
-float lastY = VIEWPORT_HEIGHT / 2;
+float lastX = VIEWPORT_INIT_WIDTH / 2;
+float lastY = VIEWPORT_INIT_HEIGHT / 2;
 
 Camera camera = Camera();
 
@@ -39,8 +41,8 @@ int main() {
 
     glViewport(0, // int x: left-x of viewport rect
         0, // int y: bottom-y of viewport rect
-        VIEWPORT_WIDTH, // int width
-        VIEWPORT_HEIGHT); // int height
+        VIEWPORT_INIT_WIDTH, // int width
+        VIEWPORT_INIT_HEIGHT); // int height
 
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -80,8 +82,8 @@ GLFWwindow* createWindow() {
     //glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // uncomment for OSX
 
     // create window
-    GLFWwindow* window = glfwCreateWindow(VIEWPORT_WIDTH, // int Width
-        VIEWPORT_HEIGHT, // int Height
+    GLFWwindow* window = glfwCreateWindow(VIEWPORT_INIT_WIDTH, // int Width
+        VIEWPORT_INIT_HEIGHT, // int Height
         "LearnOpenGL", // const char* Title
         NULL, // GLFWmonitor* Monitor: Specified for which monitor for fullscreen, NULL for windowed mode
         NULL); // GLFWwindow* Share: window to share resources with
@@ -183,48 +185,52 @@ void renderLoop(GLFWwindow *window, unsigned int &shapesVAO, unsigned int &light
 
     glEnable(GL_DEPTH_TEST);
 
-    glm::mat4 projection;
-    glm::mat4 view;
+    const glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)VIEWPORT_INIT_WIDTH / (float)VIEWPORT_INIT_HEIGHT, 0.1f, 100.0f);
+
+    const float lightOrbitSpeed = 20.0f;
+    const glm::vec3 lightAxisRot(0.0f, 1.0f, 0.0f);
+    const float lightScale = 0.2f;
+
+    const float cubRotAngle = 7.3f;
 
     // NOTE: render/game loop
     while (glfwWindowShouldClose(window) == GL_FALSE) {
         // check for input
         processInput(window);
 
-        // == RENDERING COMMANDS ==
         // clear the background
-        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);   // OpenGL state-setting function
+        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);                         // OpenGL state-setting function
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);           // OpenGL state-using function
 
         float t = (float)glfwGetTime();
         deltaTime = t - lastFrame;
         lastFrame = t;
         float sineVal = sin(t);
-        float sineVal8 = sin(8 * t);
+        float lightR = (sin((t + 30) / 3) / 2) + 0.5;
+        float lightG = (sin((t + 60) / 8) / 2) + 0.5;
+        float lightB = (sin(t / 17) / 2) + 0.5;
+        glm::vec3 lightColor(lightR, lightG, lightB);
 
-        projection = glm::perspective(glm::radians(camera.Zoom), (float)VIEWPORT_WIDTH / (float)VIEWPORT_HEIGHT, 0.1f, 100.0f);
-        view = camera.GetViewMatrix(deltaTime);
+        float textureSwitch = sin(8 * t);
+
+        glm::mat4 view = camera.GetViewMatrix(deltaTime);
 
         // Create light model to position the light in the world
         glm::mat4 lightModel;
 
-        const float lightRotSpeed = 20.0f;
-        const glm::vec3 lightAxisRot(0.0f, 1.0f, 0.0f);
-        lightModel = glm::rotate(lightModel, t * glm::radians(lightRotSpeed), lightAxisRot);
-
         const glm::vec3 lightPosition(2.0f, 0.0f + sineVal, 2.0f);
+        lightModel = glm::rotate(lightModel, t * glm::radians(lightOrbitSpeed), lightAxisRot);
         lightModel = glm::translate(lightModel, lightPosition);
-
-        const float lightScale = 0.2f;
         lightModel = glm::scale(lightModel, glm::vec3(lightScale));
 
         // draw light
         lightShader.use();
         glBindVertexArray(lightVAO);
-        lightShader.setUniform("projection", projection);
-        lightShader.setUniform("view", view);
         // rotate with time
         lightShader.setUniform("model", lightModel);
+        lightShader.setUniform("view", view);
+        lightShader.setUniform("projection", projection);
+        lightShader.setUniform("lightColor", lightColor);
         glDrawElements(GL_TRIANGLES, // drawing mode
             cubeNumElements * 3, // number of elements to draw (6 vertices)
             GL_UNSIGNED_INT, // type of the indices
@@ -237,24 +243,24 @@ void renderLoop(GLFWwindow *window, unsigned int &shapesVAO, unsigned int &light
         // translate to position in world
         cubeModel = glm::translate(cubeModel, cubePositions[0]);
         // rotate with time
-        float angle = 7.3f;
-        cubeModel = glm::rotate(cubeModel, t * glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+        cubeModel = glm::rotate(cubeModel, t * glm::radians(cubRotAngle), glm::vec3(1.0f, 0.3f, 0.5f));
 
         // draw cube
         shapesShader.use();
         glBindVertexArray(shapesVAO);
-        shapesShader.setUniform("projection", projection);
+        shapesShader.setUniform("model", cubeModel);
         shapesShader.setUniform("view", view);
-        //shapesShader.setUniform("objectColor", 0.5f, 0.0f, 0.0f);
-        shapesShader.setUniform("lightColor", 1.0f, 1.0f, 1.0f);
-        shapesShader.setUniform("lightPos", worldLightPos.x, worldLightPos.y, worldLightPos.z);
-        shapesShader.setUniform("sineVal", sineVal8);
-        shapesShader.setUniform("viewPos", camera.Position);
-        shapesShader.setUniform("material.ambient", 1.0f, 0.5f, 0.31f);
-        shapesShader.setUniform("material.diffuse", 1.0f, 0.5f, 0.31f);
+        shapesShader.setUniform("projection", projection);
+        shapesShader.setUniform("light.position", worldLightPos.x, worldLightPos.y, worldLightPos.z);
+        shapesShader.setUniform("light.ambient", lightColor * glm::vec3(0.2f));
+        shapesShader.setUniform("light.diffuse", lightColor * glm::vec3(0.5f));
+        shapesShader.setUniform("light.specular", lightColor * glm::vec3(1.0f));
+        shapesShader.setUniform("material.ambient", 1.0f, 1.0f, 1.0f);
+        shapesShader.setUniform("material.diffuse", 1.0f, 1.0f, 1.0f);
         shapesShader.setUniform("material.specular", 0.5f, 0.5f, 0.5f);
         shapesShader.setUniform("material.shininess", 32.0f);
-        shapesShader.setUniform("model", cubeModel);
+        shapesShader.setUniform("sineVal", textureSwitch);
+        shapesShader.setUniform("viewPos", camera.Position);
         glDrawElements(GL_TRIANGLES, // drawing mode
             cubeNumElements * 3, // number of elements to draw (6 vertices)
             GL_UNSIGNED_INT, // type of the indices
@@ -333,7 +339,7 @@ void processInput(GLFWwindow *window) {
         if (windowMode) {
             glfwSetWindowMonitor(window, monitor, 0, 0, mode->width, mode->height, GLFW_DONT_CARE);
         } else {
-            glfwSetWindowMonitor(window, NULL, (mode->width / 4), (mode->height / 4), VIEWPORT_WIDTH, VIEWPORT_HEIGHT, GLFW_DONT_CARE);
+            glfwSetWindowMonitor(window, NULL, (mode->width / 4), (mode->height / 4), VIEWPORT_INIT_WIDTH, VIEWPORT_INIT_HEIGHT, GLFW_DONT_CARE);
         }
         windowMode = !windowMode;
         windowModeSwitchTimer = glfwGetTime();
