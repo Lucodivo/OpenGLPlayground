@@ -22,7 +22,8 @@ const char *lightVertexShaderFile = "LightSourceVertexShader.glsl";
 const char *lightFragmentShaderFile = "LightSourceFragmentShader.glsl";
 
 // texture 
-const char *textureImgLoc1 = "Data/texture1.gif";
+const char *diffuseTextureLoc = "data/diffuse_map.png";
+const char *specularTextureLoc = "data/specular_map.png";
 
 // frame rate
 float deltaTime = 0.0f;	// Time between current frame and last frame
@@ -273,14 +274,11 @@ void renderLoop(GLFWwindow *window, unsigned int &shapesVAO, unsigned int &light
 }
 
 void initializeTextures(Shader &shader) {
-    // set texture options
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, /*GL_CLAMP_TO_EDGE*/ GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, /*GL_CLAMP_TO_EDGE*/ GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     shader.use(); // must activate/use the shader before setting the uniforms!
-    loadTexture(textureImgLoc1, 0);
-    shader.setUniform("aTexture", 0);
+    loadTexture(diffuseTextureLoc, 0);
+    shader.setUniform("material.diffTexture", 0);
+    loadTexture(specularTextureLoc, 1);
+    shader.setUniform("material.specTexture", 1);
 }
 
 void loadTexture(const char* imgLocation, unsigned int textureOffset) {
@@ -305,6 +303,9 @@ void loadTexture(const char* imgLocation, unsigned int textureOffset) {
             GL_UNSIGNED_BYTE, // specifies data type of pixel data
             data); // pointer to the image data
         glGenerateMipmap(GL_TEXTURE_2D);
+
+        // set texture options
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST); // disables bilinear filtering (creates sharp edges when magnifying texture)
     } else {
         std::cout << "Failed to load texture" << std::endl;
     }

@@ -1,2 +1,4 @@
 Debug/
-Data/
+*.xcf
+*.gif
+*.pyxel
