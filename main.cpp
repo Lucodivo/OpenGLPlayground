@@ -24,6 +24,7 @@ const char *lightFragmentShaderFile = "LightSourceFragmentShader.glsl";
 // texture 
 const char *diffuseTextureLoc = "data/diffuse_map.png";
 const char *specularTextureLoc = "data/specular_map.png";
+const char *emissionTextureLoc = "data/emission_map.png";
 
 // frame rate
 float deltaTime = 0.0f;	// Time between current frame and last frame
@@ -212,7 +213,8 @@ void renderLoop(GLFWwindow *window, unsigned int &shapesVAO, unsigned int &light
         float lightB = (sin(t / 17) / 2) + 0.5;
         glm::vec3 lightColor(lightR, lightG, lightB);
 
-        float textureSwitch = sin(8 * t);
+        float animSwitch = sin(8 * t) > 0;
+        float emissionStrength = ((sin(t * 2) + 1.0f) / 4) + 0.15;
 
         glm::mat4 view = camera.GetViewMatrix(deltaTime);
 
@@ -260,7 +262,8 @@ void renderLoop(GLFWwindow *window, unsigned int &shapesVAO, unsigned int &light
         shapesShader.setUniform("material.diffuse", 1.0f, 1.0f, 1.0f);
         shapesShader.setUniform("material.specular", 0.5f, 0.5f, 0.5f);
         shapesShader.setUniform("material.shininess", 32.0f);
-        shapesShader.setUniform("sineVal", textureSwitch);
+        shapesShader.setUniform("animSwitch", animSwitch);
+        shapesShader.setUniform("emissionStrength", emissionStrength);
         shapesShader.setUniform("viewPos", camera.Position);
         glDrawElements(GL_TRIANGLES, // drawing mode
             cubeNumElements * 3, // number of elements to draw (6 vertices)
@@ -279,6 +282,8 @@ void initializeTextures(Shader &shader) {
     shader.setUniform("material.diffTexture", 0);
     loadTexture(specularTextureLoc, 1);
     shader.setUniform("material.specTexture", 1);
+    loadTexture(emissionTextureLoc, 2);
+    shader.setUniform("material.emissionTexture", 2);
 }
 
 void loadTexture(const char* imgLocation, unsigned int textureOffset) {

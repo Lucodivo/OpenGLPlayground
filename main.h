@@ -22,7 +22,7 @@ const unsigned int cubeVertexAttSize = 8;
 const unsigned int cubeNumElements = 12;
 const unsigned int numCubes = 1; 
 const float cubeVertices[] = {
-    // positions          // texture positions  // normals
+    // positions          // texture positions  // normals (unit vectors orthogonal to surface) 
     // face #1
     -0.5f, -0.5f, -0.5f,  BottomLeftTexture,     0.0f,  0.0f, -1.0f, // bottom left
     0.5f, -0.5f, -0.5f,   BottomRightTexture,    0.0f,  0.0f, -1.0f, // bottom right

@@ -2,7 +2,8 @@
 out vec4 FragColor;
 
 uniform vec3 viewPos;
-uniform float sineVal;
+uniform bool animSwitch;
+uniform float emissionStrength;
 
 struct Light{
 	vec3 position;
@@ -16,6 +17,7 @@ uniform Light light;
 struct Material {
 	sampler2D diffTexture;
 	sampler2D specTexture;
+	sampler2D emissionTexture;
 	float shininess;
 };
 uniform Material material;
@@ -26,15 +28,16 @@ in vec2 TextureCoord;
 
 void main()
 {
-	vec3 diffColor;
-	vec3 specColor;
-	if(sineVal > 0) {
-		diffColor = texture(material.diffTexture, TextureCoord).rgb;
-		specColor = texture(material.specTexture, TextureCoord).rgb;
+	vec2 animTextCoord;
+	if(animSwitch) {
+		animTextCoord = vec2(-TextureCoord.x, TextureCoord.y);
 	} else {
-		diffColor = texture(material.diffTexture, vec2(-TextureCoord.x, TextureCoord.y)).rgb;
-		specColor = texture(material.specTexture, vec2(-TextureCoord.x, TextureCoord.y)).rgb;
+		animTextCoord = TextureCoord;
 	}
+
+	vec3 diffColor = texture(material.diffTexture, animTextCoord).rgb;
+	vec3 specColor = texture(material.specTexture, animTextCoord).rgb;
+	vec3 emissionColor = texture(material.emissionTexture, animTextCoord).rgb;
 
 	// ambient light
 	vec3 ambient = light.ambient * diffColor;
@@ -51,6 +54,9 @@ void main()
 	float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
 	vec3 specular = light.specular * (spec * specColor);
 
-	vec3 result = ambient + diffuse + specular;
+	// emission light
+	vec3 emission = emissionColor * emissionStrength;
+
+	vec3 result = ambient + diffuse + specular + emission;
     FragColor = vec4(result, 1.0);
 }

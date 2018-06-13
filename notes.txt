@@ -183,5 +183,5 @@ Ambient Lighting: Even when dark usually light somewhere in the world (moon, dis
     - this ambient light is a constant that will give every object some color.
 Diffuse Lighting: Directional impact a light object has on an object.
     - The more a part of an object faces the light source, the brighter it becomes
-Specular Lighting: Bright part of a light taht appears on shiny objects
+Specular Lighting: Bright part of a light that appears on shiny objects
     - Specular highlights are often more inclined to the color of the light than the color of the object
