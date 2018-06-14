@@ -254,10 +254,10 @@ void renderLoop(GLFWwindow *window, unsigned int &shapesVAO, unsigned int &light
         shapesShader.setUniform("model", cubeModel);
         shapesShader.setUniform("view", view);
         shapesShader.setUniform("projection", projection);
-        shapesShader.setUniform("light.position", worldLightPos.x, worldLightPos.y, worldLightPos.z);
-        shapesShader.setUniform("light.ambient", lightColor * glm::vec3(0.2f));
-        shapesShader.setUniform("light.diffuse", lightColor * glm::vec3(0.5f));
-        shapesShader.setUniform("light.specular", lightColor * glm::vec3(1.0f));
+        shapesShader.setUniform("positionalLight.position", worldLightPos.x, worldLightPos.y, worldLightPos.z);
+        shapesShader.setUniform("positionalLight.color.ambient", lightColor * glm::vec3(0.2f));
+        shapesShader.setUniform("positionalLight.color.diffuse", lightColor * glm::vec3(0.5f));
+        shapesShader.setUniform("positionalLight.color.specular", lightColor * glm::vec3(1.0f));
         shapesShader.setUniform("material.ambient", 1.0f, 1.0f, 1.0f);
         shapesShader.setUniform("material.diffuse", 1.0f, 1.0f, 1.0f);
         shapesShader.setUniform("material.specular", 0.5f, 0.5f, 0.5f);
