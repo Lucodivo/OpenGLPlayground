@@ -17,6 +17,11 @@ struct PositionalLight{
 };
 uniform PositionalLight positionalLight;
 
+struct DirectionalLight{
+	vec3 direction;
+	LightColor color;
+};
+uniform DirectionalLight directionalLight;
 
 struct Material {
 	sampler2D diffTexture;
@@ -30,7 +35,9 @@ in vec3 Normal;
 in vec3 FragPos;
 in vec2 TextureCoord;
 
-vec3 calcPositionalLightColor(vec3 diffColor, vec3 specColor, vec3 emissionColor);
+vec3 calcPositionalLightColor(vec3 diffColor, vec3 specColor);
+vec3 calcDirectionalLightColor(vec3 diffColor, vec3 specColor);
+vec3 calcLightColor(vec3 lightDir, LightColor lightColor, vec3 diffColor, vec3 specColor);
 
 void main()
 {
@@ -45,30 +52,43 @@ void main()
 	vec3 specColor = texture(material.specTexture, animTextCoord).rgb;
 	vec3 emissionColor = texture(material.emissionTexture, animTextCoord).rgb;
 
-	vec3 rotateColor = calcPositionalLightColor(diffColor, specColor, emissionColor);
-	vec3 result = rotateColor;
+	vec3 rotationalResult = calcPositionalLightColor(diffColor, specColor);
+
+	vec3 directionalResult = calcDirectionalLightColor(diffColor, specColor);
+
+	// emission light
+	vec3 emissionResult = emissionColor * emissionStrength;
+
+	vec3 result = rotationalResult + directionalResult + emissionResult;
     FragColor = vec4(result, 1.0);
 }
 
-vec3 calcPositionalLightColor(vec3 diffColor, vec3 specColor, vec3 emissionColor) {
+vec3 calcPositionalLightColor(vec3 diffColor, vec3 specColor) {
+	vec3 lightDir = normalize(positionalLight.position - FragPos);
+	return calcLightColor(lightDir, positionalLight.color, diffColor, specColor);
+}
+
+vec3 calcDirectionalLightColor(vec3 diffColor, vec3 specColor) {
+	vec3 lightDir = normalize(-directionalLight.direction);
+	return calcLightColor(lightDir, directionalLight.color, diffColor, specColor);
+}
+
+vec3 calcLightColor(vec3 lightDir, LightColor lightColor, vec3 diffColor, vec3 specColor) { 
 	// ambient light
-	vec3 ambient = positionalLight.color.ambient * diffColor;
+	vec3 ambient = lightColor.ambient * diffColor;
 
 	// diffuse light
 	vec3 norm = normalize(Normal);
-	vec3 lightDir = normalize(positionalLight.position - FragPos);
 	float diff = max(dot(norm, lightDir), 0.0);
-	vec3 diffuse = positionalLight.color.diffuse * diff * diffColor;
+	vec3 diffuse = lightColor.diffuse * diff * diffColor;
 
 	// specular light
 	vec3 viewDir = normalize(viewPos - FragPos);
 	vec3 reflectDir = reflect(-lightDir, norm);
 	float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
-	vec3 specular = positionalLight.color.specular * (spec * specColor);
+	vec3 specular = lightColor.specular * (spec * specColor);
 
-	// emission light
-	vec3 emission = emissionColor * emissionStrength;
+	vec3 result = ambient + diffuse + specular;
 
-	vec3 result = ambient + diffuse + specular + emission;
-	return result;
+	return result; 
 }

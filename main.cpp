@@ -195,6 +195,9 @@ void renderLoop(GLFWwindow *window, unsigned int &shapesVAO, unsigned int &light
 
     const float cubRotAngle = 7.3f;
 
+    glm::vec3 lightDirection = glm::vec3(-1.0f, -1.0f, -1.0f);
+    glm::vec3 directionalLightColor = glm::vec3(1.0f);
+
     // NOTE: render/game loop
     while (glfwWindowShouldClose(window) == GL_FALSE) {
         // check for input
@@ -211,7 +214,7 @@ void renderLoop(GLFWwindow *window, unsigned int &shapesVAO, unsigned int &light
         float lightR = (sin((t + 30) / 3) / 2) + 0.5;
         float lightG = (sin((t + 60) / 8) / 2) + 0.5;
         float lightB = (sin(t / 17) / 2) + 0.5;
-        glm::vec3 lightColor(lightR, lightG, lightB);
+        glm::vec3 positionalLightColor(lightR, lightG, lightB);
 
         float animSwitch = sin(8 * t) > 0;
         float emissionStrength = ((sin(t * 2) + 1.0f) / 4) + 0.15;
@@ -233,7 +236,7 @@ void renderLoop(GLFWwindow *window, unsigned int &shapesVAO, unsigned int &light
         lightShader.setUniform("model", lightModel);
         lightShader.setUniform("view", view);
         lightShader.setUniform("projection", projection);
-        lightShader.setUniform("lightColor", lightColor);
+        lightShader.setUniform("lightColor", positionalLightColor);
         glDrawElements(GL_TRIANGLES, // drawing mode
             cubeNumElements * 3, // number of elements to draw (6 vertices)
             GL_UNSIGNED_INT, // type of the indices
@@ -255,12 +258,13 @@ void renderLoop(GLFWwindow *window, unsigned int &shapesVAO, unsigned int &light
         shapesShader.setUniform("view", view);
         shapesShader.setUniform("projection", projection);
         shapesShader.setUniform("positionalLight.position", worldLightPos.x, worldLightPos.y, worldLightPos.z);
-        shapesShader.setUniform("positionalLight.color.ambient", lightColor * glm::vec3(0.2f));
-        shapesShader.setUniform("positionalLight.color.diffuse", lightColor * glm::vec3(0.5f));
-        shapesShader.setUniform("positionalLight.color.specular", lightColor * glm::vec3(1.0f));
-        shapesShader.setUniform("material.ambient", 1.0f, 1.0f, 1.0f);
-        shapesShader.setUniform("material.diffuse", 1.0f, 1.0f, 1.0f);
-        shapesShader.setUniform("material.specular", 0.5f, 0.5f, 0.5f);
+        shapesShader.setUniform("positionalLight.color.ambient", positionalLightColor * glm::vec3(0.1f));
+        shapesShader.setUniform("positionalLight.color.diffuse", positionalLightColor * glm::vec3(0.4f));
+        shapesShader.setUniform("positionalLight.color.specular", positionalLightColor * glm::vec3(1.0f));
+        shapesShader.setUniform("directionalLight.direction", lightDirection);
+        shapesShader.setUniform("directionalLight.color.ambient", directionalLightColor * glm::vec3(0.1f));
+        shapesShader.setUniform("directionalLight.color.diffuse", directionalLightColor * glm::vec3(0.5f));
+        shapesShader.setUniform("directionalLight.color.specular", directionalLightColor * glm::vec3(0.5f));
         shapesShader.setUniform("material.shininess", 32.0f);
         shapesShader.setUniform("animSwitch", animSwitch);
         shapesShader.setUniform("emissionStrength", emissionStrength);
