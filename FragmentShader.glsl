@@ -11,9 +11,16 @@ struct LightColor{
 	vec3 specular;
 };
 
+struct LightAttenuation {
+	float constant;
+	float linear;
+	float quadratic;
+};
+
 struct PositionalLight{
 	vec3 position;
 	LightColor color;
+	LightAttenuation attenuation;
 };
 uniform PositionalLight positionalLight;
 
@@ -22,6 +29,15 @@ struct DirectionalLight{
 	LightColor color;
 };
 uniform DirectionalLight directionalLight;
+
+struct SpotLight{
+	vec3 position;
+	vec3 direction;
+	float cutOff;
+	float outerCutOff;
+	LightColor color;
+};
+uniform SpotLight spotLight;
 
 struct Material {
 	sampler2D diffTexture;
@@ -37,6 +53,7 @@ in vec2 TextureCoord;
 
 vec3 calcPositionalLightColor(vec3 diffColor, vec3 specColor);
 vec3 calcDirectionalLightColor(vec3 diffColor, vec3 specColor);
+vec3 calcSpotLightColor(vec3 diffColor, vec3 specColor);
 vec3 calcLightColor(vec3 lightDir, LightColor lightColor, vec3 diffColor, vec3 specColor);
 
 void main()
@@ -56,21 +73,38 @@ void main()
 
 	vec3 directionalResult = calcDirectionalLightColor(diffColor, specColor);
 
+	vec3 spotResult = calcSpotLightColor(diffColor, specColor);
+
 	// emission light
 	vec3 emissionResult = emissionColor * emissionStrength;
 
-	vec3 result = rotationalResult + directionalResult + emissionResult;
+	vec3 result = rotationalResult + directionalResult + spotResult + emissionResult;
     FragColor = vec4(result, 1.0);
 }
 
 vec3 calcPositionalLightColor(vec3 diffColor, vec3 specColor) {
 	vec3 lightDir = normalize(positionalLight.position - FragPos);
-	return calcLightColor(lightDir, positionalLight.color, diffColor, specColor);
+
+	float distance = length(positionalLight.position - FragPos);
+	float attenuation = 1.0 / (positionalLight.attenuation.constant + 
+		positionalLight.attenuation.linear * distance + 
+		positionalLight.attenuation.quadratic * (distance * distance));
+
+	return (calcLightColor(lightDir, positionalLight.color, diffColor, specColor) * attenuation);
 }
 
 vec3 calcDirectionalLightColor(vec3 diffColor, vec3 specColor) {
 	vec3 lightDir = normalize(-directionalLight.direction);
 	return calcLightColor(lightDir, directionalLight.color, diffColor, specColor);
+}
+
+vec3 calcSpotLightColor(vec3 diffColor, vec3 specColor) {
+	vec3 lightDir = normalize(spotLight.position - FragPos);
+	float theta = dot(lightDir, normalize(-spotLight.direction));
+	float epsilon = spotLight.cutOff - spotLight.outerCutOff;
+	float intensity = clamp((theta - spotLight.outerCutOff) / epsilon, 0.0, 1.0);
+
+	return (calcLightColor(lightDir, spotLight.color, diffColor, specColor) * intensity);
 }
 
 vec3 calcLightColor(vec3 lightDir, LightColor lightColor, vec3 diffColor, vec3 specColor) { 
@@ -86,9 +120,7 @@ vec3 calcLightColor(vec3 lightDir, LightColor lightColor, vec3 diffColor, vec3 s
 	vec3 viewDir = normalize(viewPos - FragPos);
 	vec3 reflectDir = reflect(-lightDir, norm);
 	float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
-	vec3 specular = lightColor.specular * (spec * specColor);
+	vec3 specular = lightColor.specular * spec * specColor;
 
-	vec3 result = ambient + diffuse + specular;
-
-	return result; 
+	return ambient + diffuse + specular;
 }

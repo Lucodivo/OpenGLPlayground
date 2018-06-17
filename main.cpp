@@ -34,6 +34,8 @@ float lastY = VIEWPORT_INIT_HEIGHT / 2;
 
 Camera camera = Camera();
 
+bool flashLightOn = true;
+
 int main() {
     loadGLFW();
     GLFWwindow* window = createWindow();
@@ -207,6 +209,13 @@ void renderLoop(GLFWwindow *window, unsigned int &shapesVAO, unsigned int &light
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);                         // OpenGL state-setting function
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);           // OpenGL state-using function
 
+        glm::vec3 flashLightColor;
+        if (flashLightOn) {
+            flashLightColor = glm::vec3(0.93f, 0.84f, 0.72f);
+        } else {
+            flashLightColor = glm::vec3(0.0f); // if flashlight is off, simply remove all color from light
+        }
+
         float t = (float)glfwGetTime();
         deltaTime = t - lastFrame;
         lastFrame = t;
@@ -254,21 +263,46 @@ void renderLoop(GLFWwindow *window, unsigned int &shapesVAO, unsigned int &light
         // draw cube
         shapesShader.use();
         glBindVertexArray(shapesVAO);
-        shapesShader.setUniform("model", cubeModel);
         shapesShader.setUniform("view", view);
         shapesShader.setUniform("projection", projection);
         shapesShader.setUniform("positionalLight.position", worldLightPos.x, worldLightPos.y, worldLightPos.z);
-        shapesShader.setUniform("positionalLight.color.ambient", positionalLightColor * glm::vec3(0.1f));
-        shapesShader.setUniform("positionalLight.color.diffuse", positionalLightColor * glm::vec3(0.4f));
+        shapesShader.setUniform("positionalLight.color.ambient", positionalLightColor * glm::vec3(0.2f));
+        shapesShader.setUniform("positionalLight.color.diffuse", positionalLightColor * glm::vec3(0.5f));
         shapesShader.setUniform("positionalLight.color.specular", positionalLightColor * glm::vec3(1.0f));
         shapesShader.setUniform("directionalLight.direction", lightDirection);
-        shapesShader.setUniform("directionalLight.color.ambient", directionalLightColor * glm::vec3(0.1f));
-        shapesShader.setUniform("directionalLight.color.diffuse", directionalLightColor * glm::vec3(0.5f));
+        shapesShader.setUniform("directionalLight.color.ambient", directionalLightColor * glm::vec3(0.2f));
+        shapesShader.setUniform("directionalLight.color.diffuse", directionalLightColor * glm::vec3(0.4f));
         shapesShader.setUniform("directionalLight.color.specular", directionalLightColor * glm::vec3(0.5f));
+        shapesShader.setUniform("positionalLight.attenuation.constant", 1.0f);
+        shapesShader.setUniform("positionalLight.attenuation.linear", 0.09f);
+        shapesShader.setUniform("positionalLight.attenuation.quadratic", 0.032f);
+        shapesShader.setUniform("spotLight.position", camera.Position);
+        shapesShader.setUniform("spotLight.direction", camera.Front);
+        shapesShader.setUniform("spotLight.cutOff", glm::cos(glm::radians(12.5f)));
+        shapesShader.setUniform("spotLight.outerCutOff", glm::cos(glm::radians(17.5f)));
+        shapesShader.setUniform("spotLight.color.ambient", flashLightColor * glm::vec3(0.1f));
+        shapesShader.setUniform("spotLight.color.diffuse", flashLightColor * glm::vec3(0.3f));
+        shapesShader.setUniform("spotLight.color.specular", flashLightColor * glm::vec3(0.5f));
         shapesShader.setUniform("material.shininess", 32.0f);
         shapesShader.setUniform("animSwitch", animSwitch);
         shapesShader.setUniform("emissionStrength", emissionStrength);
         shapesShader.setUniform("viewPos", camera.Position);
+
+        for (unsigned int i = 0; i < 10; i++) {
+            glm::mat4 model;
+            // translate to position in world
+            model = glm::translate(model, cubePositions[i]);
+            // rotate with time
+            float angle = 7.3f * (i + 1);
+            model = glm::rotate(model, t * glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+            shapesShader.setUniform("model", model);
+            glDrawElements(GL_TRIANGLES, // drawing mode
+                cubeNumElements * 3, // number of elements to draw (6 vertices)
+                GL_UNSIGNED_INT, // type of the indices
+                0); // offset in the EBO
+                    //glDrawArrays(GL_TRIANGLES, 0, cubeNumElements * 3);
+        }
+
         glDrawElements(GL_TRIANGLES, // drawing mode
             cubeNumElements * 3, // number of elements to draw (6 vertices)
             GL_UNSIGNED_INT, // type of the indices
@@ -338,6 +372,16 @@ void processInput(GLFWwindow *window) {
         camera.ProcessKeyboard(RIGHT);
     if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
         camera.ProcessKeyboard(JUMP);
+
+    static bool leftMouseButtonWasDown = false;
+    if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
+        if (!leftMouseButtonWasDown) {
+            leftMouseButtonWasDown = true;
+            flashLightOn = !flashLightOn;
+        }
+    } else {
+        leftMouseButtonWasDown = false;
+    }
 
     static bool windowMode = true;
     static double windowModeSwitchTimer = glfwGetTime();
