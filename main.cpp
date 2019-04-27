@@ -54,7 +54,7 @@ int main() {
     glfwSetScrollCallback(window, scroll_callback);
 
     unsigned int shapesVAO, shapesVBO, EBO;
-    initializeShapeBuffers(shapesVAO, shapesVBO, EBO);
+    initializeObjectBuffers(shapesVAO, shapesVBO, EBO);
 
     unsigned int lightVAO, lightVBO;
     initializeLightBuffers(lightVAO, lightVBO, EBO);
@@ -108,7 +108,7 @@ void initializeGLAD() {
     }
 }
 
-void initializeShapeBuffers(unsigned int &VAO, unsigned int &VBO, unsigned int &EBO) {
+void initializeObjectBuffers(unsigned int &VAO, unsigned int &VBO, unsigned int &EBO) {
     glGenVertexArrays(1, &VAO);
     glBindVertexArray(VAO);
 
@@ -116,32 +116,34 @@ void initializeShapeBuffers(unsigned int &VAO, unsigned int &VBO, unsigned int &
         &VBO);  // Out parameters to store IDs of gen objects
     glBindBuffer(GL_ARRAY_BUFFER, VBO); // bind object to array buffer
     glBufferData(GL_ARRAY_BUFFER, // which buffer data is being entered in
-        sizeof(cubeVertices), // size of data being placed in array buffer
-        cubeVertices,        // data to store in array buffer       
+        sizeof(cubeVertexAttributes), // size of data being placed in array buffer
+        cubeVertexAttributes,        // data to store in array buffer       
         GL_STATIC_DRAW); // GL_STATIC_DRAW (most likely not change), GL_DYNAMIC_DRAW (likely to change), GL_STREAM_DRAW (changes every time drawn)
 
     // position attribute
-    glVertexAttribPointer(0, // position vertex attribute (used for location = 0 of Vertex Shader false) 
+    glVertexAttribPointer(0, // position vertex attribute (used for location = 0 of Vertex Shader) 
         3, // size of vertex attribute (we're using vec3)
         GL_FLOAT, // type of data being passed 
         GL_FALSE, // whether the data needs to be normalized
-        cubeVertexAttSize * sizeof(float), // stride: space between consecutive vertex attribute sets
-        (void*)(0 * sizeof(float))); // offset of where the data starts in the array
+        cubeVertexAttSizeInBytes, // stride: space between consecutive vertex attribute sets
+		(void*)0); // offset of where the data starts in the array
     glEnableVertexAttribArray(0);
+
     // texture coords attribute
     glVertexAttribPointer(1,
         2,
         GL_FLOAT,
         GL_FALSE,
-        cubeVertexAttSize * sizeof(float),
+        cubeVertexAttSizeInBytes,
         (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
+
     // normal attribute
     glVertexAttribPointer(2,
         3,
         GL_FLOAT,
         GL_FALSE,
-        cubeVertexAttSize * sizeof(float),
+        cubeVertexAttSizeInBytes,
         (void*)(5 * sizeof(float)));
     glEnableVertexAttribArray(2);
 
@@ -164,11 +166,11 @@ void initializeLightBuffers(unsigned int &VAO, unsigned int &VBO, const unsigned
         &VBO);  // Out parameters to store IDs of gen objects
     glBindBuffer(GL_ARRAY_BUFFER, VBO); // bind object to array buffer
     glBufferData(GL_ARRAY_BUFFER, // which buffer data is being entered in
-        sizeof(cubeVertices), // size of data being placed in array buffer
-        cubeVertices,        // data to store in array buffer       
+        sizeof(cubeVertexAttributes), // size of data being placed in array buffer
+        cubeVertexAttributes,        // data to store in array buffer       
         GL_STATIC_DRAW); // GL_STATIC_DRAW (most likely not change), GL_DYNAMIC_DRAW (likely to change), GL_STREAM_DRAW (changes every time drawn)
     // set the vertex attributes (only position data for our lamp)
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, cubeVertexAttSize * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, cubeVertexAttSizeInBytes * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
     // bind element buffer object to give indices
@@ -209,12 +211,8 @@ void renderLoop(GLFWwindow *window, unsigned int &shapesVAO, unsigned int &light
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);                         // OpenGL state-setting function
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);           // OpenGL state-using function
 
-        glm::vec3 flashLightColor;
-        if (flashLightOn) {
-            flashLightColor = glm::vec3(0.93f, 0.84f, 0.72f);
-        } else {
-            flashLightColor = glm::vec3(0.0f); // if flashlight is off, simply remove all color from light
-        }
+		// if flashlight is off, simply remove all color from light
+        glm::vec3 flashLightColor = flashLightOn ? glm::vec3(0.93f, 0.84f, 0.72f) : glm::vec3(0.0f);
 
         float t = (float)glfwGetTime();
         deltaTime = t - lastFrame;
@@ -225,7 +223,9 @@ void renderLoop(GLFWwindow *window, unsigned int &shapesVAO, unsigned int &light
         float lightB = (sin(t / 17) / 2) + 0.5;
         glm::vec3 positionalLightColor(lightR, lightG, lightB);
 
+		// switch between two imagest over time
         float animSwitch = sin(8 * t) > 0;
+
         float emissionStrength = ((sin(t * 2) + 1.0f) / 4) + 0.15;
 
         glm::mat4 view = camera.GetViewMatrix(deltaTime);
@@ -233,7 +233,9 @@ void renderLoop(GLFWwindow *window, unsigned int &shapesVAO, unsigned int &light
         // Create light model to position the light in the world
         glm::mat4 lightModel;
 
-        const glm::vec3 lightPosition(2.0f, 0.0f + sineVal, 2.0f);
+		// oscillate with time
+        const glm::vec3 lightPosition = glm::vec3(2.0f, 0.0f + sineVal, 2.0f);
+		// orbit with time
         lightModel = glm::rotate(lightModel, t * glm::radians(lightOrbitSpeed), lightAxisRot);
         lightModel = glm::translate(lightModel, lightPosition);
         lightModel = glm::scale(lightModel, glm::vec3(lightScale));
@@ -241,7 +243,7 @@ void renderLoop(GLFWwindow *window, unsigned int &shapesVAO, unsigned int &light
         // draw light
         lightShader.use();
         glBindVertexArray(lightVAO);
-        // rotate with time
+
         lightShader.setUniform("model", lightModel);
         lightShader.setUniform("view", view);
         lightShader.setUniform("projection", projection);
@@ -265,17 +267,23 @@ void renderLoop(GLFWwindow *window, unsigned int &shapesVAO, unsigned int &light
         glBindVertexArray(shapesVAO);
         shapesShader.setUniform("view", view);
         shapesShader.setUniform("projection", projection);
+
+		// positional light (orbiting light)
         shapesShader.setUniform("positionalLight.position", worldLightPos.x, worldLightPos.y, worldLightPos.z);
         shapesShader.setUniform("positionalLight.color.ambient", positionalLightColor * glm::vec3(0.2f));
         shapesShader.setUniform("positionalLight.color.diffuse", positionalLightColor * glm::vec3(0.5f));
         shapesShader.setUniform("positionalLight.color.specular", positionalLightColor * glm::vec3(1.0f));
+		shapesShader.setUniform("positionalLight.attenuation.constant", 1.0f);
+		shapesShader.setUniform("positionalLight.attenuation.linear", 0.09f);
+		shapesShader.setUniform("positionalLight.attenuation.quadratic", 0.032f);
+
+		// directional light
         shapesShader.setUniform("directionalLight.direction", lightDirection);
         shapesShader.setUniform("directionalLight.color.ambient", directionalLightColor * glm::vec3(0.2f));
         shapesShader.setUniform("directionalLight.color.diffuse", directionalLightColor * glm::vec3(0.4f));
         shapesShader.setUniform("directionalLight.color.specular", directionalLightColor * glm::vec3(0.5f));
-        shapesShader.setUniform("positionalLight.attenuation.constant", 1.0f);
-        shapesShader.setUniform("positionalLight.attenuation.linear", 0.09f);
-        shapesShader.setUniform("positionalLight.attenuation.quadratic", 0.032f);
+
+		// flash light
         shapesShader.setUniform("spotLight.position", camera.Position);
         shapesShader.setUniform("spotLight.direction", camera.Front);
         shapesShader.setUniform("spotLight.cutOff", glm::cos(glm::radians(12.5f)));
@@ -283,6 +291,7 @@ void renderLoop(GLFWwindow *window, unsigned int &shapesVAO, unsigned int &light
         shapesShader.setUniform("spotLight.color.ambient", flashLightColor * glm::vec3(0.1f));
         shapesShader.setUniform("spotLight.color.diffuse", flashLightColor * glm::vec3(0.3f));
         shapesShader.setUniform("spotLight.color.specular", flashLightColor * glm::vec3(0.5f));
+
         shapesShader.setUniform("material.shininess", 32.0f);
         shapesShader.setUniform("animSwitch", animSwitch);
         shapesShader.setUniform("emissionStrength", emissionStrength);
@@ -307,7 +316,7 @@ void renderLoop(GLFWwindow *window, unsigned int &shapesVAO, unsigned int &light
             cubeNumElements * 3, // number of elements to draw (6 vertices)
             GL_UNSIGNED_INT, // type of the indices
             0); // offset in the EBO
-        glBindVertexArray(0);
+        glBindVertexArray(0); // unbind shapesVAO
 
         glfwSwapBuffers(window); // swaps double buffers (call after all render commands are completed)
         glfwPollEvents(); // checks for events (ex: keyboard/mouse input)
@@ -327,7 +336,7 @@ void initializeTextures(Shader &shader) {
 void loadTexture(const char* imgLocation, unsigned int textureOffset) {
     unsigned int texture; // stores id of generated texture
     glGenTextures(1, &texture);
-    glActiveTexture(GL_TEXTURE0 + textureOffset); // activate texture unit (by defauly it is bound to GL_TEXTURE0
+    glActiveTexture(GL_TEXTURE0 + textureOffset); // activate texture unit (by default it is bound to GL_TEXTURE0)
     glBindTexture(GL_TEXTURE_2D, texture);
 
     // load image data
@@ -404,7 +413,6 @@ void processInput(GLFWwindow *window) {
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);
 }
-
 
 // Callback function for when user moves mouse
 void mouse_callback(GLFWwindow* window, double xpos, double ypos)

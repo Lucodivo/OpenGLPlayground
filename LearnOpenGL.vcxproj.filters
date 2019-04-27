@@ -18,9 +18,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\..\Downloads\glad\src\glad.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -28,6 +25,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="stb_image.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dependencies\OpenGL\include\glad\glad.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -54,7 +54,11 @@
     <None Include="VertexShader.glsl">
       <Filter>Source Files</Filter>
     </None>
-    <None Include="LightSourceFragmentShader.glsl" />
-    <None Include="LightSourceVertexShader.glsl" />
+    <None Include="LightSourceFragmentShader.glsl">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="LightSourceVertexShader.glsl">
+      <Filter>Source Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

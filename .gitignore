@@ -2,4 +2,5 @@ Debug/
 *.xcf
 *.gif
 *.pyxel
+*.user
 data/fun/

@@ -7,7 +7,7 @@ Context: The state of OpenGL
 Graphics Pipeline: Process of transforming 3D coordinates => 2D coordinate => colored pixels
 OpenGL Shading Language (GLSL): Language shaders are written in
 Vertex: Collection of data per 3D coordinate
-Vertex Attributes: Any date associated with vertex (ex: 3D position, color value)
+Vertex Attributes: Any data associated with a vertex (ex: 3D position, color value)
 Primitives: Hints that tell OpenGL how to render data (ex: points, triangles, line)
 
 == GRAPHICS PIPLINE ==
@@ -16,28 +16,28 @@ Primitives: Hints that tell OpenGL how to render data (ex: points, triangles, li
 3. Geometry Shader: Takes in a collection of vertices that form a primitive and has the ability to generate other shapes by emitting new vertices to form new (or other) primitives.
 4. Rasterization Stage: Maps the resulting primitives (of Geometry Shader) to the corresponding pixels on the final screen, resulting in fragments for the fragment shader to use.
 	- Clipping: Before fragment shaders run, clipping discards all fragments that are outside your view, increasing performance.
-5. Fragment Shader: Calculate the final color of a pixel. Usualy the stage where all the advacned OpenGL effects occur (ex: lighting, shadows, color of the light).
+5. Fragment Shader: Calculate the final color of a pixel. Usually the stage where all the advanced OpenGL effects occur (ex: lighting, shadows, color of the light).
 6. Alpha Test & Blending: Checks the corresponding depth (and stencil) value of the fragment and uses those to check if the resulting fragment is in front or behind other objects and should be discarded accordingly.
 	- NOTE: even if a pixel output color is calculated in the fragment shader, the final pixel color could still be something entirely different when rendering multiple triangles.
 
 Fragment: All the data required for OpenGL to render a single pixel
 Shaders: Small programs on the GPU for each step of the graphics pipeline
 Normalized Device Coordinates: 3D coordinates in a specific range betweoon [-1.0, +1.0]
-Vertex Buffer Objects (VBO): Memory that can store a large number of vertices in the GPU's memory.
+Vertex Buffer Objects (VBO): Memory that can store a large amount of vertex data in the GPU's memory.
     - After binding the buffer using glBindBuffer(), glBufferData() function can be used to store data in VBO
-Vertex Array Object (VAO): Memory that can store vertex attribute configurations
-    - After bound using glBindVertexArrayS(), any subsequent vertex attribute calls from that point will be stored in VAO
-Element Buffer Objects (EBO): A buffer that stores indices that OpenGL uses to decide what vertices to draw
-    - The EBO currently bound while a VAO is bound, is stored as the VAO's EBO.
+Vertex Array Object (VAO): Memory that can store the vertex attribute configurations (describes the data written into VBO)
+    - After bound using glBindVertexArrays(), any subsequent vertex attribute calls from that point will be stored in VAO
+	- VBO is actually NOT part of VAOs state; the actual association between an attribute index and a buffer is made through the glVertexAttribPointer
+Element Buffer Objects (EBO): A buffer that stores vertex attribute indices. These specify to OpenGL which vertices create a primitive (ex: triangle).
+	- Used to avoid redundant data for pimitives with shared vertex attributes.
+    - The EBO bound while a VAO is bound is stored as the VAO's EBO. Unbinding the EBO while the VAO is bound will unbind the EBO from the VAO.
 
 == ECT ==
 - The areas of the graphics pipeline that are configureable are the Vertex Shader, Geometry Shader, and Fragment Shader
 - In Modern OpenGL we are REQUIRED to define at least a vertex and fragment shader of our own (There are no default vertex/fragment shaders on the GPU)
 - Geometry shader is optional and usually left to its default shader
 - OpenGL only processes 3D normalized device coordinates, any coordinates outside of the range [-1.0,+1.0] will be clipped/discarded.
-- Unlike usual screen coordinates, the pisitive y-axis points in the up direction and (0,0,0) coordinate is in the center.
-- A VAO stores the glBindBuffer calls when the target is GL_ELEMENT_ARRAY_BUFFER. 
-    - This also means it stores its unbind calls so don't unbind the element array buffer before unbinding your VAO
+- Unlike usual screen coordinates, the positive y-axis points in the up direction and (0,0,0) coordinate is in the center.
 
 +++ GLSL +++
 
@@ -50,25 +50,24 @@ vec4 otherVec = someVec.xxxx + anotherVec.yxzy;
 ### Input Variables & Output Variables
 Vertex Shaders:
 - Receives its input straight from the vertex data (stored using glBindBuffer/glBufferData functions)
-
 Fragment Shaders:
 - Requires a vec4 color output variable, since fragment shaders need to generate final output color
     - failing to specify an output color will render your object black (or white)
-
-### Accessing Vector Data
-vec4 aVec = vec4(0.1, 0.2, 0.3. 0.4)
-aVec.x = aVec.r = aVec.s = 0.1
-aVec.y = aVec.g = aVec.t = 0.2
-aVec.z = aVec.b = aVec.p = 0.3
-aVec.w = aVec.a = aVec.q = 0.4
-
 Uniforms: Global variables that can be accessed from any shader at any stage in the shader program.
     - Whatever the uniform value is set to, it will keep its value until it is reset or update
+	- If you declare a uniform that isn't used anywhere in your GLSL coed, the compiler will silently remove the variable from the compiled version
+	- Finding the uniform location does not require you to use the shader program first 
+	- Updating a uniform requires you to first use the program (glUseProgram), it sets the uniform on the currently active shader program
 
-== ECT ==
-- If you declare a uniform that isn't used anywhere in your GLSL coed, the compiler will silently remove the variable from the compiled version
-- Finding the uniform location does not require you to use the shader program first 
-- Updating a uniform requires you to first use the program (glUseProgram), it sets the uniform on the currently active shader program
+### Accessing Vector Data
+Positionally: xyzw
+Color: rgba
+Texture Coordinates: stpq
+Ex:	vec4 aVec = vec4(0.1, 0.2, 0.3. 0.4)
+	aVec.x = aVec.r = aVec.s = 0.1
+	aVec.y = aVec.g = aVec.t = 0.2
+	aVec.z = aVec.b = aVec.p = 0.3
+	aVec.w = aVec.a = aVec.q = 0.4
 
 ++ Matrix Math ++
 Transpose: Swap the columns and rows
@@ -78,39 +77,39 @@ Transpose: Swap the columns and rows
 
 Matrix Multiplication
 Identity matrix: Multiplying any matrix N by identity matrix will produce the same matrix N.
-|1 0 0 0| |X|   |X|
+|1 0 0 0| |X| = |X|
 |0 1 0 0| |Y| = |Y|
 |0 0 1 0| |Z| = |Z|
-|0 0 0 1| |W|   |@|
+|0 0 0 1| |W| = |W|
 
 Scaling matrix:
-|1 0 0 0| |X|   |1X|
+|1 0 0 0| |X| = |1X|
 |0 2 0 0| |Y| = |2Y|
 |0 0 3 0| |Z| = |3Z|
-|0 0 0 4| |W|   |4W|
+|0 0 0 4| |W| = |4W|
 
 Translation matrix:
-|1 0 0 1| |X|   |X+1W|
+|1 0 0 1| |X| = |X+1W|
 |0 1 0 2| |Y| = |Y+2W|
 |0 0 1 3| |Z| = |Z+3W|
-|0 0 0 1| |W|   |W   |
+|0 0 0 1| |W| = |W   |
 
 Rotations:
 - Rotations in 3D are specified with an angle AND a rotaion axis.
-Rotation matrix around the X-Axis (where A is the angle:
-|1 0    0     0| |X|   |X          |
+Rotation matrix around the X-Axis (where A is the angle):
+|1 0    0     0| |X| = |X          |
 |0 cosA -sinA 0| |Y| = |YcosA-ZsinA|
 |0 sinA cosA  0| |Z| = |YsinA+ZcosA| 
 |0 0    0     1| |1| = |1          |
 
 Rotaion matrix aruound the Y-axis
-|cosA  0 sinA 0| |X|   |XcosA+ZcosA |
+|cosA  0 sinA 0| |X| = |XcosA+ZcosA |
 |0     0 0    0| |Y| = |Y           |
 |-sinA 0 cosA 0| |Z| = |-XsinA+ZcosA| 
 |0     0 0    1| |1| = |1           |
 
 Rotaion matrix aruound the Z-axis
-|cosA  -sinA 0 0| |X|   |XcosA-YsinA|
+|cosA  -sinA 0 0| |X| = |XcosA-YsinA|
 |sinA  cosA  0 0| |Y| = |XsinA+YcosA|
 |0     0     0 0| |Z| = |Z          | 
 |0     0     0 1| |1| = |1          |
@@ -140,7 +139,7 @@ Transformation Matrices for transforming coordinates between spaces:
         - If only a part of a primitieve is outside the clipping volume, OpenGL will reconstruct the triangle as one or more trinagels to fit inside clipping range
 
 Vertex coordinates first start in local space as local coordinates then are further processed to world coordinates, view coordinates, clip coordinates and eventually end up as screen coordinates.
-LOCAL SPACE ===MODEL MATRIX===> WORLD SPACE ===VIEW MATRIX===> VIEW SPACE ===PROJECTION MATRIX===> CLIP SPACE ===VIEWPORT TRANSFORMATION===> SCReEN SPACE
+LOCAL SPACE ===MODEL MATRIX===> WORLD SPACE ===VIEW MATRIX===> VIEW SPACE ===PROJECTION MATRIX===> CLIP SPACE ===VIEWPORT TRANSFORMATION===> SCREEN SPACE
     - A nice illustration can be found here (https://learnopengl.com/Getting-started/Coordinate-Systems)
 - When modifying your object, it makes most sense to do this in local space
 - When calculating certain operations on the object with respect to the position of other objects, it makes most sense in world coordinates
@@ -155,13 +154,13 @@ Orthographic projection matrix defines a cube-like frustrum
     - defines the visible coordinates and is specified by a width, a height, and a near and far plane
     - produces unrealistic results since the projection doesn't take perspective into account
 Perspective projection matrix maps a given frustum range to clip space
-    - Manipulates the w value of each vertex coordinate in wuch a way that the further away a vertex coordinate is from the viewer, the higher this w component become
+    - Manipulates the w value of each vertex coordinate in such a way that the further away a vertex coordinate is from the viewer, the higher this w component become
 V(clip) = M(projection) * M(view) * M(model) * V(local)
     - Note that the order of matrix multiplication is reversed (we need to read matrix multiplication from right to left)
 
 == Camera ==
 1. Camera position: Vector in world space that points to the camera's position
-2. Camera direction: Normalized vector in that points in the directrion from the camera's position to the camera's target  (in practice, points in opposite direction)
+2. Camera direction: Normalized vector in that points in the direction from the camera's position to the camera's target  (in practice, points in opposite direction)
     * normalize((Camera Position Vector) - (Camera Target Vector))
 3. Right axis: A right vector that represents the positive x-axis of the camera space
     * normalize(cross(vec3(0,0,1), cameraDirection))
@@ -172,11 +171,10 @@ Three Euler angles:
 * Imagine a plane sitting on the origin with it's head and tail pointing towards +Z/-Z
     1. Pitch: When the plan rotates around the X-axis
         * This causes the plane to look up or down
-    2. Yaw: When the plan rotane tes around the Y-axis
+    2. Yaw: When the plan rotates around the Y-axis
         * This causes the plane to look left or right
     3. Roll: When the plan rotates around the Z-axis
         * This determines how much the left wing points up or down (and inversely for the right wing)
-
 
 +++ Lighting +++
 Ambient Lighting: Even when dark usually light somewhere in the world (moon, distant light)
@@ -187,4 +185,4 @@ Specular Lighting: Bright part of a light that appears on shiny objects
     - Specular highlights are often more inclined to the color of the light than the color of the object
 Attenuation: Reduced intensity of light, over the distance a light ray travels
 Directional Light: A light source modeled to be infinitely far away is called a directionla light since all it's light rays have the same direction.
-Point Light: A light source witha given position somewhere in a world that illuminates in all directions where the light rays fade out over distance.
+Point Light: A light source witha given position somewhere in a world that illuminates in all directions where the light rays fade out over distance(attenuate)

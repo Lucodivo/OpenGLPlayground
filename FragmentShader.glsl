@@ -1,35 +1,25 @@
 #version 330 core
 out vec4 FragColor;
 
-uniform vec3 viewPos;
-uniform bool animSwitch;
-uniform float emissionStrength;
-
 struct LightColor{
 	vec3 ambient;
 	vec3 diffuse;
 	vec3 specular;
 };
-
 struct LightAttenuation {
 	float constant;
 	float linear;
 	float quadratic;
 };
-
 struct PositionalLight{
 	vec3 position;
 	LightColor color;
 	LightAttenuation attenuation;
 };
-uniform PositionalLight positionalLight;
-
 struct DirectionalLight{
 	vec3 direction;
 	LightColor color;
 };
-uniform DirectionalLight directionalLight;
-
 struct SpotLight{
 	vec3 position;
 	vec3 direction;
@@ -37,14 +27,19 @@ struct SpotLight{
 	float outerCutOff;
 	LightColor color;
 };
-uniform SpotLight spotLight;
-
 struct Material {
 	sampler2D diffTexture;
 	sampler2D specTexture;
 	sampler2D emissionTexture;
 	float shininess;
 };
+
+uniform vec3 viewPos;
+uniform bool animSwitch;
+uniform float emissionStrength;
+uniform PositionalLight positionalLight;
+uniform DirectionalLight directionalLight;
+uniform SpotLight spotLight;
 uniform Material material;
 
 in vec3 Normal;
