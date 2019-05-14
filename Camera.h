@@ -22,6 +22,8 @@ const float YAW = -90.0f;
 const float SPEED = 2.5f;
 const float SENSITIVTY = 0.1f;
 const float ZOOM = 45.0f;
+const float JUMP_SPEED = 1;
+
 
 class Camera
 {
@@ -100,7 +102,7 @@ public:
 
     void changePositioning(float deltaTime) {
         if (jumping) {
-            jumpVal += 0.08f;
+            jumpVal += JUMP_SPEED * 0.08f;
             float verticalOffset = sin(jumpVal) / 1.3f;
             if (verticalOffset < 0.0f) {
                 Position.y = 0.0f;
@@ -119,24 +121,18 @@ public:
             float velocity = MovementSpeed * deltaTime;            
             Position += glm::normalize(deltaPosition) * velocity;
         }
-        deltaPosition = glm::vec3(0.0f, 0.0f, 0.0f);
+        deltaPosition = glm::vec3(0.0f);
     }
 
     // Processes input received from any keyboard-like input system. Accepts input parameter in the form of camera defined ENUM (to abstract it from windowing systems)
     void ProcessKeyboard(Camera_Movement direction)
     {
-        if (direction == FORWARD)
-            deltaPosition += glm::vec3(Front.x, 0.0f, Front.z);
-        if (direction == BACKWARD)
-            deltaPosition -= glm::vec3(Front.x, 0.0f, Front.z);
-        if (direction == LEFT)
-            deltaPosition -= Right;
-        if (direction == RIGHT)
-            deltaPosition += Right;
+        if (direction == FORWARD) deltaPosition += glm::vec3(Front.x, 0.0f, Front.z);
+        if (direction == BACKWARD) deltaPosition -= glm::vec3(Front.x, 0.0f, Front.z);
+        if (direction == LEFT) deltaPosition -= Right;
+        if (direction == RIGHT) deltaPosition += Right;
 
-        if (!jumping && direction == JUMP) {
-            jumping = true;
-        }
+        if (!jumping && direction == JUMP) jumping = true;
     }
 
     // Processes input received from a mouse input system. Expects the offset value in both the x and y direction.
@@ -150,10 +146,8 @@ public:
 
         // Make sure that when pitch is out of bounds, screen doesn't get flipped
         if (constrainPitch) {
-            if (Pitch > 89.0f)
-                Pitch = 89.0f;
-            if (Pitch < -89.0f)
-                Pitch = -89.0f;
+            if (Pitch > 89.0f) Pitch = 89.0f;
+            if (Pitch < -89.0f) Pitch = -89.0f;
         }
 
         // Update Front, Right and Up Vectors using the updated Eular angles
@@ -163,12 +157,9 @@ public:
     // Processes input received from a mouse scroll-wheel event. Only requires input on the vertical wheel-axis
     void ProcessMouseScroll(float yoffset)
     {
-        if (Zoom >= 1.0f && Zoom <= 45.0f)
-            Zoom -= yoffset;
-        if (Zoom <= 1.0f)
-            Zoom = 1.0f;
-        if (Zoom >= 45.0f)
-            Zoom = 45.0f;
+        if (Zoom >= 1.0f && Zoom <= 45.0f) Zoom -= yoffset;
+        if (Zoom <= 1.0f) Zoom = 1.0f;
+        if (Zoom >= 45.0f) Zoom = 45.0f;
     }
 
 private:

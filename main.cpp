@@ -53,11 +53,11 @@ int main() {
     glfwSetCursorPosCallback(window, mouse_callback);
     glfwSetScrollCallback(window, scroll_callback);
 
-    unsigned int shapesVAO, shapesVBO, EBO;
-    initializeObjectBuffers(shapesVAO, shapesVBO, EBO);
+    unsigned int shapesVAO, shapesVBO, shapesEBO;
+    initializeObjectBuffers(shapesVAO, shapesVBO, shapesEBO);
 
-    unsigned int lightVAO, lightVBO;
-    initializeLightBuffers(lightVAO, lightVBO, EBO);
+    unsigned int lightVAO, lightVBO, lightEBO;
+    initializeLightBuffers(lightVAO, lightVBO, lightEBO);
 
     renderLoop(window, shapesVAO, lightVAO);
 
@@ -65,7 +65,8 @@ int main() {
     glDeleteBuffers(1, &shapesVBO);
     glDeleteVertexArrays(1, &lightVAO);
     glDeleteBuffers(1, &lightVBO);
-    glDeleteBuffers(1, &EBO);
+    glDeleteBuffers(1, &shapesEBO);
+	glDeleteBuffers(1, &lightEBO);
     glfwTerminate(); // clean up gl resources
     return 0;
 }
@@ -158,10 +159,10 @@ void initializeObjectBuffers(unsigned int &VAO, unsigned int &VBO, unsigned int 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
-void initializeLightBuffers(unsigned int &VAO, unsigned int &VBO, const unsigned int &EBO) {
+void initializeLightBuffers(unsigned int &VAO, unsigned int &VBO, unsigned int &EBO) {
     glGenVertexArrays(1, &VAO);
     glBindVertexArray(VAO);
-    // we only need to bind to the VBO, the container's VBO's data already contains the correct data.
+
     glGenBuffers(1,     // Num objects to generate 
         &VBO);  // Out parameters to store IDs of gen objects
     glBindBuffer(GL_ARRAY_BUFFER, VBO); // bind object to array buffer
@@ -170,10 +171,18 @@ void initializeLightBuffers(unsigned int &VAO, unsigned int &VBO, const unsigned
         cubeVertexAttributes,        // data to store in array buffer       
         GL_STATIC_DRAW); // GL_STATIC_DRAW (most likely not change), GL_DYNAMIC_DRAW (likely to change), GL_STREAM_DRAW (changes every time drawn)
     // set the vertex attributes (only position data for our lamp)
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, cubeVertexAttSizeInBytes * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
+
+	// position attribute
+	glVertexAttribPointer(0, // position vertex attribute (used for location = 0 of Vertex Shader) 
+		3, // size of vertex attribute (we're using vec3)
+		GL_FLOAT, // type of data being passed 
+		GL_FALSE, // whether the data needs to be normalized
+		cubeVertexAttSizeInBytes, // stride: space between consecutive vertex attribute sets
+		(void*)0); // offset of where the data starts in the array
+	glEnableVertexAttribArray(0);
 
     // bind element buffer object to give indices
+	glGenBuffers(1, &EBO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(cubeIndices), cubeIndices, GL_STATIC_DRAW);
 
@@ -191,7 +200,7 @@ void renderLoop(GLFWwindow *window, unsigned int &shapesVAO, unsigned int &light
 
     glEnable(GL_DEPTH_TEST);
 
-    const glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)VIEWPORT_INIT_WIDTH / (float)VIEWPORT_INIT_HEIGHT, 0.1f, 100.0f);
+    const glm::mat4 projectionMat = glm::perspective(glm::radians(camera.Zoom), (float)VIEWPORT_INIT_WIDTH / (float)VIEWPORT_INIT_HEIGHT, 0.1f, 100.0f);
 
     const float lightOrbitSpeed = 20.0f;
     const glm::vec3 lightAxisRot(0.0f, 1.0f, 0.0f);
@@ -199,7 +208,7 @@ void renderLoop(GLFWwindow *window, unsigned int &shapesVAO, unsigned int &light
 
     const float cubRotAngle = 7.3f;
 
-    glm::vec3 lightDirection = glm::vec3(-1.0f, -1.0f, -1.0f);
+    glm::vec3 directionalLightDir = glm::vec3(-0.0f, -1.0f, -3.0f);
     glm::vec3 directionalLightColor = glm::vec3(1.0f);
 
     // NOTE: render/game loop
@@ -246,7 +255,7 @@ void renderLoop(GLFWwindow *window, unsigned int &shapesVAO, unsigned int &light
 
         lightShader.setUniform("model", lightModel);
         lightShader.setUniform("view", view);
-        lightShader.setUniform("projection", projection);
+        lightShader.setUniform("projection", projectionMat);
         lightShader.setUniform("lightColor", positionalLightColor);
         glDrawElements(GL_TRIANGLES, // drawing mode
             cubeNumElements * 3, // number of elements to draw (6 vertices)
@@ -266,11 +275,11 @@ void renderLoop(GLFWwindow *window, unsigned int &shapesVAO, unsigned int &light
         shapesShader.use();
         glBindVertexArray(shapesVAO);
         shapesShader.setUniform("view", view);
-        shapesShader.setUniform("projection", projection);
+        shapesShader.setUniform("projection", projectionMat);
 
 		// positional light (orbiting light)
         shapesShader.setUniform("positionalLight.position", worldLightPos.x, worldLightPos.y, worldLightPos.z);
-        shapesShader.setUniform("positionalLight.color.ambient", positionalLightColor * glm::vec3(0.2f));
+        shapesShader.setUniform("positionalLight.color.ambient", positionalLightColor * glm::vec3(0.05f));
         shapesShader.setUniform("positionalLight.color.diffuse", positionalLightColor * glm::vec3(0.5f));
         shapesShader.setUniform("positionalLight.color.specular", positionalLightColor * glm::vec3(1.0f));
 		shapesShader.setUniform("positionalLight.attenuation.constant", 1.0f);
@@ -278,8 +287,8 @@ void renderLoop(GLFWwindow *window, unsigned int &shapesVAO, unsigned int &light
 		shapesShader.setUniform("positionalLight.attenuation.quadratic", 0.032f);
 
 		// directional light
-        shapesShader.setUniform("directionalLight.direction", lightDirection);
-        shapesShader.setUniform("directionalLight.color.ambient", directionalLightColor * glm::vec3(0.2f));
+        shapesShader.setUniform("directionalLight.direction", directionalLightDir);
+        shapesShader.setUniform("directionalLight.color.ambient", directionalLightColor * glm::vec3(0.1f));
         shapesShader.setUniform("directionalLight.color.diffuse", directionalLightColor * glm::vec3(0.4f));
         shapesShader.setUniform("directionalLight.color.specular", directionalLightColor * glm::vec3(0.5f));
 
@@ -288,7 +297,7 @@ void renderLoop(GLFWwindow *window, unsigned int &shapesVAO, unsigned int &light
         shapesShader.setUniform("spotLight.direction", camera.Front);
         shapesShader.setUniform("spotLight.cutOff", glm::cos(glm::radians(12.5f)));
         shapesShader.setUniform("spotLight.outerCutOff", glm::cos(glm::radians(17.5f)));
-        shapesShader.setUniform("spotLight.color.ambient", flashLightColor * glm::vec3(0.1f));
+        shapesShader.setUniform("spotLight.color.ambient", flashLightColor * glm::vec3(0.05f));
         shapesShader.setUniform("spotLight.color.diffuse", flashLightColor * glm::vec3(0.3f));
         shapesShader.setUniform("spotLight.color.specular", flashLightColor * glm::vec3(0.5f));
 
@@ -297,13 +306,19 @@ void renderLoop(GLFWwindow *window, unsigned int &shapesVAO, unsigned int &light
         shapesShader.setUniform("emissionStrength", emissionStrength);
         shapesShader.setUniform("viewPos", camera.Position);
 
+		// draw objects
         for (unsigned int i = 0; i < 10; i++) {
             glm::mat4 model;
+			float angularSpeed = 7.3f * (i + 1);
+
+			// orbit around the specified axis from the translated distance
+			model = glm::rotate(model, t * glm::radians(angularSpeed), glm::vec3(50.0f - (i * 10), 100.0f, -50.0f + (i * 10)));
             // translate to position in world
             model = glm::translate(model, cubePositions[i]);
             // rotate with time
-            float angle = 7.3f * (i + 1);
-            model = glm::rotate(model, t * glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+            model = glm::rotate(model, t * glm::radians(angularSpeed), glm::vec3(1.0f, 0.3f, 0.5f));
+			// scale object
+			model = glm::scale(model, glm::vec3(cubeScales[i]));
             shapesShader.setUniform("model", model);
             glDrawElements(GL_TRIANGLES, // drawing mode
                 cubeNumElements * 3, // number of elements to draw (6 vertices)
@@ -312,6 +327,7 @@ void renderLoop(GLFWwindow *window, unsigned int &shapesVAO, unsigned int &light
                     //glDrawArrays(GL_TRIANGLES, 0, cubeNumElements * 3);
         }
 
+		// draw positional light
         glDrawElements(GL_TRIANGLES, // drawing mode
             cubeNumElements * 3, // number of elements to draw (6 vertices)
             GL_UNSIGNED_INT, // type of the indices

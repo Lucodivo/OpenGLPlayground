@@ -4,7 +4,7 @@ void loadGLFW();
 GLFWwindow * createWindow();
 void initializeGLAD();
 void initializeObjectBuffers(unsigned int & VAO, unsigned int & VBO, unsigned int & EBO);
-void initializeLightBuffers(unsigned int & VAO, unsigned int & VBO, const unsigned int & EBO);
+void initializeLightBuffers(unsigned int & VAO, unsigned int & VBO, unsigned int & EBO);
 void renderLoop(GLFWwindow *window, unsigned int &shapesVAO, unsigned int &lightVAO);
 void initializeTextures(Shader & shader);
 void loadTexture(const char * imgLocation, unsigned int textureOffset);
@@ -81,6 +81,19 @@ const glm::vec3 cubePositions[] = {
     glm::vec3(1.5f,  2.0f, -2.5f),
     glm::vec3(1.5f,  0.2f, -1.5f),
     glm::vec3(-1.3f,  1.0f, -1.5f)
+};
+
+const float cubeScales[] = {
+	0.55f,
+	0.6f,
+	0.65f,
+	0.7f,
+	0.75f,
+	0.8f,
+	0.85f,
+	0.9f,
+	0.95f,
+	1.0f
 };
 // ===== cube values =====
 

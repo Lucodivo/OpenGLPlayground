@@ -94,6 +94,37 @@ Translation matrix:
 |0 0 1 3| |Z| = |Z+3W|
 |0 0 0 1| |W| = |W   |
 
+Matrix transformations:
+ - The rows of a square transformation matrix can be interpreted as the basis vectors of the new coordinate space after transformation.
+ 
+ Ex:
+ multiplying a 2D vector by the following matrix:
+ |3   3| <---- new basis vector p
+ |-3  3| <---- new basis vector q
+
+ Modifies the basis vectors of [1,0](x) and [0, 1](y)
+
+        |y
+        |^
+        ||
+ --------==>x----
+        |
+        |
+
+ to [3,3](p) and [-3,3](q).
+		
+    ^q  |   ^p
+     \  |  /
+      \ | /
+       \|/
+ ---------------
+        |
+        |
+
+ This rotates the vector 45 degrees counter clockwise about the origin.
+ Not only that, but the vector will experience a uniform scaling due to the
+ basis vectors increasing in length from 1 to ~4.24
+
 Rotations:
 - Rotations in 3D are specified with an angle AND a rotaion axis.
 Rotation matrix around the X-Axis (where A is the angle):
