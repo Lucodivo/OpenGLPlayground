@@ -1,5 +1,6 @@
 #pragma once
 
+void modelTest(GLFWwindow* window);
 void loadGLFW();
 GLFWwindow * createWindow();
 void initializeGLAD();

@@ -7,6 +7,7 @@
 
 #include "Shader.h"
 #include "Camera.h"
+#include "Model.h"
 #include "main.h"
 
 #include <iostream>
@@ -21,11 +22,14 @@ const char *vertexShaderFile = "VertexShader.glsl";
 const char *fragmentShaderFile = "FragmentShader.glsl";
 const char *lightVertexShaderFile = "LightSourceVertexShader.glsl";
 const char *lightFragmentShaderFile = "LightSourceFragmentShader.glsl";
+const char *modelVertexShaderFile = "ModelVertexShader.glsl";
+const char* modelFragmentShaderFile = "ModelFragmentShader.glsl";
 
 // texture 
 const char *diffuseTextureLoc = "data/diffuse_map.png";
 const char *specularTextureLoc = "data/specular_map.png";
 const char *emissionTextureLoc = "data/emission_map.png";
+const char* nanoSuitModel = "C:/Users/Parcle/Documents/Repos/LearnOpenGL/LearnOpenGL/data/nanosuit/nanosuit.obj"; //"/data/nanosuit/nanosuit.obj"; 
 
 // frame rate
 float deltaTime = 0.0f;	// Time between current frame and last frame
@@ -41,19 +45,16 @@ int main() {
     loadGLFW();
     GLFWwindow* window = createWindow();
     glfwMakeContextCurrent(window);
+	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+	glfwSetCursorPosCallback(window, mouse_callback);
+	glfwSetScrollCallback(window, scroll_callback);
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     initializeGLAD();
 
-    glViewport(0, // int x: left-x of viewport rect
-        0, // int y: bottom-y of viewport rect
-        VIEWPORT_INIT_WIDTH, // int width
-        VIEWPORT_INIT_HEIGHT); // int height
+	modelTest(window);
 
-    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-    glfwSetCursorPosCallback(window, mouse_callback);
-    glfwSetScrollCallback(window, scroll_callback);
-
+	/*
     unsigned int shapesVAO, shapesVBO, shapesEBO;
     initializeObjectBuffers(shapesVAO, shapesVBO, shapesEBO);
 
@@ -70,6 +71,71 @@ int main() {
 	glDeleteBuffers(1, &lightEBO);
     glfwTerminate(); // clean up gl resources
     return 0;
+	*/
+}
+
+void modelTest(GLFWwindow* window) {
+	// configure global opengl state
+	// -----------------------------
+	glEnable(GL_DEPTH_TEST);
+	
+	// build and compile shaders
+    // -------------------------
+	Shader ourShader(modelVertexShaderFile, modelFragmentShaderFile);
+
+	// load models
+	// -----------
+	Model ourModel((char *)nanoSuitModel);
+
+
+	// draw in wireframe
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+	// render loop
+	// -----------
+	while (!glfwWindowShouldClose(window))
+	{
+		// per-frame time logic
+		// --------------------
+		float currentFrame = glfwGetTime();
+		deltaTime = currentFrame - lastFrame;
+		lastFrame = currentFrame;
+
+		// input
+		// -----
+		processInput(window);
+
+		// render
+		// ------
+		glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		// don't forget to enable shader before setting uniforms
+		ourShader.use();
+
+		// view/projection transformations
+		glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)VIEWPORT_INIT_WIDTH / (float)VIEWPORT_INIT_HEIGHT, 0.1f, 100.0f);
+		glm::mat4 view = camera.GetViewMatrix(deltaTime);
+		ourShader.setUniform("projection", projection);
+		ourShader.setUniform("view", view);
+
+		// render the loaded model
+		glm::mat4 model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(0.0f, -1.75f, 0.0f)); // translate it down so it's at the center of the scene
+		model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));	// it's a bit too big for our scene, so scale it down
+		ourShader.setUniform("model", model);
+		ourModel.Draw(ourShader);
+
+
+		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
+		// -------------------------------------------------------------------------------
+		glfwSwapBuffers(window);
+		glfwPollEvents();
+	}
+
+	// glfw: terminate, clearing all previously allocated GLFW resources.
+	// ------------------------------------------------------------------
+	glfwTerminate();
 }
 
 void loadGLFW() {

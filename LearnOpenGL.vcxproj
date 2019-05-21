@@ -26,6 +26,8 @@
   <ItemGroup>
     <ClInclude Include="Camera.h" />
     <ClInclude Include="main.h" />
+    <ClInclude Include="Mesh.h" />
+    <ClInclude Include="Model.h" />
     <ClInclude Include="Shader.h" />
   </ItemGroup>
   <ItemGroup>
@@ -33,6 +35,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="LightSourceFragmentShader.glsl" />
+    <None Include="ModelFragmentShader.glsl" />
+    <None Include="ModelVertexShader.glsl" />
     <None Include="VertexShader.glsl" />
     <None Include="FragmentShader.glsl" />
     <None Include="LightSourceVertexShader.glsl" />
@@ -100,7 +104,7 @@
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>opengl32.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;glfw3.lib;assimpd.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">

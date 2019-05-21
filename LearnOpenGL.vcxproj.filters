@@ -38,6 +38,12 @@
     <ClInclude Include="Camera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Mesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Model.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="notes.txt">
@@ -55,6 +61,12 @@
       <Filter>Source Files</Filter>
     </None>
     <None Include="LightSourceVertexShader.glsl">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="ModelFragmentShader.glsl">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="ModelVertexShader.glsl">
       <Filter>Source Files</Filter>
     </None>
   </ItemGroup>
