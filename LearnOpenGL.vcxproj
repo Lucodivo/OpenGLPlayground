@@ -21,7 +21,6 @@
   <ItemGroup>
     <ClCompile Include="..\..\dependencies\OpenGL\include\glad\glad.c" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="Shader.cpp" />
     <ClCompile Include="stb_image.cpp" />
   </ItemGroup>
   <ItemGroup>

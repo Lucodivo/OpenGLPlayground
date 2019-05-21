@@ -1,6 +1,5 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include <iostream>
 #include <stb/stb_image.h>
 
 #include <glm/glm.hpp>
@@ -9,6 +8,8 @@
 #include "Shader.h"
 #include "Camera.h"
 #include "main.h"
+
+#include <iostream>
 
 #define VIEWPORT_INIT_WIDTH 800
 #define VIEWPORT_INIT_HEIGHT 600
@@ -300,8 +301,10 @@ void renderLoop(GLFWwindow *window, unsigned int &shapesVAO, unsigned int &light
         shapesShader.setUniform("spotLight.color.ambient", flashLightColor * glm::vec3(0.05f));
         shapesShader.setUniform("spotLight.color.diffuse", flashLightColor * glm::vec3(0.3f));
         shapesShader.setUniform("spotLight.color.specular", flashLightColor * glm::vec3(0.5f));
+		shapesShader.setUniform("spotLight.attenuation.constant", 1.0f);
+		shapesShader.setUniform("spotLight.attenuation.linear", 0.09f);
+		shapesShader.setUniform("spotLight.attenuation.quadratic", 0.032f);
 
-        shapesShader.setUniform("material.shininess", 32.0f);
         shapesShader.setUniform("animSwitch", animSwitch);
         shapesShader.setUniform("emissionStrength", emissionStrength);
         shapesShader.setUniform("viewPos", camera.Position);
@@ -347,6 +350,7 @@ void initializeTextures(Shader &shader) {
     shader.setUniform("material.specTexture", 1);
     loadTexture(emissionTextureLoc, 2);
     shader.setUniform("material.emissionTexture", 2);
+	shader.setUniform("material.shininess", 32.0f);
 }
 
 void loadTexture(const char* imgLocation, unsigned int textureOffset) {

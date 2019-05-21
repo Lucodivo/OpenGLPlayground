@@ -102,7 +102,7 @@ public:
 
     void changePositioning(float deltaTime) {
         if (jumping) {
-            jumpVal += JUMP_SPEED * 0.08f;
+            jumpVal += JUMP_SPEED * deltaTime * 6;
             float verticalOffset = sin(jumpVal) / 1.3f;
             if (verticalOffset < 0.0f) {
                 Position.y = 0.0f;
