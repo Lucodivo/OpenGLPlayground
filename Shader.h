@@ -10,12 +10,13 @@
 #include <sstream>
 #include <iostream>
 
+#include "LearnOpenGLPlatform.h"
 
 class Shader
 {
 public:
     // the program ID
-    unsigned int ID;
+    uint32 ID;
 
     // constructor reads and builds the shader
     Shader(const char* vertexPath, const char* fragmentPath)
@@ -52,12 +53,12 @@ public:
 		const char* fShaderCode = fragmentCode.c_str();
 
 		// vertex Shader
-		unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
+		uint32 vertexShader = glCreateShader(GL_VERTEX_SHADER);
 		glShaderSource(vertexShader, 1, &vShaderCode, NULL);
 		glCompileShader(vertexShader);
 
 		// ensure that shader loaded successfully
-		int vertexSuccess;
+		int32 vertexSuccess;
 		glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &vertexSuccess);
 		if (vertexSuccess != GL_TRUE) {
 			char infoLog[512];
@@ -66,12 +67,12 @@ public:
 		}
 
 		// fragment Shader
-		unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+		uint32 fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
 		glShaderSource(fragmentShader, 1, &fShaderCode, NULL);
 		glCompileShader(fragmentShader);
 
 		// ensure that fragment shader loaded successfully
-		int fragmentSuccess;
+		int32 fragmentSuccess;
 		glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &fragmentSuccess);
 		if (fragmentSuccess != GL_TRUE) {
 			char infoLog[512];
@@ -85,7 +86,7 @@ public:
 		glAttachShader(this->ID, fragmentShader);
 		glLinkProgram(this->ID);
 
-		int linkSuccess;
+		int32 linkSuccess;
 		glGetProgramiv(this->ID, GL_LINK_STATUS, &linkSuccess);
 		if (!linkSuccess) {
 			char infoLog[512];
@@ -108,23 +109,27 @@ public:
 		glUniform1i(glGetUniformLocation(ID, name.c_str()), (int)value);
 	}
 
-	void setUniform(const std::string& name, int value) const {
+	void setUniform(const std::string& name, int32 value) const {
 		glUniform1i(glGetUniformLocation(ID, name.c_str()), value);
 	}
 
-	void setUniform(const std::string& name, float value) const {
+	void setUniform(const std::string& name, uint32 value) const {
+		glUniform1i(glGetUniformLocation(ID, name.c_str()), value);
+	}
+
+	void setUniform(const std::string& name, float32 value) const {
 		glUniform1f(glGetUniformLocation(ID, name.c_str()), value);
 	}
 
-	void setUniform(const std::string& name, float value1, float value2) const {
+	void setUniform(const std::string& name, float32 value1, float32 value2) const {
 		glUniform2f(glGetUniformLocation(ID, name.c_str()), value1, value2);
 	}
 
-	void setUniform(const std::string& name, float value1, float value2, float value3) const {
+	void setUniform(const std::string& name, float32 value1, float32 value2, float32 value3) const {
 		glUniform3f(glGetUniformLocation(ID, name.c_str()), value1, value2, value3);
 	}
 
-	void setUniform(const std::string& name, float value1, float value2, float value3, float value4) const {
+	void setUniform(const std::string& name, float32 value1, float32 value2, float32 value3, float32 value4) const {
 		glUniform4f(glGetUniformLocation(ID, name.c_str()), value1, value2, value3, value4);
 	}
 

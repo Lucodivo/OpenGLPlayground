@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "Shader.h"
+#include "LearnOpenGLPlatform.h"
 
 struct Vertex {
 	glm::vec3 Position;
@@ -13,7 +14,7 @@ struct Vertex {
 };
 
 struct Texture {
-	unsigned int id;
+	uint32 id;
 	std::string type;
 	std::string path;
 };
@@ -21,10 +22,10 @@ struct Texture {
 class Mesh {
 public:
 	std::vector<Vertex> vertices;
-	std::vector<unsigned int> indices;
+	std::vector<uint32> indices;
 	std::vector<Texture> textures;
 
-	Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures) {
+	Mesh(std::vector<Vertex> vertices, std::vector<uint32> indices, std::vector<Texture> textures) {
 		this->vertices = vertices;
 		this->indices = indices;
 		this->textures = textures;
@@ -34,9 +35,9 @@ public:
 
 	void Draw(Shader shader)
 	{
-		unsigned int diffuseNr = 1;
-		unsigned int specularNr = 1;
-		for (unsigned int i = 0; i < textures.size(); i++)
+		uint32 diffuseNr = 1;
+		uint32 specularNr = 1;
+		for (uint32 i = 0; i < textures.size(); i++)
 		{
 			glActiveTexture(GL_TEXTURE0 + i); // activate proper texture unit before binding
 			// retrieve texture number (the N in diffuse_textureN)
@@ -47,7 +48,7 @@ public:
 			else if (name == "texture_specular")
 				number = std::to_string(specularNr++);
 
-			shader.setUniform(("material." + name + number).c_str(), (float)i);
+			shader.setUniform(("material." + name + number).c_str(), i);
 			glBindTexture(GL_TEXTURE_2D, textures[i].id);
 		}
 		glActiveTexture(GL_TEXTURE0);
@@ -59,7 +60,7 @@ public:
 	}
 
 private:
-	unsigned int VAO, VBO, EBO;
+	uint32 VAO, VBO, EBO;
 
 	void setupMesh() {
 		glGenVertexArrays(1, &VAO);
@@ -72,7 +73,7 @@ private:
 		glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), &vertices[0], GL_STATIC_DRAW);
 
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int),
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(uint32),
 			&indices[0], GL_STATIC_DRAW);
 
 		// vertex positions
@@ -85,6 +86,10 @@ private:
 		glEnableVertexAttribArray(2);
 		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, TexCoords));
 
+		// unbind VBO, VAO, & EBO
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glBindVertexArray(0);
+		// Must unbind EBO AFTER unbinding VAO, since VAO stores all glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _) calls
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	}
 };

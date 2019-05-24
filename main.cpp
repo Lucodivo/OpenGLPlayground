@@ -18,8 +18,8 @@
 #define local_persist static
 
 // shader information
-const char *vertexShaderFile = "VertexShader.glsl";
-const char *fragmentShaderFile = "FragmentShader.glsl";
+const char *cubeVertexShaderFile = "CubeVertexShader.glsl";
+const char *cubeFragmentShaderFile = "CubeFragmentShader.glsl";
 const char *lightVertexShaderFile = "LightSourceVertexShader.glsl";
 const char *lightFragmentShaderFile = "LightSourceFragmentShader.glsl";
 const char *modelVertexShaderFile = "ModelVertexShader.glsl";
@@ -29,13 +29,13 @@ const char* modelFragmentShaderFile = "ModelFragmentShader.glsl";
 const char *diffuseTextureLoc = "data/diffuse_map.png";
 const char *specularTextureLoc = "data/specular_map.png";
 const char *emissionTextureLoc = "data/emission_map.png";
-const char* nanoSuitModel = "C:/Users/Parcle/Documents/Repos/LearnOpenGL/LearnOpenGL/data/nanosuit/nanosuit.obj"; //"/data/nanosuit/nanosuit.obj"; 
+const char* nanoSuitModelLoc = "C:/Users/Connor/Source/Repos/LearnOpenGL/LearnOpenGL/data/nanosuit/nanosuit.obj"; //"/data/nanosuit/nanosuit.obj"; 
 
 // frame rate
-float deltaTime = 0.0f;	// Time between current frame and last frame
-float lastFrame = 0.0f; // Time of last frame
-float lastX = VIEWPORT_INIT_WIDTH / 2;
-float lastY = VIEWPORT_INIT_HEIGHT / 2;
+float32 deltaTime = 0.0f;	// Time between current frame and last frame
+float32 lastFrame = 0.0f; // Time of last frame
+float32 lastX = VIEWPORT_INIT_WIDTH / 2;
+float32 lastY = VIEWPORT_INIT_HEIGHT / 2;
 
 Camera camera = Camera();
 
@@ -52,90 +52,23 @@ int main() {
 
     initializeGLAD();
 
-	modelTest(window);
-
-	/*
-    unsigned int shapesVAO, shapesVBO, shapesEBO;
-    initializeObjectBuffers(shapesVAO, shapesVBO, shapesEBO);
-
-    unsigned int lightVAO, lightVBO, lightEBO;
+    uint32 lightVAO, lightVBO, lightEBO;
     initializeLightBuffers(lightVAO, lightVBO, lightEBO);
+	
+    uint32 shapesVAO, shapesVBO, shapesEBO;
+    initializeObjectBuffers(shapesVAO, shapesVBO, shapesEBO);
 
     renderLoop(window, shapesVAO, lightVAO);
 
     glDeleteVertexArrays(1, &shapesVAO);
     glDeleteBuffers(1, &shapesVBO);
-    glDeleteVertexArrays(1, &lightVAO);
-    glDeleteBuffers(1, &lightVBO);
     glDeleteBuffers(1, &shapesEBO);
+
+	glDeleteVertexArrays(1, &lightVAO);
+	glDeleteBuffers(1, &lightVBO);
 	glDeleteBuffers(1, &lightEBO);
-    glfwTerminate(); // clean up gl resources
-    return 0;
-	*/
-}
-
-void modelTest(GLFWwindow* window) {
-	// configure global opengl state
-	// -----------------------------
-	glEnable(GL_DEPTH_TEST);
-	
-	// build and compile shaders
-    // -------------------------
-	Shader ourShader(modelVertexShaderFile, modelFragmentShaderFile);
-
-	// load models
-	// -----------
-	Model ourModel((char *)nanoSuitModel);
-
-
-	// draw in wireframe
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
-	// render loop
-	// -----------
-	while (!glfwWindowShouldClose(window))
-	{
-		// per-frame time logic
-		// --------------------
-		float currentFrame = glfwGetTime();
-		deltaTime = currentFrame - lastFrame;
-		lastFrame = currentFrame;
-
-		// input
-		// -----
-		processInput(window);
-
-		// render
-		// ------
-		glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-		// don't forget to enable shader before setting uniforms
-		ourShader.use();
-
-		// view/projection transformations
-		glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)VIEWPORT_INIT_WIDTH / (float)VIEWPORT_INIT_HEIGHT, 0.1f, 100.0f);
-		glm::mat4 view = camera.GetViewMatrix(deltaTime);
-		ourShader.setUniform("projection", projection);
-		ourShader.setUniform("view", view);
-
-		// render the loaded model
-		glm::mat4 model = glm::mat4(1.0f);
-		model = glm::translate(model, glm::vec3(0.0f, -1.75f, 0.0f)); // translate it down so it's at the center of the scene
-		model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));	// it's a bit too big for our scene, so scale it down
-		ourShader.setUniform("model", model);
-		ourModel.Draw(ourShader);
-
-
-		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
-		// -------------------------------------------------------------------------------
-		glfwSwapBuffers(window);
-		glfwPollEvents();
-	}
-
-	// glfw: terminate, clearing all previously allocated GLFW resources.
-	// ------------------------------------------------------------------
-	glfwTerminate();
+	glfwTerminate(); // clean up gl resources
+	return 0;
 }
 
 void loadGLFW() {
@@ -144,6 +77,14 @@ void loadGLFW() {
         std::cout << "Failed to load GLFW" << std::endl;
         exit(-1);
     }
+}
+
+void initializeGLAD() {
+	// intialize GLAD to help manage function pointers for OpenGL
+	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
+		std::cout << "Failed to initialize GLAD" << std::endl;
+		exit(-1);
+	}
 }
 
 GLFWwindow* createWindow() {
@@ -168,15 +109,7 @@ GLFWwindow* createWindow() {
     return window;
 }
 
-void initializeGLAD() {
-    // intialize GLAD to help manage function pointers for OpenGL
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
-        std::cout << "Failed to initialize GLAD" << std::endl;
-        exit(-1);
-    }
-}
-
-void initializeObjectBuffers(unsigned int &VAO, unsigned int &VBO, unsigned int &EBO) {
+void initializeObjectBuffers(uint32 &VAO, uint32 &VBO, uint32 &EBO) {
     glGenVertexArrays(1, &VAO);
     glBindVertexArray(VAO);
 
@@ -200,19 +133,19 @@ void initializeObjectBuffers(unsigned int &VAO, unsigned int &VBO, unsigned int 
     // texture coords attribute
     glVertexAttribPointer(1,
         2,
-        GL_FLOAT,
+		GL_FLOAT,
         GL_FALSE,
         cubeVertexAttSizeInBytes,
-        (void*)(3 * sizeof(float)));
+        (void*)(3 * sizeof(float32)));
     glEnableVertexAttribArray(1);
 
     // normal attribute
     glVertexAttribPointer(2,
         3,
-        GL_FLOAT,
+		GL_FLOAT,
         GL_FALSE,
         cubeVertexAttSizeInBytes,
-        (void*)(5 * sizeof(float)));
+        (void*)(5 * sizeof(float32)));
     glEnableVertexAttribArray(2);
 
     glGenBuffers(1, &EBO);
@@ -226,12 +159,14 @@ void initializeObjectBuffers(unsigned int &VAO, unsigned int &VBO, unsigned int 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
-void initializeLightBuffers(unsigned int &VAO, unsigned int &VBO, unsigned int &EBO) {
+void initializeLightBuffers(uint32 &VAO, uint32 &VBO, uint32 &EBO) {
     glGenVertexArrays(1, &VAO);
+	glGenBuffers(1,     // Num objects to generate 
+		&VBO);  // Out parameters to store IDs of gen objects
+	glGenBuffers(1, &EBO);
+
     glBindVertexArray(VAO);
 
-    glGenBuffers(1,     // Num objects to generate 
-        &VBO);  // Out parameters to store IDs of gen objects
     glBindBuffer(GL_ARRAY_BUFFER, VBO); // bind object to array buffer
     glBufferData(GL_ARRAY_BUFFER, // which buffer data is being entered in
         sizeof(cubeVertexAttributes), // size of data being placed in array buffer
@@ -249,7 +184,6 @@ void initializeLightBuffers(unsigned int &VAO, unsigned int &VBO, unsigned int &
 	glEnableVertexAttribArray(0);
 
     // bind element buffer object to give indices
-	glGenBuffers(1, &EBO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(cubeIndices), cubeIndices, GL_STATIC_DRAW);
 
@@ -260,23 +194,34 @@ void initializeLightBuffers(unsigned int &VAO, unsigned int &VBO, unsigned int &
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
-void renderLoop(GLFWwindow *window, unsigned int &shapesVAO, unsigned int &lightVAO) {
-    Shader shapesShader = Shader(vertexShaderFile, fragmentShaderFile);
+void renderLoop(GLFWwindow *window, uint32 &shapesVAO, uint32 &lightVAO) {
+    Shader cubeShader = Shader(cubeVertexShaderFile, cubeFragmentShaderFile);
     Shader lightShader = Shader(lightVertexShaderFile, lightFragmentShaderFile);
-    initializeTextures(shapesShader);
+	Shader modelShader = Shader(modelVertexShaderFile, modelFragmentShaderFile);
+
+	uint32 diffTextureId;
+	uint32 specTextureId;
+	uint32 emTextureId;
+    initializeTextures(cubeShader, diffTextureId, specTextureId, emTextureId);
+
+	// load models
+	Model nanoSuitModel((char*)nanoSuitModelLoc);
 
     glEnable(GL_DEPTH_TEST);
 
-    const glm::mat4 projectionMat = glm::perspective(glm::radians(camera.Zoom), (float)VIEWPORT_INIT_WIDTH / (float)VIEWPORT_INIT_HEIGHT, 0.1f, 100.0f);
+    const glm::mat4 projectionMat = glm::perspective(glm::radians(camera.Zoom), (float32)VIEWPORT_INIT_WIDTH / (float32)VIEWPORT_INIT_HEIGHT, 0.1f, 100.0f);
 
-    const float lightOrbitSpeed = 20.0f;
+    const float32 lightOrbitSpeed = 20.0f;
     const glm::vec3 lightAxisRot(0.0f, 1.0f, 0.0f);
-    const float lightScale = 0.2f;
+    const float32 lightScale = 0.2f;
 
-    const float cubRotAngle = 7.3f;
+    const float32 cubRotAngle = 7.3f;
 
     glm::vec3 directionalLightDir = glm::vec3(-0.0f, -1.0f, -3.0f);
     glm::vec3 directionalLightColor = glm::vec3(1.0f);
+
+	// draw in wireframe
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
     // NOTE: render/game loop
     while (glfwWindowShouldClose(window) == GL_FALSE) {
@@ -290,140 +235,162 @@ void renderLoop(GLFWwindow *window, unsigned int &shapesVAO, unsigned int &light
 		// if flashlight is off, simply remove all color from light
         glm::vec3 flashLightColor = flashLightOn ? glm::vec3(0.93f, 0.84f, 0.72f) : glm::vec3(0.0f);
 
-        float t = (float)glfwGetTime();
+        float32 t = (float32)glfwGetTime();
         deltaTime = t - lastFrame;
         lastFrame = t;
-        float sineVal = sin(t);
-        float lightR = (sin((t + 30) / 3) / 2) + 0.5;
-        float lightG = (sin((t + 60) / 8) / 2) + 0.5;
-        float lightB = (sin(t / 17) / 2) + 0.5;
+        float32 sineVal = sin(t);
+        float32 lightR = (sin((t + 30) / 3) / 2) + 0.5;
+        float32 lightG = (sin((t + 60) / 8) / 2) + 0.5;
+        float32 lightB = (sin(t / 17) / 2) + 0.5;
         glm::vec3 positionalLightColor(lightR, lightG, lightB);
 
-		// switch between two imagest over time
-        float animSwitch = sin(8 * t) > 0;
-
-        float emissionStrength = ((sin(t * 2) + 1.0f) / 4) + 0.15;
-
-        glm::mat4 view = camera.GetViewMatrix(deltaTime);
-
-        // Create light model to position the light in the world
-        glm::mat4 lightModel;
+        glm::mat4 viewMat = camera.GetViewMatrix(deltaTime);
 
 		// oscillate with time
         const glm::vec3 lightPosition = glm::vec3(2.0f, 0.0f + sineVal, 2.0f);
 		// orbit with time
+		glm::mat4 lightModel; // default constructor is identity matrix
         lightModel = glm::rotate(lightModel, t * glm::radians(lightOrbitSpeed), lightAxisRot);
         lightModel = glm::translate(lightModel, lightPosition);
         lightModel = glm::scale(lightModel, glm::vec3(lightScale));
 
         // draw light
-        lightShader.use();
-        glBindVertexArray(lightVAO);
+		{
+			lightShader.use();
+			glBindVertexArray(lightVAO);
 
-        lightShader.setUniform("model", lightModel);
-        lightShader.setUniform("view", view);
-        lightShader.setUniform("projection", projectionMat);
-        lightShader.setUniform("lightColor", positionalLightColor);
-        glDrawElements(GL_TRIANGLES, // drawing mode
-            cubeNumElements * 3, // number of elements to draw (6 vertices)
-            GL_UNSIGNED_INT, // type of the indices
-            0); // offset in the EBO
-        glBindVertexArray(0);
+			lightShader.setUniform("model", lightModel);
+			lightShader.setUniform("view", viewMat);
+			lightShader.setUniform("projection", projectionMat);
+			lightShader.setUniform("lightColor", positionalLightColor);
+			glDrawElements(GL_TRIANGLES, // drawing mode
+				cubeNumElements * 3, // number of elements to draw (6 vertices)
+				GL_UNSIGNED_INT, // type of the indices
+				0); // offset in the EBO
+			glBindVertexArray(0);
+		}
 
-        // User fragment shaders to draw a triangle
-        glm::vec4 worldLightPos = lightModel * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
-        glm::mat4 cubeModel;
-        // translate to position in world
-        cubeModel = glm::translate(cubeModel, cubePositions[0]);
-        // rotate with time
-        cubeModel = glm::rotate(cubeModel, t * glm::radians(cubRotAngle), glm::vec3(1.0f, 0.3f, 0.5f));
+        // draw cubes
+		{
+			cubeShader.use();
 
-        // draw cube
-        shapesShader.use();
-        glBindVertexArray(shapesVAO);
-        shapesShader.setUniform("view", view);
-        shapesShader.setUniform("projection", projectionMat);
+			// User fragment shaders to draw a triangle
+			glm::vec4 worldLightPos = lightModel * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+			glm::mat4 cubeModel;
+			// translate to position in world
+			cubeModel = glm::translate(cubeModel, cubePositions[0]);
+			// rotate with time
+			cubeModel = glm::rotate(cubeModel, t * glm::radians(cubRotAngle), glm::vec3(1.0f, 0.3f, 0.5f));
+			// switch between two images over time
+			float32 animSwitch = sin(8 * t) > 0;
+			// emission strength fluctuating over time
+			float32 emissionStrength = ((sin(t * 2) + 1.0f) / 4) + 0.15;
 
-		// positional light (orbiting light)
-        shapesShader.setUniform("positionalLight.position", worldLightPos.x, worldLightPos.y, worldLightPos.z);
-        shapesShader.setUniform("positionalLight.color.ambient", positionalLightColor * glm::vec3(0.05f));
-        shapesShader.setUniform("positionalLight.color.diffuse", positionalLightColor * glm::vec3(0.5f));
-        shapesShader.setUniform("positionalLight.color.specular", positionalLightColor * glm::vec3(1.0f));
-		shapesShader.setUniform("positionalLight.attenuation.constant", 1.0f);
-		shapesShader.setUniform("positionalLight.attenuation.linear", 0.09f);
-		shapesShader.setUniform("positionalLight.attenuation.quadratic", 0.032f);
+			cubeShader.setUniform("view", viewMat);
+			cubeShader.setUniform("projection", projectionMat);
 
-		// directional light
-        shapesShader.setUniform("directionalLight.direction", directionalLightDir);
-        shapesShader.setUniform("directionalLight.color.ambient", directionalLightColor * glm::vec3(0.1f));
-        shapesShader.setUniform("directionalLight.color.diffuse", directionalLightColor * glm::vec3(0.4f));
-        shapesShader.setUniform("directionalLight.color.specular", directionalLightColor * glm::vec3(0.5f));
+			// positional light (orbiting light)
+			cubeShader.setUniform("positionalLight.position", worldLightPos.x, worldLightPos.y, worldLightPos.z);
+			cubeShader.setUniform("positionalLight.color.ambient", positionalLightColor * glm::vec3(0.05f));
+			cubeShader.setUniform("positionalLight.color.diffuse", positionalLightColor * glm::vec3(0.5f));
+			cubeShader.setUniform("positionalLight.color.specular", positionalLightColor * glm::vec3(1.0f));
+			cubeShader.setUniform("positionalLight.attenuation.constant", 1.0f);
+			cubeShader.setUniform("positionalLight.attenuation.linear", 0.09f);
+			cubeShader.setUniform("positionalLight.attenuation.quadratic", 0.032f);
 
-		// flash light
-        shapesShader.setUniform("spotLight.position", camera.Position);
-        shapesShader.setUniform("spotLight.direction", camera.Front);
-        shapesShader.setUniform("spotLight.cutOff", glm::cos(glm::radians(12.5f)));
-        shapesShader.setUniform("spotLight.outerCutOff", glm::cos(glm::radians(17.5f)));
-        shapesShader.setUniform("spotLight.color.ambient", flashLightColor * glm::vec3(0.05f));
-        shapesShader.setUniform("spotLight.color.diffuse", flashLightColor * glm::vec3(0.3f));
-        shapesShader.setUniform("spotLight.color.specular", flashLightColor * glm::vec3(0.5f));
-		shapesShader.setUniform("spotLight.attenuation.constant", 1.0f);
-		shapesShader.setUniform("spotLight.attenuation.linear", 0.09f);
-		shapesShader.setUniform("spotLight.attenuation.quadratic", 0.032f);
+			// directional light
+			cubeShader.setUniform("directionalLight.direction", directionalLightDir);
+			cubeShader.setUniform("directionalLight.color.ambient", directionalLightColor * glm::vec3(0.1f));
+			cubeShader.setUniform("directionalLight.color.diffuse", directionalLightColor * glm::vec3(0.4f));
+			cubeShader.setUniform("directionalLight.color.specular", directionalLightColor * glm::vec3(0.5f));
 
-        shapesShader.setUniform("animSwitch", animSwitch);
-        shapesShader.setUniform("emissionStrength", emissionStrength);
-        shapesShader.setUniform("viewPos", camera.Position);
+			// flash light
+			cubeShader.setUniform("spotLight.position", camera.Position);
+			cubeShader.setUniform("spotLight.direction", camera.Front);
+			cubeShader.setUniform("spotLight.cutOff", glm::cos(glm::radians(12.5f)));
+			cubeShader.setUniform("spotLight.outerCutOff", glm::cos(glm::radians(17.5f)));
+			cubeShader.setUniform("spotLight.color.ambient", flashLightColor * glm::vec3(0.05f));
+			cubeShader.setUniform("spotLight.color.diffuse", flashLightColor * glm::vec3(0.3f));
+			cubeShader.setUniform("spotLight.color.specular", flashLightColor * glm::vec3(0.5f));
+			cubeShader.setUniform("spotLight.attenuation.constant", 1.0f);
+			cubeShader.setUniform("spotLight.attenuation.linear", 0.09f);
+			cubeShader.setUniform("spotLight.attenuation.quadratic", 0.032f);
 
-		// draw objects
-        for (unsigned int i = 0; i < 10; i++) {
-            glm::mat4 model;
-			float angularSpeed = 7.3f * (i + 1);
+			cubeShader.setUniform("animSwitch", animSwitch);
+			cubeShader.setUniform("emissionStrength", emissionStrength);
+			cubeShader.setUniform("viewPos", camera.Position);
 
-			// orbit around the specified axis from the translated distance
-			model = glm::rotate(model, t * glm::radians(angularSpeed), glm::vec3(50.0f - (i * 10), 100.0f, -50.0f + (i * 10)));
-            // translate to position in world
-            model = glm::translate(model, cubePositions[i]);
-            // rotate with time
-            model = glm::rotate(model, t * glm::radians(angularSpeed), glm::vec3(1.0f, 0.3f, 0.5f));
-			// scale object
-			model = glm::scale(model, glm::vec3(cubeScales[i]));
-            shapesShader.setUniform("model", model);
-            glDrawElements(GL_TRIANGLES, // drawing mode
-                cubeNumElements * 3, // number of elements to draw (6 vertices)
-                GL_UNSIGNED_INT, // type of the indices
-                0); // offset in the EBO
-                    //glDrawArrays(GL_TRIANGLES, 0, cubeNumElements * 3);
-        }
+			// bind shapesVAO
+			glBindVertexArray(shapesVAO);
 
-		// draw positional light
-        glDrawElements(GL_TRIANGLES, // drawing mode
-            cubeNumElements * 3, // number of elements to draw (6 vertices)
-            GL_UNSIGNED_INT, // type of the indices
-            0); // offset in the EBO
-        glBindVertexArray(0); // unbind shapesVAO
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, diffTextureId);
+			glActiveTexture(GL_TEXTURE1);
+			glBindTexture(GL_TEXTURE_2D, specTextureId);
+			glActiveTexture(GL_TEXTURE2);
+			glBindTexture(GL_TEXTURE_2D, emTextureId);
+
+			cubeShader.setUniform("material.diffTexture", 0);
+			cubeShader.setUniform("material.specTexture", 1);
+			cubeShader.setUniform("material.emissionTexture", 2);
+			cubeShader.setUniform("material.shininess", 32.0f);
+
+			// draw objects
+			for (uint32 i = 0; i < 10; i++) {
+				glm::mat4 model;
+				float32 angularSpeed = 7.3f * (i + 1);
+
+				// orbit around the specified axis from the translated distance
+				model = glm::rotate(model, t * glm::radians(angularSpeed), glm::vec3(50.0f - (i * 10), 100.0f, -50.0f + (i * 10)));
+				// translate to position in world
+				model = glm::translate(model, cubePositions[i]);
+				// rotate with time
+				model = glm::rotate(model, t * glm::radians(angularSpeed), glm::vec3(1.0f, 0.3f, 0.5f));
+				// scale object
+				model = glm::scale(model, glm::vec3(cubeScales[i]));
+				cubeShader.setUniform("model", model);
+				glDrawElements(GL_TRIANGLES, // drawing mode
+					cubeNumElements * 3, // number of elements to draw (6 vertices)
+					GL_UNSIGNED_INT, // type of the indices
+					0); // offset in the EBO
+			}
+
+			// unbind shapesVAO
+			glBindVertexArray(0);
+		}
+
+		// draw models
+		{
+			// don't forget to enable shader before setting uniforms
+			modelShader.use();
+
+			modelShader.setUniform("projection", projectionMat);
+			modelShader.setUniform("view", viewMat);
+
+			// render the loaded model
+			glm::mat4 model;
+			model = glm::translate(model, glm::vec3(0.0f, -1.75f, 0.0f)); // translate it down so it's at the center of the scene
+			model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));	// it's a bit too big for our scene, so scale it down
+			modelShader.setUniform("model", model);
+			nanoSuitModel.Draw(modelShader);
+		}
 
         glfwSwapBuffers(window); // swaps double buffers (call after all render commands are completed)
         glfwPollEvents(); // checks for events (ex: keyboard/mouse input)
     }
 }
 
-void initializeTextures(Shader &shader) {
-    shader.use(); // must activate/use the shader before setting the uniforms!
-    loadTexture(diffuseTextureLoc, 0);
-    shader.setUniform("material.diffTexture", 0);
-    loadTexture(specularTextureLoc, 1);
-    shader.setUniform("material.specTexture", 1);
-    loadTexture(emissionTextureLoc, 2);
-    shader.setUniform("material.emissionTexture", 2);
-	shader.setUniform("material.shininess", 32.0f);
+void initializeTextures(Shader &shader, uint32 &diffTextureId, uint32 &specTextureId, uint32 &emTextureId) {
+	loadTexture(diffuseTextureLoc, diffTextureId);
+	loadTexture(specularTextureLoc, specTextureId);
+	loadTexture(emissionTextureLoc, emTextureId);
 }
 
-void loadTexture(const char* imgLocation, unsigned int textureOffset) {
-    unsigned int texture; // stores id of generated texture
-    glGenTextures(1, &texture);
+void loadTexture(const char* imgLocation, uint32 &textureId) {
+    glGenTextures(1, &textureId);
+	uint32 textureOffset = textureId - 1;
     glActiveTexture(GL_TEXTURE0 + textureOffset); // activate texture unit (by default it is bound to GL_TEXTURE0)
-    glBindTexture(GL_TEXTURE_2D, texture);
+    glBindTexture(GL_TEXTURE_2D, textureId);
 
     // load image data
     int width, height, numChannels;
@@ -505,16 +472,16 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 {
     static bool firstMouse = true;
     if (firstMouse) {
-        lastX = (float)xpos;
-        lastY = (float)ypos;
+        lastX = (float32)xpos;
+        lastY = (float32)ypos;
         firstMouse = false;
     }
 
-    float xoffset = (float)xpos - lastX;
-    float yoffset = lastY - (float)ypos; // reversed since y-coordinates go from bottom to top
+    float32 xoffset = (float32)xpos - lastX;
+    float32 yoffset = lastY - (float32)ypos; // reversed since y-coordinates go from bottom to top
 
-    lastX = (float)xpos;
-    lastY = (float)ypos;
+    lastX = (float32)xpos;
+    lastY = (float32)ypos;
 
     camera.ProcessMouseMovement(xoffset, yoffset);
 }
@@ -522,5 +489,5 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 // Callback function for when user scrolls with mouse wheel
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
-    camera.ProcessMouseScroll((float)yoffset);
+    camera.ProcessMouseScroll((float32)yoffset);
 }

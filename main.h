@@ -1,14 +1,16 @@
 #pragma once
 
-void modelTest(GLFWwindow* window);
+#include "LearnOpenGLPlatform.h"
+
+void modelTest(GLFWwindow* window, uint32 lightVAO);
 void loadGLFW();
 GLFWwindow * createWindow();
 void initializeGLAD();
-void initializeObjectBuffers(unsigned int & VAO, unsigned int & VBO, unsigned int & EBO);
-void initializeLightBuffers(unsigned int & VAO, unsigned int & VBO, unsigned int & EBO);
-void renderLoop(GLFWwindow *window, unsigned int &shapesVAO, unsigned int &lightVAO);
-void initializeTextures(Shader & shader);
-void loadTexture(const char * imgLocation, unsigned int textureOffset);
+void initializeObjectBuffers(uint32 & VAO, uint32 & VBO, uint32 & EBO);
+void initializeLightBuffers(uint32 & VAO, uint32 & VBO, uint32 & EBO);
+void renderLoop(GLFWwindow *window, uint32 &shapesVAO, uint32 &lightVAO);
+void initializeTextures(Shader& shader, uint32& diffTextureId, uint32& specTextureId, uint32& emTextureId);
+void loadTexture(const char * imgLocation, uint32 &textureOffset);
 void processInput(GLFWwindow * window);
 void mouse_callback(GLFWwindow * window, double xpos, double ypos);
 void scroll_callback(GLFWwindow * window, double xoffset, double yoffset);
@@ -19,9 +21,9 @@ void framebuffer_size_callback(GLFWwindow * window, int width, int height);
 #define BottomRightTexture 1.0f, 0.0f
 #define TopLeftTexture 0.0f, 1.0f
 #define TopRightTexture 1.0f, 1.0f
-const unsigned int cubeVertexAttSizeInBytes = 8 * sizeof(float);
-const unsigned int cubeNumElements = 12;
-const unsigned int numCubes = 1; 
+const uint32 cubeVertexAttSizeInBytes = 8 * sizeof(float32);
+const uint32 cubeNumElements = 12;
+const uint32 numCubes = 1; 
 const float cubeVertexAttributes[] = {
     // positions          // texture positions  // normals (unit vectors orthogonal to surface) 
     // face #1
@@ -56,7 +58,7 @@ const float cubeVertexAttributes[] = {
     -0.5f,  0.5f,  0.5f,  BottomLeftTexture,     0.0f,  1.0f,  0.0f  // bottom left
 };
 
-const unsigned int cubeIndices[]{
+const uint32 cubeIndices[]{
     0, 1, 2,
     2, 3, 0,
     4, 5, 6,
@@ -84,7 +86,7 @@ const glm::vec3 cubePositions[] = {
     glm::vec3(-1.3f,  1.0f, -1.5f)
 };
 
-const float cubeScales[] = {
+const float32 cubeScales[] = {
 	0.55f,
 	0.6f,
 	0.65f,
@@ -99,9 +101,9 @@ const float cubeScales[] = {
 // ===== cube values =====
 
 // ===== double triangle values =====
-const unsigned int triangleVertexAttSize = 8;
-const unsigned int triangleNumElements = 2;
-const float triangleVertices[] = {
+const uint32 triangleVertexAttSize = 8;
+const uint32 triangleNumElements = 2;
+const float32 triangleVertices[] = {
     // First triangle
     // positions            // colors           // texture coords
     -0.5f, -0.5f, 0.0f,     1.0f, 0.0f, 0.0f,   0.0f, 0.0f, // bottom left
@@ -111,7 +113,7 @@ const float triangleVertices[] = {
     -0.25f, 0.75f, 0.0f,    0.0f, 0.0f, 1.0f,   0.0f, 0.0f, // top left
     0.25f, 0.75f, 0.0f,     1.0f, 0.0f, 0.0f,   1.0f, 0.0f  // top right
 };
-const unsigned int indices[]{
+const uint32 indices[]{
     0, 1, 2,    // first triangle
     2, 3, 4     // second triangle
 };

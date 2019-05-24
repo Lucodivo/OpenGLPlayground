@@ -8,6 +8,8 @@
 
 #include <vector>
 
+#include "LearnOpenGLPlatform.h"
+
 // Defines several possible options for camera movement. Used as abstraction to stay away from window-system specific input methods
 enum Camera_Movement {
     FORWARD,
@@ -17,12 +19,12 @@ enum Camera_Movement {
     JUMP
 };
 
-const float PITCH = 0.0f;
-const float YAW = -90.0f;
-const float SPEED = 2.5f;
-const float SENSITIVTY = 0.1f;
-const float ZOOM = 45.0f;
-const float JUMP_SPEED = 1;
+const float32 PITCH = 0.0f;
+const float32 YAW = -90.0f;
+const float32 SPEED = 2.5f;
+const float32 SENSITIVTY = 0.1f;
+const float32 ZOOM = 45.0f;
+const float32 JUMP_SPEED = 1;
 
 
 class Camera
@@ -35,19 +37,19 @@ public:
     glm::vec3 Right;
     glm::vec3 WorldUp;
     // Eular Angles
-    float Yaw;
-    float Pitch;
+    float32 Yaw;
+    float32 Pitch;
     // Camera options
-    float MovementSpeed;
-    float MouseSensitivity;
-    float Zoom;
+    float32 MovementSpeed;
+    float32 MouseSensitivity;
+    float32 Zoom;
     glm::vec3 deltaPosition = glm::vec3(0.0f, 0.0f, 0.0f);
     // Jump values
     bool jumping = false;
-    float jumpVal = 0.0f;
+    float32 jumpVal = 0.0f;
 
     // Constructor with vectors
-    Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 3.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float yaw = YAW, float pitch = PITCH)
+    Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 3.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float32 yaw = YAW, float32 pitch = PITCH)
         : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVTY), Zoom(ZOOM)
     {
         Position = position;
@@ -57,7 +59,7 @@ public:
         updateCameraVectors();
     }
     // Constructor with scalar values
-    Camera(float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw, float pitch) : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVTY), Zoom(ZOOM)
+    Camera(float32 posX, float32 posY, float32 posZ, float32 upX, float32 upY, float32 upZ, float32 yaw, float32 pitch) : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVTY), Zoom(ZOOM)
     {
         Position = glm::vec3(posX, posY, posZ);
         WorldUp = glm::vec3(upX, upY, upZ);
@@ -67,7 +69,7 @@ public:
     }
 
     // Returns the view matrix calculated using Eular Angles and the LookAt Matrix
-    glm::mat4 GetViewMatrix(float deltaTime)
+    glm::mat4 GetViewMatrix(float32 deltaTime)
     {
         changePositioning(deltaTime);
 
@@ -85,12 +87,12 @@ public:
         glm::vec3 yaxis = glm::cross(zaxis, xaxis);
 
         // In glm we access elements as mat[col][row] due to column-major layout
-        auto translation = glm::mat4(
+		glm::mat4 translation = glm::mat4(
             1.0f, 0.0f, 0.0f, 0.0f,
             0.0f, 1.0f, 0.0f, 0.0f,
             0.0f, 0.0f, 1.0f, 0.0f,
             -Position.x, -Position.y, -Position.z, 1.0f);
-        auto rotation = glm::mat4(
+		glm::mat4 rotation = glm::mat4(
             xaxis.x, yaxis.x, zaxis.x, 0.0f,
             xaxis.y, yaxis.y, zaxis.y, 0.0f,
             xaxis.z, yaxis.z, zaxis.z, 0.0f,
@@ -100,10 +102,10 @@ public:
         return rotation * translation; // Remember to read from right to left (first translation then rotation)
     }
 
-    void changePositioning(float deltaTime) {
+    void changePositioning(float32 deltaTime) {
         if (jumping) {
             jumpVal += JUMP_SPEED * deltaTime * 6;
-            float verticalOffset = sin(jumpVal) / 1.3f;
+            float32 verticalOffset = sin(jumpVal) / 1.3f;
             if (verticalOffset < 0.0f) {
                 Position.y = 0.0f;
                 jumpVal = 0.0f;
@@ -118,7 +120,7 @@ public:
             // normalizing the deltaPosition helps:
             // - accomodate for slower movement when looking up or down
             //      due to the front.xz values creating a < 1 magnitude vector
-            float velocity = MovementSpeed * deltaTime;            
+            float32 velocity = MovementSpeed * deltaTime;            
             Position += glm::normalize(deltaPosition) * velocity;
         }
         deltaPosition = glm::vec3(0.0f);
@@ -136,7 +138,7 @@ public:
     }
 
     // Processes input received from a mouse input system. Expects the offset value in both the x and y direction.
-    void ProcessMouseMovement(float xoffset, float yoffset, GLboolean constrainPitch = true)
+    void ProcessMouseMovement(float32 xoffset, float32 yoffset, GLboolean constrainPitch = true)
     {
         xoffset *= MouseSensitivity;
         yoffset *= MouseSensitivity;
@@ -155,7 +157,7 @@ public:
     }
 
     // Processes input received from a mouse scroll-wheel event. Only requires input on the vertical wheel-axis
-    void ProcessMouseScroll(float yoffset)
+    void ProcessMouseScroll(float32 yoffset)
     {
         if (Zoom >= 1.0f && Zoom <= 45.0f) Zoom -= yoffset;
         if (Zoom <= 1.0f) Zoom = 1.0f;

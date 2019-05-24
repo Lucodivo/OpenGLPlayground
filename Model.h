@@ -7,12 +7,13 @@
 #include <stb/stb_image.h>
 #include <glm/glm.hpp>
 
-#include "Mesh.h"
-
 #include <string>
 #include <vector>
 
-unsigned int TextureFromFile(const char* path, const std::string& directory, bool gamma = false);
+#include "Mesh.h"
+#include "LearnOpenGLPlatform.h"
+
+uint32 TextureFromFile(const char* path, const std::string& directory, bool gamma = false);
 
 class Model
 {
@@ -25,7 +26,7 @@ public:
 
 	void Draw(Shader shader)
 	{
-		for (unsigned int i = 0; i < meshes.size(); i++) meshes[i].Draw(shader);
+		for (uint32 i = 0; i < meshes.size(); i++) meshes[i].Draw(shader);
 	}
 
 private:
@@ -50,13 +51,13 @@ private:
 	void processNode(aiNode* node, const aiScene* scene)
 	{
 		// process all the node's meshes (if any)
-		for (unsigned int i = 0; i < node->mNumMeshes; i++)
+		for (uint32 i = 0; i < node->mNumMeshes; i++)
 		{
 			aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
 			meshes.push_back(processMesh(mesh, scene));
 		}
 		// then do the same for each of its children
-		for (unsigned int i = 0; i < node->mNumChildren; i++)
+		for (uint32 i = 0; i < node->mNumChildren; i++)
 		{
 			processNode(node->mChildren[i], scene);
 		}
@@ -65,7 +66,7 @@ private:
 	Mesh processMesh(aiMesh* mesh, const aiScene* scene)
 	{
 		std::vector<Vertex> vertices;
-		for (unsigned int i = 0; i < mesh->mNumVertices; i++)
+		for (uint32 i = 0; i < mesh->mNumVertices; i++)
 		{
 			Vertex vertex;
 
@@ -99,11 +100,11 @@ private:
 		}
 
 		// process indices
-		std::vector<unsigned int> indices;
-		for (unsigned int i = 0; i < mesh->mNumFaces; i++)
+		std::vector<uint32> indices;
+		for (uint32 i = 0; i < mesh->mNumFaces; i++)
 		{
 			aiFace face = mesh->mFaces[i];
-			for (unsigned int j = 0; j < face.mNumIndices; j++)
+			for (uint32 j = 0; j < face.mNumIndices; j++)
 			{
 				indices.push_back(face.mIndices[j]);
 			}
@@ -127,12 +128,12 @@ private:
 	std::vector<Texture> loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName)
 	{
 		std::vector<Texture> textures;
-		for (unsigned int i = 0; i < mat->GetTextureCount(type); i++)
+		for (uint32 i = 0; i < mat->GetTextureCount(type); i++)
 		{
 			aiString str;
 			mat->GetTexture(type, i, &str);
 			bool skip = false;
-			for (unsigned int j = 0; j < textures_loaded.size(); j++)
+			for (uint32 j = 0; j < textures_loaded.size(); j++)
 			{
 				if (std::strcmp(textures_loaded[j].path.data(), str.C_Str()) == 0)
 				{
@@ -154,12 +155,12 @@ private:
 		return textures;
 	}
 
-	unsigned int TextureFromFile(const char* path, const std::string& directory, bool gamma = false)
+	uint32 TextureFromFile(const char* path, const std::string& directory, bool gamma = false)
 	{
 		std::string filename = std::string(path);
 		filename = directory + '/' + filename;
 
-		unsigned int textureID;
+		uint32 textureID;
 		glGenTextures(1, &textureID);
 
 		int width, height, nrComponents;
