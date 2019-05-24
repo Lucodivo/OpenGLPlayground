@@ -19,7 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\dependencies\OpenGL\include\glad\glad.c" />
+    <ClCompile Include="..\..\..\dependencies\OpenGL\include\glad\glad.c" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="stb_image.cpp" />
   </ItemGroup>
@@ -37,8 +37,8 @@
     <None Include="LightSourceFragmentShader.glsl" />
     <None Include="ModelFragmentShader.glsl" />
     <None Include="ModelVertexShader.glsl" />
-    <None Include="VertexShader.glsl" />
-    <None Include="FragmentShader.glsl" />
+    <None Include="CubeVertexShader.glsl" />
+    <None Include="CubeFragmentShader.glsl" />
     <None Include="LightSourceVertexShader.glsl" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
@@ -93,8 +93,8 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>C:\Users\Parcle\Documents\Repos\dependencies\OpenGL\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\Parcle\Documents\Repos\dependencies\OpenGL\libs;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\developer\dependencies\OpenGL\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\developer\dependencies\OpenGL\libs;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

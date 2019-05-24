@@ -29,7 +29,7 @@ const char* modelFragmentShaderFile = "ModelFragmentShader.glsl";
 const char *diffuseTextureLoc = "data/diffuse_map.png";
 const char *specularTextureLoc = "data/specular_map.png";
 const char *emissionTextureLoc = "data/emission_map.png";
-const char* nanoSuitModelLoc = "C:/Users/Connor/Source/Repos/LearnOpenGL/LearnOpenGL/data/nanosuit/nanosuit.obj"; //"/data/nanosuit/nanosuit.obj"; 
+const char* nanoSuitModelLoc = "C:/developer/repos/LearnOpenGL/LearnOpenGL/data/nanosuit/nanosuit.obj";
 
 // frame rate
 float32 deltaTime = 0.0f;	// Time between current frame and last frame
