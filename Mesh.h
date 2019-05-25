@@ -43,12 +43,13 @@ public:
 			// retrieve texture number (the N in diffuse_textureN)
 			std::string number;
 			std::string name = textures[i].type;
-			if (name == "texture_diffuse")
+			if (name == "diffTexture")
 				number = std::to_string(diffuseNr++);
-			else if (name == "texture_specular")
+			else if (name == "specTexture")
 				number = std::to_string(specularNr++);
 
-			shader.setUniform(("material." + name + number).c_str(), i);
+			const std::string uniformName = "material." + name + number;
+			shader.setUniform(uniformName, i);
 			glBindTexture(GL_TEXTURE_2D, textures[i].id);
 		}
 		glActiveTexture(GL_TEXTURE0);
@@ -81,10 +82,10 @@ private:
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
 		// vertex normals
 		glEnableVertexAttribArray(1);
-		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Normal));
+		glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Normal));
 		// vertex texture coords
 		glEnableVertexAttribArray(2);
-		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, TexCoords));
+		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, TexCoords));
 
 		// unbind VBO, VAO, & EBO
 		glBindBuffer(GL_ARRAY_BUFFER, 0);

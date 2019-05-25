@@ -197,12 +197,10 @@ void initializeLightBuffers(uint32 &VAO, uint32 &VBO, uint32 &EBO) {
 void renderLoop(GLFWwindow *window, uint32 &shapesVAO, uint32 &lightVAO) {
     Shader cubeShader = Shader(cubeVertexShaderFile, cubeFragmentShaderFile);
     Shader lightShader = Shader(lightVertexShaderFile, lightFragmentShaderFile);
-	Shader modelShader = Shader(modelVertexShaderFile, modelFragmentShaderFile);
 
 	uint32 diffTextureId;
 	uint32 specTextureId;
-	uint32 emTextureId;
-    initializeTextures(cubeShader, diffTextureId, specTextureId, emTextureId);
+    initializeTextures(diffTextureId, specTextureId);
 
 	// load models
 	Model nanoSuitModel((char*)nanoSuitModelLoc);
@@ -239,9 +237,9 @@ void renderLoop(GLFWwindow *window, uint32 &shapesVAO, uint32 &lightVAO) {
         deltaTime = t - lastFrame;
         lastFrame = t;
         float32 sineVal = sin(t);
-        float32 lightR = (sin((t + 30) / 3) / 2) + 0.5;
-        float32 lightG = (sin((t + 60) / 8) / 2) + 0.5;
-        float32 lightB = (sin(t / 17) / 2) + 0.5;
+        float32 lightR = (sin((t + 30) / 3) / 2) + 0.5f;
+        float32 lightG = (sin((t + 60) / 8) / 2) + 0.5f;
+        float32 lightB = (sin(t / 17) / 2) + 0.5f;
         glm::vec3 positionalLightColor(lightR, lightG, lightB);
 
         glm::mat4 viewMat = camera.GetViewMatrix(deltaTime);
@@ -276,15 +274,12 @@ void renderLoop(GLFWwindow *window, uint32 &shapesVAO, uint32 &lightVAO) {
 
 			// User fragment shaders to draw a triangle
 			glm::vec4 worldLightPos = lightModel * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
-			glm::mat4 cubeModel;
-			// translate to position in world
-			cubeModel = glm::translate(cubeModel, cubePositions[0]);
 			// rotate with time
-			cubeModel = glm::rotate(cubeModel, t * glm::radians(cubRotAngle), glm::vec3(1.0f, 0.3f, 0.5f));
+			glm::mat4 cubeModel = glm::rotate(glm::mat4(), t * glm::radians(cubRotAngle), glm::vec3(1.0f, 0.3f, 0.5f));
 			// switch between two images over time
-			float32 animSwitch = sin(8 * t) > 0;
+			bool animSwitch = sin(8 * t) > 0;
 			// emission strength fluctuating over time
-			float32 emissionStrength = ((sin(t * 2) + 1.0f) / 4) + 0.15;
+			float32 emissionStrength = ((sin(t * 2) + 1.0f) / 4) + 0.15f;
 
 			cubeShader.setUniform("view", viewMat);
 			cubeShader.setUniform("projection", projectionMat);
@@ -320,23 +315,24 @@ void renderLoop(GLFWwindow *window, uint32 &shapesVAO, uint32 &lightVAO) {
 			cubeShader.setUniform("emissionStrength", emissionStrength);
 			cubeShader.setUniform("viewPos", camera.Position);
 
+			cubeShader.setUniform("material.diffTexture1", 0);
+			cubeShader.setUniform("material.specTexture1", 1);
+			cubeShader.setUniform("material.shininess", 32.0f);
+
 			// bind shapesVAO
 			glBindVertexArray(shapesVAO);
 
-			glActiveTexture(GL_TEXTURE0);
+			glActiveTexture(GL_TEXTURE0 + diffTextureId);
 			glBindTexture(GL_TEXTURE_2D, diffTextureId);
-			glActiveTexture(GL_TEXTURE1);
+			glActiveTexture(GL_TEXTURE0 + specTextureId);
 			glBindTexture(GL_TEXTURE_2D, specTextureId);
-			glActiveTexture(GL_TEXTURE2);
-			glBindTexture(GL_TEXTURE_2D, emTextureId);
 
-			cubeShader.setUniform("material.diffTexture", 0);
-			cubeShader.setUniform("material.specTexture", 1);
-			cubeShader.setUniform("material.emissionTexture", 2);
+			cubeShader.setUniform("material.diffTexture1", diffTextureId);
+			cubeShader.setUniform("material.specTexture1", specTextureId);
 			cubeShader.setUniform("material.shininess", 32.0f);
 
 			// draw objects
-			for (uint32 i = 0; i < 10; i++) {
+			for (uint32 i = 0; i < numCubes; i++) {
 				glm::mat4 model;
 				float32 angularSpeed = 7.3f * (i + 1);
 
@@ -361,18 +357,17 @@ void renderLoop(GLFWwindow *window, uint32 &shapesVAO, uint32 &lightVAO) {
 
 		// draw models
 		{
-			// don't forget to enable shader before setting uniforms
-			modelShader.use();
+			cubeShader.setUniform("animSwitch", false);
 
-			modelShader.setUniform("projection", projectionMat);
-			modelShader.setUniform("view", viewMat);
+			cubeShader.setUniform("projection", projectionMat);
+			cubeShader.setUniform("view", viewMat);
 
 			// render the loaded model
 			glm::mat4 model;
 			model = glm::translate(model, glm::vec3(0.0f, -1.75f, 0.0f)); // translate it down so it's at the center of the scene
 			model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));	// it's a bit too big for our scene, so scale it down
-			modelShader.setUniform("model", model);
-			nanoSuitModel.Draw(modelShader);
+			cubeShader.setUniform("model", model);
+			nanoSuitModel.Draw(cubeShader);
 		}
 
         glfwSwapBuffers(window); // swaps double buffers (call after all render commands are completed)
@@ -380,10 +375,9 @@ void renderLoop(GLFWwindow *window, uint32 &shapesVAO, uint32 &lightVAO) {
     }
 }
 
-void initializeTextures(Shader &shader, uint32 &diffTextureId, uint32 &specTextureId, uint32 &emTextureId) {
+void initializeTextures(uint32 &diffTextureId, uint32 &specTextureId) {
 	loadTexture(diffuseTextureLoc, diffTextureId);
 	loadTexture(specularTextureLoc, specTextureId);
-	loadTexture(emissionTextureLoc, emTextureId);
 }
 
 void loadTexture(const char* imgLocation, uint32 &textureId) {

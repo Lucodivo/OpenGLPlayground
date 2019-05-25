@@ -27,16 +27,15 @@ struct SpotLight{
 	LightColor color;
 	LightAttenuation attenuation;
 };
+
 struct Material {
-	sampler2D diffTexture;
-	sampler2D specTexture;
-	sampler2D emissionTexture;
+	sampler2D diffTexture1;
+	sampler2D specTexture1;
 	float shininess;
 };
 
 uniform vec3 viewPos;
 uniform bool animSwitch;
-uniform float emissionStrength;
 uniform PositionalLight positionalLight;
 uniform DirectionalLight directionalLight;
 uniform SpotLight spotLight;
@@ -56,7 +55,6 @@ float calcAttenuation(LightAttenuation attenuation, float distance);
 
 vec3 diffColor;
 vec3 specColor;
-vec3 emissionColor;
 
 void main()
 {
@@ -67,18 +65,14 @@ void main()
 		animTextCoord = TextureCoord;
 	}
 
-	diffColor = texture(material.diffTexture, animTextCoord).rgb;
-	specColor = texture(material.specTexture, animTextCoord).rgb;
-	emissionColor = texture(material.emissionTexture, animTextCoord).rgb;
+	diffColor = texture(material.diffTexture1, animTextCoord).rgb;
+	specColor = texture(material.specTexture1, animTextCoord).rgb;
 
 	vec3 rotationalResult = calcPositionalLightColor();
 	vec3 directionalResult = calcDirectionalLightColor();
 	vec3 spotResult = calcSpotLightColor();
 
-	// emission light
-	vec3 emissionResult = emissionColor * emissionStrength;
-
-	vec3 result = rotationalResult + directionalResult + spotResult + emissionResult;
+	vec3 result = rotationalResult + directionalResult + spotResult;
     FragColor = vec4(result, 1.0);
 }
 

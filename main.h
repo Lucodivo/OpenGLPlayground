@@ -9,7 +9,7 @@ void initializeGLAD();
 void initializeObjectBuffers(uint32 & VAO, uint32 & VBO, uint32 & EBO);
 void initializeLightBuffers(uint32 & VAO, uint32 & VBO, uint32 & EBO);
 void renderLoop(GLFWwindow *window, uint32 &shapesVAO, uint32 &lightVAO);
-void initializeTextures(Shader& shader, uint32& diffTextureId, uint32& specTextureId, uint32& emTextureId);
+void initializeTextures(uint32& diffTextureId, uint32& specTextureId);
 void loadTexture(const char * imgLocation, uint32 &textureOffset);
 void processInput(GLFWwindow * window);
 void mouse_callback(GLFWwindow * window, double xpos, double ypos);
@@ -23,7 +23,7 @@ void framebuffer_size_callback(GLFWwindow * window, int width, int height);
 #define TopRightTexture 1.0f, 1.0f
 const uint32 cubeVertexAttSizeInBytes = 8 * sizeof(float32);
 const uint32 cubeNumElements = 12;
-const uint32 numCubes = 1; 
+const uint32 numCubes = 9; 
 const float cubeVertexAttributes[] = {
     // positions          // texture positions  // normals (unit vectors orthogonal to surface) 
     // face #1
@@ -74,7 +74,6 @@ const uint32 cubeIndices[]{
 };
 
 const glm::vec3 cubePositions[] = {
-    glm::vec3(0.0f,  0.0f,  0.0f),
     glm::vec3(2.0f,  5.0f, -15.0f),
     glm::vec3(-1.5f, -2.2f, -2.5f),
     glm::vec3(-3.8f, -2.0f, -12.3f),
@@ -87,7 +86,6 @@ const glm::vec3 cubePositions[] = {
 };
 
 const float32 cubeScales[] = {
-	0.55f,
 	0.6f,
 	0.65f,
 	0.7f,
