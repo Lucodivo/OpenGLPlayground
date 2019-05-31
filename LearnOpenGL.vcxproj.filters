@@ -5,10 +5,6 @@
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
-    <Filter Include="Header Files">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
-    </Filter>
     <Filter Include="Resource Files">
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
@@ -16,34 +12,23 @@
     <Filter Include="etc">
       <UniqueIdentifier>{87597123-334d-44bd-9798-0b015b7c2683}</UniqueIdentifier>
     </Filter>
+    <Filter Include="shaders">
+      <UniqueIdentifier>{0ae5bd10-9f07-4755-a96a-a042e1b31a03}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="external dependencies">
+      <UniqueIdentifier>{bb56e5e7-0400-4afa-a58f-b6d3cd5e477e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="stb_image.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\dependencies\OpenGL\include\glad\glad.c">
+      <Filter>external dependencies</Filter>
+    </ClCompile>
+    <ClCompile Include="src\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="main.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Shader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Camera.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Mesh.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Model.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
+    <ClCompile Include="..\..\..\dependencies\OpenGL\include\stb\stb_image.cpp">
+      <Filter>external dependencies</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Text Include="notes.txt">
@@ -51,23 +36,63 @@
     </Text>
   </ItemGroup>
   <ItemGroup>
-    <None Include="LightSourceFragmentShader.glsl">
+    <ClInclude Include="src\main.h">
       <Filter>Source Files</Filter>
-    </None>
-    <None Include="LightSourceVertexShader.glsl">
+    </ClInclude>
+    <ClInclude Include="src\Mesh.h">
       <Filter>Source Files</Filter>
-    </None>
-    <None Include="ModelFragmentShader.glsl">
+    </ClInclude>
+    <ClInclude Include="src\Model.h">
       <Filter>Source Files</Filter>
-    </None>
-    <None Include="ModelVertexShader.glsl">
+    </ClInclude>
+    <ClInclude Include="src\Shader.h">
       <Filter>Source Files</Filter>
-    </None>
-    <None Include="CubeFragmentShader.glsl">
+    </ClInclude>
+    <ClInclude Include="src\Camera.h">
       <Filter>Source Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="src\shaders\CubeFragmentShader.glsl">
+      <Filter>shaders</Filter>
     </None>
-    <None Include="CubeVertexShader.glsl">
-      <Filter>Source Files</Filter>
+    <None Include="src\shaders\CubeVertexShader.glsl">
+      <Filter>shaders</Filter>
     </None>
+    <None Include="src\shaders\DepthBufferVisualizerFragmentShader.glsl">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="src\shaders\LightFragmentShader.glsl">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="src\shaders\LightSourceFragmentShader.glsl">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="src\shaders\LightSourceVertexShader.glsl">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="src\shaders\ModelFragmentShader.glsl">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="src\shaders\ModelVertexShader.glsl">
+      <Filter>shaders</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="src\data\emission_map.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="src\data\specular_map.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="src\data\specular_map_dumb.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="src\data\specular_map_inverse.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="src\data\diffuse_map.png">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>

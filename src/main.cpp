@@ -18,18 +18,18 @@
 #define local_persist static
 
 // shader information
-const char *cubeVertexShaderFile = "CubeVertexShader.glsl";
-const char *cubeFragmentShaderFile = "CubeFragmentShader.glsl";
-const char *lightVertexShaderFile = "LightSourceVertexShader.glsl";
-const char *lightFragmentShaderFile = "LightSourceFragmentShader.glsl";
-const char *modelVertexShaderFile = "ModelVertexShader.glsl";
-const char* modelFragmentShaderFile = "ModelFragmentShader.glsl";
+const char *cubeVertexShaderFile = "src/shaders/CubeVertexShader.glsl";
+const char *cubeFragmentShaderFile = "src/shaders/CubeFragmentShader.glsl";
+const char *lightVertexShaderFile = "src/shaders/LightSourceVertexShader.glsl";
+const char *lightFragmentShaderFile = "src/shaders/LightSourceFragmentShader.glsl";
+const char *modelVertexShaderFile = "src/shaders/ModelVertexShader.glsl";
+const char *modelFragmentShaderFile = "src/shaders/ModelFragmentShader.glsl";
 
 // texture 
-const char *diffuseTextureLoc = "data/diffuse_map.png";
-const char *specularTextureLoc = "data/specular_map.png";
-const char *emissionTextureLoc = "data/emission_map.png";
-const char* nanoSuitModelLoc = "C:/developer/repos/LearnOpenGL/LearnOpenGL/data/nanosuit/nanosuit.obj";
+const char *diffuseTextureLoc = "src/data/diffuse_map.png";
+const char *specularTextureLoc = "src/data/specular_map.png";
+const char *emissionTextureLoc = "src/data/emission_map.png";
+const char* nanoSuitModelLoc = "C:/developer/repos/LearnOpenGL/LearnOpenGL/src/data/nanosuit/nanosuit.obj";
 
 // frame rate
 float32 deltaTime = 0.0f;	// Time between current frame and last frame
@@ -206,6 +206,7 @@ void renderLoop(GLFWwindow *window, uint32 &shapesVAO, uint32 &lightVAO) {
 	Model nanoSuitModel((char*)nanoSuitModelLoc);
 
     glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LESS);
 
     const glm::mat4 projectionMat = glm::perspective(glm::radians(camera.Zoom), (float32)VIEWPORT_INIT_WIDTH / (float32)VIEWPORT_INIT_HEIGHT, 0.1f, 100.0f);
 
@@ -228,7 +229,12 @@ void renderLoop(GLFWwindow *window, uint32 &shapesVAO, uint32 &lightVAO) {
 
         // clear the background
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);                         // OpenGL state-setting function
+#if 1
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);           // OpenGL state-using function
+#else
+		// FUN MODE
+		glClear(GL_DEPTH_BUFFER_BIT);
+#endif
 
 		// if flashlight is off, simply remove all color from light
         glm::vec3 flashLightColor = flashLightOn ? glm::vec3(0.93f, 0.84f, 0.72f) : glm::vec3(0.0f);

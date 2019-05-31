@@ -3,5 +3,6 @@ Debug/
 *.gif
 *.pyxel
 *.user
-data/fun/
-data/nanosuit
+src/data/fun/
+src/data/nanosuit
+stb_image.cpp
