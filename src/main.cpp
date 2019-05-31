@@ -24,6 +24,7 @@ const char *lightVertexShaderFile = "src/shaders/LightSourceVertexShader.glsl";
 const char *lightFragmentShaderFile = "src/shaders/LightSourceFragmentShader.glsl";
 const char *modelVertexShaderFile = "src/shaders/ModelVertexShader.glsl";
 const char *modelFragmentShaderFile = "src/shaders/ModelFragmentShader.glsl";
+const char *depthFragmentShaderFile = "src/shaders/DepthBufferVisualizerFragmentShader.glsl";
 
 // texture 
 const char *diffuseTextureLoc = "src/data/diffuse_map.png";
