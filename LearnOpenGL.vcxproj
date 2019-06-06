@@ -43,6 +43,7 @@
     <None Include="src\shaders\LightSourceVertexShader.glsl" />
     <None Include="src\shaders\ModelFragmentShader.glsl" />
     <None Include="src\shaders\ModelVertexShader.glsl" />
+    <None Include="src\shaders\SingleColorFragmentShader.glsl" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="src\data\diffuse_map.png" />

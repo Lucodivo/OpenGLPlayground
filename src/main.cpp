@@ -25,6 +25,7 @@ const char *lightFragmentShaderFile = "src/shaders/LightSourceFragmentShader.gls
 const char *modelVertexShaderFile = "src/shaders/ModelVertexShader.glsl";
 const char *modelFragmentShaderFile = "src/shaders/ModelFragmentShader.glsl";
 const char *depthFragmentShaderFile = "src/shaders/DepthBufferVisualizerFragmentShader.glsl";
+const char *stencilFragmentShaderFile = "src/shaders/SingleColorFragmentShader.glsl";
 
 // texture 
 const char *diffuseTextureLoc = "src/data/diffuse_map.png";
@@ -195,9 +196,124 @@ void initializeLightBuffers(uint32 &VAO, uint32 &VBO, uint32 &EBO) {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
+void initializeTextures(uint32& diffTextureId, uint32& specTextureId) {
+	loadTexture(diffuseTextureLoc, diffTextureId);
+	loadTexture(specularTextureLoc, specTextureId);
+}
+
+void loadTexture(const char* imgLocation, uint32& textureId) {
+	glGenTextures(1, &textureId);
+	uint32 textureOffset = textureId - 1;
+	glActiveTexture(GL_TEXTURE0 + textureOffset); // activate texture unit (by default it is bound to GL_TEXTURE0)
+	glBindTexture(GL_TEXTURE_2D, textureId);
+
+	// load image data
+	int width, height, numChannels;
+	stbi_set_flip_vertically_on_load(true);
+	unsigned char* data = stbi_load(imgLocation, &width, &height, &numChannels, 0);
+	if (data) {
+		auto pixelFormat = (numChannels == 3) ? GL_RGB : GL_RGBA;
+		glTexImage2D(GL_TEXTURE_2D, // target
+			0, // level of detail (level n is the nth mipmap reduction image)
+			GL_RGB, // kind of format we want to store the texture
+			width, // width of texture
+			height, // height of texture
+			0, // border (legacy stuff, MUST BE 0)
+			pixelFormat, // Specifies format of the pixel data
+			GL_UNSIGNED_BYTE, // specifies data type of pixel data
+			data); // pointer to the image data
+		glGenerateMipmap(GL_TEXTURE_2D);
+
+		// set texture options
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST); // disables bilinear filtering (creates sharp edges when magnifying texture)
+	}
+	else {
+		std::cout << "Failed to load texture" << std::endl;
+	}
+	stbi_image_free(data); // free texture image memory
+}
+
+void processInput(GLFWwindow * window) {
+	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
+		glfwSetWindowShouldClose(window, GL_TRUE);
+	}
+
+	camera.MovementSpeed = (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) ? SPEED * 2 : SPEED;
+
+	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+		camera.ProcessKeyboard(FORWARD);
+	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+		camera.ProcessKeyboard(BACKWARD);
+	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+		camera.ProcessKeyboard(LEFT);
+	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+		camera.ProcessKeyboard(RIGHT);
+	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+		camera.ProcessKeyboard(JUMP);
+
+	static bool leftMouseButtonWasDown = false;
+	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
+		if (!leftMouseButtonWasDown) {
+			leftMouseButtonWasDown = true;
+			flashLightOn = !flashLightOn;
+		}
+	}
+	else {
+		leftMouseButtonWasDown = false;
+	}
+
+	static bool windowMode = true;
+	static double windowModeSwitchTimer = glfwGetTime();
+	if (glfwGetKey(window, GLFW_KEY_RIGHT_ALT) == GLFW_PRESS &&
+		glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS &&
+		glfwGetTime() - windowModeSwitchTimer > 1.5f) {
+		GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+		const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+		if (windowMode) {
+			glfwSetWindowMonitor(window, monitor, 0, 0, mode->width, mode->height, GLFW_DONT_CARE);
+		}
+		else {
+			glfwSetWindowMonitor(window, NULL, (mode->width / 4), (mode->height / 4), VIEWPORT_INIT_WIDTH, VIEWPORT_INIT_HEIGHT, GLFW_DONT_CARE);
+		}
+		windowMode = !windowMode;
+		windowModeSwitchTimer = glfwGetTime();
+	}
+}
+
+// Callback function for when user resizes our window
+void framebuffer_size_callback(GLFWwindow * window, int width, int height) {
+	glViewport(0, 0, width, height);
+}
+
+// Callback function for when user moves mouse
+void mouse_callback(GLFWwindow * window, double xpos, double ypos)
+{
+	static bool firstMouse = true;
+	if (firstMouse) {
+		lastX = (float32)xpos;
+		lastY = (float32)ypos;
+		firstMouse = false;
+	}
+
+	float32 xoffset = (float32)xpos - lastX;
+	float32 yoffset = lastY - (float32)ypos; // reversed since y-coordinates go from bottom to top
+
+	lastX = (float32)xpos;
+	lastY = (float32)ypos;
+
+	camera.ProcessMouseMovement(xoffset, yoffset);
+}
+
+// Callback function for when user scrolls with mouse wheel
+void scroll_callback(GLFWwindow * window, double xoffset, double yoffset)
+{
+	camera.ProcessMouseScroll((float32)yoffset);
+}
+
 void renderLoop(GLFWwindow *window, uint32 &shapesVAO, uint32 &lightVAO) {
     Shader cubeShader = Shader(cubeVertexShaderFile, cubeFragmentShaderFile);
     Shader lightShader = Shader(lightVertexShaderFile, lightFragmentShaderFile);
+	Shader stencilShader = Shader(cubeVertexShaderFile, stencilFragmentShaderFile);
 
 	uint32 diffTextureId;
 	uint32 specTextureId;
@@ -205,9 +321,6 @@ void renderLoop(GLFWwindow *window, uint32 &shapesVAO, uint32 &lightVAO) {
 
 	// load models
 	Model nanoSuitModel((char*)nanoSuitModelLoc);
-
-    glEnable(GL_DEPTH_TEST);
-	glDepthFunc(GL_LESS);
 
     const glm::mat4 projectionMat = glm::perspective(glm::radians(camera.Zoom), (float32)VIEWPORT_INIT_WIDTH / (float32)VIEWPORT_INIT_HEIGHT, 0.1f, 100.0f);
 
@@ -220,22 +333,40 @@ void renderLoop(GLFWwindow *window, uint32 &shapesVAO, uint32 &lightVAO) {
     glm::vec3 directionalLightDir = glm::vec3(-0.0f, -1.0f, -3.0f);
     glm::vec3 directionalLightColor = glm::vec3(1.0f);
 
+	// clear the background color
+	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+
 	// draw in wireframe
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
     // NOTE: render/game loop
     while (glfwWindowShouldClose(window) == GL_FALSE) {
-        // check for input
-        processInput(window);
 
-        // clear the background
-        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);                         // OpenGL state-setting function
+		// check for input
+		processInput(window);
+
 #if 1
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);           // OpenGL state-using function
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);           // OpenGL state-using function
 #else
-		// FUN MODE
+		// FUN MODE - WINDOWS XP
 		glClear(GL_DEPTH_BUFFER_BIT);
 #endif
+
+		// if we want to make sure we do not update the stencil buffer while drawing something
+		//glStencilMask(0x00);
+		//normalShader.use();
+		//DrawSomething()
+
+		glEnable(GL_DEPTH_TEST);
+		glDepthFunc(GL_LESS);
+		glEnable(GL_STENCIL_TEST);
+		glStencilOp(GL_KEEP, // when stencil fails
+			GL_KEEP, // when stencil passes but depth fails
+			GL_REPLACE); // when stencil passes and depth passes
+		glStencilFunc(GL_ALWAYS, // stencil function
+			1, // reference value for stencil test
+			0xFF); // mask that is ANDed with stencil value and reference value before the test compares them
+		glStencilMask(0xFF); // mask that is ANDed with the stencil value that is about to be written to stencil buffer
 
 		// if flashlight is off, simply remove all color from light
         glm::vec3 flashLightColor = flashLightOn ? glm::vec3(0.93f, 0.84f, 0.72f) : glm::vec3(0.0f);
@@ -363,132 +494,34 @@ void renderLoop(GLFWwindow *window, uint32 &shapesVAO, uint32 &lightVAO) {
 		}
 
 		// draw models
+		float32 modelScale = 0.2f;
 		{
-			cubeShader.setUniform("animSwitch", false);
+			glClear(GL_STENCIL_BUFFER_BIT);
 
+			// Drawing the model
+			cubeShader.setUniform("animSwitch", false); // FIXME: Just disabling since we don't want currently using cube fragment shader
 			cubeShader.setUniform("projection", projectionMat);
 			cubeShader.setUniform("view", viewMat);
 
-			// render the loaded model
 			glm::mat4 model;
+			model = glm::scale(model, glm::vec3(modelScale));	// it's a bit too big for our scene, so scale it down
 			model = glm::translate(model, glm::vec3(0.0f, -1.75f, 0.0f)); // translate it down so it's at the center of the scene
-			model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));	// it's a bit too big for our scene, so scale it down
 			cubeShader.setUniform("model", model);
 			nanoSuitModel.Draw(cubeShader);
+
+			//  Wall Hack Stencil For Model
+			stencilShader.use();
+			stencilShader.setUniform("singleColor", glm::vec3(0.5f, 0.0f, 0.0f));
+			stencilShader.setUniform("projection", projectionMat);
+			stencilShader.setUniform("view", viewMat);
+			stencilShader.setUniform("model", model);
+			glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+			glStencilMask(0x00);
+			glDisable(GL_DEPTH_TEST);
+			nanoSuitModel.Draw(stencilShader);
 		}
 
         glfwSwapBuffers(window); // swaps double buffers (call after all render commands are completed)
         glfwPollEvents(); // checks for events (ex: keyboard/mouse input)
     }
-}
-
-void initializeTextures(uint32 &diffTextureId, uint32 &specTextureId) {
-	loadTexture(diffuseTextureLoc, diffTextureId);
-	loadTexture(specularTextureLoc, specTextureId);
-}
-
-void loadTexture(const char* imgLocation, uint32 &textureId) {
-    glGenTextures(1, &textureId);
-	uint32 textureOffset = textureId - 1;
-    glActiveTexture(GL_TEXTURE0 + textureOffset); // activate texture unit (by default it is bound to GL_TEXTURE0)
-    glBindTexture(GL_TEXTURE_2D, textureId);
-
-    // load image data
-    int width, height, numChannels;
-    stbi_set_flip_vertically_on_load(true);
-    unsigned char *data = stbi_load(imgLocation, &width, &height, &numChannels, 0);
-    if (data) {
-        auto pixelFormat = (numChannels == 3) ? GL_RGB : GL_RGBA;
-        glTexImage2D(GL_TEXTURE_2D, // target
-            0, // level of detail (level n is the nth mipmap reduction image)
-            GL_RGB, // kind of format we want to store the texture
-            width, // width of texture
-            height, // height of texture
-            0, // border (legacy stuff, MUST BE 0)
-            pixelFormat, // Specifies format of the pixel data
-            GL_UNSIGNED_BYTE, // specifies data type of pixel data
-            data); // pointer to the image data
-        glGenerateMipmap(GL_TEXTURE_2D);
-
-        // set texture options
-        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST); // disables bilinear filtering (creates sharp edges when magnifying texture)
-    } else {
-        std::cout << "Failed to load texture" << std::endl;
-    }
-    stbi_image_free(data); // free texture image memory
-}
-
-void processInput(GLFWwindow *window) {
-    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
-        glfwSetWindowShouldClose(window, GL_TRUE);
-    }
-
-    camera.MovementSpeed = (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) ? SPEED * 2 : SPEED;
-
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        camera.ProcessKeyboard(FORWARD);
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        camera.ProcessKeyboard(BACKWARD);
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        camera.ProcessKeyboard(LEFT);
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        camera.ProcessKeyboard(RIGHT);
-    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
-        camera.ProcessKeyboard(JUMP);
-
-    static bool leftMouseButtonWasDown = false;
-    if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
-        if (!leftMouseButtonWasDown) {
-            leftMouseButtonWasDown = true;
-            flashLightOn = !flashLightOn;
-        }
-    } else {
-        leftMouseButtonWasDown = false;
-    }
-
-    static bool windowMode = true;
-    static double windowModeSwitchTimer = glfwGetTime();
-    if (glfwGetKey(window, GLFW_KEY_RIGHT_ALT) == GLFW_PRESS &&
-        glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS &&
-        glfwGetTime() - windowModeSwitchTimer > 1.5f) {
-        GLFWmonitor* monitor = glfwGetPrimaryMonitor();
-        const GLFWvidmode* mode = glfwGetVideoMode(monitor);
-        if (windowMode) {
-            glfwSetWindowMonitor(window, monitor, 0, 0, mode->width, mode->height, GLFW_DONT_CARE);
-        } else {
-            glfwSetWindowMonitor(window, NULL, (mode->width / 4), (mode->height / 4), VIEWPORT_INIT_WIDTH, VIEWPORT_INIT_HEIGHT, GLFW_DONT_CARE);
-        }
-        windowMode = !windowMode;
-        windowModeSwitchTimer = glfwGetTime();
-    }
-}
-
-// Callback function for when user resizes our window
-void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
-    glViewport(0, 0, width, height);
-}
-
-// Callback function for when user moves mouse
-void mouse_callback(GLFWwindow* window, double xpos, double ypos)
-{
-    static bool firstMouse = true;
-    if (firstMouse) {
-        lastX = (float32)xpos;
-        lastY = (float32)ypos;
-        firstMouse = false;
-    }
-
-    float32 xoffset = (float32)xpos - lastX;
-    float32 yoffset = lastY - (float32)ypos; // reversed since y-coordinates go from bottom to top
-
-    lastX = (float32)xpos;
-    lastY = (float32)ypos;
-
-    camera.ProcessMouseMovement(xoffset, yoffset);
-}
-
-// Callback function for when user scrolls with mouse wheel
-void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
-{
-    camera.ProcessMouseScroll((float32)yoffset);
 }
