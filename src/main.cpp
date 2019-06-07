@@ -345,8 +345,17 @@ void renderLoop(GLFWwindow *window, uint32 &shapesVAO, uint32 &lightVAO) {
 		// check for input
 		processInput(window);
 
+		glEnable(GL_STENCIL_TEST);
+		glStencilOp(GL_KEEP, // when stencil fails
+			GL_KEEP, // when stencil passes but depth fails
+			GL_REPLACE); // when stencil passes and depth passes
+		glStencilMask(0xFF); // mask that is ANDed with the stencil value that is about to be written to stencil buffer
+		glStencilFunc(GL_ALWAYS, // stencil function
+			1, // reference value for stencil test
+			0xFF); // mask that is ANDed with stencil value and reference value before the test compares them
+
 #if 1
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);           // OpenGL state-using function
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);           // OpenGL state-using function
 #else
 		// FUN MODE - WINDOWS XP
 		glClear(GL_DEPTH_BUFFER_BIT);
@@ -359,14 +368,6 @@ void renderLoop(GLFWwindow *window, uint32 &shapesVAO, uint32 &lightVAO) {
 
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GL_LESS);
-		glEnable(GL_STENCIL_TEST);
-		glStencilOp(GL_KEEP, // when stencil fails
-			GL_KEEP, // when stencil passes but depth fails
-			GL_REPLACE); // when stencil passes and depth passes
-		glStencilFunc(GL_ALWAYS, // stencil function
-			1, // reference value for stencil test
-			0xFF); // mask that is ANDed with stencil value and reference value before the test compares them
-		glStencilMask(0xFF); // mask that is ANDed with the stencil value that is about to be written to stencil buffer
 
 		// if flashlight is off, simply remove all color from light
         glm::vec3 flashLightColor = flashLightOn ? glm::vec3(0.93f, 0.84f, 0.72f) : glm::vec3(0.0f);
@@ -469,7 +470,7 @@ void renderLoop(GLFWwindow *window, uint32 &shapesVAO, uint32 &lightVAO) {
 			cubeShader.setUniform("material.specTexture1", specTextureId);
 			cubeShader.setUniform("material.shininess", 32.0f);
 
-			// draw objects
+			// draw cubes
 			for (uint32 i = 0; i < numCubes; i++) {
 				glm::mat4 model;
 				float32 angularSpeed = 7.3f * (i + 1);
@@ -489,6 +490,34 @@ void renderLoop(GLFWwindow *window, uint32 &shapesVAO, uint32 &lightVAO) {
 					0); // offset in the EBO
 			}
 
+			// draw cube stencil outlines
+			for (uint32 i = 0; i < numCubes; i++) {
+				float32 angularSpeed = 7.3f * (i + 1);
+
+				glm::mat4 model;
+				// orbit around the specified axis from the translated distance
+				model = glm::rotate(model, t * glm::radians(angularSpeed), glm::vec3(50.0f - (i * 10), 100.0f, -50.0f + (i * 10)));
+				// translate to position in world
+				model = glm::translate(model, cubePositions[i]);
+				// rotate with time
+				model = glm::rotate(model, t * glm::radians(angularSpeed), glm::vec3(1.0f, 0.3f, 0.5f));
+				// scale object
+				model = glm::scale(model, glm::vec3(cubeScales[i] + 0.05f));
+				stencilShader.use();
+				stencilShader.setUniform("singleColor", glm::vec3(1.0f, 1.0f, 1.0f));
+				stencilShader.setUniform("projection", projectionMat);
+				stencilShader.setUniform("view", viewMat);
+				stencilShader.setUniform("model", model);
+				glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+				glStencilMask(0x00);
+				glDisable(GL_DEPTH_TEST);
+				glDrawElements(GL_TRIANGLES, // drawing mode
+					cubeNumElements * 3, // number of elements to draw (6 vertices)
+					GL_UNSIGNED_INT, // type of the indices
+					0); // offset in the EBO
+				glEnable(GL_DEPTH_TEST);
+			}
+
 			// unbind shapesVAO
 			glBindVertexArray(0);
 		}
@@ -496,9 +525,14 @@ void renderLoop(GLFWwindow *window, uint32 &shapesVAO, uint32 &lightVAO) {
 		// draw models
 		float32 modelScale = 0.2f;
 		{
-			glClear(GL_STENCIL_BUFFER_BIT);
+			glStencilFunc(GL_ALWAYS, // stencil function
+				1, // reference value for stencil test
+				0xFF); // mask that is ANDed with stencil value and reference value before the test compares them
+			glStencilMask(0xFF); // mask that is ANDed with the stencil value that is about to be written to stencil buffer
+			glClear(GL_STENCIL_BUFFER_BIT); // NOTE: glClear(GL_STENCIL_BUFFER_BIT) counts as writing to the stencil buffer and will be directly ANDed with the stencil mask
 
 			// Drawing the model
+			cubeShader.use();
 			cubeShader.setUniform("animSwitch", false); // FIXME: Just disabling since we don't want currently using cube fragment shader
 			cubeShader.setUniform("projection", projectionMat);
 			cubeShader.setUniform("view", viewMat);
