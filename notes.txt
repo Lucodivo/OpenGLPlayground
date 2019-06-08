@@ -217,3 +217,7 @@ Specular Lighting: Bright part of a light that appears on shiny objects
 Attenuation: Reduced intensity of light, over the distance a light ray travels
 Directional Light: A light source modeled to be infinitely far away is called a directionla light since all it's light rays have the same direction.
 Point Light: A light source witha given position somewhere in a world that illuminates in all directions where the light rays fade out over distance(attenuate)
+
+
++++ Depth Testing +++
+- Depth testing must be enabled using glEnable(GL_DEPTH_TEST) 
