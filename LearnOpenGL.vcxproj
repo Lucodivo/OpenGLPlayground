@@ -35,6 +35,7 @@
     <ClInclude Include="src\Shader.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="README.md" />
     <None Include="src\shaders\CubeFragmentShader.glsl" />
     <None Include="src\shaders\CubeVertexShader.glsl" />
     <None Include="src\shaders\DepthBufferVisualizerFragmentShader.glsl" />

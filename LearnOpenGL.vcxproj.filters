@@ -80,6 +80,10 @@
     <None Include="src\shaders\ModelVertexShader.glsl">
       <Filter>shaders</Filter>
     </None>
+    <None Include="src\shaders\SingleColorFragmentShader.glsl" />
+    <None Include="README.md">
+      <Filter>etc</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Image Include="src\data\emission_map.png">
