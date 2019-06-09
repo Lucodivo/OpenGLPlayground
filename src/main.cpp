@@ -392,133 +392,134 @@ void renderLoop(GLFWwindow *window, uint32 &shapesVAO, uint32 &lightVAO) {
         lightModel = glm::translate(lightModel, lightPosition);
         lightModel = glm::scale(lightModel, glm::vec3(lightScale));
 
-        // draw light
-		{
-			lightShader.use();
-			glBindVertexArray(lightVAO);
+        // draw positional light
+		lightShader.use();
+		glBindVertexArray(lightVAO);
 
-			lightShader.setUniform("model", lightModel);
-			lightShader.setUniform("view", viewMat);
-			lightShader.setUniform("projection", projectionMat);
-			lightShader.setUniform("lightColor", positionalLightColor);
+		lightShader.setUniform("model", lightModel);
+		lightShader.setUniform("view", viewMat);
+		lightShader.setUniform("projection", projectionMat);
+		lightShader.setUniform("lightColor", positionalLightColor);
+		glDrawElements(GL_TRIANGLES, // drawing mode
+			cubeNumElements * 3, // number of elements to draw (6 vertices)
+			GL_UNSIGNED_INT, // type of the indices
+			0); // offset in the EBO
+		glBindVertexArray(0);
+
+        // draw cubes
+		cubeShader.use();
+
+		// User fragment shaders to draw a triangle
+		glm::vec4 worldLightPos = lightModel * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+		// rotate with time
+		glm::mat4 cubeModel = glm::rotate(glm::mat4(), t * glm::radians(cubRotAngle), glm::vec3(1.0f, 0.3f, 0.5f));
+		// switch between two images over time
+		bool animSwitch = sin(8 * t) > 0;
+		// emission strength fluctuating over time
+		float32 emissionStrength = ((sin(t * 2) + 1.0f) / 4) + 0.15f;
+
+		auto setLightUniforms = [&](Shader shader) {
+			// positional light (orbiting light)
+			shader.setUniform("positionalLight.position", worldLightPos.x, worldLightPos.y, worldLightPos.z);
+			shader.setUniform("positionalLight.color.ambient", positionalLightColor * glm::vec3(0.05f));
+			shader.setUniform("positionalLight.color.diffuse", positionalLightColor * glm::vec3(0.5f));
+			shader.setUniform("positionalLight.color.specular", positionalLightColor * glm::vec3(1.0f));
+			shader.setUniform("positionalLight.attenuation.constant", 1.0f);
+			shader.setUniform("positionalLight.attenuation.linear", 0.09f);
+			shader.setUniform("positionalLight.attenuation.quadratic", 0.032f);
+
+			// directional light
+			shader.setUniform("directionalLight.direction", directionalLightDir);
+			shader.setUniform("directionalLight.color.ambient", directionalLightColor * glm::vec3(0.1f));
+			shader.setUniform("directionalLight.color.diffuse", directionalLightColor * glm::vec3(0.4f));
+			shader.setUniform("directionalLight.color.specular", directionalLightColor * glm::vec3(0.5f));
+
+			// flash light
+			shader.setUniform("spotLight.position", camera.Position);
+			shader.setUniform("spotLight.direction", camera.Front);
+			shader.setUniform("spotLight.cutOff", glm::cos(glm::radians(12.5f)));
+			shader.setUniform("spotLight.outerCutOff", glm::cos(glm::radians(17.5f)));
+			shader.setUniform("spotLight.color.ambient", flashLightColor * glm::vec3(0.05f));
+			shader.setUniform("spotLight.color.diffuse", flashLightColor * glm::vec3(0.3f));
+			shader.setUniform("spotLight.color.specular", flashLightColor * glm::vec3(0.5f));
+			shader.setUniform("spotLight.attenuation.constant", 1.0f);
+			shader.setUniform("spotLight.attenuation.linear", 0.09f);
+			shader.setUniform("spotLight.attenuation.quadratic", 0.032f);
+
+			// emission light
+			shader.setUniform("emissionStrength", emissionStrength);
+		};
+
+		// bind shapesVAO
+		glBindVertexArray(shapesVAO);
+
+		glActiveTexture(GL_TEXTURE0 + diffTextureId);
+		glBindTexture(GL_TEXTURE_2D, diffTextureId);
+		glActiveTexture(GL_TEXTURE0 + specTextureId);
+		glBindTexture(GL_TEXTURE_2D, specTextureId);
+
+		setLightUniforms(cubeShader);
+
+		cubeShader.setUniform("material.diffTexture1", diffTextureId);
+		cubeShader.setUniform("material.specTexture1", specTextureId);
+		cubeShader.setUniform("material.shininess", 32.0f);
+
+		cubeShader.setUniform("animSwitch", animSwitch);
+		cubeShader.setUniform("alphaDiscard", true);
+
+		cubeShader.setUniform("viewPos", camera.Position);
+		cubeShader.setUniform("view", viewMat);
+		cubeShader.setUniform("projection", projectionMat);
+		// draw cubes
+		for (uint32 i = 0; i < numCubes; i++) {
+			glm::mat4 model;
+			float32 angularSpeed = 7.3f * (i + 1);
+
+			// orbit around the specified axis from the translated distance
+			model = glm::rotate(model, t * glm::radians(angularSpeed), glm::vec3(50.0f - (i * 10), 100.0f, -50.0f + (i * 10)));
+			// translate to position in world
+			model = glm::translate(model, cubePositions[i]);
+			// rotate with time
+			model = glm::rotate(model, t * glm::radians(angularSpeed), glm::vec3(1.0f, 0.3f, 0.5f));
+			// scale object
+			model = glm::scale(model, glm::vec3(cubeScales[i]));
+			cubeShader.setUniform("model", model);
 			glDrawElements(GL_TRIANGLES, // drawing mode
 				cubeNumElements * 3, // number of elements to draw (6 vertices)
 				GL_UNSIGNED_INT, // type of the indices
 				0); // offset in the EBO
-			glBindVertexArray(0);
 		}
 
-        // draw cubes
-		{
-			cubeShader.use();
+		// draw cube stencil outlines
+		//for (uint32 i = 0; i < numCubes; i++) {
+		//	float32 angularSpeed = 7.3f * (i + 1);
 
-			// User fragment shaders to draw a triangle
-			glm::vec4 worldLightPos = lightModel * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
-			// rotate with time
-			glm::mat4 cubeModel = glm::rotate(glm::mat4(), t * glm::radians(cubRotAngle), glm::vec3(1.0f, 0.3f, 0.5f));
-			// switch between two images over time
-			bool animSwitch = sin(8 * t) > 0;
-			// emission strength fluctuating over time
-			float32 emissionStrength = ((sin(t * 2) + 1.0f) / 4) + 0.15f;
+		//	glm::mat4 model;
+		//	// orbit around the specified axis from the translated distance
+		//	model = glm::rotate(model, t * glm::radians(angularSpeed), glm::vec3(50.0f - (i * 10), 100.0f, -50.0f + (i * 10)));
+		//	// translate to position in world
+		//	model = glm::translate(model, cubePositions[i]);
+		//	// rotate with time
+		//	model = glm::rotate(model, t * glm::radians(angularSpeed), glm::vec3(1.0f, 0.3f, 0.5f));
+		//	// scale object
+		//	model = glm::scale(model, glm::vec3(cubeScales[i] + 0.05f));
+		//	stencilShader.use();
+		//	stencilShader.setUniform("singleColor", glm::vec3(1.0f, 1.0f, 1.0f));
+		//	stencilShader.setUniform("projection", projectionMat);
+		//	stencilShader.setUniform("view", viewMat);
+		//	stencilShader.setUniform("model", model);
+		//	glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+		//	glStencilMask(0x00);
+		//	glDisable(GL_DEPTH_TEST);
+		//	glDrawElements(GL_TRIANGLES, // drawing mode
+		//		cubeNumElements * 3, // number of elements to draw (6 vertices)
+		//		GL_UNSIGNED_INT, // type of the indices
+		//		0); // offset in the EBO
+		//	glEnable(GL_DEPTH_TEST);
+		//}
 
-			cubeShader.setUniform("view", viewMat);
-			cubeShader.setUniform("projection", projectionMat);
-
-			// positional light (orbiting light)
-			cubeShader.setUniform("positionalLight.position", worldLightPos.x, worldLightPos.y, worldLightPos.z);
-			cubeShader.setUniform("positionalLight.color.ambient", positionalLightColor * glm::vec3(0.05f));
-			cubeShader.setUniform("positionalLight.color.diffuse", positionalLightColor * glm::vec3(0.5f));
-			cubeShader.setUniform("positionalLight.color.specular", positionalLightColor * glm::vec3(1.0f));
-			cubeShader.setUniform("positionalLight.attenuation.constant", 1.0f);
-			cubeShader.setUniform("positionalLight.attenuation.linear", 0.09f);
-			cubeShader.setUniform("positionalLight.attenuation.quadratic", 0.032f);
-
-			// directional light
-			cubeShader.setUniform("directionalLight.direction", directionalLightDir);
-			cubeShader.setUniform("directionalLight.color.ambient", directionalLightColor * glm::vec3(0.1f));
-			cubeShader.setUniform("directionalLight.color.diffuse", directionalLightColor * glm::vec3(0.4f));
-			cubeShader.setUniform("directionalLight.color.specular", directionalLightColor * glm::vec3(0.5f));
-
-			// flash light
-			cubeShader.setUniform("spotLight.position", camera.Position);
-			cubeShader.setUniform("spotLight.direction", camera.Front);
-			cubeShader.setUniform("spotLight.cutOff", glm::cos(glm::radians(12.5f)));
-			cubeShader.setUniform("spotLight.outerCutOff", glm::cos(glm::radians(17.5f)));
-			cubeShader.setUniform("spotLight.color.ambient", flashLightColor * glm::vec3(0.05f));
-			cubeShader.setUniform("spotLight.color.diffuse", flashLightColor * glm::vec3(0.3f));
-			cubeShader.setUniform("spotLight.color.specular", flashLightColor * glm::vec3(0.5f));
-			cubeShader.setUniform("spotLight.attenuation.constant", 1.0f);
-			cubeShader.setUniform("spotLight.attenuation.linear", 0.09f);
-			cubeShader.setUniform("spotLight.attenuation.quadratic", 0.032f);
-
-			cubeShader.setUniform("animSwitch", animSwitch);
-			cubeShader.setUniform("alphaDiscard", true);
-			cubeShader.setUniform("emissionStrength", emissionStrength);
-			cubeShader.setUniform("viewPos", camera.Position);
-
-			// bind shapesVAO
-			glBindVertexArray(shapesVAO);
-
-			glActiveTexture(GL_TEXTURE0 + diffTextureId);
-			glBindTexture(GL_TEXTURE_2D, diffTextureId);
-			glActiveTexture(GL_TEXTURE0 + specTextureId);
-			glBindTexture(GL_TEXTURE_2D, specTextureId);
-
-			cubeShader.setUniform("material.diffTexture1", diffTextureId);
-			cubeShader.setUniform("material.specTexture1", specTextureId);
-			cubeShader.setUniform("material.shininess", 32.0f);
-
-			// draw cubes
-			for (uint32 i = 0; i < numCubes; i++) {
-				glm::mat4 model;
-				float32 angularSpeed = 7.3f * (i + 1);
-
-				// orbit around the specified axis from the translated distance
-				model = glm::rotate(model, t * glm::radians(angularSpeed), glm::vec3(50.0f - (i * 10), 100.0f, -50.0f + (i * 10)));
-				// translate to position in world
-				model = glm::translate(model, cubePositions[i]);
-				// rotate with time
-				model = glm::rotate(model, t * glm::radians(angularSpeed), glm::vec3(1.0f, 0.3f, 0.5f));
-				// scale object
-				model = glm::scale(model, glm::vec3(cubeScales[i]));
-				cubeShader.setUniform("model", model);
-				glDrawElements(GL_TRIANGLES, // drawing mode
-					cubeNumElements * 3, // number of elements to draw (6 vertices)
-					GL_UNSIGNED_INT, // type of the indices
-					0); // offset in the EBO
-			}
-
-			// draw cube stencil outlines
-			//for (uint32 i = 0; i < numCubes; i++) {
-			//	float32 angularSpeed = 7.3f * (i + 1);
-
-			//	glm::mat4 model;
-			//	// orbit around the specified axis from the translated distance
-			//	model = glm::rotate(model, t * glm::radians(angularSpeed), glm::vec3(50.0f - (i * 10), 100.0f, -50.0f + (i * 10)));
-			//	// translate to position in world
-			//	model = glm::translate(model, cubePositions[i]);
-			//	// rotate with time
-			//	model = glm::rotate(model, t * glm::radians(angularSpeed), glm::vec3(1.0f, 0.3f, 0.5f));
-			//	// scale object
-			//	model = glm::scale(model, glm::vec3(cubeScales[i] + 0.05f));
-			//	stencilShader.use();
-			//	stencilShader.setUniform("singleColor", glm::vec3(1.0f, 1.0f, 1.0f));
-			//	stencilShader.setUniform("projection", projectionMat);
-			//	stencilShader.setUniform("view", viewMat);
-			//	stencilShader.setUniform("model", model);
-			//	glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
-			//	glStencilMask(0x00);
-			//	glDisable(GL_DEPTH_TEST);
-			//	glDrawElements(GL_TRIANGLES, // drawing mode
-			//		cubeNumElements * 3, // number of elements to draw (6 vertices)
-			//		GL_UNSIGNED_INT, // type of the indices
-			//		0); // offset in the EBO
-			//	glEnable(GL_DEPTH_TEST);
-			//}
-
-			// unbind shapesVAO
-			glBindVertexArray(0);
-		}
+		// unbind shapesVAO
+		glBindVertexArray(0);
 
 		// draw models
 		float32 modelScale = 0.2f;
@@ -530,17 +531,20 @@ void renderLoop(GLFWwindow *window, uint32 &shapesVAO, uint32 &lightVAO) {
 			glClear(GL_STENCIL_BUFFER_BIT); // NOTE: glClear(GL_STENCIL_BUFFER_BIT) counts as writing to the stencil buffer and will be directly ANDed with the stencil mask
 
 			// Drawing the model
-			cubeShader.use();
-			cubeShader.setUniform("animSwitch", false); // FIXME: Just disabling since we don't want currently using cube fragment shader
-			cubeShader.setUniform("alphaDiscard", false);
-			cubeShader.setUniform("projection", projectionMat);
-			cubeShader.setUniform("view", viewMat);
+			modelShader.use();
+			setLightUniforms(modelShader);
+			
+			modelShader.setUniform("material.shininess", 32.0f);
+
+			modelShader.setUniform("viewPos", camera.Position);
+			modelShader.setUniform("projection", projectionMat);
+			modelShader.setUniform("view", viewMat);
 
 			glm::mat4 model;
 			model = glm::scale(model, glm::vec3(modelScale));	// it's a bit too big for our scene, so scale it down
 			model = glm::translate(model, glm::vec3(0.0f, -1.75f, 0.0f)); // translate it down so it's at the center of the scene
-			cubeShader.setUniform("model", model);
-			nanoSuitModel.Draw(cubeShader);
+			modelShader.setUniform("model", model);
+			nanoSuitModel.Draw(modelShader);
 
 			//  Wall Hack Stencil For Model
 			stencilShader.use();

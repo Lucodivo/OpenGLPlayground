@@ -220,4 +220,5 @@ Point Light: A light source witha given position somewhere in a world that illum
 
 
 +++ Depth Testing +++
-- Depth testing must be enabled using glEnable(GL_DEPTH_TEST) 
+Depth testing must be enabled using glEnable(GL_DEPTH_TEST) 
+Z-Fighting: A common visual artifight when two triangles are so closely aligned to each other that the depth buffer does not have enough precision to determing which one is in front of the other.

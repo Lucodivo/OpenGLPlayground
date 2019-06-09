@@ -39,10 +39,11 @@ public:
 		uint32 specularNr = 1;
 		for (uint32 i = 0; i < textures.size(); i++)
 		{
+			Texture texture = textures[i];
 			glActiveTexture(GL_TEXTURE0 + i); // activate proper texture unit before binding
 			// retrieve texture number (the N in diffuse_textureN)
 			std::string number;
-			std::string name = textures[i].type;
+			std::string name = texture.type;
 			if (name == "diffTexture")
 				number = std::to_string(diffuseNr++);
 			else if (name == "specTexture")
@@ -50,7 +51,7 @@ public:
 
 			const std::string uniformName = "material." + name + number;
 			shader.setUniform(uniformName, i);
-			glBindTexture(GL_TEXTURE_2D, textures[i].id);
+			glBindTexture(GL_TEXTURE_2D, texture.id);
 		}
 		glActiveTexture(GL_TEXTURE0);
 

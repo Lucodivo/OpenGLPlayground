@@ -13,8 +13,6 @@
 #include "Mesh.h"
 #include "LearnOpenGLPlatform.h"
 
-uint32 TextureFromFile(const char* path, const std::string& directory, bool gamma = false);
-
 class Model
 {
 public:
@@ -155,7 +153,7 @@ private:
 		return textures;
 	}
 
-	uint32 TextureFromFile(const char* path, const std::string& directory, bool gamma = false)
+	uint32 TextureFromFile(const char* path, const std::string& directory)
 	{
 		std::string filename = std::string(path);
 		filename = directory + '/' + filename;

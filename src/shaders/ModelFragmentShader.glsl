@@ -31,10 +31,11 @@ struct SpotLight{
 struct Material {
 	sampler2D diffTexture1;
 	sampler2D specTexture1;
-	float shininess;
+	float shininess; // TODO: Currently set manually, set in Mesh.h?
 };
 
 uniform vec3 viewPos;
+uniform float emissionStength;
 uniform PositionalLight positionalLight;
 uniform DirectionalLight directionalLight;
 uniform SpotLight spotLight;
