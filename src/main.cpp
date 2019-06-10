@@ -370,6 +370,9 @@ void renderLoop(GLFWwindow *window, uint32 &shapesVAO, uint32 &lightVAO) {
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GL_LESS);
 
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 		// if flashlight is off, simply remove all color from light
         glm::vec3 flashLightColor = flashLightOn ? glm::vec3(0.93f, 0.84f, 0.72f) : glm::vec3(0.0f);
 
@@ -491,32 +494,32 @@ void renderLoop(GLFWwindow *window, uint32 &shapesVAO, uint32 &lightVAO) {
 		}
 
 		// draw cube stencil outlines
-		//for (uint32 i = 0; i < numCubes; i++) {
-		//	float32 angularSpeed = 7.3f * (i + 1);
+		for (uint32 i = 0; i < numCubes; i++) {
+			float32 angularSpeed = 7.3f * (i + 1);
 
-		//	glm::mat4 model;
-		//	// orbit around the specified axis from the translated distance
-		//	model = glm::rotate(model, t * glm::radians(angularSpeed), glm::vec3(50.0f - (i * 10), 100.0f, -50.0f + (i * 10)));
-		//	// translate to position in world
-		//	model = glm::translate(model, cubePositions[i]);
-		//	// rotate with time
-		//	model = glm::rotate(model, t * glm::radians(angularSpeed), glm::vec3(1.0f, 0.3f, 0.5f));
-		//	// scale object
-		//	model = glm::scale(model, glm::vec3(cubeScales[i] + 0.05f));
-		//	stencilShader.use();
-		//	stencilShader.setUniform("singleColor", glm::vec3(1.0f, 1.0f, 1.0f));
-		//	stencilShader.setUniform("projection", projectionMat);
-		//	stencilShader.setUniform("view", viewMat);
-		//	stencilShader.setUniform("model", model);
-		//	glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
-		//	glStencilMask(0x00);
-		//	glDisable(GL_DEPTH_TEST);
-		//	glDrawElements(GL_TRIANGLES, // drawing mode
-		//		cubeNumElements * 3, // number of elements to draw (6 vertices)
-		//		GL_UNSIGNED_INT, // type of the indices
-		//		0); // offset in the EBO
-		//	glEnable(GL_DEPTH_TEST);
-		//}
+			glm::mat4 model;
+			// orbit around the specified axis from the translated distance
+			model = glm::rotate(model, t * glm::radians(angularSpeed), glm::vec3(50.0f - (i * 10), 100.0f, -50.0f + (i * 10)));
+			// translate to position in world
+			model = glm::translate(model, cubePositions[i]);
+			// rotate with time
+			model = glm::rotate(model, t * glm::radians(angularSpeed), glm::vec3(1.0f, 0.3f, 0.5f));
+			// scale object
+			model = glm::scale(model, glm::vec3(cubeScales[i] + 0.05f));
+			stencilShader.use();
+			stencilShader.setUniform("singleColor", glm::vec3(1.0f, 1.0f, 1.0f));
+			stencilShader.setUniform("projection", projectionMat);
+			stencilShader.setUniform("view", viewMat);
+			stencilShader.setUniform("model", model);
+			glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+			glStencilMask(0x00);
+			glDisable(GL_DEPTH_TEST);
+			glDrawElements(GL_TRIANGLES, // drawing mode
+				cubeNumElements * 3, // number of elements to draw (6 vertices)
+				GL_UNSIGNED_INT, // type of the indices
+				0); // offset in the EBO
+			glEnable(GL_DEPTH_TEST);
+		}
 
 		// unbind shapesVAO
 		glBindVertexArray(0);

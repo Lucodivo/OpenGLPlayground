@@ -49,14 +49,14 @@ in vec2 TextureCoord;
 
 out vec4 FragColor;
 
-vec3 calcPositionalLightColor();
-vec3 calcDirectionalLightColor();
-vec3 calcSpotLightColor();
-vec3 calcLightColor(vec3 lightDir, LightColor lightColor);
+vec4 calcPositionalLightColor();
+vec4 calcDirectionalLightColor();
+vec4 calcSpotLightColor();
+vec4 calcLightColor(vec3 lightDir, LightColor lightColor);
 float calcAttenuation(LightAttenuation attenuation, float distance);
 
-vec3 diffColor;
-vec3 specColor;
+vec4 diffColor;
+vec4 specColor;
 
 void main()
 {
@@ -67,21 +67,19 @@ void main()
 		animTextCoord = TextureCoord;
 	}
 
-	vec4 diffColorWithAlpha = texture(material.diffTexture1, animTextCoord);
-	if(alphaDiscard && diffColorWithAlpha.a < 0.1) discard;
+	diffColor = texture(material.diffTexture1, animTextCoord);
+	// if(alphaDiscard && diffColorWithAlpha.a < 0.1) discard;
 
-	diffColor = diffColorWithAlpha.rgb;
-	specColor = texture(material.specTexture1, animTextCoord).rgb;
+	specColor = texture(material.specTexture1, animTextCoord);
 
-	vec3 rotationalResult = calcPositionalLightColor();
-	vec3 directionalResult = calcDirectionalLightColor();
-	vec3 spotResult = calcSpotLightColor();
+	vec4 rotationalResult = calcPositionalLightColor();
+	vec4 directionalResult = calcDirectionalLightColor();
+	vec4 spotResult = calcSpotLightColor();
 
-	vec3 result = rotationalResult + directionalResult + spotResult;
-    FragColor = vec4(result, 1.0);
+	FragColor = rotationalResult + directionalResult + spotResult;
 }
 
-vec3 calcPositionalLightColor() {
+vec4 calcPositionalLightColor() {
 	vec3 lightDir = normalize(positionalLight.position - FragPos);
 
 	float distance = length(positionalLight.position - FragPos);
@@ -90,12 +88,12 @@ vec3 calcPositionalLightColor() {
 	return (calcLightColor(lightDir, positionalLight.color) * attenuation);
 }
 
-vec3 calcDirectionalLightColor() {
+vec4 calcDirectionalLightColor() {
 	vec3 lightDir = normalize(-directionalLight.direction);
 	return calcLightColor(lightDir, directionalLight.color);
 }
 
-vec3 calcSpotLightColor() {
+vec4 calcSpotLightColor() {
 	vec3 lightDir = normalize(spotLight.position - FragPos);
 	float theta = dot(lightDir, normalize(-spotLight.direction));
 	float epsilon = spotLight.cutOff - spotLight.outerCutOff;
@@ -106,20 +104,20 @@ vec3 calcSpotLightColor() {
 	return (calcLightColor(lightDir, spotLight.color) * intensity * attenuation);
 }
 
-vec3 calcLightColor(vec3 lightDir, LightColor lightColor) { 
+vec4 calcLightColor(vec3 lightDir, LightColor lightColor) { 
 	// ambient light
-	vec3 ambient = lightColor.ambient * diffColor;
+	vec4 ambient = vec4(lightColor.ambient, 1.0) * diffColor;
 
 	// diffuse light
 	vec3 norm = normalize(Normal);
 	float diffStrength = max(dot(norm, lightDir), 0.0);
-	vec3 diffuse = lightColor.diffuse * diffStrength * diffColor;
+	vec4 diffuse = vec4(lightColor.diffuse, 1.0) * diffStrength * diffColor;
 
 	// specular light
 	vec3 viewDir = normalize(viewPos - FragPos);
 	vec3 reflectDir = reflect(-lightDir, norm);
 	float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
-	vec3 specular = lightColor.specular * spec * specColor;
+	vec4 specular = vec4(lightColor.specular, 1.0) * spec * specColor;
 
 	return ambient + diffuse + specular;
 }
