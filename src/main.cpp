@@ -346,6 +346,10 @@ void renderLoop(GLFWwindow *window, uint32 &shapesVAO, uint32 &lightVAO) {
 		// check for input
 		processInput(window);
 
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_FRONT);
+		glFrontFace(GL_CCW);
+
 		glEnable(GL_STENCIL_TEST);
 		glStencilOp(GL_KEEP, // when stencil fails
 			GL_KEEP, // when stencil passes but depth fails
