@@ -12,3 +12,5 @@ typedef uint64_t uint64;
 
 typedef float float32;
 typedef double float64;
+
+#define ArrayCount(Array) (sizeof(Array) / sizeof((Array)[0]))

@@ -18,16 +18,18 @@
 #define local_persist static
 
 // shader information
-const char *cubeVertexShaderFile = "src/shaders/CubeVertexShader.glsl";
-const char *cubeFragmentShaderFile = "src/shaders/CubeFragmentShader.glsl";
-const char *lightVertexShaderFile = "src/shaders/LightSourceVertexShader.glsl";
-const char *lightFragmentShaderFile = "src/shaders/LightSourceFragmentShader.glsl";
-const char *modelVertexShaderFile = "src/shaders/ModelVertexShader.glsl";
-const char *modelFragmentShaderFile = "src/shaders/ModelFragmentShader.glsl";
-const char *depthFragmentShaderFile = "src/shaders/DepthBufferVisualizerFragmentShader.glsl";
-const char *stencilFragmentShaderFile = "src/shaders/SingleColorFragmentShader.glsl";
+const char* cubeVertexShaderFile = "src/shaders/CubeVertexShader.glsl";
+const char* cubeFragmentShaderFile = "src/shaders/CubeFragmentShader.glsl";
+const char* lightVertexShaderFile = "src/shaders/LightSourceVertexShader.glsl";
+const char* lightFragmentShaderFile = "src/shaders/LightSourceFragmentShader.glsl";
+const char* modelVertexShaderFile = "src/shaders/ModelVertexShader.glsl";
+const char* modelFragmentShaderFile = "src/shaders/ModelFragmentShader.glsl";
+const char* depthFragmentShaderFile = "src/shaders/DepthBufferVisualizerFragmentShader.glsl";
+const char* stencilFragmentShaderFile = "src/shaders/SingleColorFragmentShader.glsl";
 const char* frameBufferVertexShaderFile = "src/shaders/FrameBufferVertexShader.glsl";
-const char *frameBufferFragmentShaderFile = "src/shaders/FrameBufferFragmentShader.glsl";
+const char* frameBufferFragmentShaderFile = "src/shaders/FrameBufferFragmentShader.glsl";
+const char* negativeFrameBufferFragmentShaderFile = "src/shaders/NegativeFrameBufferFragmentShader.glsl";
+const char* kernelFrameBufferFragmentShaderFile = "src/shaders/KernelFrameBufferFragmentShader.glsl";
 
 // texture 
 const char *diffuseTextureLoc = "src/data/diffuse_map_alpha_channel.png";
@@ -48,6 +50,8 @@ bool flashLightOn = true;
 uint32 framebuffer;
 uint32 frameBufferTexture;
 uint32 rbo;
+
+uint32 selectedKernelIndex = 0;
 
 int main() {
     loadGLFW();
@@ -331,6 +335,8 @@ void loadTexture(const char* imgLocation, uint32& textureId) {
 }
 
 void processInput(GLFWwindow * window) {
+	double currentTime = glfwGetTime();
+
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
 		glfwSetWindowShouldClose(window, GL_TRUE);
 	}
@@ -360,10 +366,10 @@ void processInput(GLFWwindow * window) {
 	}
 
 	static bool windowMode = true;
-	static double windowModeSwitchTimer = glfwGetTime();
+	static double windowModeSwitchTimer = currentTime;
 	if (glfwGetKey(window, GLFW_KEY_RIGHT_ALT) == GLFW_PRESS &&
 		glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS &&
-		glfwGetTime() - windowModeSwitchTimer > 1.5f) {
+		currentTime - windowModeSwitchTimer > 1.5f) {
 		GLFWmonitor* monitor = glfwGetPrimaryMonitor();
 		const GLFWvidmode* mode = glfwGetVideoMode(monitor);
 		if (windowMode) {
@@ -373,7 +379,19 @@ void processInput(GLFWwindow * window) {
 			glfwSetWindowMonitor(window, NULL, (mode->width / 4), (mode->height / 4), VIEWPORT_INIT_WIDTH, VIEWPORT_INIT_HEIGHT, GLFW_DONT_CARE);
 		}
 		windowMode = !windowMode;
-		windowModeSwitchTimer = glfwGetTime();
+		windowModeSwitchTimer = currentTime;
+	}
+
+	static double kernelModeSwitchTimer = currentTime;
+	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS &&
+		currentTime - kernelModeSwitchTimer > 0.5f) {
+		selectedKernelIndex = (selectedKernelIndex + 1) % ArrayCount(kernels);
+		kernelModeSwitchTimer = currentTime;
+	}
+	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS &&
+		currentTime - kernelModeSwitchTimer > 0.5f) {
+		selectedKernelIndex = (selectedKernelIndex - 1) % ArrayCount(kernels);
+		kernelModeSwitchTimer = currentTime;
 	}
 }
 
@@ -413,7 +431,7 @@ void renderLoop(GLFWwindow *window, uint32 &shapesVAO, uint32 &lightVAO, uint32 
     Shader lightShader = Shader(lightVertexShaderFile, lightFragmentShaderFile);
 	Shader modelShader = Shader(modelVertexShaderFile, modelFragmentShaderFile);
 	Shader stencilShader = Shader(cubeVertexShaderFile, stencilFragmentShaderFile);
-	Shader frameBufferShader = Shader(frameBufferVertexShaderFile, frameBufferFragmentShaderFile);
+	Shader frameBufferShader = Shader(frameBufferVertexShaderFile, kernelFrameBufferFragmentShaderFile);
 
 	uint32 diffTextureId;
 	uint32 specTextureId;
@@ -676,6 +694,7 @@ void renderLoop(GLFWwindow *window, uint32 &shapesVAO, uint32 &lightVAO, uint32 
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		frameBufferShader.use();
+		glUniform1fv(glGetUniformLocation(frameBufferShader.ID, "kernel"), 9, kernels[selectedKernelIndex]);
 		glBindVertexArray(quadVAO);
 		glDisable(GL_DEPTH_TEST);
 		glBindTexture(GL_TEXTURE_2D, frameBufferTexture);
