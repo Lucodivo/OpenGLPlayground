@@ -3,13 +3,16 @@
 #include "LearnOpenGLPlatform.h"
 
 void modelTest(GLFWwindow* window, uint32 lightVAO);
+int main();
 void loadGLFW();
 GLFWwindow * createWindow();
 void initializeGLAD();
 void initializeObjectBuffers(uint32 & VAO, uint32 & VBO, uint32 & EBO);
 void initializeLightBuffers(uint32 & VAO, uint32 & VBO, uint32 & EBO);
-void renderLoop(GLFWwindow *window, uint32 &shapesVAO, uint32 &lightVAO);
+void initializeQuadBuffers(uint32 & quadVAO, uint32 & quadVBO, uint32 & shapesEBO);
+void renderLoop(GLFWwindow *window, uint32 &shapesVAO, uint32 &lightVAO, uint32 & quadVAO);
 void initializeTextures(uint32& diffTextureId, uint32& specTextureId);
+void initializeFrameBuffer(uint32 width, uint32 height);
 void loadTexture(const char * imgLocation, uint32 &textureOffset);
 void processInput(GLFWwindow * window);
 void mouse_callback(GLFWwindow * window, double xpos, double ypos);
@@ -97,6 +100,22 @@ const float32 cubeScales[] = {
 	1.0f
 };
 // ===== cube values =====
+
+// ===== frame buffer quad values =====
+const uint32 quadVertexAttSizeInBytes = 4 * sizeof(float32);
+float quadVertexAttributes[] = {
+	// positions   // texCoords
+	-1.0f,  1.0f,  0.0f, 1.0f,
+	-1.0f, -1.0f,  0.0f, 0.0f,
+	 1.0f, -1.0f,  1.0f, 0.0f,
+	 1.0f,  1.0f,  1.0f, 1.0f
+};
+
+const uint32 quadIndices[]{
+	0, 1, 2,
+	0, 2, 3
+};
+// ===== frame buffer quad values =====
 
 // ===== double triangle values =====
 const uint32 triangleVertexAttSize = 8;

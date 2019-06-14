@@ -26,6 +26,8 @@ const char *modelVertexShaderFile = "src/shaders/ModelVertexShader.glsl";
 const char *modelFragmentShaderFile = "src/shaders/ModelFragmentShader.glsl";
 const char *depthFragmentShaderFile = "src/shaders/DepthBufferVisualizerFragmentShader.glsl";
 const char *stencilFragmentShaderFile = "src/shaders/SingleColorFragmentShader.glsl";
+const char* frameBufferVertexShaderFile = "src/shaders/FrameBufferVertexShader.glsl";
+const char *frameBufferFragmentShaderFile = "src/shaders/FrameBufferFragmentShader.glsl";
 
 // texture 
 const char *diffuseTextureLoc = "src/data/diffuse_map_alpha_channel.png";
@@ -42,6 +44,10 @@ float32 lastY = VIEWPORT_INIT_HEIGHT / 2;
 Camera camera = Camera();
 
 bool flashLightOn = true;
+
+uint32 framebuffer;
+uint32 frameBufferTexture;
+uint32 rbo;
 
 int main() {
     loadGLFW();
@@ -60,7 +66,10 @@ int main() {
     uint32 shapesVAO, shapesVBO, shapesEBO;
     initializeObjectBuffers(shapesVAO, shapesVBO, shapesEBO);
 
-    renderLoop(window, shapesVAO, lightVAO);
+	uint32 quadVAO, quadVBO, quadEBO;
+	initializeQuadBuffers(quadVAO, quadVBO, quadEBO);
+
+    renderLoop(window, shapesVAO, lightVAO, quadVAO);
 
     glDeleteVertexArrays(1, &shapesVAO);
     glDeleteBuffers(1, &shapesVBO);
@@ -115,7 +124,7 @@ void initializeObjectBuffers(uint32 &VAO, uint32 &VBO, uint32 &EBO) {
     glGenVertexArrays(1, &VAO);
     glBindVertexArray(VAO);
 
-    glGenBuffers(1,     // Num objects to generate 
+    glGenBuffers(1, // Num objects to generate 
         &VBO);  // Out parameters to store IDs of gen objects
     glBindBuffer(GL_ARRAY_BUFFER, VBO); // bind object to array buffer
     glBufferData(GL_ARRAY_BUFFER, // which buffer data is being entered in
@@ -174,8 +183,8 @@ void initializeLightBuffers(uint32 &VAO, uint32 &VBO, uint32 &EBO) {
         sizeof(cubeVertexAttributes), // size of data being placed in array buffer
         cubeVertexAttributes,        // data to store in array buffer       
         GL_STATIC_DRAW); // GL_STATIC_DRAW (most likely not change), GL_DYNAMIC_DRAW (likely to change), GL_STREAM_DRAW (changes every time drawn)
-    // set the vertex attributes (only position data for our lamp)
 
+    // set the vertex attributes (only position data for our lamp)
 	// position attribute
 	glVertexAttribPointer(0, // position vertex attribute (used for location = 0 of Vertex Shader) 
 		3, // size of vertex attribute (we're using vec3)
@@ -196,9 +205,97 @@ void initializeLightBuffers(uint32 &VAO, uint32 &VBO, uint32 &EBO) {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
-void initializeTextures(uint32& diffTextureId, uint32& specTextureId) {
+void initializeQuadBuffers(uint32& VAO, uint32& VBO, uint32& EBO) {
+	glGenVertexArrays(1, &VAO);
+	glGenBuffers(1,
+		&VBO);
+	glGenBuffers(1, &EBO);
+
+	glBindVertexArray(VAO);
+
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBufferData(GL_ARRAY_BUFFER,
+		sizeof(quadVertexAttributes),
+		quadVertexAttributes,
+		GL_STATIC_DRAW);
+
+	// set the vertex attributes (position and texture)
+	// position attribute
+	glVertexAttribPointer(0,
+		2, 
+		GL_FLOAT,
+		GL_FALSE,
+		quadVertexAttSizeInBytes,
+		(void*)0);
+	glEnableVertexAttribArray(0);
+
+	// texture attribute
+	glVertexAttribPointer(1,
+		2,
+		GL_FLOAT,
+		GL_FALSE,
+		quadVertexAttSizeInBytes,
+		(void*)(2 * sizeof(float32)));
+	glEnableVertexAttribArray(1);
+
+	// bind element buffer object to give indices
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(quadIndices), quadIndices, GL_STATIC_DRAW);
+
+	// unbind VBO, VAO, & EBO
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+	// Must unbind EBO AFTER unbinding VAO, since VAO stores all glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _) calls
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+}
+
+void initializeTextures(uint32& diffTextureId, uint32& specTextureId) 
+{
 	loadTexture(diffuseTextureLoc, diffTextureId);
 	loadTexture(specularTextureLoc, specTextureId);
+}
+
+void initializeFrameBuffer(uint32 width, uint32 height)
+{
+	glDeleteFramebuffers(1, &framebuffer);
+	glDeleteRenderbuffers(1, &rbo);
+	glDeleteTextures(1, &frameBufferTexture);
+
+	// creating frame buffer
+	glGenFramebuffers(1, &framebuffer);
+	glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+
+	// creating frame buffer texture
+	glGenTextures(1, &frameBufferTexture);
+	glBindTexture(GL_TEXTURE_2D, frameBufferTexture);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glBindTexture(GL_TEXTURE_2D, 0); // unbind
+
+	// attach texture w/ color to frame buffer
+	glFramebufferTexture2D(GL_FRAMEBUFFER, // frame buffer we're tageting (draw, read, or both)
+		GL_COLOR_ATTACHMENT0, // type of attachment
+		GL_TEXTURE_2D, // type of texture
+		frameBufferTexture, // texture 
+		0); // mipmap level
+
+	// creating render buffer to be depth/stencil buffer
+	glGenRenderbuffers(1, &rbo);
+	glBindRenderbuffer(GL_RENDERBUFFER, rbo);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
+	glBindRenderbuffer(GL_RENDERBUFFER, 0); // unbind
+	// attach render buffer w/ depth & stencil to frame buffer
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, // frame buffer target
+		GL_DEPTH_STENCIL_ATTACHMENT, // attachment point of frame buffer
+		GL_RENDERBUFFER, // render buffer target
+		rbo);  // render buffer
+
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+	{
+		std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
+	}
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void loadTexture(const char* imgLocation, uint32& textureId) {
@@ -283,6 +380,7 @@ void processInput(GLFWwindow * window) {
 // Callback function for when user resizes our window
 void framebuffer_size_callback(GLFWwindow * window, int width, int height) {
 	glViewport(0, 0, width, height);
+	initializeFrameBuffer(width, height);
 }
 
 // Callback function for when user moves mouse
@@ -310,15 +408,18 @@ void scroll_callback(GLFWwindow * window, double xoffset, double yoffset)
 	camera.ProcessMouseScroll((float32)yoffset);
 }
 
-void renderLoop(GLFWwindow *window, uint32 &shapesVAO, uint32 &lightVAO) {
+void renderLoop(GLFWwindow *window, uint32 &shapesVAO, uint32 &lightVAO, uint32 & quadVAO) {
     Shader cubeShader = Shader(cubeVertexShaderFile, cubeFragmentShaderFile);
     Shader lightShader = Shader(lightVertexShaderFile, lightFragmentShaderFile);
 	Shader modelShader = Shader(modelVertexShaderFile, modelFragmentShaderFile);
 	Shader stencilShader = Shader(cubeVertexShaderFile, stencilFragmentShaderFile);
+	Shader frameBufferShader = Shader(frameBufferVertexShaderFile, frameBufferFragmentShaderFile);
 
 	uint32 diffTextureId;
 	uint32 specTextureId;
     initializeTextures(diffTextureId, specTextureId);
+
+	initializeFrameBuffer(VIEWPORT_INIT_WIDTH, VIEWPORT_INIT_HEIGHT);
 
 	// load models
 	Model nanoSuitModel((char*)nanoSuitModelLoc);
@@ -334,11 +435,17 @@ void renderLoop(GLFWwindow *window, uint32 &shapesVAO, uint32 &lightVAO) {
     glm::vec3 directionalLightDir = glm::vec3(-0.0f, -1.0f, -3.0f);
     glm::vec3 directionalLightColor = glm::vec3(1.0f);
 
-	// clear the background color
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_BACK);
+	glFrontFace(GL_CCW);
+
+	// background clear color
 	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 
+#if 0
 	// draw in wireframe
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+#endif
 
     // NOTE: render/game loop
     while (glfwWindowShouldClose(window) == GL_FALSE) {
@@ -346,9 +453,8 @@ void renderLoop(GLFWwindow *window, uint32 &shapesVAO, uint32 &lightVAO) {
 		// check for input
 		processInput(window);
 
-		glEnable(GL_CULL_FACE);
-		glCullFace(GL_FRONT);
-		glFrontFace(GL_CCW);
+		// bind our frame buffer
+		glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
 
 		glEnable(GL_STENCIL_TEST);
 		glStencilOp(GL_KEEP, // when stencil fails
@@ -408,7 +514,7 @@ void renderLoop(GLFWwindow *window, uint32 &shapesVAO, uint32 &lightVAO) {
 		lightShader.setUniform("projection", projectionMat);
 		lightShader.setUniform("lightColor", positionalLightColor);
 		glDrawElements(GL_TRIANGLES, // drawing mode
-			cubeNumElements * 3, // number of elements to draw (6 vertices)
+			cubeNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
 			GL_UNSIGNED_INT, // type of the indices
 			0); // offset in the EBO
 		glBindVertexArray(0);
@@ -492,7 +598,7 @@ void renderLoop(GLFWwindow *window, uint32 &shapesVAO, uint32 &lightVAO) {
 			model = glm::scale(model, glm::vec3(cubeScales[i]));
 			cubeShader.setUniform("model", model);
 			glDrawElements(GL_TRIANGLES, // drawing mode
-				cubeNumElements * 3, // number of elements to draw (6 vertices)
+				cubeNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
 				GL_UNSIGNED_INT, // type of the indices
 				0); // offset in the EBO
 		}
@@ -519,7 +625,7 @@ void renderLoop(GLFWwindow *window, uint32 &shapesVAO, uint32 &lightVAO) {
 			glStencilMask(0x00);
 			glDisable(GL_DEPTH_TEST);
 			glDrawElements(GL_TRIANGLES, // drawing mode
-				cubeNumElements * 3, // number of elements to draw (6 vertices)
+				cubeNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
 				GL_UNSIGNED_INT, // type of the indices
 				0); // offset in the EBO
 			glEnable(GL_DEPTH_TEST);
@@ -564,6 +670,19 @@ void renderLoop(GLFWwindow *window, uint32 &shapesVAO, uint32 &lightVAO) {
 			glDisable(GL_DEPTH_TEST);
 			nanoSuitModel.Draw(stencilShader);
 		}
+
+		// bind default frame buffer
+		glBindFramebuffer(GL_FRAMEBUFFER, 0); // back to default
+		glClear(GL_COLOR_BUFFER_BIT);
+
+		frameBufferShader.use();
+		glBindVertexArray(quadVAO);
+		glDisable(GL_DEPTH_TEST);
+		glBindTexture(GL_TEXTURE_2D, frameBufferTexture);
+		glDrawElements(GL_TRIANGLES, // drawing mode
+			6, // number of elements to draw (3 vertices per triangle * 2 triangles per quad)
+			GL_UNSIGNED_INT, // type of the indices
+			0); // offset in the EBO
 
         glfwSwapBuffers(window); // swaps double buffers (call after all render commands are completed)
         glfwPollEvents(); // checks for events (ex: keyboard/mouse input)
