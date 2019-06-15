@@ -15,8 +15,6 @@
 #define VIEWPORT_INIT_WIDTH 800
 #define VIEWPORT_INIT_HEIGHT 600
 
-#define local_persist static
-
 // shader information
 const char* cubeVertexShaderFile = "src/shaders/CubeVertexShader.glsl";
 const char* cubeFragmentShaderFile = "src/shaders/CubeFragmentShader.glsl";
@@ -354,7 +352,7 @@ void processInput(GLFWwindow * window) {
 	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
 		camera.ProcessKeyboard(JUMP);
 
-	static bool leftMouseButtonWasDown = false;
+	local_persist bool leftMouseButtonWasDown = false;
 	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
 		if (!leftMouseButtonWasDown) {
 			leftMouseButtonWasDown = true;
@@ -365,8 +363,8 @@ void processInput(GLFWwindow * window) {
 		leftMouseButtonWasDown = false;
 	}
 
-	static bool windowMode = true;
-	static double windowModeSwitchTimer = currentTime;
+	local_persist bool windowMode = true;
+	local_persist double windowModeSwitchTimer = currentTime;
 	if (glfwGetKey(window, GLFW_KEY_RIGHT_ALT) == GLFW_PRESS &&
 		glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS &&
 		currentTime - windowModeSwitchTimer > 1.5f) {
@@ -382,15 +380,16 @@ void processInput(GLFWwindow * window) {
 		windowModeSwitchTimer = currentTime;
 	}
 
-	static double kernelModeSwitchTimer = currentTime;
+	local_persist double kernelModeSwitchTimer = currentTime;
+	local_persist uint32 kernelCount = ArrayCount(kernels);
 	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS &&
 		currentTime - kernelModeSwitchTimer > 0.5f) {
-		selectedKernelIndex = (selectedKernelIndex + 1) % ArrayCount(kernels);
+		selectedKernelIndex = (selectedKernelIndex + 1) % kernelCount;
 		kernelModeSwitchTimer = currentTime;
 	}
 	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS &&
 		currentTime - kernelModeSwitchTimer > 0.5f) {
-		selectedKernelIndex = (selectedKernelIndex - 1) % ArrayCount(kernels);
+		selectedKernelIndex = selectedKernelIndex == 0 ? kernelCount - 1 : (selectedKernelIndex - 1) % kernelCount;
 		kernelModeSwitchTimer = currentTime;
 	}
 }
@@ -404,7 +403,7 @@ void framebuffer_size_callback(GLFWwindow * window, int width, int height) {
 // Callback function for when user moves mouse
 void mouse_callback(GLFWwindow * window, double xpos, double ypos)
 {
-	static bool firstMouse = true;
+	local_persist bool firstMouse = true;
 	if (firstMouse) {
 		lastX = (float32)xpos;
 		lastY = (float32)ypos;

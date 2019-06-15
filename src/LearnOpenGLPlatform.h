@@ -14,3 +14,5 @@ typedef float float32;
 typedef double float64;
 
 #define ArrayCount(Array) (sizeof(Array) / sizeof((Array)[0]))
+
+#define local_persist static
