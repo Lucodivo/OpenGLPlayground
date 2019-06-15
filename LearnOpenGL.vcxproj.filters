@@ -29,6 +29,9 @@
     <ClCompile Include="..\..\..\dependencies\OpenGL\include\stb\stb_image.cpp">
       <Filter>external dependencies</Filter>
     </ClCompile>
+    <ClCompile Include="src\PlaygroundScene.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Text Include="notes.txt">
@@ -52,6 +55,12 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="src\LearnOpenGLPlatform.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\PlaygroundScene.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\kernels.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -80,9 +89,23 @@
     <None Include="src\shaders\ModelVertexShader.glsl">
       <Filter>shaders</Filter>
     </None>
-    <None Include="src\shaders\SingleColorFragmentShader.glsl" />
     <None Include="README.md">
       <Filter>etc</Filter>
+    </None>
+    <None Include="src\shaders\SingleColorFragmentShader.glsl">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="src\shaders\FrameBufferFragmentShader.glsl">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="src\shaders\FrameBufferVertexShader.glsl">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="src\shaders\KernelFrameBufferFragmentShader.glsl">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="src\shaders\NegativeFrameBufferFragmentShader.glsl">
+      <Filter>shaders</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

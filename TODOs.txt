@@ -1,4 +1,5 @@
 TODOs:
 - Figure out how to properly order when drawing the transparent cubes (and their sides)
 	- Remember to turn off back culling when verifying
-- Fix kernel fragment shader so the edges don't wrap
+- Break out input processing. Remove circular dependency between main and PlaygroundScene
+- Move PlaygroundScene::loadTexture() into separate file for more general use
