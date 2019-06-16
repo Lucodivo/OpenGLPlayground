@@ -1,3 +1,5 @@
+#pragma once
+
 // ===== Image Kernels =====
 const float32 kernels[7][9] = {
 	// normal kernel

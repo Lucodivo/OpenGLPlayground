@@ -7,30 +7,12 @@
 #include "Shader.h"
 #include "Camera.h"
 #include "Model.h"
-#include "kernels.h"
+#include "Kernels.h"
+#include "FileLocations.h"
+#include "Util.h"
 
 #include "PlaygroundScene.h"
 #include "main.h"
-
-// shader information
-const char* cubeVertexShaderFile = "src/shaders/CubeVertexShader.glsl";
-const char* cubeFragmentShaderFile = "src/shaders/CubeFragmentShader.glsl";
-const char* lightVertexShaderFile = "src/shaders/LightSourceVertexShader.glsl";
-const char* lightFragmentShaderFile = "src/shaders/LightSourceFragmentShader.glsl";
-const char* modelVertexShaderFile = "src/shaders/ModelVertexShader.glsl";
-const char* modelFragmentShaderFile = "src/shaders/ModelFragmentShader.glsl";
-const char* depthFragmentShaderFile = "src/shaders/DepthBufferVisualizerFragmentShader.glsl";
-const char* stencilFragmentShaderFile = "src/shaders/SingleColorFragmentShader.glsl";
-const char* frameBufferVertexShaderFile = "src/shaders/FrameBufferVertexShader.glsl";
-const char* frameBufferFragmentShaderFile = "src/shaders/FrameBufferFragmentShader.glsl";
-const char* negativeFrameBufferFragmentShaderFile = "src/shaders/NegativeFrameBufferFragmentShader.glsl";
-const char* kernelFrameBufferFragmentShaderFile = "src/shaders/KernelFrameBufferFragmentShader.glsl";
-
-// texture 
-const char* diffuseTextureLoc = "src/data/diffuse_map_alpha_channel.png";
-const char* specularTextureLoc = "src/data/specular_map.png";
-const char* emissionTextureLoc = "src/data/emission_map.png";
-const char* nanoSuitModelLoc = "C:/developer/repos/LearnOpenGL/LearnOpenGL/src/data/nanosuit/nanosuit.obj";
 
 // frame rate
 float32 deltaTime = 0.0f;	// Time between current frame and last frame
@@ -77,11 +59,11 @@ void runPlaygroundScene(GLFWwindow* window, uint32 initScreenHeight, uint32 init
 }
 
 void renderLoop(GLFWwindow* window, uint32& shapesVAO, uint32& lightVAO, uint32& quadVAO) {
-	Shader cubeShader = Shader(cubeVertexShaderFile, cubeFragmentShaderFile);
-	Shader lightShader = Shader(lightVertexShaderFile, lightFragmentShaderFile);
-	Shader modelShader = Shader(modelVertexShaderFile, modelFragmentShaderFile);
-	Shader stencilShader = Shader(cubeVertexShaderFile, stencilFragmentShaderFile);
-	Shader frameBufferShader = Shader(frameBufferVertexShaderFile, kernelFrameBufferFragmentShaderFile);
+	Shader cubeShader = Shader(cubeVertexShaderFileLoc, cubeFragmentShaderFileLoc);
+	Shader lightShader = Shader(lightVertexShaderFileLoc, lightFragmentShaderFileLoc);
+	Shader modelShader = Shader(modelVertexShaderFileLoc, modelFragmentShaderFileLoc);
+	Shader stencilShader = Shader(cubeVertexShaderFileLoc, stencilFragmentShaderFileLoc);
+	Shader frameBufferShader = Shader(frameBufferVertexShaderFileLoc, kernelFrameBufferFragmentShaderFileLoc);
 
 	uint32 diffTextureId;
 	uint32 specTextureId;
@@ -534,39 +516,6 @@ void initializeFrameBuffer(uint32 width, uint32 height)
 		std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
 	}
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-}
-
-// TODO: Move into separate file for more general use
-void loadTexture(const char* imgLocation, uint32& textureId) {
-	glGenTextures(1, &textureId);
-	uint32 textureOffset = textureId - 1;
-	glActiveTexture(GL_TEXTURE0 + textureOffset); // activate texture unit (by default it is bound to GL_TEXTURE0)
-	glBindTexture(GL_TEXTURE_2D, textureId);
-
-	// load image data
-	int width, height, numChannels;
-	stbi_set_flip_vertically_on_load(true);
-	unsigned char* data = stbi_load(imgLocation, &width, &height, &numChannels, 0);
-	if (data) {
-		auto pixelFormat = (numChannels == 3) ? GL_RGB : GL_RGBA;
-		glTexImage2D(GL_TEXTURE_2D, // target
-			0, // level of detail (level n is the nth mipmap reduction image)
-			pixelFormat, // kind of format we want to store the texture
-			width, // width of texture
-			height, // height of texture
-			0, // border (legacy stuff, MUST BE 0)
-			pixelFormat, // Specifies format of the pixel data
-			GL_UNSIGNED_BYTE, // specifies data type of pixel data
-			data); // pointer to the image data
-		glGenerateMipmap(GL_TEXTURE_2D);
-
-		// set texture options
-		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST); // disables bilinear filtering (creates sharp edges when magnifying texture)
-	}
-	else {
-		std::cout << "Failed to load texture" << std::endl;
-	}
-	stbi_image_free(data); // free texture image memory
 }
 
 void key_LeftShift_pressed() {

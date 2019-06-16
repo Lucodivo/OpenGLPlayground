@@ -1,5 +1,4 @@
-#ifndef SHADER_H
-#define SHADER_H
+#pragma once
 
 #include <glad/glad.h> // include glad to get all the required OpenGL headers
 #include <glm/gtc/matrix_transform.hpp>
@@ -144,5 +143,3 @@ public:
 		setUniform(name, vector3.x, vector3.y, vector3.z);
 	}
 };
-
-#endif

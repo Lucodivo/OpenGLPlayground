@@ -60,7 +60,13 @@
     <ClInclude Include="src\PlaygroundScene.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\kernels.h">
+    <ClInclude Include="src\Kernels.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Util.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\FileLocations.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>

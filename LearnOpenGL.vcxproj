@@ -29,13 +29,15 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Camera.h" />
-    <ClInclude Include="src\kernels.h" />
+    <ClInclude Include="src\FileLocations.h" />
+    <ClInclude Include="src\Kernels.h" />
     <ClInclude Include="src\LearnOpenGLPlatform.h" />
     <ClInclude Include="src\main.h" />
     <ClInclude Include="src\Mesh.h" />
     <ClInclude Include="src\Model.h" />
     <ClInclude Include="src\PlaygroundScene.h" />
     <ClInclude Include="src\Shader.h" />
+    <ClInclude Include="src\Util.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="README.md" />
