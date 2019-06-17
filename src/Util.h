@@ -3,7 +3,6 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-// TODO: Move into separate file for more general use
 void loadTexture(const char* imgLocation, uint32& textureId) {
 	glGenTextures(1, &textureId);
 	uint32 textureOffset = textureId - 1;

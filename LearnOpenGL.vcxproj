@@ -21,15 +21,18 @@
   <ItemGroup>
     <ClCompile Include="..\..\..\dependencies\OpenGL\include\glad\glad.c" />
     <ClCompile Include="..\..\..\dependencies\OpenGL\include\stb\stb_image.cpp" />
+    <ClCompile Include="src\Input.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\PlaygroundScene.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="notes.txt" />
+    <Text Include="TODOs.txt" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Camera.h" />
     <ClInclude Include="src\FileLocations.h" />
+    <ClInclude Include="src\Input.h" />
     <ClInclude Include="src\Kernels.h" />
     <ClInclude Include="src\LearnOpenGLPlatform.h" />
     <ClInclude Include="src\main.h" />

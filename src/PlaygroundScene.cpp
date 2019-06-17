@@ -5,39 +5,17 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "Shader.h"
-#include "Camera.h"
 #include "Model.h"
-#include "Kernels.h"
 #include "FileLocations.h"
 #include "Util.h"
 
 #include "PlaygroundScene.h"
-#include "main.h"
 
-// frame rate
-float32 deltaTime = 0.0f;	// Time between current frame and last frame
-float32 lastFrame = 0.0f; // Time of last frame
-
-Camera camera = Camera();
-
-bool flashLightOn = true;
-
-uint32 framebuffer;
-uint32 frameBufferTexture;
-uint32 rbo;
-
-uint32 selectedKernelIndex = 0;
-
-uint32 VIEWPORT_INIT_WIDTH;
-uint32 VIEWPORT_INIT_HEIGHT;
-
-double kernelModeSwitchTimer = 0.0f;
-uint32 kernelCount = ArrayCount(kernels);
-
-void runPlaygroundScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth) {
+void PlaygroundScene::runScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth) {
+	this->window = window;
 	VIEWPORT_INIT_HEIGHT = initScreenHeight;
 	VIEWPORT_INIT_WIDTH = initScreenWidth;
-	
+
 	uint32 lightVAO, lightVBO, lightEBO;
 	initializeLightBuffers(lightVAO, lightVBO, lightEBO);
 
@@ -58,7 +36,86 @@ void runPlaygroundScene(GLFWwindow* window, uint32 initScreenHeight, uint32 init
 	glDeleteBuffers(1, &lightEBO);
 }
 
-void renderLoop(GLFWwindow* window, uint32& shapesVAO, uint32& lightVAO, uint32& quadVAO) {
+void PlaygroundScene::mouseMove(float32 xOffset, float32 yOffset) {
+	camera.ProcessMouseMovement(xOffset, yOffset);
+}
+
+void PlaygroundScene::mouseScroll(float32 yOffset) {
+	camera.ProcessMouseScroll(yOffset);
+}
+
+// +++ INPUT CONSUMER IMPLEMENTATION - START +++
+void PlaygroundScene::key_LeftShift_pressed() {
+	camera.MovementSpeed = SPEED * 2;
+}
+
+void PlaygroundScene::key_LeftShift_released() {
+	camera.MovementSpeed = SPEED;
+}
+
+void PlaygroundScene::key_W() {
+	camera.ProcessKeyboard(FORWARD);
+}
+
+void PlaygroundScene::key_S() {
+	camera.ProcessKeyboard(BACKWARD);
+}
+
+void PlaygroundScene::key_A() {
+	camera.ProcessKeyboard(LEFT);
+}
+
+void PlaygroundScene::key_D() {
+	camera.ProcessKeyboard(RIGHT);
+}
+
+void PlaygroundScene::key_Space() {
+	camera.ProcessKeyboard(JUMP);
+}
+
+void PlaygroundScene::key_LeftMouseButton_pressed() {
+	flashLightOn = !flashLightOn;
+}
+
+void PlaygroundScene::key_LeftMouseButton_released() {
+	// Do nothing
+}
+
+void PlaygroundScene::key_Up() {
+	double currentTime = glfwGetTime();
+	if (currentTime - kernelModeSwitchTimer > 0.5f) {
+		selectedKernelIndex = (selectedKernelIndex + 1) % kernelCount;
+		kernelModeSwitchTimer = currentTime;
+	}
+}
+
+void PlaygroundScene::key_Down() {
+	double currentTime = glfwGetTime();
+	if (currentTime - kernelModeSwitchTimer > 0.5f) {
+		selectedKernelIndex = selectedKernelIndex != 0 ? ((selectedKernelIndex - 1) % kernelCount) : (kernelCount - 1);
+		kernelModeSwitchTimer = currentTime;
+	}
+}
+
+void PlaygroundScene::key_AltEnter_pressed() {
+	local_persist bool windowMode = true;
+	GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+	const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+	if (windowMode) {
+		glfwSetWindowMonitor(window, monitor, 0, 0, mode->width, mode->height, GLFW_DONT_CARE);
+	}
+	else {
+		glfwSetWindowMonitor(window, NULL, (mode->width / 4), (mode->height / 4), VIEWPORT_INIT_WIDTH, VIEWPORT_INIT_HEIGHT, GLFW_DONT_CARE);
+	}
+	windowMode = !windowMode;
+}
+
+void PlaygroundScene::key_AltEnter_released() {
+	// Do nothing
+}
+// +++ INPUT CONSUMER IMPLEMENTATION - END +++
+
+void PlaygroundScene::renderLoop(GLFWwindow* window, uint32& shapesVAO, uint32& lightVAO, uint32& quadVAO) {
 	Shader cubeShader = Shader(cubeVertexShaderFileLoc, cubeFragmentShaderFileLoc);
 	Shader lightShader = Shader(lightVertexShaderFileLoc, lightFragmentShaderFileLoc);
 	Shader modelShader = Shader(modelVertexShaderFileLoc, modelFragmentShaderFileLoc);
@@ -101,7 +158,7 @@ void renderLoop(GLFWwindow* window, uint32& shapesVAO, uint32& lightVAO, uint32&
 	while (glfwWindowShouldClose(window) == GL_FALSE) {
 
 		// check for input
-		processInput(window); // TODO: Break out input processing. Remove circular dependency between main and PlaygroundScene.
+		processInput(window, this);
 
 		// bind our frame buffer
 		glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
@@ -340,7 +397,7 @@ void renderLoop(GLFWwindow* window, uint32& shapesVAO, uint32& lightVAO, uint32&
 	}
 }
 
-void initializeObjectBuffers(uint32& VAO, uint32& VBO, uint32& EBO) {
+void PlaygroundScene::initializeObjectBuffers(uint32& VAO, uint32& VBO, uint32& EBO) {
 	glGenVertexArrays(1, &VAO);
 	glBindVertexArray(VAO);
 
@@ -390,7 +447,7 @@ void initializeObjectBuffers(uint32& VAO, uint32& VBO, uint32& EBO) {
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
-void initializeLightBuffers(uint32& VAO, uint32& VBO, uint32& EBO) {
+void PlaygroundScene::initializeLightBuffers(uint32& VAO, uint32& VBO, uint32& EBO) {
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1,     // Num objects to generate 
 		&VBO);  // Out parameters to store IDs of gen objects
@@ -425,7 +482,7 @@ void initializeLightBuffers(uint32& VAO, uint32& VBO, uint32& EBO) {
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
-void initializeQuadBuffers(uint32& VAO, uint32& VBO, uint32& EBO) {
+void PlaygroundScene::initializeQuadBuffers(uint32& VAO, uint32& VBO, uint32& EBO) {
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1,
 		&VBO);
@@ -469,13 +526,13 @@ void initializeQuadBuffers(uint32& VAO, uint32& VBO, uint32& EBO) {
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
-void initializeTextures(uint32& diffTextureId, uint32& specTextureId)
+void PlaygroundScene::initializeTextures(uint32& diffTextureId, uint32& specTextureId)
 {
 	loadTexture(diffuseTextureLoc, diffTextureId);
 	loadTexture(specularTextureLoc, specTextureId);
 }
 
-void initializeFrameBuffer(uint32 width, uint32 height)
+void PlaygroundScene::initializeFrameBuffer(uint32 width, uint32 height)
 {
 	glDeleteFramebuffers(1, &framebuffer);
 	glDeleteRenderbuffers(1, &rbo);
@@ -516,64 +573,4 @@ void initializeFrameBuffer(uint32 width, uint32 height)
 		std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
 	}
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-}
-
-void key_LeftShift_pressed() {
-	camera.MovementSpeed = SPEED * 2;
-}
-
-void key_LeftShift_released() {
-	camera.MovementSpeed = SPEED;
-}
-
-void key_W() {
-	camera.ProcessKeyboard(FORWARD);
-}
-
-void key_S() {
-	camera.ProcessKeyboard(BACKWARD);
-}
-
-void key_A() {
-	camera.ProcessKeyboard(LEFT);
-}
-
-void key_D() {
-	camera.ProcessKeyboard(RIGHT);
-}
-
-void key_Space() {
-	camera.ProcessKeyboard(JUMP);
-}
-
-void key_LeftMouseButton_pressed() {
-	flashLightOn = !flashLightOn;
-}
-
-void key_LeftMouseButton_released() {
-	// Do nothing
-}
-
-void key_Up() {
-	double currentTime = glfwGetTime();
-	if (currentTime - kernelModeSwitchTimer > 0.5f) {
-		selectedKernelIndex = (selectedKernelIndex + 1) % kernelCount;
-		kernelModeSwitchTimer = currentTime;
-	}
-}
-
-void key_Down() {
-	double currentTime = glfwGetTime();
-	if (currentTime - kernelModeSwitchTimer > 0.5f) {
-		selectedKernelIndex = selectedKernelIndex != 0 ? ((selectedKernelIndex - 1) % kernelCount) : (kernelCount - 1);
-		kernelModeSwitchTimer = currentTime;
-	}
-}
-
-void mouseMove(float32 xOffset, float32 yOffset) {
-	camera.ProcessMouseMovement(xOffset, yOffset);
-}
-
-void mouseScroll(float32 yOffset) {
-	camera.ProcessMouseScroll(yOffset);
 }

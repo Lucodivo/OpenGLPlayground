@@ -39,11 +39,17 @@ const float32 kernels[7][9] = {
 
 };
 
-const float32* normalKernel = kernels[0];
+const uint32 normalKernelIndex = 0;
 
-const float32* sharpenKernel = kernels[1];
+const uint32 sharpenKernelIndex = 1;
 
-const float32* blurKernel = kernels[2];
+const uint32 blurKernelIndex = 2;
 
-const float32* edgeKernel = kernels[3];
+const uint32 outlineKernel1Index = 3;
+
+const uint32 outlineKernel2Index = 4;
+
+const uint32 sketchKernelIndex = 5;
+
+const uint32 embossKernelIndex = 6;
 // ===== Image Kernels =====

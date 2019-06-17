@@ -1,31 +1,67 @@
 #pragma once
 
-#include "LearnOpenGLPlatform.h"
 #include <glm/glm.hpp>
 
-void runPlaygroundScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth);
-void initializeObjectBuffers(uint32& VAO, uint32& VBO, uint32& EBO);
-void initializeLightBuffers(uint32& VAO, uint32& VBO, uint32& EBO);
-void initializeQuadBuffers(uint32& quadVAO, uint32& quadVBO, uint32& shapesEBO);
-void renderLoop(GLFWwindow* window, uint32& shapesVAO, uint32& lightVAO, uint32& quadVAO);
-void initializeTextures(uint32& diffTextureId, uint32& specTextureId);
-void initializeFrameBuffer(uint32 width, uint32 height);
-void loadTexture(const char* imgLocation, uint32& textureOffset);
+#include "LearnOpenGLPlatform.h"
+#include "Camera.h"
+#include "Input.h"
+#include "Kernels.h"
 
-// input
-void key_LeftShift_pressed();
-void key_LeftShift_released();
-void key_W();
-void key_S();
-void key_A();
-void key_D();
-void key_Space();
-void key_LeftMouseButton_pressed();
-void key_LeftMouseButton_released();
-void key_Up();
-void key_Down();
-void mouseMove(float32 xOffset, float32 yOffset);
-void mouseScroll(float32 yOffset);
+class Scene {
+public:
+	virtual void runScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth) = 0;
+};
+
+class PlaygroundScene final : Scene, InputConsumer {
+public:
+	void runScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth);
+	// TODO: move to private
+	void initializeFrameBuffer(uint32 width, uint32 height);
+	// input 
+	void key_LeftShift_pressed();
+	void key_LeftShift_released();
+	void key_W();
+	void key_S();
+	void key_A();
+	void key_D();
+	void key_Space();
+	void key_LeftMouseButton_pressed();
+	void key_LeftMouseButton_released();
+	void key_Up();
+	void key_Down();
+	void key_AltEnter_pressed();
+	void key_AltEnter_released();
+	// TODO: Bring into InputConsumer
+	void mouseMove(float32 xOffset, float32 yOffset);
+	void mouseScroll(float32 yOffset);
+private:
+	// frame rate
+	float32 deltaTime = 0.0f;	// Time between current frame and last frame
+	float32 lastFrame = 0.0f; // Time of last frame
+
+	Camera camera = Camera();
+
+	bool flashLightOn = true;
+
+	uint32 framebuffer;
+	uint32 frameBufferTexture;
+	uint32 rbo;
+
+	uint32 selectedKernelIndex = 0;
+
+	uint32 VIEWPORT_INIT_WIDTH;
+	uint32 VIEWPORT_INIT_HEIGHT;
+
+	double kernelModeSwitchTimer = 0.0f;
+	uint32 kernelCount = ArrayCount(kernels);
+	GLFWwindow* window;
+
+	void initializeObjectBuffers(uint32& VAO, uint32& VBO, uint32& EBO);
+	void initializeLightBuffers(uint32& VAO, uint32& VBO, uint32& EBO);
+	void initializeQuadBuffers(uint32& quadVAO, uint32& quadVBO, uint32& shapesEBO);
+	void renderLoop(GLFWwindow* window, uint32& shapesVAO, uint32& lightVAO, uint32& quadVAO);
+	void initializeTextures(uint32& diffTextureId, uint32& specTextureId);
+};
 
 // ===== cube values =====
 #define BottomLeftTexture 0.0f, 0.0f
