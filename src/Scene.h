@@ -4,12 +4,14 @@
 #include "Camera.h"
 #include "Input.h"
 
-class Scene {
+class Scene : public FrameBufferSizeConsumer {
 public:
 	Scene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth);
+	void frameBufferSize(int width, int height);
 	virtual void runScene() = 0;
 
 protected:
+	void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 	GLFWwindow* window;
 	uint32 viewportWidth;
 	uint32 viewportHeight;

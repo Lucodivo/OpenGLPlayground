@@ -1,7 +1,16 @@
 #include "Scene.h"
 
 Scene::Scene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth)
-	: window(window), viewportHeight(initScreenHeight), viewportWidth(initScreenWidth) {}
+	: window(window), viewportHeight(initScreenHeight), viewportWidth(initScreenWidth) {
+	subscribeFrameBufferSize(window, this);
+}
+
+// Callback function for when user resizes our window
+void Scene::frameBufferSize(int width, int height) {
+	glViewport(0, 0, width, height);
+	viewportHeight = height;
+	viewportWidth = width;
+}
 
 FirstPersonScene::FirstPersonScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth)
 	: Scene(window, initScreenHeight, initScreenWidth) {

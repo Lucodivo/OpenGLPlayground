@@ -82,7 +82,7 @@ void PlaygroundScene::renderLoop(GLFWwindow* window, uint32& shapesVAO, uint32& 
 	while (glfwWindowShouldClose(window) == GL_FALSE) {
 
 		// check for input
-		processInput(window, this);
+		processKeyboardInput(window, this);
 
 		// bind our frame buffer
 		glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);

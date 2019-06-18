@@ -31,6 +31,16 @@ public:
 	virtual void mouseScroll(float32 yOffset) = 0;
 };
 
-void processInput(GLFWwindow* window, KeyboardConsumer* consumer);
-void subscribeMouseMovement(GLFWwindow* window, MouseMovementConsumer* movementCallback);
-void subscribeMouseScroll(GLFWwindow* window, MouseScrollConsumer* scrollCallback);
+class FrameBufferSizeConsumer {
+public:
+	virtual void frameBufferSize(int width, int height) = 0;
+};
+
+void processKeyboardInput(GLFWwindow* window, KeyboardConsumer* consumer);
+void subscribeMouseMovement(GLFWwindow* window, MouseMovementConsumer* consumer);
+void subscribeMouseScroll(GLFWwindow* window, MouseScrollConsumer* consumer);
+void subscribeFrameBufferSize(GLFWwindow* window, FrameBufferSizeConsumer* consumer);
+
+void mouse_callback(GLFWwindow* window, double xpos, double ypos);
+void scroll_callback(GLFWwindow* window, double xOffset, double yOffset);
+void framebuffer_size_callback(GLFWwindow* window, int width, int height);
