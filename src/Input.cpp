@@ -1,6 +1,12 @@
 #include "Input.h"
 
-void processInput(GLFWwindow* window, InputConsumer* consumer) {
+MouseMovementConsumer* movementConsumer;
+MouseScrollConsumer* scrollConsumer;
+
+float32 lastX = VIEWPORT_INIT_WIDTH / 2;
+float32 lastY = VIEWPORT_INIT_HEIGHT / 2;
+
+void processInput(GLFWwindow* window, KeyboardConsumer* consumer) {
 	double currentTime = glfwGetTime();
 
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
@@ -62,4 +68,39 @@ void processInput(GLFWwindow* window, InputConsumer* consumer) {
 	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
 		consumer->key_Down();
 	}
+}
+
+// Callback function for when user moves mouse
+void mouse_callback(GLFWwindow* window, double xpos, double ypos)
+{
+	local_persist bool firstMouse = true;
+	if (firstMouse) {
+		lastX = (float32)xpos;
+		lastY = (float32)ypos;
+		firstMouse = false;
+	}
+
+	float32 xOffset = (float32)xpos - lastX;
+	float32 yOffset = lastY - (float32)ypos; // reversed since y-coordinates go from bottom to top
+
+	lastX = (float32)xpos;
+	lastY = (float32)ypos;
+
+	movementConsumer->mouseMovement(xOffset, yOffset);
+}
+
+// Callback function for when user scrolls with mouse wheel
+void scroll_callback(GLFWwindow* window, double xOffset, double yOffset)
+{
+	scrollConsumer->mouseScroll((float32)yOffset);
+}
+
+void subscribeMouseMovement(GLFWwindow* window, MouseMovementConsumer* movementCallback) {
+	movementConsumer = movementCallback;
+	glfwSetCursorPosCallback(window, mouse_callback);
+}
+
+void subscribeMouseScroll(GLFWwindow* window, MouseScrollConsumer* scrollCallback) {
+	scrollConsumer = scrollCallback;
+	glfwSetScrollCallback(window, scroll_callback);
 }

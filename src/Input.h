@@ -4,7 +4,7 @@
 
 #include "LearnOpenGlPlatform.h"
 
-class InputConsumer {
+class KeyboardConsumer {
 public:
 	virtual void key_LeftShift_pressed() = 0;
 	virtual void key_LeftShift_released() = 0;
@@ -21,4 +21,16 @@ public:
 	virtual void key_AltEnter_released() = 0;
 };
 
-void processInput(GLFWwindow* window, InputConsumer* consumer);
+class MouseMovementConsumer {
+public:
+	virtual void mouseMovement(float32 xOffset, float32 yOffset) = 0;
+};
+
+class MouseScrollConsumer {
+public:
+	virtual void mouseScroll(float32 yOffset) = 0;
+};
+
+void processInput(GLFWwindow* window, KeyboardConsumer* consumer);
+void subscribeMouseMovement(GLFWwindow* window, MouseMovementConsumer* movementCallback);
+void subscribeMouseScroll(GLFWwindow* window, MouseScrollConsumer* scrollCallback);

@@ -13,8 +13,8 @@
 
 void PlaygroundScene::runScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth) {
 	this->window = window;
-	VIEWPORT_INIT_HEIGHT = initScreenHeight;
-	VIEWPORT_INIT_WIDTH = initScreenWidth;
+	viewportWidth = initScreenHeight;
+	viewportHeight = initScreenWidth;
 
 	uint32 lightVAO, lightVBO, lightEBO;
 	initializeLightBuffers(lightVAO, lightVBO, lightEBO);
@@ -25,6 +25,9 @@ void PlaygroundScene::runScene(GLFWwindow* window, uint32 initScreenHeight, uint
 	uint32 quadVAO, quadVBO, quadEBO;
 	initializeQuadBuffers(quadVAO, quadVBO, quadEBO);
 
+	subscribeMouseMovement(window, this);
+	subscribeMouseScroll(window, this);
+
 	renderLoop(window, shapesVAO, lightVAO, quadVAO);
 
 	glDeleteVertexArrays(1, &shapesVAO);
@@ -34,14 +37,6 @@ void PlaygroundScene::runScene(GLFWwindow* window, uint32 initScreenHeight, uint
 	glDeleteVertexArrays(1, &lightVAO);
 	glDeleteBuffers(1, &lightVBO);
 	glDeleteBuffers(1, &lightEBO);
-}
-
-void PlaygroundScene::mouseMove(float32 xOffset, float32 yOffset) {
-	camera.ProcessMouseMovement(xOffset, yOffset);
-}
-
-void PlaygroundScene::mouseScroll(float32 yOffset) {
-	camera.ProcessMouseScroll(yOffset);
 }
 
 // +++ INPUT CONSUMER IMPLEMENTATION - START +++
@@ -114,6 +109,18 @@ void PlaygroundScene::key_AltEnter_released() {
 	// Do nothing
 }
 // +++ INPUT CONSUMER IMPLEMENTATION - END +++
+
+// +++ MOUSE MOVEMENT CONSUMER IMPLEMENTATION - START +++
+void PlaygroundScene::mouseMovement(float32 xOffset, float32 yOffset) {
+	camera.ProcessMouseMovement(xOffset, yOffset);
+}
+// +++ MOUSE MOVEMENT IMPLEMENTATION - END +++
+
+// +++ MOUSE SCROLL CONSUMER IMPLEMENTATION - START +++
+void PlaygroundScene::mouseScroll(float32 yOffset) {
+	camera.ProcessMouseScroll(yOffset);
+}
+// +++ MOUSE SCROLL CONSUMER IMPLEMENTATION - END +++
 
 void PlaygroundScene::renderLoop(GLFWwindow* window, uint32& shapesVAO, uint32& lightVAO, uint32& quadVAO) {
 	Shader cubeShader = Shader(cubeVertexShaderFileLoc, cubeFragmentShaderFileLoc);

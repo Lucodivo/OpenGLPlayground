@@ -6,11 +6,6 @@
 
 #include <iostream>
 
-#define VIEWPORT_INIT_WIDTH 800
-#define VIEWPORT_INIT_HEIGHT 600
-float32 lastX = VIEWPORT_INIT_WIDTH / 2;
-float32 lastY = VIEWPORT_INIT_HEIGHT / 2;
-
 PlaygroundScene* playgroundScene;
 
 int main() {
@@ -73,29 +68,4 @@ GLFWwindow* createWindow() {
 void framebuffer_size_callback(GLFWwindow * window, int width, int height) {
 	glViewport(0, 0, width, height);
 	playgroundScene->initializeFrameBuffer(width, height);
-}
-
-// Callback function for when user moves mouse
-void mouse_callback(GLFWwindow * window, double xpos, double ypos)
-{
-	local_persist bool firstMouse = true;
-	if (firstMouse) {
-		lastX = (float32)xpos;
-		lastY = (float32)ypos;
-		firstMouse = false;
-	}
-
-	float32 xOffset = (float32)xpos - lastX;
-	float32 yOffset = lastY - (float32)ypos; // reversed since y-coordinates go from bottom to top
-
-	lastX = (float32)xpos;
-	lastY = (float32)ypos;
-
-	playgroundScene->mouseMove(xOffset, yOffset);
-}
-
-// Callback function for when user scrolls with mouse wheel
-void scroll_callback(GLFWwindow * window, double xOffset, double yOffset)
-{
-	playgroundScene->mouseScroll((float32)yOffset);
 }

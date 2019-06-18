@@ -17,3 +17,6 @@ typedef double float64;
 #define ArrayCount(Array) (sizeof(Array) / sizeof((Array)[0]))
 
 #define local_persist static
+
+#define VIEWPORT_INIT_WIDTH 800
+#define VIEWPORT_INIT_HEIGHT 600

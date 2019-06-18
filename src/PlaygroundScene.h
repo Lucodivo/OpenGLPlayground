@@ -12,12 +12,13 @@ public:
 	virtual void runScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth) = 0;
 };
 
-class PlaygroundScene final : Scene, InputConsumer {
+class PlaygroundScene final : Scene, KeyboardConsumer, MouseMovementConsumer, MouseScrollConsumer {
 public:
 	void runScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth);
 	// TODO: move to private
 	void initializeFrameBuffer(uint32 width, uint32 height);
-	// input 
+	
+	// InputConsumer implementations
 	void key_LeftShift_pressed();
 	void key_LeftShift_released();
 	void key_W();
@@ -31,9 +32,13 @@ public:
 	void key_Down();
 	void key_AltEnter_pressed();
 	void key_AltEnter_released();
-	// TODO: Bring into InputConsumer
-	void mouseMove(float32 xOffset, float32 yOffset);
+	
+	// MouseMovementConsumer implementation
+	void mouseMovement(float32 xOffset, float32 yOffset);
+
+	// MouseScrollConsumer implementation
 	void mouseScroll(float32 yOffset);
+
 private:
 	// frame rate
 	float32 deltaTime = 0.0f;	// Time between current frame and last frame
@@ -49,8 +54,8 @@ private:
 
 	uint32 selectedKernelIndex = 0;
 
-	uint32 VIEWPORT_INIT_WIDTH;
-	uint32 VIEWPORT_INIT_HEIGHT;
+	uint32 viewportWidth;
+	uint32 viewportHeight;
 
 	double kernelModeSwitchTimer = 0.0f;
 	uint32 kernelCount = ArrayCount(kernels);
