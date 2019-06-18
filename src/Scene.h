@@ -7,7 +7,7 @@
 class Scene : public FrameBufferSizeConsumer {
 public:
 	Scene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth);
-	void frameBufferSize(int width, int height);
+	void frameBufferSize(uint32 width, uint32 height);
 	virtual void runScene() = 0;
 
 protected:

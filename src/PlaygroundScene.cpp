@@ -494,6 +494,11 @@ void PlaygroundScene::initializeFrameBuffer(uint32 width, uint32 height)
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
+void PlaygroundScene::frameBufferSize(uint32 width, uint32 height) {
+	FirstPersonScene::frameBufferSize(width, height);
+	initializeFrameBuffer(width, height);
+}
+
 void PlaygroundScene::key_Up() {
 	double currentTime = glfwGetTime();
 	if (currentTime - kernelModeSwitchTimer > 0.5f) {

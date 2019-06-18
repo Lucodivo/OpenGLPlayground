@@ -111,6 +111,7 @@ void scroll_callback(GLFWwindow* window, double xOffset, double yOffset)
 	scrollConsumer->mouseScroll((float32)yOffset);
 }
 
+// Callback for when screen changes size
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
-	frameBufferConsumer->frameBufferSize(width, height);
+	frameBufferConsumer->frameBufferSize((uint32)width, (uint32)height);
 }

@@ -11,8 +11,8 @@ public:
 	PlaygroundScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth);
 	void runScene();
 
-	// TODO: move to private
-	void initializeFrameBuffer(uint32 width, uint32 height);
+	// override
+	void frameBufferSize(uint32 width, uint32 height);
 
 	void key_LeftMouseButton_pressed();
 	void key_Up();
@@ -25,9 +25,9 @@ private:
 
 	bool flashLightOn = true;
 
-	uint32 framebuffer;
-	uint32 frameBufferTexture;
-	uint32 rbo;
+	uint32 framebuffer = 0;
+	uint32 frameBufferTexture = 0;
+	uint32 rbo = 0;
 
 	uint32 selectedKernelIndex = 0;
 
@@ -39,6 +39,7 @@ private:
 	void initializeQuadBuffers(uint32& quadVAO, uint32& quadVBO, uint32& shapesEBO);
 	void renderLoop(GLFWwindow* window, uint32& shapesVAO, uint32& lightVAO, uint32& quadVAO);
 	void initializeTextures(uint32& diffTextureId, uint32& specTextureId);
+	void initializeFrameBuffer(uint32 width, uint32 height);
 };
 
 // ===== cube values =====

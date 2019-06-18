@@ -6,7 +6,7 @@ Scene::Scene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth
 }
 
 // Callback function for when user resizes our window
-void Scene::frameBufferSize(int width, int height) {
+void Scene::frameBufferSize(uint32 width, uint32 height) {
 	glViewport(0, 0, width, height);
 	viewportHeight = height;
 	viewportWidth = width;

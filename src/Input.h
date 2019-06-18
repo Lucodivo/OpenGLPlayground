@@ -33,7 +33,7 @@ public:
 
 class FrameBufferSizeConsumer {
 public:
-	virtual void frameBufferSize(int width, int height) = 0;
+	virtual void frameBufferSize(uint32 width, uint32 height) = 0;
 };
 
 void processKeyboardInput(GLFWwindow* window, KeyboardConsumer* consumer);
