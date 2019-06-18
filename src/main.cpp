@@ -19,8 +19,8 @@ int main() {
 
     initializeGLAD();
 
-	playgroundScene = new PlaygroundScene();
-	playgroundScene->runScene(window, VIEWPORT_INIT_HEIGHT, VIEWPORT_INIT_WIDTH);
+	playgroundScene = new PlaygroundScene(window, VIEWPORT_INIT_HEIGHT, VIEWPORT_INIT_WIDTH);
+	playgroundScene->runScene();
 
 	glfwTerminate(); // clean up gl resources
 	return 0;

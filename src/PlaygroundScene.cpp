@@ -11,11 +11,10 @@
 
 #include "PlaygroundScene.h"
 
-void PlaygroundScene::runScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth) {
-	this->window = window;
-	viewportWidth = initScreenHeight;
-	viewportHeight = initScreenWidth;
+PlaygroundScene::PlaygroundScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth)
+	: FirstPersonScene(window, initScreenHeight, initScreenWidth) {}
 
+void PlaygroundScene::runScene() {
 	uint32 lightVAO, lightVBO, lightEBO;
 	initializeLightBuffers(lightVAO, lightVBO, lightEBO);
 
@@ -24,9 +23,6 @@ void PlaygroundScene::runScene(GLFWwindow* window, uint32 initScreenHeight, uint
 
 	uint32 quadVAO, quadVBO, quadEBO;
 	initializeQuadBuffers(quadVAO, quadVBO, quadEBO);
-
-	subscribeMouseMovement(window, this);
-	subscribeMouseScroll(window, this);
 
 	renderLoop(window, shapesVAO, lightVAO, quadVAO);
 
@@ -37,90 +33,11 @@ void PlaygroundScene::runScene(GLFWwindow* window, uint32 initScreenHeight, uint
 	glDeleteVertexArrays(1, &lightVAO);
 	glDeleteBuffers(1, &lightVBO);
 	glDeleteBuffers(1, &lightEBO);
-}
 
-// +++ INPUT CONSUMER IMPLEMENTATION - START +++
-void PlaygroundScene::key_LeftShift_pressed() {
-	camera.MovementSpeed = SPEED * 2;
+	glDeleteVertexArrays(1, &quadVAO);
+	glDeleteBuffers(1, &quadVBO);
+	glDeleteBuffers(1, &quadEBO);
 }
-
-void PlaygroundScene::key_LeftShift_released() {
-	camera.MovementSpeed = SPEED;
-}
-
-void PlaygroundScene::key_W() {
-	camera.ProcessKeyboard(FORWARD);
-}
-
-void PlaygroundScene::key_S() {
-	camera.ProcessKeyboard(BACKWARD);
-}
-
-void PlaygroundScene::key_A() {
-	camera.ProcessKeyboard(LEFT);
-}
-
-void PlaygroundScene::key_D() {
-	camera.ProcessKeyboard(RIGHT);
-}
-
-void PlaygroundScene::key_Space() {
-	camera.ProcessKeyboard(JUMP);
-}
-
-void PlaygroundScene::key_LeftMouseButton_pressed() {
-	flashLightOn = !flashLightOn;
-}
-
-void PlaygroundScene::key_LeftMouseButton_released() {
-	// Do nothing
-}
-
-void PlaygroundScene::key_Up() {
-	double currentTime = glfwGetTime();
-	if (currentTime - kernelModeSwitchTimer > 0.5f) {
-		selectedKernelIndex = (selectedKernelIndex + 1) % kernelCount;
-		kernelModeSwitchTimer = currentTime;
-	}
-}
-
-void PlaygroundScene::key_Down() {
-	double currentTime = glfwGetTime();
-	if (currentTime - kernelModeSwitchTimer > 0.5f) {
-		selectedKernelIndex = selectedKernelIndex != 0 ? ((selectedKernelIndex - 1) % kernelCount) : (kernelCount - 1);
-		kernelModeSwitchTimer = currentTime;
-	}
-}
-
-void PlaygroundScene::key_AltEnter_pressed() {
-	local_persist bool windowMode = true;
-	GLFWmonitor* monitor = glfwGetPrimaryMonitor();
-	const GLFWvidmode* mode = glfwGetVideoMode(monitor);
-	if (windowMode) {
-		glfwSetWindowMonitor(window, monitor, 0, 0, mode->width, mode->height, GLFW_DONT_CARE);
-	}
-	else {
-		glfwSetWindowMonitor(window, NULL, (mode->width / 4), (mode->height / 4), VIEWPORT_INIT_WIDTH, VIEWPORT_INIT_HEIGHT, GLFW_DONT_CARE);
-	}
-	windowMode = !windowMode;
-}
-
-void PlaygroundScene::key_AltEnter_released() {
-	// Do nothing
-}
-// +++ INPUT CONSUMER IMPLEMENTATION - END +++
-
-// +++ MOUSE MOVEMENT CONSUMER IMPLEMENTATION - START +++
-void PlaygroundScene::mouseMovement(float32 xOffset, float32 yOffset) {
-	camera.ProcessMouseMovement(xOffset, yOffset);
-}
-// +++ MOUSE MOVEMENT IMPLEMENTATION - END +++
-
-// +++ MOUSE SCROLL CONSUMER IMPLEMENTATION - START +++
-void PlaygroundScene::mouseScroll(float32 yOffset) {
-	camera.ProcessMouseScroll(yOffset);
-}
-// +++ MOUSE SCROLL CONSUMER IMPLEMENTATION - END +++
 
 void PlaygroundScene::renderLoop(GLFWwindow* window, uint32& shapesVAO, uint32& lightVAO, uint32& quadVAO) {
 	Shader cubeShader = Shader(cubeVertexShaderFileLoc, cubeFragmentShaderFileLoc);
@@ -185,11 +102,6 @@ void PlaygroundScene::renderLoop(GLFWwindow* window, uint32& shapesVAO, uint32& 
 		// FUN MODE - WINDOWS XP
 		glClear(GL_DEPTH_BUFFER_BIT);
 #endif
-
-		// if we want to make sure we do not update the stencil buffer while drawing something
-		//glStencilMask(0x00);
-		//normalShader.use();
-		//DrawSomething()
 
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GL_LESS);
@@ -580,4 +492,24 @@ void PlaygroundScene::initializeFrameBuffer(uint32 width, uint32 height)
 		std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
 	}
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+void PlaygroundScene::key_Up() {
+	double currentTime = glfwGetTime();
+	if (currentTime - kernelModeSwitchTimer > 0.5f) {
+		selectedKernelIndex = (selectedKernelIndex + 1) % kernelCount;
+		kernelModeSwitchTimer = currentTime;
+	}
+}
+
+void PlaygroundScene::key_Down() {
+	double currentTime = glfwGetTime();
+	if (currentTime - kernelModeSwitchTimer > 0.5f) {
+		selectedKernelIndex = selectedKernelIndex != 0 ? ((selectedKernelIndex - 1) % kernelCount) : (kernelCount - 1);
+		kernelModeSwitchTimer = currentTime;
+	}
+}
+
+void PlaygroundScene::key_LeftMouseButton_pressed() {
+	flashLightOn = !flashLightOn;
 }

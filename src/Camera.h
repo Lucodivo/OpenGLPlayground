@@ -59,7 +59,8 @@ public:
         updateCameraVectors();
     }
     // Constructor with scalar values
-    Camera(float32 posX, float32 posY, float32 posZ, float32 upX, float32 upY, float32 upZ, float32 yaw, float32 pitch) : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVTY), Zoom(ZOOM)
+    Camera(float32 posX, float32 posY, float32 posZ, float32 upX, float32 upY, float32 upZ, float32 yaw, float32 pitch)
+		: Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVTY), Zoom(ZOOM)
     {
         Position = glm::vec3(posX, posY, posZ);
         WorldUp = glm::vec3(upX, upY, upZ);
@@ -159,9 +160,10 @@ public:
     // Processes input received from a mouse scroll-wheel event. Only requires input on the vertical wheel-axis
     void ProcessMouseScroll(float32 yoffset)
     {
-        if (Zoom >= 1.0f && Zoom <= 45.0f) Zoom -= yoffset;
-        if (Zoom <= 1.0f) Zoom = 1.0f;
-        if (Zoom >= 45.0f) Zoom = 45.0f;
+		// TODO: Implement zoom
+        Zoom -= yoffset;
+        if (Zoom < 1.0f) Zoom = 1.0f;
+        if (Zoom > 45.0f) Zoom = 45.0f;
     }
 
 private:

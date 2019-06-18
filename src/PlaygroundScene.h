@@ -3,48 +3,25 @@
 #include <glm/glm.hpp>
 
 #include "LearnOpenGLPlatform.h"
-#include "Camera.h"
-#include "Input.h"
 #include "Kernels.h"
+#include "Scene.h"
 
-class Scene {
+class PlaygroundScene final : public FirstPersonScene {
 public:
-	virtual void runScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth) = 0;
-};
+	PlaygroundScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth);
+	void runScene();
 
-class PlaygroundScene final : Scene, KeyboardConsumer, MouseMovementConsumer, MouseScrollConsumer {
-public:
-	void runScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth);
 	// TODO: move to private
 	void initializeFrameBuffer(uint32 width, uint32 height);
-	
-	// InputConsumer implementations
-	void key_LeftShift_pressed();
-	void key_LeftShift_released();
-	void key_W();
-	void key_S();
-	void key_A();
-	void key_D();
-	void key_Space();
+
 	void key_LeftMouseButton_pressed();
-	void key_LeftMouseButton_released();
 	void key_Up();
 	void key_Down();
-	void key_AltEnter_pressed();
-	void key_AltEnter_released();
-	
-	// MouseMovementConsumer implementation
-	void mouseMovement(float32 xOffset, float32 yOffset);
-
-	// MouseScrollConsumer implementation
-	void mouseScroll(float32 yOffset);
 
 private:
 	// frame rate
 	float32 deltaTime = 0.0f;	// Time between current frame and last frame
 	float32 lastFrame = 0.0f; // Time of last frame
-
-	Camera camera = Camera();
 
 	bool flashLightOn = true;
 
@@ -54,12 +31,8 @@ private:
 
 	uint32 selectedKernelIndex = 0;
 
-	uint32 viewportWidth;
-	uint32 viewportHeight;
-
 	double kernelModeSwitchTimer = 0.0f;
 	uint32 kernelCount = ArrayCount(kernels);
-	GLFWwindow* window;
 
 	void initializeObjectBuffers(uint32& VAO, uint32& VBO, uint32& EBO);
 	void initializeLightBuffers(uint32& VAO, uint32& VBO, uint32& EBO);
