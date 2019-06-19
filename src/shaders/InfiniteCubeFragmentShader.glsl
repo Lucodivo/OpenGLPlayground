@@ -1,0 +1,17 @@
+#version 330 core
+
+uniform vec3 ambientLightColor;
+uniform sampler2D diffTexture;
+
+in vec3 Normal;
+in vec3 FragPos;
+in vec2 TextureCoord;
+
+out vec4 FragColor;
+
+void main()
+{
+	vec4 diffColor = texture(diffTexture, TextureCoord);
+
+	FragColor = vec4(ambientLightColor, 1.0) * diffColor;
+}

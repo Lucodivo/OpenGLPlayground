@@ -13,6 +13,7 @@ const char* const frameBufferVertexShaderFileLoc = "src/shaders/FrameBufferVerte
 const char* const frameBufferFragmentShaderFileLoc = "src/shaders/FrameBufferFragmentShader.glsl";
 const char* const negativeFrameBufferFragmentShaderFileLoc = "src/shaders/NegativeFrameBufferFragmentShader.glsl";
 const char* const kernelFrameBufferFragmentShaderFileLoc = "src/shaders/KernelFrameBufferFragmentShader.glsl";
+const char* const infiniteCubeFragmentShaderFileLoc = "src/shaders/InfiniteCubeFragmentShader.glsl";
 
 // textures
 const char* const diffuseTextureLoc = "src/data/diffuse_map_alpha_channel.png";

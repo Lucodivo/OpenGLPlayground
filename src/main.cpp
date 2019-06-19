@@ -3,10 +3,11 @@
 
 #include "main.h"
 #include "PlaygroundScene.h"
+#include "InfiniteCubeScene.h"
 
 #include <iostream>
 
-PlaygroundScene* playgroundScene;
+Scene* scene;
 
 int main() {
     loadGLFW();
@@ -16,8 +17,8 @@ int main() {
 
     initializeGLAD();
 
-	playgroundScene = new PlaygroundScene(window, VIEWPORT_INIT_HEIGHT, VIEWPORT_INIT_WIDTH);
-	playgroundScene->runScene();
+	scene = new InfiniteCubeScene(window, VIEWPORT_INIT_HEIGHT, VIEWPORT_INIT_WIDTH);
+	scene->runScene();
 
 	glfwTerminate(); // clean up gl resources
 	return 0;

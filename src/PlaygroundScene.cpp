@@ -298,7 +298,7 @@ void PlaygroundScene::renderLoop(GLFWwindow* window, uint32& shapesVAO, uint32& 
 		}
 
 		// bind default frame buffer
-		glBindFramebuffer(GL_FRAMEBUFFER, 0); // back to default
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		frameBufferShader.use();
