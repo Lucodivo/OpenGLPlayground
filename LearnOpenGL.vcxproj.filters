@@ -38,6 +38,12 @@
     <ClCompile Include="src\Scene.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\InfiniteCubeScene.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ObjectData.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Text Include="notes.txt">
@@ -82,6 +88,12 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Scene.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\InfiniteCubeScene.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ObjectData.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
