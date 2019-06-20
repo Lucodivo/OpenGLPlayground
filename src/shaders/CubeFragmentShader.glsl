@@ -68,8 +68,6 @@ void main()
 	}
 
 	diffColor = texture(material.diffTexture1, animTextCoord);
-	// if(alphaDiscard && diffColorWithAlpha.a < 0.1) discard;
-
 	specColor = texture(material.specTexture1, animTextCoord);
 
 	vec4 rotationalResult = calcPositionalLightColor();

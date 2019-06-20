@@ -146,6 +146,9 @@
     <None Include="src\shaders\InfiniteCubeFragmentShader.glsl">
       <Filter>shaders</Filter>
     </None>
+    <None Include="src\shaders\DiscardAlphaFragmentShader.glsl">
+      <Filter>shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Image Include="src\data\emission_map.png">

@@ -6,6 +6,7 @@
 #include "Kernels.h"
 #include "Scene.h"
 #include "ObjectData.h"
+#include "Shader.h"
 
 const glm::vec3 colors[] = {
 	glm::vec3(1.0f, 0.0f, 0.0f),
@@ -37,6 +38,10 @@ public:
 	void frameBufferSize(uint32 width, uint32 height);
 
 private:
+	Shader cubeShader;
+	Shader cubeOutlineShader;
+	Shader frameBufferShader;
+
 	// frame rate
 	float32 deltaTime = 0.0f;	// Time between current frame and last frame
 	float32 lastFrame = 0.0f; // Time of last frame

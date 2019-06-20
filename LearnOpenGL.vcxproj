@@ -54,6 +54,7 @@
     <None Include="src\shaders\CubeFragmentShader.glsl" />
     <None Include="src\shaders\CubeVertexShader.glsl" />
     <None Include="src\shaders\DepthBufferVisualizerFragmentShader.glsl" />
+    <None Include="src\shaders\DiscardAlphaFragmentShader.glsl" />
     <None Include="src\shaders\FrameBufferFragmentShader.glsl" />
     <None Include="src\shaders\FrameBufferVertexShader.glsl" />
     <None Include="src\shaders\InfiniteCubeFragmentShader.glsl" />

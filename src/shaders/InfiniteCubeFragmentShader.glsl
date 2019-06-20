@@ -1,7 +1,8 @@
 #version 330 core
 
-uniform vec3 ambientLightColor;
 uniform sampler2D diffTexture;
+uniform float texWidth;
+uniform float texHeight;
 
 in vec3 Normal;
 in vec3 FragPos;
@@ -11,9 +12,12 @@ out vec4 FragColor;
 
 void main()
 {
-	vec4 diffColor = texture(diffTexture, TextureCoord);
-	if(diffColor.a < 0.1){
-		discard;
-	}
-	FragColor = vec4(ambientLightColor, 1.0) * diffColor;
+	float texXStart = ((texWidth - texHeight) / 2.0) / texWidth;
+	float heightOverWidth = texHeight / texWidth;
+
+	vec2 croppedTexCoord = vec2(texXStart + (TextureCoord.x * heightOverWidth), TextureCoord.y);
+
+	vec4 diffColor = texture(diffTexture, croppedTexCoord);
+
+	FragColor = diffColor;
 }

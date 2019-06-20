@@ -192,15 +192,15 @@ void PlaygroundScene::renderLoop(GLFWwindow* window, uint32& shapesVAO, uint32& 
 		// bind shapesVAO
 		glBindVertexArray(shapesVAO);
 
-		glActiveTexture(GL_TEXTURE0 + diffTextureId);
-		glBindTexture(GL_TEXTURE_2D, diffTextureId);
-		glActiveTexture(GL_TEXTURE0 + specTextureId);
-		glBindTexture(GL_TEXTURE_2D, specTextureId);
-
 		setLightUniforms(cubeShader);
 
-		cubeShader.setUniform("material.diffTexture1", diffTextureId);
-		cubeShader.setUniform("material.specTexture1", specTextureId);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, diffTextureId);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, specTextureId);
+		cubeShader.setUniform("material.diffTexture1", 0);
+		cubeShader.setUniform("material.specTexture1", 1);
+
 		cubeShader.setUniform("material.shininess", 32.0f);
 
 		cubeShader.setUniform("animSwitch", animSwitch);
