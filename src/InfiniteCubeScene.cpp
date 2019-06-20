@@ -84,14 +84,6 @@ void InfiniteCubeScene::renderLoop(GLFWwindow* window, uint32& cubeVAO, uint32& 
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	uint32 colorIndex = 0;
 
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, frameBuffers[0].frameBufferTexture);
-	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, frameBuffers[1].frameBufferTexture);
-	glActiveTexture(GL_TEXTURE2);
-	glBindTexture(GL_TEXTURE_2D, outlineTexture);
-	glActiveTexture(GL_TEXTURE0);
-
 #if 0
 	// draw in wireframe
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
