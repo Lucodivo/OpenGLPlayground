@@ -12,6 +12,8 @@ out vec4 FragColor;
 void main()
 {
 	vec4 diffColor = texture(diffTexture, TextureCoord);
-
+	if(diffColor.a < 0.1){
+		discard;
+	}
 	FragColor = vec4(ambientLightColor, 1.0) * diffColor;
 }

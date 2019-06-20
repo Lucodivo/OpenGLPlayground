@@ -7,6 +7,21 @@
 #include "Scene.h"
 #include "ObjectData.h"
 
+const glm::vec3 colors[] = {
+	glm::vec3(1.0f, 0.0f, 0.0f),
+	glm::vec3(0.75f, 0.25f, 0.0f),
+	glm::vec3(0.5f, 0.5f, 0.0f),
+	glm::vec3(0.25f, 0.75f, 0.0f),
+	glm::vec3(0.0f, 1.0f, 0.0f),
+	glm::vec3(0.0f, 0.75f, 0.25f),
+	glm::vec3(0.0f, 0.5f, 0.5f),
+	glm::vec3(0.0f, 0.25f, 0.75f),
+	glm::vec3(0.0f, 0.0f, 1.0f),
+	glm::vec3(0.25f, 0.0f, 0.75f),
+	glm::vec3(0.5f, 0.0f, 0.5f),
+	glm::vec3(0.75f, 0.0f, 0.25f)
+};
+
 struct FrameBuffer {
 	uint32 frameBuffer = 0;
 	uint32 frameBufferTexture = 0;

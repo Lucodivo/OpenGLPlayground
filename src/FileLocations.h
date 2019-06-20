@@ -19,4 +19,6 @@ const char* const infiniteCubeFragmentShaderFileLoc = "src/shaders/InfiniteCubeF
 const char* const diffuseTextureLoc = "src/data/diffuse_map_alpha_channel.png";
 const char* const specularTextureLoc = "src/data/specular_map.png";
 const char* const emissionTextureLoc = "src/data/emission_map.png";
+const char* const outlineTextureLoc = "src/data/cube_outline.png";
+const char* const outlineWhiteFillTextureLoc = "src/data/cube_outline_white_fill.png";
 const char* const nanoSuitModelLoc = "C:/developer/repos/LearnOpenGL/LearnOpenGL/src/data/nanosuit/nanosuit.obj";

@@ -27,6 +27,7 @@
     <ClCompile Include="src\ObjectData.cpp" />
     <ClCompile Include="src\PlaygroundScene.cpp" />
     <ClCompile Include="src\Scene.cpp" />
+    <ClCompile Include="src\Util.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="notes.txt" />

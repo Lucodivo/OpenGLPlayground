@@ -2,6 +2,7 @@
 #include "Shader.h"
 #include "FileLocations.h"
 #include "ObjectData.h"
+#include "Util.h"
 
 InfiniteCubeScene::InfiniteCubeScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth)
 	: FirstPersonScene(window, initScreenHeight, initScreenWidth) {}
@@ -34,12 +35,20 @@ void InfiniteCubeScene::frameBufferSize(uint32 width, uint32 height) {
 	// bind custom framebuffer
 	glBindFramebuffer(GL_FRAMEBUFFER, frameBuffers[1].frameBuffer);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, frameBuffers[0].frameBufferTexture);
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, frameBuffers[1].frameBufferTexture);
+	glActiveTexture(GL_TEXTURE0);
 }
 
 void InfiniteCubeScene::renderLoop(GLFWwindow* window, uint32& cubeVAO, uint32& quadVAO) {
 	Shader cubeShader = Shader(cubeVertexShaderFileLoc, infiniteCubeFragmentShaderFileLoc);
 	Shader frameBufferShader = Shader(frameBufferVertexShaderFileLoc, frameBufferFragmentShaderFileLoc);
-	Shader stencilShader = Shader(cubeVertexShaderFileLoc, stencilFragmentShaderFileLoc);
+
+	uint32 outlineTexture;
+	loadTexture(outlineTextureLoc, outlineTexture);
 
 	const glm::mat4 projectionMat = glm::perspective(glm::radians(camera.Zoom), (float32)viewportWidth / (float32)viewportHeight, 0.1f, 100.0f);
 
@@ -48,6 +57,9 @@ void InfiniteCubeScene::renderLoop(GLFWwindow* window, uint32& cubeVAO, uint32& 
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
 	glFrontFace(GL_CCW);
+
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	// start frame buffer with white background
 	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
@@ -59,23 +71,15 @@ void InfiniteCubeScene::renderLoop(GLFWwindow* window, uint32& cubeVAO, uint32& 
 	// bind custom framebuffer
 	glBindFramebuffer(GL_FRAMEBUFFER, frameBuffers[1].frameBuffer);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-
-	glm::vec3 colors[] = {
-		glm::vec3(1.0f, 0.0f, 0.0f),
-		glm::vec3(0.75f, 0.25f, 0.0f),
-		glm::vec3(0.5f, 0.5f, 0.0f),
-		glm::vec3(0.25f, 0.75f, 0.0f),
-		glm::vec3(0.0f, 1.0f, 0.0f),
-		glm::vec3(0.0f, 0.75f, 0.25f),
-		glm::vec3(0.0f, 0.5f, 0.5f),
-		glm::vec3(0.0f, 0.25f, 0.75f),
-		glm::vec3(0.0f, 0.0f, 1.0f),
-		glm::vec3(0.25f, 0.0f, 0.75f),
-		glm::vec3(0.5f, 0.0f, 0.5f),
-		glm::vec3(0.75f, 0.0f, 0.25f)
-	};
-
 	uint32 colorIndex = 0;
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, frameBuffers[0].frameBufferTexture);
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, frameBuffers[1].frameBufferTexture);
+	glActiveTexture(GL_TEXTURE2);
+	glBindTexture(GL_TEXTURE_2D, outlineTexture);
+	glActiveTexture(GL_TEXTURE0);
 
 #if 0
 	// draw in wireframe
@@ -84,6 +88,7 @@ void InfiniteCubeScene::renderLoop(GLFWwindow* window, uint32& cubeVAO, uint32& 
 
 	uint32 currentFrameBufferIndex = 0;
 	uint32 previousFrameBufferIndex = 1;
+	uint32 outlineTextureIndex = 2;
 
 	while (glfwWindowShouldClose(window) == GL_FALSE) {
 		// check for input
@@ -95,15 +100,6 @@ void InfiniteCubeScene::renderLoop(GLFWwindow* window, uint32& cubeVAO, uint32& 
 		// bind default frame buffer
 		glBindFramebuffer(GL_FRAMEBUFFER, frameBuffers[currentFrameBufferIndex].frameBuffer);
 
-		glEnable(GL_STENCIL_TEST);
-		glStencilOp(GL_KEEP, // when stencil fails
-			GL_KEEP, // when stencil passes but depth fails
-			GL_REPLACE); // when stencil passes and depth passes
-		glStencilMask(0xFF); // mask that is ANDed with the stencil value that is about to be written to stencil buffer
-		glStencilFunc(GL_ALWAYS, // stencil function
-			1, // reference value for stencil test
-			0xFF); // mask that is ANDed with stencil value and reference value before the test compares them
-
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GL_LESS);
 
@@ -113,8 +109,9 @@ void InfiniteCubeScene::renderLoop(GLFWwindow* window, uint32& cubeVAO, uint32& 
 
 		local_persist float32 elapsedTime = 0;
 		elapsedTime += deltaTime;
-		if (elapsedTime > 0.10f) {
+		if (elapsedTime > 0.50f) {
 			elapsedTime = 0;
+
 			// set background color
 			colorIndex = (colorIndex + 1) % ArrayCount(colors);
 			glClearColor(colors[colorIndex].x, colors[colorIndex].y, colors[colorIndex].z, 1.0f);
@@ -128,38 +125,26 @@ void InfiniteCubeScene::renderLoop(GLFWwindow* window, uint32& cubeVAO, uint32& 
 		glBindVertexArray(cubeVAO);
 
 		cubeShader.setUniform("ambientLightColor", glm::vec3(1.0f));
-		glBindTexture(GL_TEXTURE_2D, frameBuffers[previousFrameBufferIndex].frameBufferTexture);
 
 		// rotate with time
 		glm::mat4 cubeModelMatrix = glm::mat4();
-		//cubeModelMatrix = glm::rotate(cubeModelMatrix, t * glm::radians(cubRotAngle), glm::vec3(1.0f, 0.3f, 0.5f));
+		cubeModelMatrix = glm::rotate(cubeModelMatrix, t * glm::radians(cubRotAngle), glm::vec3(1.0f, 0.3f, 0.5f));
 
 		cubeShader.setUniform("model", cubeModelMatrix);
 		cubeShader.setUniform("view", viewMat);
 		cubeShader.setUniform("projection", projectionMat);
 
+		cubeShader.setUniform("diffTexture", outlineTextureIndex);
 		glDrawElements(GL_TRIANGLES,
 			cubeNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
 			GL_UNSIGNED_INT,
 			0);
-		glBindVertexArray(0);
 
-		// draw stencil
-		stencilShader.use();
-		glBindVertexArray(cubeVAO);
-		glm::mat4 stencilModelMatrix = glm::scale(cubeModelMatrix, glm::vec3(1.05f));
-		stencilShader.setUniform("singleColor", glm::vec3(0.0f, 0.0f, 0.0f));
-		stencilShader.setUniform("projection", projectionMat);
-		stencilShader.setUniform("view", viewMat);
-		stencilShader.setUniform("model", stencilModelMatrix);
-		glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
-		glStencilMask(0x00);
-		glDisable(GL_DEPTH_TEST);
+		cubeShader.setUniform("diffTexture", previousFrameBufferIndex);
 		glDrawElements(GL_TRIANGLES,
 			cubeNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
 			GL_UNSIGNED_INT,
 			0);
-		glEnable(GL_DEPTH_TEST);
 		glBindVertexArray(0);
 
 		// draw scene to quad
