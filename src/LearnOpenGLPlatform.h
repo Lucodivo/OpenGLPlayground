@@ -1,3 +1,4 @@
+#pragma once
 #include <stdint.h>
 
 typedef int8_t int8;
@@ -16,3 +17,6 @@ typedef double float64;
 #define ArrayCount(Array) (sizeof(Array) / sizeof((Array)[0]))
 
 #define local_persist static
+
+#define VIEWPORT_INIT_WIDTH 960
+#define VIEWPORT_INIT_HEIGHT 540

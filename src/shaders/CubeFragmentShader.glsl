@@ -36,8 +36,6 @@ struct Material {
 
 uniform vec3 viewPos;
 uniform bool animSwitch;
-uniform bool alphaDiscard;
-uniform float emissionStength;
 uniform PositionalLight positionalLight;
 uniform DirectionalLight directionalLight;
 uniform SpotLight spotLight;
@@ -68,8 +66,6 @@ void main()
 	}
 
 	diffColor = texture(material.diffTexture1, animTextCoord);
-	// if(alphaDiscard && diffColorWithAlpha.a < 0.1) discard;
-
 	specColor = texture(material.specTexture1, animTextCoord);
 
 	vec4 rotationalResult = calcPositionalLightColor();
