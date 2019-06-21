@@ -6,6 +6,7 @@
 #include "Kernels.h"
 #include "Scene.h"
 #include "ObjectData.h"
+#include "Shader.h"
 
 class PlaygroundScene final : public FirstPersonScene {
 public:
@@ -20,6 +21,12 @@ public:
 	void key_Down();
 
 private:
+	Shader cubeShader;
+	Shader lightShader;
+	Shader modelShader;
+	Shader stencilShader;
+	Shader frameBufferShader;
+
 	// frame rate
 	float32 deltaTime = 0.0f;	// Time between current frame and last frame
 	float32 lastFrame = 0.0f; // Time of last frame
@@ -33,7 +40,7 @@ private:
 	uint32 selectedKernelIndex = 0;
 
 	double kernelModeSwitchTimer = 0.0f;
-	uint32 kernelCount = ArrayCount(kernels);
+	uint32 kernelCount = ArrayCount(kernels3x3);
 
 	void renderLoop(GLFWwindow* window, uint32& shapesVAO, uint32& lightVAO, uint32& quadVAO);
 	void initializeTextures(uint32& diffTextureId, uint32& specTextureId);

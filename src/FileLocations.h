@@ -11,7 +11,7 @@ const char* const stencilFragmentShaderFileLoc = "src/shaders/SingleColorFragmen
 const char* const frameBufferVertexShaderFileLoc = "src/shaders/FrameBufferVertexShader.glsl";
 const char* const basicTextureFragmentShader = "src/shaders/BasicTextureFragmentShader.glsl";
 const char* const negativeTextureFragmentShaderFileLoc = "src/shaders/NegativeTextureFragmentShader.glsl";
-const char* const kernelFrameBufferFragmentShaderFileLoc = "src/shaders/KernelFrameBufferFragmentShader.glsl";
+const char* const kernel3x3FrameBufferFragmentShaderFileLoc = "src/shaders/Kernel3x3FrameBufferFragmentShader.glsl";
 const char* const cropCenterSquareTexFragmentShader = "src/shaders/CropCenterSquareTexFragmentShader.glsl";
 const char* const discardAlphaFragmentShaderFileLoc = "src/shaders/DiscardAlphaFragmentShader.glsl";
 

@@ -4,17 +4,19 @@ out vec4 FragColor;
 in vec2 TexCoords;
 
 uniform sampler2D screenTexture;
-uniform vec2 screenTexMax;
 uniform float kernel[9];
-
-const float offset = 1.0 / 300.0;  
+uniform float textureWidth;
+uniform float textureHeight;  
 
 void main()
 {   
-    float negativeS = TexCoords.s - offset;
-    float negativeT = TexCoords.t - offset;
-    float positiveS = TexCoords.s + offset;
-    float positiveT = TexCoords.t + offset;
+	float sOffset = 1.0 / textureWidth;
+	float tOffset = 1.0 / textureHeight;
+
+    float negativeS = TexCoords.s - sOffset;
+    float negativeT = TexCoords.t - textureHeight;
+    float positiveS = TexCoords.s + sOffset;
+    float positiveT = TexCoords.t + textureHeight;
 
     if(negativeS < 0.0) {
         negativeS = TexCoords.s;

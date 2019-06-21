@@ -1,31 +1,22 @@
 #pragma once
 
 // ===== Image Kernels =====
-const float32 kernels[7][9] = {
+// 3x3 Kernels
+const float32 kernels3x3[5][9] = {
 	// normal kernel
 	{0.0f, 0.0f, 0.0f,
 	0.0f, 1.0f, 0.0f,
 	0.0f, 0.0f, 0.0f},
-
-	// blur kernel
-	{1.0f / 16, 2.0f / 16, 1.0f / 16,
-	2.0f / 16, 4.0f / 16, 2.0f / 16,
-	1.0f / 16, 2.0f / 16, 1.0f / 16},
 
 	// sharpen kernel
 	{-1.0f, -1.0f, -1.0f,
 	-1.0f,  9.0f, -1.0f,
 	-1.0f, -1.0f, -1.0f},
 
-	// outline 1 kernel
+	// outline kernel
 	{1.0f, 1.0f, 1.0f,
 	1.0f, -8.0f, 1.0f,
 	1.0f, 1.0f, 1.0f},
-
-	// outline 2 kernel
-	{-1.0f, -1.0f, -1.0f,
-	-1.0f, 8.0f, -1.0f,
-	-1.0f, -1.0f, -1.0f},
 
 	// sketch kernel
 	{37.0f, -12.0f, 9.0f,
@@ -36,20 +27,15 @@ const float32 kernels[7][9] = {
 	{-2.0f, -1.0f, 0.0f,
 	-1.0f, 1.0f, 1.0f,
 	0.0f, 1.0f, 2.0f},
-
 };
 
-const uint32 normalKernelIndex = 0;
+const uint32 normalKernel3x3Index = 0;
 
-const uint32 sharpenKernelIndex = 1;
+const uint32 sharpenKernel3x3Index = 1;
 
-const uint32 blurKernelIndex = 2;
+const uint32 outlineKernel3x3Index = 2;
 
-const uint32 outlineKernel1Index = 3;
+const uint32 sketchKernel3x3Index = 3;
 
-const uint32 outlineKernel2Index = 4;
-
-const uint32 sketchKernelIndex = 5;
-
-const uint32 embossKernelIndex = 6;
+const uint32 embossKernel3x3Index = 4;
 // ===== Image Kernels =====

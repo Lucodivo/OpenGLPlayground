@@ -4,7 +4,6 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "Shader.h"
 #include "Model.h"
 #include "FileLocations.h"
 #include "Util.h"
@@ -12,7 +11,12 @@
 #include "PlaygroundScene.h"
 
 PlaygroundScene::PlaygroundScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth)
-	: FirstPersonScene(window, initScreenHeight, initScreenWidth) {}
+	: FirstPersonScene(window, initScreenHeight, initScreenWidth), 
+	cubeShader(PosTexNormalVertexShader, cubeFragmentShaderFileLoc),
+	lightShader(lightVertexShaderFileLoc, lightFragmentShaderFileLoc),
+	modelShader(PosTexNormalVertexShader, modelFragmentShaderFileLoc),
+	stencilShader(PosTexNormalVertexShader, stencilFragmentShaderFileLoc),
+	frameBufferShader(frameBufferVertexShaderFileLoc, kernel3x3FrameBufferFragmentShaderFileLoc) {}
 
 void PlaygroundScene::runScene() {
 	uint32 lightVAO, lightVBO, lightEBO;
@@ -40,11 +44,6 @@ void PlaygroundScene::runScene() {
 }
 
 void PlaygroundScene::renderLoop(GLFWwindow* window, uint32& shapesVAO, uint32& lightVAO, uint32& quadVAO) {
-	Shader cubeShader = Shader(PosTexNormalVertexShader, cubeFragmentShaderFileLoc);
-	Shader lightShader = Shader(lightVertexShaderFileLoc, lightFragmentShaderFileLoc);
-	Shader modelShader = Shader(PosTexNormalVertexShader, modelFragmentShaderFileLoc);
-	Shader stencilShader = Shader(PosTexNormalVertexShader, stencilFragmentShaderFileLoc);
-	Shader frameBufferShader = Shader(frameBufferVertexShaderFileLoc, kernelFrameBufferFragmentShaderFileLoc);
 
 	uint32 diffTextureId;
 	uint32 specTextureId;
@@ -112,6 +111,10 @@ void PlaygroundScene::renderLoop(GLFWwindow* window, uint32& shapesVAO, uint32& 
 
 	stencilShader.use();
 	stencilShader.setUniform("projection", projectionMat);
+
+	frameBufferShader.use();
+	frameBufferShader.setUniform("textureWidth", (float32)viewportWidth);
+	frameBufferShader.setUniform("textureHeight", (float32)viewportHeight);
 
 	// NOTE: render/game loop
 	while (glfwWindowShouldClose(window) == GL_FALSE) {
@@ -313,10 +316,12 @@ void PlaygroundScene::renderLoop(GLFWwindow* window, uint32& shapesVAO, uint32& 
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		frameBufferShader.use();
-		frameBufferShader.setUniform("kernel", kernels[selectedKernelIndex], ArrayCount(kernels[selectedKernelIndex]));
 		glBindVertexArray(quadVAO);
-		glDisable(GL_DEPTH_TEST);
+		glActiveTexture(GL_TEXTURE2);
 		glBindTexture(GL_TEXTURE_2D, frameBufferTexture);
+		frameBufferShader.setUniform("screenTexture", 2);
+		frameBufferShader.setUniform("kernel", kernels3x3[selectedKernelIndex], ArrayCount(kernels3x3[selectedKernelIndex]));
+		glDisable(GL_DEPTH_TEST);
 		glDrawElements(GL_TRIANGLES, // drawing mode
 			6, // number of elements to draw (3 vertices per triangle * 2 triangles per quad)
 			GL_UNSIGNED_INT, // type of the indices
@@ -336,6 +341,8 @@ void PlaygroundScene::initializeTextures(uint32& diffTextureId, uint32& specText
 void PlaygroundScene::frameBufferSize(uint32 width, uint32 height) {
 	FirstPersonScene::frameBufferSize(width, height);
 	initializeFrameBuffer(frameBuffer, rbo, frameBufferTexture, width, height);
+	frameBufferShader.setUniform("textureWidth", (float32)width);
+	frameBufferShader.setUniform("textureHeight", (float32)height);
 }
 
 void PlaygroundScene::key_Up() {
