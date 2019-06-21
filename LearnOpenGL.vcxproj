@@ -52,13 +52,14 @@
   <ItemGroup>
     <None Include="README.md" />
     <None Include="src\shaders\CubeFragmentShader.glsl" />
+    <None Include="src\shaders\Kernel5x5TextureFragmentShader.glsl" />
     <None Include="src\shaders\PosTexNormalVertexShader.glsl" />
     <None Include="src\shaders\DepthBufferVisualizerFragmentShader.glsl" />
     <None Include="src\shaders\DiscardAlphaFragmentShader.glsl" />
     <None Include="src\shaders\BasicTextureFragmentShader.glsl" />
     <None Include="src\shaders\FrameBufferVertexShader.glsl" />
     <None Include="src\shaders\CropCenterSquareTexFragmentShader.glsl" />
-    <None Include="src\shaders\Kernel3x3FrameBufferFragmentShader.glsl" />
+    <None Include="src\shaders\Kernel3x3TextureFragmentShader.glsl" />
     <None Include="src\shaders\LightSourceFragmentShader.glsl" />
     <None Include="src\shaders\LightSourceVertexShader.glsl" />
     <None Include="src\shaders\ModelFragmentShader.glsl" />

@@ -40,7 +40,7 @@ private:
 	uint32 selectedKernelIndex = 0;
 
 	double kernelModeSwitchTimer = 0.0f;
-	uint32 kernelCount = ArrayCount(kernels3x3);
+	uint32 kernelCount = ArrayCount(kernels5x5);
 
 	void renderLoop(GLFWwindow* window, uint32& shapesVAO, uint32& lightVAO, uint32& quadVAO);
 	void initializeTextures(uint32& diffTextureId, uint32& specTextureId);

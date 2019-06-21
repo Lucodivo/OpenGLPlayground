@@ -16,7 +16,7 @@ PlaygroundScene::PlaygroundScene(GLFWwindow* window, uint32 initScreenHeight, ui
 	lightShader(lightVertexShaderFileLoc, lightFragmentShaderFileLoc),
 	modelShader(PosTexNormalVertexShader, modelFragmentShaderFileLoc),
 	stencilShader(PosTexNormalVertexShader, stencilFragmentShaderFileLoc),
-	frameBufferShader(frameBufferVertexShaderFileLoc, kernel3x3FrameBufferFragmentShaderFileLoc) {}
+	frameBufferShader(frameBufferVertexShaderFileLoc, kernel5x5TextureFragmentShaderFileLoc) {}
 
 void PlaygroundScene::runScene() {
 	uint32 lightVAO, lightVBO, lightEBO;
@@ -320,7 +320,7 @@ void PlaygroundScene::renderLoop(GLFWwindow* window, uint32& shapesVAO, uint32& 
 		glActiveTexture(GL_TEXTURE2);
 		glBindTexture(GL_TEXTURE_2D, frameBufferTexture);
 		frameBufferShader.setUniform("screenTexture", 2);
-		frameBufferShader.setUniform("kernel", kernels3x3[selectedKernelIndex], ArrayCount(kernels3x3[selectedKernelIndex]));
+		frameBufferShader.setUniform("kernel", kernels5x5[selectedKernelIndex], ArrayCount(kernels5x5[selectedKernelIndex]));
 		glDisable(GL_DEPTH_TEST);
 		glDrawElements(GL_TRIANGLES, // drawing mode
 			6, // number of elements to draw (3 vertices per triangle * 2 triangles per quad)

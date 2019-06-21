@@ -38,4 +38,30 @@ const uint32 outlineKernel3x3Index = 2;
 const uint32 sketchKernel3x3Index = 3;
 
 const uint32 embossKernel3x3Index = 4;
+
+
+// 5x5 Kernels
+constexpr auto blurLowWeight = (1.0f/40.0f);
+constexpr auto blurMidWeight = (2.0f/40.0f);
+constexpr auto blurHighWeight = (4.0f/40.0f);
+
+const float32 kernels5x5[2][25] = {
+	// normal kernel
+	{0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0,
+	0, 0, 1, 0, 0,
+	0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0},
+
+	// blur kernel
+	{blurLowWeight, blurLowWeight, blurMidWeight, blurLowWeight, blurLowWeight,
+	blurLowWeight, blurMidWeight, blurMidWeight, blurMidWeight, blurLowWeight,
+	blurMidWeight, blurMidWeight, blurHighWeight, blurMidWeight, blurMidWeight,
+	blurLowWeight, blurMidWeight, blurMidWeight, blurMidWeight, blurLowWeight,
+	blurLowWeight, blurLowWeight, blurMidWeight, blurLowWeight, blurLowWeight}
+};
+
+const uint32 normalKernel5x5Index = 0;
+
+const uint32 blurKernel5x5Index = 1;
 // ===== Image Kernels =====
