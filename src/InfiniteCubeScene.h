@@ -10,17 +10,29 @@
 
 const glm::vec3 colors[] = {
 	glm::vec3(1.0f, 0.0f, 0.0f),
+	glm::vec3(0.875f, 0.125f, 0.0f),
 	glm::vec3(0.75f, 0.25f, 0.0f),
+	glm::vec3(0.625f, 0.375f, 0.0f),
 	glm::vec3(0.5f, 0.5f, 0.0f),
+	glm::vec3(.375f, 0.625f, 0.0f),
 	glm::vec3(0.25f, 0.75f, 0.0f),
+	glm::vec3(0.125f, 0.875f, 0.0f),
 	glm::vec3(0.0f, 1.0f, 0.0f),
+	glm::vec3(0.0f, 0.875f, 0.125f),
 	glm::vec3(0.0f, 0.75f, 0.25f),
+	glm::vec3(0.0f, 0.625f, 0.375f),
 	glm::vec3(0.0f, 0.5f, 0.5f),
+	glm::vec3(0.0f, 0.375f, 0.625f),
 	glm::vec3(0.0f, 0.25f, 0.75f),
+	glm::vec3(0.0f, 0.125f, 0.875f),
 	glm::vec3(0.0f, 0.0f, 1.0f),
+	glm::vec3(0.125f, 0.0f, 0.875f),
 	glm::vec3(0.25f, 0.0f, 0.75f),
+	glm::vec3(0.375f, 0.0f, 0.625f),
 	glm::vec3(0.5f, 0.0f, 0.5f),
-	glm::vec3(0.75f, 0.0f, 0.25f)
+	glm::vec3(0.625f, 0.0f, 0.375f),
+	glm::vec3(0.75f, 0.0f, 0.25f),
+	glm::vec3(0.875f, 0.0f, 0.125f),
 };
 
 struct FrameBuffer {

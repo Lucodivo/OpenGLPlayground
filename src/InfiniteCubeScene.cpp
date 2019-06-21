@@ -107,8 +107,38 @@ void InfiniteCubeScene::renderLoop(GLFWwindow* window, uint32& cubeVAO, uint32& 
 		// check for input
 		processKeyboardInput(window, this);
 
+		float32 t = (float32)glfwGetTime();
+		deltaTime = t - lastFrame;
+		lastFrame = t;
+
+#if 1
+		// constant frame changes for cube
 		previousFrameBufferIndex = currentFrameBufferIndex;
 		currentFrameBufferIndex = currentFrameBufferIndex == 0 ? 1 : 0;
+#else
+		// control when we "change frames" for the cube
+		local_persist float32 elapsedTime = 0;
+		elapsedTime += deltaTime;
+		if (elapsedTime > 0.5f) {
+			elapsedTime = 0;
+
+			previousFrameBufferIndex = currentFrameBufferIndex;
+			currentFrameBufferIndex = currentFrameBufferIndex == 0 ? 1 : 0;
+		}
+#endif
+
+		// set background color
+#if 1
+		// smoother color change
+		float32 lightR = (sinf((t + 30.0f) / 3.0f) / 2.0f) + 0.5f;
+		float32 lightG = (sinf((t + 60.0f) / 8.0f) / 2.0f) + 0.5f;
+		float32 lightB = (sinf(t / 17.0f) / 2.0f) + 0.5f;
+		glClearColor(lightR, lightG, lightB, 1.0f);
+#else
+		// more abrupt color changes
+		colorIndex = (colorIndex + 1) % ArrayCount(colors);
+		glClearColor(colors[colorIndex].x, colors[colorIndex].y, colors[colorIndex].z, 1.0f);
+#endif
 
 		// bind default frame buffer
 		glBindFramebuffer(GL_FRAMEBUFFER, frameBuffers[currentFrameBufferIndex].frameBuffer);
@@ -116,19 +146,6 @@ void InfiniteCubeScene::renderLoop(GLFWwindow* window, uint32& cubeVAO, uint32& 
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GL_LESS);
 
-		float32 t = (float32)glfwGetTime();
-		deltaTime = t - lastFrame;
-		lastFrame = t;
-
-		local_persist float32 elapsedTime = 0;
-		elapsedTime += deltaTime;
-		if (elapsedTime > 0.50f) {
-			elapsedTime = 0;
-
-			// set background color
-			colorIndex = (colorIndex + 1) % ArrayCount(colors);
-			glClearColor(colors[colorIndex].x, colors[colorIndex].y, colors[colorIndex].z, 1.0f);
-		}
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
 		glm::mat4 viewMat = camera.GetViewMatrix(deltaTime);
@@ -148,7 +165,6 @@ void InfiniteCubeScene::renderLoop(GLFWwindow* window, uint32& cubeVAO, uint32& 
 			cubeNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
 			GL_UNSIGNED_INT,
 			0);
-		glBindVertexArray(0);
 
 		cubeShader.use();
 		glBindVertexArray(cubeVAO);
@@ -159,7 +175,6 @@ void InfiniteCubeScene::renderLoop(GLFWwindow* window, uint32& cubeVAO, uint32& 
 			cubeNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
 			GL_UNSIGNED_INT,
 			0);
-		glBindVertexArray(0);
 
 		// draw scene to quad
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -172,7 +187,6 @@ void InfiniteCubeScene::renderLoop(GLFWwindow* window, uint32& cubeVAO, uint32& 
 			6, // number of elements to draw (3 vertices per triangle * 2 triangles per quad)
 			GL_UNSIGNED_INT, // type of the indices
 			0); // offset in the EBO
-		glBindVertexArray(0);
 
 		glfwSwapBuffers(window); // swaps double buffers (call after all render commands are completed)
 		glfwPollEvents(); // checks for events (ex: keyboard/mouse input)

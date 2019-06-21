@@ -153,10 +153,10 @@ void PlaygroundScene::renderLoop(GLFWwindow* window, uint32& shapesVAO, uint32& 
 		float32 t = (float32)glfwGetTime();
 		deltaTime = t - lastFrame;
 		lastFrame = t;
-		float32 sineVal = sin(t);
-		float32 lightR = (sin((t + 30) / 3) / 2) + 0.5f;
-		float32 lightG = (sin((t + 60) / 8) / 2) + 0.5f;
-		float32 lightB = (sin(t / 17) / 2) + 0.5f;
+		float32 sineVal = sinf(t);
+		float32 lightR = (sinf((t + 30.0f) / 3.0f) / 2.0f) + 0.5f;
+		float32 lightG = (sinf((t + 60.0f) / 8.0f) / 2.0f) + 0.5f;
+		float32 lightB = (sinf(t / 17.0f) / 2.0f) + 0.5f;
 		glm::vec3 positionalLightColor(lightR, lightG, lightB);
 
 		glm::mat4 viewMat = camera.GetViewMatrix(deltaTime);
