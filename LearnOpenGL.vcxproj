@@ -52,19 +52,17 @@
   <ItemGroup>
     <None Include="README.md" />
     <None Include="src\shaders\CubeFragmentShader.glsl" />
-    <None Include="src\shaders\CubeVertexShader.glsl" />
+    <None Include="src\shaders\PosTexNormalVertexShader.glsl" />
     <None Include="src\shaders\DepthBufferVisualizerFragmentShader.glsl" />
     <None Include="src\shaders\DiscardAlphaFragmentShader.glsl" />
-    <None Include="src\shaders\FrameBufferFragmentShader.glsl" />
+    <None Include="src\shaders\BasicTextureFragmentShader.glsl" />
     <None Include="src\shaders\FrameBufferVertexShader.glsl" />
-    <None Include="src\shaders\InfiniteCubeFragmentShader.glsl" />
+    <None Include="src\shaders\CropCenterSquareTexFragmentShader.glsl" />
     <None Include="src\shaders\KernelFrameBufferFragmentShader.glsl" />
-    <None Include="src\shaders\LightFragmentShader.glsl" />
     <None Include="src\shaders\LightSourceFragmentShader.glsl" />
     <None Include="src\shaders\LightSourceVertexShader.glsl" />
     <None Include="src\shaders\ModelFragmentShader.glsl" />
-    <None Include="src\shaders\ModelVertexShader.glsl" />
-    <None Include="src\shaders\NegativeFrameBufferFragmentShader.glsl" />
+    <None Include="src\shaders\NegativeTextureFragmentShader.glsl" />
     <None Include="src\shaders\SingleColorFragmentShader.glsl" />
   </ItemGroup>
   <ItemGroup>

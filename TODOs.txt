@@ -5,5 +5,3 @@ TODOs:
 - Test sending texture width/height data as a uniform to see if we get more accurate pixel by pixel image kernels
 - Create a 5x5 kernel fragment shader
 - Implement zoom for camera
-- Make the infinite cube maintain proper dimensions (not stretch/skew)
-- Set constant uniforms only once instead of every iteration of game loop

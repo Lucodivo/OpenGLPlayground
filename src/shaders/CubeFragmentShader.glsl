@@ -36,8 +36,6 @@ struct Material {
 
 uniform vec3 viewPos;
 uniform bool animSwitch;
-uniform bool alphaDiscard;
-uniform float emissionStength;
 uniform PositionalLight positionalLight;
 uniform DirectionalLight directionalLight;
 uniform SpotLight spotLight;

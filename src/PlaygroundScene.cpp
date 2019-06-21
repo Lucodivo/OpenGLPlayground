@@ -40,10 +40,10 @@ void PlaygroundScene::runScene() {
 }
 
 void PlaygroundScene::renderLoop(GLFWwindow* window, uint32& shapesVAO, uint32& lightVAO, uint32& quadVAO) {
-	Shader cubeShader = Shader(cubeVertexShaderFileLoc, cubeFragmentShaderFileLoc);
+	Shader cubeShader = Shader(PosTexNormalVertexShader, cubeFragmentShaderFileLoc);
 	Shader lightShader = Shader(lightVertexShaderFileLoc, lightFragmentShaderFileLoc);
-	Shader modelShader = Shader(modelVertexShaderFileLoc, modelFragmentShaderFileLoc);
-	Shader stencilShader = Shader(cubeVertexShaderFileLoc, stencilFragmentShaderFileLoc);
+	Shader modelShader = Shader(PosTexNormalVertexShader, modelFragmentShaderFileLoc);
+	Shader stencilShader = Shader(PosTexNormalVertexShader, stencilFragmentShaderFileLoc);
 	Shader frameBufferShader = Shader(frameBufferVertexShaderFileLoc, kernelFrameBufferFragmentShaderFileLoc);
 
 	uint32 diffTextureId;
@@ -53,7 +53,7 @@ void PlaygroundScene::renderLoop(GLFWwindow* window, uint32& shapesVAO, uint32& 
 	initializeFrameBuffer(frameBuffer, rbo, frameBufferTexture, viewportWidth, viewportHeight);
 
 	// load models
-	Model nanoSuitModel((char*)nanoSuitModelLoc);
+	Model nanoSuitModel((char*)nanoSuitModelAbsoluteLoc);
 
 	const glm::mat4 projectionMat = glm::perspective(glm::radians(camera.Zoom), (float32)viewportWidth / (float32)viewportHeight, 0.1f, 100.0f);
 
@@ -77,6 +77,41 @@ void PlaygroundScene::renderLoop(GLFWwindow* window, uint32& shapesVAO, uint32& 
 	// draw in wireframe
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 #endif
+
+	auto setConstantLightUniforms = [&](Shader shader) {
+		// positional light constants
+		shader.setUniform("positionalLight.attenuation.constant", 1.0f);
+		shader.setUniform("positionalLight.attenuation.linear", 0.09f);
+		shader.setUniform("positionalLight.attenuation.quadratic", 0.032f);
+
+		// directional light constants
+		shader.setUniform("directionalLight.direction", directionalLightDir);
+		shader.setUniform("directionalLight.color.ambient", directionalLightColor * glm::vec3(0.1f));
+		shader.setUniform("directionalLight.color.diffuse", directionalLightColor * glm::vec3(0.4f));
+		shader.setUniform("directionalLight.color.specular", directionalLightColor * glm::vec3(0.5f));
+
+		// flashlight constants
+		shader.setUniform("spotLight.cutOff", glm::cos(glm::radians(12.5f)));
+		shader.setUniform("spotLight.outerCutOff", glm::cos(glm::radians(17.5f)));
+		shader.setUniform("spotLight.attenuation.constant", 1.0f);
+		shader.setUniform("spotLight.attenuation.linear", 0.09f);
+		shader.setUniform("spotLight.attenuation.quadratic", 0.032f);
+	};
+
+	// set all constant uniforms
+	lightShader.use();
+	lightShader.setUniform("projection", projectionMat);
+
+	cubeShader.use();
+	setConstantLightUniforms(cubeShader);
+	cubeShader.setUniform("projection", projectionMat);
+	cubeShader.setUniform("material.shininess", 32.0f);
+
+	modelShader.use();
+	setConstantLightUniforms(modelShader);
+
+	stencilShader.use();
+	stencilShader.setUniform("projection", projectionMat);
 
 	// NOTE: render/game loop
 	while (glfwWindowShouldClose(window) == GL_FALSE) {
@@ -137,16 +172,12 @@ void PlaygroundScene::renderLoop(GLFWwindow* window, uint32& shapesVAO, uint32& 
 
 		lightShader.setUniform("model", lightModel);
 		lightShader.setUniform("view", viewMat);
-		lightShader.setUniform("projection", projectionMat);
 		lightShader.setUniform("lightColor", positionalLightColor);
 		glDrawElements(GL_TRIANGLES, // drawing mode
 			cubeNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
 			GL_UNSIGNED_INT, // type of the indices
 			0); // offset in the EBO
 		glBindVertexArray(0);
-
-		// draw cubes
-		cubeShader.use();
 
 		// User fragment shaders to draw a triangle
 		glm::vec4 worldLightPos = lightModel * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
@@ -157,42 +188,28 @@ void PlaygroundScene::renderLoop(GLFWwindow* window, uint32& shapesVAO, uint32& 
 		// emission strength fluctuating over time
 		float32 emissionStrength = ((sin(t * 2) + 1.0f) / 4) + 0.15f;
 
-		auto setLightUniforms = [&](Shader shader) {
+		auto setDynamicLightUniforms = [&](Shader shader) {
 			// positional light (orbiting light)
 			shader.setUniform("positionalLight.position", worldLightPos.x, worldLightPos.y, worldLightPos.z);
 			shader.setUniform("positionalLight.color.ambient", positionalLightColor * glm::vec3(0.05f));
 			shader.setUniform("positionalLight.color.diffuse", positionalLightColor * glm::vec3(0.5f));
 			shader.setUniform("positionalLight.color.specular", positionalLightColor * glm::vec3(1.0f));
-			shader.setUniform("positionalLight.attenuation.constant", 1.0f);
-			shader.setUniform("positionalLight.attenuation.linear", 0.09f);
-			shader.setUniform("positionalLight.attenuation.quadratic", 0.032f);
-
-			// directional light
-			shader.setUniform("directionalLight.direction", directionalLightDir);
-			shader.setUniform("directionalLight.color.ambient", directionalLightColor * glm::vec3(0.1f));
-			shader.setUniform("directionalLight.color.diffuse", directionalLightColor * glm::vec3(0.4f));
-			shader.setUniform("directionalLight.color.specular", directionalLightColor * glm::vec3(0.5f));
 
 			// flash light
 			shader.setUniform("spotLight.position", camera.Position);
 			shader.setUniform("spotLight.direction", camera.Front);
-			shader.setUniform("spotLight.cutOff", glm::cos(glm::radians(12.5f)));
-			shader.setUniform("spotLight.outerCutOff", glm::cos(glm::radians(17.5f)));
 			shader.setUniform("spotLight.color.ambient", flashLightColor * glm::vec3(0.05f));
 			shader.setUniform("spotLight.color.diffuse", flashLightColor * glm::vec3(0.3f));
 			shader.setUniform("spotLight.color.specular", flashLightColor * glm::vec3(0.5f));
-			shader.setUniform("spotLight.attenuation.constant", 1.0f);
-			shader.setUniform("spotLight.attenuation.linear", 0.09f);
-			shader.setUniform("spotLight.attenuation.quadratic", 0.032f);
-
-			// emission light
-			shader.setUniform("emissionStrength", emissionStrength);
 		};
+
+		// draw cubes
+		cubeShader.use();
 
 		// bind shapesVAO
 		glBindVertexArray(shapesVAO);
 
-		setLightUniforms(cubeShader);
+		setDynamicLightUniforms(cubeShader);
 
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, diffTextureId);
@@ -201,14 +218,10 @@ void PlaygroundScene::renderLoop(GLFWwindow* window, uint32& shapesVAO, uint32& 
 		cubeShader.setUniform("material.diffTexture1", 0);
 		cubeShader.setUniform("material.specTexture1", 1);
 
-		cubeShader.setUniform("material.shininess", 32.0f);
-
 		cubeShader.setUniform("animSwitch", animSwitch);
-		cubeShader.setUniform("alphaDiscard", true);
 
 		cubeShader.setUniform("viewPos", camera.Position);
 		cubeShader.setUniform("view", viewMat);
-		cubeShader.setUniform("projection", projectionMat);
 		// draw cubes
 		for (uint32 i = 0; i < numCubes; i++) {
 			glm::mat4 model;
@@ -244,7 +257,6 @@ void PlaygroundScene::renderLoop(GLFWwindow* window, uint32& shapesVAO, uint32& 
 			model = glm::scale(model, glm::vec3(cubeScales[i] + 0.05f));
 			stencilShader.use();
 			stencilShader.setUniform("singleColor", glm::vec3(1.0f, 1.0f, 1.0f));
-			stencilShader.setUniform("projection", projectionMat);
 			stencilShader.setUniform("view", viewMat);
 			stencilShader.setUniform("model", model);
 			glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
@@ -271,7 +283,7 @@ void PlaygroundScene::renderLoop(GLFWwindow* window, uint32& shapesVAO, uint32& 
 
 			// Drawing the model
 			modelShader.use();
-			setLightUniforms(modelShader);
+			setDynamicLightUniforms(modelShader);
 
 			modelShader.setUniform("material.shininess", 32.0f);
 
@@ -288,7 +300,6 @@ void PlaygroundScene::renderLoop(GLFWwindow* window, uint32& shapesVAO, uint32& 
 			//  Wall Hack Stencil For Model
 			stencilShader.use();
 			stencilShader.setUniform("singleColor", glm::vec3(0.5f, 0.0f, 0.0f));
-			stencilShader.setUniform("projection", projectionMat);
 			stencilShader.setUniform("view", viewMat);
 			stencilShader.setUniform("model", model);
 			glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
@@ -302,7 +313,7 @@ void PlaygroundScene::renderLoop(GLFWwindow* window, uint32& shapesVAO, uint32& 
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		frameBufferShader.use();
-		glUniform1fv(glGetUniformLocation(frameBufferShader.ID, "kernel"), 9, kernels[selectedKernelIndex]);
+		frameBufferShader.setUniform("kernel", kernels[selectedKernelIndex], ArrayCount(kernels[selectedKernelIndex]));
 		glBindVertexArray(quadVAO);
 		glDisable(GL_DEPTH_TEST);
 		glBindTexture(GL_TEXTURE_2D, frameBufferTexture);

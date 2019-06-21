@@ -139,6 +139,10 @@ public:
 			glm::value_ptr(trans)); // pointer to float values
 	}
 
+	void setUniform(const std::string& name, const float* floatArray, const uint32 arraySize) {
+		glUniform1fv(glGetUniformLocation(ID, name.c_str()), arraySize, floatArray);
+	}
+
 	void setUniform(const std::string& name, const glm::vec3& vector3) {
 		setUniform(name, vector3.x, vector3.y, vector3.z);
 	}
