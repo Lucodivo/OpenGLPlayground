@@ -11,10 +11,10 @@ InfiniteCubeScene::InfiniteCubeScene(GLFWwindow* window, uint32 initScreenHeight
 
 void InfiniteCubeScene::runScene() {
 	uint32 cubeVAO, cubeVBO, cubeEBO;
-	initializeCubeBuffers(cubeVAO, cubeVBO, cubeEBO);
+	initializeCubeVertexAttBuffers(cubeVAO, cubeVBO, cubeEBO);
 
 	uint32 quadVAO, quadVBO, quadEBO;
-	initializeQuadBuffers(quadVAO, quadVBO, quadEBO);
+	initializeQuadVertexAttBuffers(quadVAO, quadVBO, quadEBO);
 
 	initializeFrameBuffer(frameBuffers[0].frameBuffer, frameBuffers[0].rbo, frameBuffers[0].frameBufferTexture, viewportWidth, viewportHeight);
 	initializeFrameBuffer(frameBuffers[1].frameBuffer, frameBuffers[1].rbo, frameBuffers[1].frameBufferTexture, viewportWidth, viewportHeight);
@@ -51,7 +51,7 @@ void InfiniteCubeScene::frameBufferSize(uint32 width, uint32 height) {
 
 void InfiniteCubeScene::renderLoop(GLFWwindow* window, uint32& cubeVAO, uint32& quadVAO) {
 	uint32 outlineTexture;
-	loadTexture(outlineTextureLoc, outlineTexture);
+	load2DTexture(outlineTextureLoc, outlineTexture);
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, frameBuffers[0].frameBufferTexture);
@@ -111,20 +111,20 @@ void InfiniteCubeScene::renderLoop(GLFWwindow* window, uint32& cubeVAO, uint32& 
 		deltaTime = t - lastFrame;
 		lastFrame = t;
 
-#if 1
-		// constant frame changes for cube
-		previousFrameBufferIndex = currentFrameBufferIndex;
-		currentFrameBufferIndex = currentFrameBufferIndex == 0 ? 1 : 0;
-#else
+#if 0
 		// control when we "change frames" for the cube
 		local_persist float32 elapsedTime = 0;
 		elapsedTime += deltaTime;
-		if (elapsedTime > 0.5f) {
+		if (elapsedTime > 1.0f) {
 			elapsedTime = 0;
 
 			previousFrameBufferIndex = currentFrameBufferIndex;
 			currentFrameBufferIndex = currentFrameBufferIndex == 0 ? 1 : 0;
 		}
+#else
+		// constant frame changes for cube
+		previousFrameBufferIndex = currentFrameBufferIndex;
+		currentFrameBufferIndex = currentFrameBufferIndex == 0 ? 1 : 0;
 #endif
 
 		// set background color

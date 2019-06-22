@@ -146,6 +146,12 @@
     <None Include="src\shaders\Kernel5x5TextureFragmentShader.glsl">
       <Filter>shaders</Filter>
     </None>
+    <None Include="src\shaders\SkyboxVertexShader.glsl">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="src\shaders\SkyboxFragmentShader.glsl">
+      <Filter>shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Image Include="src\data\emission_map.png">

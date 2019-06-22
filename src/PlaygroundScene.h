@@ -26,6 +26,7 @@ private:
 	Shader modelShader;
 	Shader stencilShader;
 	Shader frameBufferShader;
+	Shader skyboxShader;
 
 	// frame rate
 	float32 deltaTime = 0.0f;	// Time between current frame and last frame
@@ -42,8 +43,8 @@ private:
 	double kernelModeSwitchTimer = 0.0f;
 	uint32 kernelCount = ArrayCount(kernels5x5);
 
-	void renderLoop(GLFWwindow* window, uint32& shapesVAO, uint32& lightVAO, uint32& quadVAO);
-	void initializeTextures(uint32& diffTextureId, uint32& specTextureId);
+	void renderLoop(GLFWwindow* window, uint32& shapesVAO, uint32& lightVAO, uint32& quadVAO, uint32& skyboxVAO);
+	void initializeTextures(uint32& diffTextureId, uint32& specTextureId, uint32& skyboxTextureId);
 };
 
 

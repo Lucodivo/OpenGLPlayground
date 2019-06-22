@@ -16,19 +16,23 @@ PlaygroundScene::PlaygroundScene(GLFWwindow* window, uint32 initScreenHeight, ui
 	lightShader(lightVertexShaderFileLoc, lightFragmentShaderFileLoc),
 	modelShader(PosTexNormalVertexShader, modelFragmentShaderFileLoc),
 	stencilShader(PosTexNormalVertexShader, stencilFragmentShaderFileLoc),
-	frameBufferShader(frameBufferVertexShaderFileLoc, kernel5x5TextureFragmentShaderFileLoc) {}
+	frameBufferShader(frameBufferVertexShaderFileLoc, kernel5x5TextureFragmentShaderFileLoc),
+	skyboxShader(skyboxVertexShaderFileLoc, skyboxFragmentShaderFileLoc) {}
 
 void PlaygroundScene::runScene() {
 	uint32 lightVAO, lightVBO, lightEBO;
-	initializeLightBuffers(lightVAO, lightVBO, lightEBO);
+	initializeLightVertexAttBuffers(lightVAO, lightVBO, lightEBO);
 
 	uint32 shapesVAO, shapesVBO, shapesEBO;
-	initializeCubeBuffers(shapesVAO, shapesVBO, shapesEBO);
+	initializeCubeVertexAttBuffers(shapesVAO, shapesVBO, shapesEBO);
 
 	uint32 quadVAO, quadVBO, quadEBO;
-	initializeQuadBuffers(quadVAO, quadVBO, quadEBO);
+	initializeQuadVertexAttBuffers(quadVAO, quadVBO, quadEBO);
 
-	renderLoop(window, shapesVAO, lightVAO, quadVAO);
+	uint32 skyboxVAO, skyboxVBO, skyboxEBO;
+	initializeSkyboxVertexAttBuffers(skyboxVAO, skyboxVBO, skyboxEBO);
+
+	renderLoop(window, shapesVAO, lightVAO, quadVAO, skyboxVAO);
 
 	glDeleteVertexArrays(1, &shapesVAO);
 	glDeleteBuffers(1, &shapesVBO);
@@ -43,12 +47,12 @@ void PlaygroundScene::runScene() {
 	glDeleteBuffers(1, &quadEBO);
 }
 
-void PlaygroundScene::renderLoop(GLFWwindow* window, uint32& shapesVAO, uint32& lightVAO, uint32& quadVAO) {
+void PlaygroundScene::renderLoop(GLFWwindow* window, uint32& shapesVAO, uint32& lightVAO, uint32& quadVAO, uint32& skyboxVAO) {
 
 	uint32 diffTextureId;
 	uint32 specTextureId;
-	initializeTextures(diffTextureId, specTextureId);
-
+	uint32 skyboxTextureId;
+	initializeTextures(diffTextureId, specTextureId, skyboxTextureId);
 	initializeFrameBuffer(frameBuffer, rbo, frameBufferTexture, viewportWidth, viewportHeight);
 
 	// load models
@@ -62,7 +66,7 @@ void PlaygroundScene::renderLoop(GLFWwindow* window, uint32& shapesVAO, uint32& 
 
 	const float32 cubRotAngle = 7.3f;
 
-	glm::vec3 directionalLightDir = glm::vec3(-0.0f, -1.0f, -3.0f);
+	glm::vec3 directionalLightDir = glm::vec3(1.0f, -0.5f, 1.0f);
 	glm::vec3 directionalLightColor = glm::vec3(1.0f);
 
 	glEnable(GL_CULL_FACE);
@@ -71,6 +75,9 @@ void PlaygroundScene::renderLoop(GLFWwindow* window, uint32& shapesVAO, uint32& 
 
 	// background clear color
 	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 #if 0
 	// draw in wireframe
@@ -85,9 +92,9 @@ void PlaygroundScene::renderLoop(GLFWwindow* window, uint32& shapesVAO, uint32& 
 
 		// directional light constants
 		shader.setUniform("directionalLight.direction", directionalLightDir);
-		shader.setUniform("directionalLight.color.ambient", directionalLightColor * glm::vec3(0.1f));
-		shader.setUniform("directionalLight.color.diffuse", directionalLightColor * glm::vec3(0.4f));
-		shader.setUniform("directionalLight.color.specular", directionalLightColor * glm::vec3(0.5f));
+		shader.setUniform("directionalLight.color.ambient", directionalLightColor * glm::vec3(0.3f));
+		shader.setUniform("directionalLight.color.diffuse", directionalLightColor * glm::vec3(0.5f));
+		shader.setUniform("directionalLight.color.specular", directionalLightColor * glm::vec3(0.6f));
 
 		// flashlight constants
 		shader.setUniform("spotLight.cutOff", glm::cos(glm::radians(12.5f)));
@@ -116,6 +123,9 @@ void PlaygroundScene::renderLoop(GLFWwindow* window, uint32& shapesVAO, uint32& 
 	frameBufferShader.setUniform("textureWidth", (float32)viewportWidth);
 	frameBufferShader.setUniform("textureHeight", (float32)viewportHeight);
 
+	skyboxShader.use();
+	skyboxShader.setUniform("projection", projectionMat);
+
 	// NOTE: render/game loop
 	while (glfwWindowShouldClose(window) == GL_FALSE) {
 
@@ -125,11 +135,13 @@ void PlaygroundScene::renderLoop(GLFWwindow* window, uint32& shapesVAO, uint32& 
 		// bind our frame buffer
 		glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
 
+		glEnable(GL_DEPTH_TEST);
+		glDepthFunc(GL_LESS);
+
 		glEnable(GL_STENCIL_TEST);
 		glStencilOp(GL_KEEP, // when stencil fails
 			GL_KEEP, // when stencil passes but depth fails
 			GL_REPLACE); // when stencil passes and depth passes
-		glStencilMask(0xFF); // mask that is ANDed with the stencil value that is about to be written to stencil buffer
 		glStencilFunc(GL_ALWAYS, // stencil function
 			1, // reference value for stencil test
 			0xFF); // mask that is ANDed with stencil value and reference value before the test compares them
@@ -140,12 +152,6 @@ void PlaygroundScene::renderLoop(GLFWwindow* window, uint32& shapesVAO, uint32& 
 		// FUN MODE - WINDOWS XP
 		glClear(GL_DEPTH_BUFFER_BIT);
 #endif
-
-		glEnable(GL_DEPTH_TEST);
-		glDepthFunc(GL_LESS);
-
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 		// if flashlight is off, simply remove all color from light
 		glm::vec3 flashLightColor = flashLightOn ? glm::vec3(0.93f, 0.84f, 0.72f) : glm::vec3(0.0f);
@@ -160,6 +166,28 @@ void PlaygroundScene::renderLoop(GLFWwindow* window, uint32& shapesVAO, uint32& 
 		glm::vec3 positionalLightColor(lightR, lightG, lightB);
 
 		glm::mat4 viewMat = camera.GetViewMatrix(deltaTime);
+
+		// draw skybox
+		skyboxShader.use();
+
+		glDepthMask(GL_FALSE);
+		glStencilMask(0x0);
+
+		glBindVertexArray(skyboxVAO);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, skyboxTextureId);
+		skyboxShader.setUniform("skybox", 0);
+
+		glm::mat4 viewMinusTranslation = glm::mat4(glm::mat3(viewMat));
+		skyboxShader.setUniform("view", viewMinusTranslation);
+
+		glDrawElements(GL_TRIANGLES, // drawing mode
+			36, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
+			GL_UNSIGNED_INT, // type of the indices
+			0); // offset in the EBO
+		glDepthMask(GL_TRUE);
+		glStencilMask(0xFF);
 
 		// oscillate with time
 		const glm::vec3 lightPosition = glm::vec3(2.0f, 0.0f + sineVal, 2.0f);
@@ -332,10 +360,11 @@ void PlaygroundScene::renderLoop(GLFWwindow* window, uint32& shapesVAO, uint32& 
 	}
 }
 
-void PlaygroundScene::initializeTextures(uint32& diffTextureId, uint32& specTextureId)
+void PlaygroundScene::initializeTextures(uint32& diffTextureId, uint32& specTextureId, uint32& skyboxTextureId)
 {
-	loadTexture(diffuseTextureLoc, diffTextureId);
-	loadTexture(specularTextureLoc, specTextureId);
+	load2DTexture(diffuseTextureLoc, diffTextureId);
+	load2DTexture(specularTextureLoc, specTextureId);
+	loadCubeMapTexture(skyboxFaceLocations, skyboxTextureId);
 }
 
 void PlaygroundScene::frameBufferSize(uint32 width, uint32 height) {

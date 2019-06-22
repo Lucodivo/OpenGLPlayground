@@ -2,9 +2,10 @@
 
 #include "LearnOpenGLPlatform.h"
 
-void initializeCubeBuffers(uint32& VAO, uint32& VBO, uint32& EBO); 
-void initializeLightBuffers(uint32& VAO, uint32& VBO, uint32& EBO);
-void initializeQuadBuffers(uint32& VAO, uint32& VBO, uint32& EBO);
+void initializeCubeVertexAttBuffers(uint32& VAO, uint32& VBO, uint32& EBO); 
+void initializeLightVertexAttBuffers(uint32& VAO, uint32& VBO, uint32& EBO);
+void initializeQuadVertexAttBuffers(uint32& VAO, uint32& VBO, uint32& EBO);
+void initializeSkyboxVertexAttBuffers(uint32& VAO, uint32& VBO, uint32& EBO);
 void initializeFrameBuffer(uint32& frameBuffer, uint32& rbo, uint32& frameBufferTexture, uint32 width, uint32 height);
 
 // ===== cube values =====
@@ -64,10 +65,39 @@ const uint32 cubeIndices[]{
 };
 // ===== cube values =====
 
+// ===== Skybox values =====
+const uint32 skyboxVertexAttSizeInBytes = 3 * sizeof(float32);
+const float32 skyboxVertexAttributes[] = {
+	// positions      
+	-1.0f, -1.0f, -1.0f,
+	-1.0f, -1.0f, 1.0f,
+	-1.0f, 1.0f, -1.0f,
+	-1.0f, 1.0f, 1.0f,
+	1.0f, -1.0f, -1.0f,
+	1.0f, -1.0f, 1.0f,
+	1.0f, 1.0f, -1.0f,
+	1.0f, 1.0f, 1.0f
+};
+
+const uint32 skyboxIndices[]{
+	0, 2, 1,
+	1, 2, 3,
+	0, 1, 4,
+	1, 5, 4,
+	0, 4, 2,
+	4, 6, 2,
+	2, 6, 3,
+	6, 7, 3,
+	1, 7, 5,
+	1, 3, 7,
+	4, 5, 7,
+	4, 7, 6,
+};
+// ===== Skybox values =====
 
 // ===== frame buffer quad values =====
 const uint32 quadVertexAttSizeInBytes = 4 * sizeof(float32);
-const float quadVertexAttributes[] = {
+const float32 quadVertexAttributes[] = {
 	// positions   // texCoords
 	-1.0f,  1.0f,  0.0f, 1.0f,
 	-1.0f, -1.0f,  0.0f, 0.0f,

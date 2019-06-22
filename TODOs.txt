@@ -2,3 +2,5 @@ TODOs:
 - Figure out how to properly order when drawing the transparent cubes (and their sides)
 	- Remember to turn off back culling when verifying
 - Implement zoom for camera
+- Controller input
+- Use depth buffer for skybox

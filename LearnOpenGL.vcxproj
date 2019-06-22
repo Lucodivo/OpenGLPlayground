@@ -65,6 +65,8 @@
     <None Include="src\shaders\ModelFragmentShader.glsl" />
     <None Include="src\shaders\NegativeTextureFragmentShader.glsl" />
     <None Include="src\shaders\SingleColorFragmentShader.glsl" />
+    <None Include="src\shaders\SkyboxFragmentShader.glsl" />
+    <None Include="src\shaders\SkyboxVertexShader.glsl" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="src\data\diffuse_map.png" />

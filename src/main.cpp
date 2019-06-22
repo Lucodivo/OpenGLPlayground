@@ -17,7 +17,7 @@ int main() {
 
     initializeGLAD();
 
-	scene = new InfiniteCubeScene(window, VIEWPORT_INIT_HEIGHT, VIEWPORT_INIT_WIDTH);
+	scene = new PlaygroundScene(window, VIEWPORT_INIT_HEIGHT, VIEWPORT_INIT_WIDTH);
 	scene->runScene();
 
 	glfwTerminate(); // clean up gl resources

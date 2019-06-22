@@ -5,7 +5,7 @@
 #include "ObjectData.h"
 
 
-void initializeCubeBuffers(uint32& VAO, uint32& VBO, uint32& EBO) {
+void initializeCubeVertexAttBuffers(uint32& VAO, uint32& VBO, uint32& EBO) {
 	glGenVertexArrays(1, &VAO);
 	glBindVertexArray(VAO);
 
@@ -55,7 +55,7 @@ void initializeCubeBuffers(uint32& VAO, uint32& VBO, uint32& EBO) {
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
-void initializeLightBuffers(uint32& VAO, uint32& VBO, uint32& EBO) {
+void initializeLightVertexAttBuffers(uint32& VAO, uint32& VBO, uint32& EBO) {
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1,     // Num objects to generate 
 		&VBO);  // Out parameters to store IDs of gen objects
@@ -90,7 +90,7 @@ void initializeLightBuffers(uint32& VAO, uint32& VBO, uint32& EBO) {
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
-void initializeQuadBuffers(uint32& VAO, uint32& VBO, uint32& EBO) {
+void initializeQuadVertexAttBuffers(uint32& VAO, uint32& VBO, uint32& EBO) {
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1,
 		&VBO);
@@ -131,6 +131,38 @@ void initializeQuadBuffers(uint32& VAO, uint32& VBO, uint32& EBO) {
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 	// Must unbind EBO AFTER unbinding VAO, since VAO stores all glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _) calls
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+}
+
+void initializeSkyboxVertexAttBuffers(uint32& VAO, uint32& VBO, uint32& EBO)
+{
+	glGenVertexArrays(1, &VAO);
+	glGenBuffers(1, &VBO);
+	glGenBuffers(1, &EBO);
+
+	glBindVertexArray(VAO);
+
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertexAttributes), skyboxVertexAttributes, GL_STATIC_DRAW);
+
+	// set the vertex attributes
+	// position attribute
+	glVertexAttribPointer(0,
+		3, // size
+		GL_FLOAT, // type of data
+		GL_FALSE, // whether the data needs to be normalized
+		skyboxVertexAttSizeInBytes, // stride
+		(void*)0); // offset
+	glEnableVertexAttribArray(0);
+
+	// bind element buffer object to give indices
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(skyboxIndices), skyboxIndices, GL_STATIC_DRAW);
+
+	// unbind VBO, VAO, & EBO
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+	// Must unbind EBO AFTER unbinding VAO
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
