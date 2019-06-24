@@ -13,12 +13,18 @@ public:
 	PlaygroundScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth);
 	void runScene();
 
-	// override
+	// FrameBufferSizeConsumer override
 	void frameBufferSize(uint32 width, uint32 height);
 
+	// KeyboardConsumer overrides
 	void key_LeftMouseButton_pressed();
 	void key_Up();
 	void key_Down();
+
+	// ControllerConsumer overrides
+	void button_X_pressed();
+	void button_dPadUp_pressed();
+	void button_dPadDown_pressed();
 
 private:
 	Shader cubeShader;
@@ -45,6 +51,9 @@ private:
 
 	void renderLoop(GLFWwindow* window, uint32& shapesVAO, uint32& lightVAO, uint32& quadVAO, uint32& skyboxVAO);
 	void initializeTextures(uint32& diffTextureId, uint32& specTextureId, uint32& skyboxTextureId);
+	void toggleFlashlight();
+	void nextImageKernel();
+	void prevImageKernel();
 };
 
 

@@ -106,6 +106,7 @@ void InfiniteCubeScene::renderLoop(GLFWwindow* window, uint32& cubeVAO, uint32& 
 	while (glfwWindowShouldClose(window) == GL_FALSE) {
 		// check for input
 		processKeyboardInput(window, this);
+		processXInput(this);
 
 		float32 t = (float32)glfwGetTime();
 		deltaTime = t - lastFrame;
@@ -120,24 +121,23 @@ void InfiniteCubeScene::renderLoop(GLFWwindow* window, uint32& cubeVAO, uint32& 
 
 			previousFrameBufferIndex = currentFrameBufferIndex;
 			currentFrameBufferIndex = currentFrameBufferIndex == 0 ? 1 : 0;
+
+			// set background color
+			// more abrupt color changes
+			colorIndex = (colorIndex + 1) % ArrayCount(colors);
+			glClearColor(colors[colorIndex].x, colors[colorIndex].y, colors[colorIndex].z, 1.0f);
 		}
 #else
 		// constant frame changes for cube
 		previousFrameBufferIndex = currentFrameBufferIndex;
 		currentFrameBufferIndex = currentFrameBufferIndex == 0 ? 1 : 0;
-#endif
 
 		// set background color
-#if 1
 		// smoother color change
 		float32 lightR = (sinf((t + 30.0f) / 3.0f) / 2.0f) + 0.5f;
 		float32 lightG = (sinf((t + 60.0f) / 8.0f) / 2.0f) + 0.5f;
 		float32 lightB = (sinf(t / 17.0f) / 2.0f) + 0.5f;
 		glClearColor(lightR, lightG, lightB, 1.0f);
-#else
-		// more abrupt color changes
-		colorIndex = (colorIndex + 1) % ArrayCount(colors);
-		glClearColor(colors[colorIndex].x, colors[colorIndex].y, colors[colorIndex].z, 1.0f);
 #endif
 
 		// bind default frame buffer

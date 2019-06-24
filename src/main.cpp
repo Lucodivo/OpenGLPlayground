@@ -14,10 +14,11 @@ int main() {
     GLFWwindow* window = createWindow();
     glfwMakeContextCurrent(window);
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	loadXInput();
 
     initializeGLAD();
 
-	scene = new PlaygroundScene(window, VIEWPORT_INIT_HEIGHT, VIEWPORT_INIT_WIDTH);
+	scene = new InfiniteCubeScene(window, VIEWPORT_INIT_HEIGHT, VIEWPORT_INIT_WIDTH);
 	scene->runScene();
 
 	glfwTerminate(); // clean up gl resources

@@ -5,13 +5,13 @@
 #include <GLFW/glfw3.h>
 #include <iostream>
 
-void load2DTexture(const char* imgLocation, uint32& textureId) {
+void load2DTexture(const char* imgLocation, uint32& textureId, bool flipImageVert) {
 	glGenTextures(1, &textureId);
 	glBindTexture(GL_TEXTURE_2D, textureId);
 
 	// load image data
 	int width, height, numChannels;
-	stbi_set_flip_vertically_on_load(true);
+	stbi_set_flip_vertically_on_load(flipImageVert);
 	unsigned char* data = stbi_load(imgLocation, &width, &height, &numChannels, 0);
 	if (data) {
 		auto pixelFormat = (numChannels == 3) ? GL_RGB : GL_RGBA;
@@ -35,12 +35,12 @@ void load2DTexture(const char* imgLocation, uint32& textureId) {
 	stbi_image_free(data); // free texture image memory
 }
 
-void loadCubeMapTexture(std::vector<const char*> imgLocations, uint32& textureId) {
+void loadCubeMapTexture(std::vector<const char*> imgLocations, uint32& textureId, bool flipImageVert) {
 	glGenTextures(1, &textureId);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, textureId);
 
 	int width, height, nrChannels;
-	stbi_set_flip_vertically_on_load(false);
+	stbi_set_flip_vertically_on_load(flipImageVert);
 	for (unsigned int i = 0; i < 6; i++)
 	{
 		unsigned char* data = stbi_load(imgLocations[i], &width, &height, &nrChannels, 0);

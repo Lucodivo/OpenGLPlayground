@@ -131,12 +131,13 @@ void PlaygroundScene::renderLoop(GLFWwindow* window, uint32& shapesVAO, uint32& 
 
 		// check for input
 		processKeyboardInput(window, this);
+		processXInput(this);
 
 		// bind our frame buffer
 		glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
 
 		glEnable(GL_DEPTH_TEST);
-		glDepthFunc(GL_LESS);
+		glDepthFunc(GL_LEQUAL);
 
 		glEnable(GL_STENCIL_TEST);
 		glStencilOp(GL_KEEP, // when stencil fails
@@ -145,6 +146,7 @@ void PlaygroundScene::renderLoop(GLFWwindow* window, uint32& shapesVAO, uint32& 
 		glStencilFunc(GL_ALWAYS, // stencil function
 			1, // reference value for stencil test
 			0xFF); // mask that is ANDed with stencil value and reference value before the test compares them
+		glStencilMask(0xFF); // mask that is ANDed with the stencil value that is about to be written to stencil buffer
 
 #if 1
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);           // OpenGL state-using function
@@ -166,28 +168,6 @@ void PlaygroundScene::renderLoop(GLFWwindow* window, uint32& shapesVAO, uint32& 
 		glm::vec3 positionalLightColor(lightR, lightG, lightB);
 
 		glm::mat4 viewMat = camera.GetViewMatrix(deltaTime);
-
-		// draw skybox
-		skyboxShader.use();
-
-		glDepthMask(GL_FALSE);
-		glStencilMask(0x0);
-
-		glBindVertexArray(skyboxVAO);
-
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_CUBE_MAP, skyboxTextureId);
-		skyboxShader.setUniform("skybox", 0);
-
-		glm::mat4 viewMinusTranslation = glm::mat4(glm::mat3(viewMat));
-		skyboxShader.setUniform("view", viewMinusTranslation);
-
-		glDrawElements(GL_TRIANGLES, // drawing mode
-			36, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
-			GL_UNSIGNED_INT, // type of the indices
-			0); // offset in the EBO
-		glDepthMask(GL_TRUE);
-		glStencilMask(0xFF);
 
 		// oscillate with time
 		const glm::vec3 lightPosition = glm::vec3(2.0f, 0.0f + sineVal, 2.0f);
@@ -234,6 +214,25 @@ void PlaygroundScene::renderLoop(GLFWwindow* window, uint32& shapesVAO, uint32& 
 			shader.setUniform("spotLight.color.specular", flashLightColor * glm::vec3(0.5f));
 		};
 
+		// draw skybox
+		skyboxShader.use();
+
+		glBindVertexArray(skyboxVAO);
+
+		glEnable(GL_DEPTH_TEST);
+		//glStencilMask(0xFF); // mask that is ANDed with the stencil value that is about to be written to stencil buffer
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, skyboxTextureId);
+		skyboxShader.setUniform("skybox", 0);
+
+		glm::mat4 viewMinusTranslation = glm::mat4(glm::mat3(viewMat));
+		skyboxShader.setUniform("view", viewMinusTranslation);
+
+		glDrawElements(GL_TRIANGLES, // drawing mode
+			36, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
+			GL_UNSIGNED_INT, // type of the indices
+			0); // offset in the EBO
+
 		// draw cubes
 		cubeShader.use();
 
@@ -253,7 +252,7 @@ void PlaygroundScene::renderLoop(GLFWwindow* window, uint32& shapesVAO, uint32& 
 
 		cubeShader.setUniform("viewPos", camera.Position);
 		cubeShader.setUniform("view", viewMat);
-		// draw cubes
+
 		for (uint32 i = 0; i < numCubes; i++) {
 			glm::mat4 model;
 			float32 angularSpeed = 7.3f * (i + 1);
@@ -303,15 +302,15 @@ void PlaygroundScene::renderLoop(GLFWwindow* window, uint32& shapesVAO, uint32& 
 		// unbind shapesVAO
 		glBindVertexArray(0);
 
+		glStencilFunc(GL_ALWAYS, // stencil function
+			1, // reference value for stencil test
+			0xFF); // mask that is ANDed with stencil value and reference value before the test compares them
+		glStencilMask(0xFF); // mask that is ANDed with the stencil value that is about to be written to stencil buffer
+		glClear(GL_STENCIL_BUFFER_BIT); // NOTE: glClear(GL_STENCIL_BUFFER_BIT) counts as writing to the stencil buffer and will be directly ANDed with the stencil mask
+
 		// draw models
 		float32 modelScale = 0.2f;
 		{
-			glStencilFunc(GL_ALWAYS, // stencil function
-				1, // reference value for stencil test
-				0xFF); // mask that is ANDed with stencil value and reference value before the test compares them
-			glStencilMask(0xFF); // mask that is ANDed with the stencil value that is about to be written to stencil buffer
-			glClear(GL_STENCIL_BUFFER_BIT); // NOTE: glClear(GL_STENCIL_BUFFER_BIT) counts as writing to the stencil buffer and will be directly ANDed with the stencil mask
-
 			// Drawing the model
 			modelShader.use();
 			setDynamicLightUniforms(modelShader);
@@ -362,8 +361,8 @@ void PlaygroundScene::renderLoop(GLFWwindow* window, uint32& shapesVAO, uint32& 
 
 void PlaygroundScene::initializeTextures(uint32& diffTextureId, uint32& specTextureId, uint32& skyboxTextureId)
 {
-	load2DTexture(diffuseTextureLoc, diffTextureId);
-	load2DTexture(specularTextureLoc, specTextureId);
+	load2DTexture(diffuseTextureLoc, diffTextureId, true);
+	load2DTexture(specularTextureLoc, specTextureId, true);
 	loadCubeMapTexture(skyboxFaceLocations, skyboxTextureId);
 }
 
@@ -375,6 +374,34 @@ void PlaygroundScene::frameBufferSize(uint32 width, uint32 height) {
 }
 
 void PlaygroundScene::key_Up() {
+	nextImageKernel();
+}
+
+void PlaygroundScene::key_Down() {
+	prevImageKernel();
+}
+
+void PlaygroundScene::key_LeftMouseButton_pressed() {
+	toggleFlashlight();
+}
+
+void PlaygroundScene::button_X_pressed() {
+	key_LeftMouseButton_pressed();
+}
+
+void PlaygroundScene::button_dPadUp_pressed() {
+	nextImageKernel();
+}
+
+void PlaygroundScene::button_dPadDown_pressed() {
+	prevImageKernel();
+}
+
+void PlaygroundScene::toggleFlashlight() {
+	flashLightOn = !flashLightOn;
+}
+
+void PlaygroundScene::nextImageKernel() {
 	double currentTime = glfwGetTime();
 	if (currentTime - kernelModeSwitchTimer > 0.5f) {
 		selectedKernelIndex = (selectedKernelIndex + 1) % kernelCount;
@@ -382,14 +409,10 @@ void PlaygroundScene::key_Up() {
 	}
 }
 
-void PlaygroundScene::key_Down() {
+void PlaygroundScene::prevImageKernel() {
 	double currentTime = glfwGetTime();
 	if (currentTime - kernelModeSwitchTimer > 0.5f) {
 		selectedKernelIndex = selectedKernelIndex != 0 ? ((selectedKernelIndex - 1) % kernelCount) : (kernelCount - 1);
 		kernelModeSwitchTimer = currentTime;
 	}
-}
-
-void PlaygroundScene::key_LeftMouseButton_pressed() {
-	flashLightOn = !flashLightOn;
 }

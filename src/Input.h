@@ -31,12 +31,37 @@ public:
 	virtual void mouseScroll(float32 yOffset) = 0;
 };
 
+class ControllerConsumer {
+public:
+	virtual void leftAnalog(int16 stickX, int16 stickY) = 0;
+	virtual void rightAnalog(int16 stickX, int16 stickY) = 0;
+	virtual void button_A_pressed() = 0;
+	virtual void button_A_released() = 0;
+	virtual void button_B_pressed() = 0;
+	virtual void button_B_released() = 0;
+	virtual void button_X_pressed() = 0;
+	virtual void button_X_released() = 0;
+	virtual void button_Y_pressed() = 0;
+	virtual void button_Y_released() = 0;
+	virtual void button_dPadUp_pressed() = 0;
+	virtual void button_dPadDown_pressed() = 0;
+	virtual void button_dPadLeft_pressed() = 0;
+	virtual void button_dPadRight_pressed() = 0;
+	virtual void button_leftShoulder_pressed() = 0;
+	virtual void button_rightShoulder_pressed() = 0;
+	virtual void button_start_pressed() = 0;
+	virtual void button_select_pressed() = 0;
+};
+
 class FrameBufferSizeConsumer {
 public:
 	virtual void frameBufferSize(uint32 width, uint32 height) = 0;
 };
 
+void loadXInput();
+
 void processKeyboardInput(GLFWwindow* window, KeyboardConsumer* consumer);
+void processXInput(ControllerConsumer* consumer);
 void subscribeMouseMovement(GLFWwindow* window, MouseMovementConsumer* consumer);
 void subscribeMouseScroll(GLFWwindow* window, MouseScrollConsumer* consumer);
 void subscribeFrameBufferSize(GLFWwindow* window, FrameBufferSizeConsumer* consumer);

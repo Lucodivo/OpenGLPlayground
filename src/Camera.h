@@ -157,6 +157,30 @@ public:
         updateCameraVectors();
     }
 
+	float32 stickSensitivty = 0.00007f;
+	void ProcessRightAnalog(int16 stickX, int16 stickY, GLboolean constrainPitch = true)
+	{
+		Yaw += (float32)stickX * stickSensitivty;;
+		Pitch += (float32)stickY * stickSensitivty;
+
+		// Make sure that when pitch is out of bounds, screen doesn't get flipped
+		if (constrainPitch) {
+			if (Pitch > 89.0f) Pitch = 89.0f;
+			if (Pitch < -89.0f) Pitch = -89.0f;
+		}
+
+		// Update Front, Right and Up Vectors using the updated Eular angles
+		updateCameraVectors();
+	}
+
+	void ProcessLeftAnalog(int16 stickX, int16 stickY, GLboolean constrainPitch = true)
+	{
+		if (stickY > 0) deltaPosition += glm::vec3(Front.x, 0.0f, Front.z);
+		else if (stickY < 0) deltaPosition -= glm::vec3(Front.x, 0.0f, Front.z);
+		if (stickX > 0) deltaPosition += Right;
+		else if (stickX < 0) deltaPosition -= Right;
+	}
+
     // Processes input received from a mouse scroll-wheel event. Only requires input on the vertical wheel-axis
     void ProcessMouseScroll(float32 yoffset)
     {
