@@ -19,6 +19,8 @@ const char* const skyboxVertexShaderFileLoc = "src/shaders/SkyboxVertexShader.gl
 const char* const skyboxFragmentShaderFileLoc = "src/shaders/SkyboxFragmentShader.glsl";
 const char* const skyboxReflectionVertexShaderFileLoc = "src/shaders/SkyboxReflectionVertexShader.glsl";
 const char* const skyboxReflectionFragmentShaderFileLoc = "src/shaders/SkyboxReflectionFragmentShader.glsl";
+const char* const skyboxRefractionFragmentShaderFileLoc = "src/shaders/SkyboxRefractionFragmentShader.glsl";
+
 
 // 2D textures
 const char* const diffuseTextureLoc = "src/data/diffuse_map_alpha_channel.png";

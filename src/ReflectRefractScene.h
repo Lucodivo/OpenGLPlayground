@@ -8,20 +8,30 @@
 #include "ObjectData.h"
 #include "Shader.h"
 
-class ReflectionScene final : public FirstPersonScene {
+class ReflectRefractScene final : public FirstPersonScene {
 public:
-	ReflectionScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth);
+	ReflectRefractScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth);
 	void runScene();
 
 private:
-	Shader cubeShader;
-	Shader modelShader;
+	Shader reflectionShader;
+	Shader refractionShader;
 	Shader skyboxShader;
 
 	// frame rate
 	float32 deltaTime = 0.0f;	// Time between current frame and last frame
 	float32 lastFrame = 0.0f; // Time of last frame
 
+	double reflactionModeSwitchTimer = 0.0f;
+
 	void renderLoop(GLFWwindow* window, uint32& cubeVAO, uint32& skyboxVAO);
 	void initializeTextures(uint32& skyboxTextureId);
+
+	void key_Up();
+	void key_Down();
+	void button_dPadUp_pressed();
+	void button_dPadDown_pressed();
+
+	void nextModelReflaction();
+	void prevModelReflaction();
 };

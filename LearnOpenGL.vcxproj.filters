@@ -47,7 +47,7 @@
     <ClCompile Include="src\NessCubesScene.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\ReflectionScene.cpp">
+    <ClCompile Include="src\ReflectRefractScene.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -102,7 +102,7 @@
     <ClInclude Include="src\NessCubesScene.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\ReflectionScene.h">
+    <ClInclude Include="src\ReflectRefractScene.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -162,6 +162,9 @@
       <Filter>shaders</Filter>
     </None>
     <None Include="src\shaders\SkyboxReflectionVertexShader.glsl">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="src\shaders\SkyboxRefractionFragmentShader.glsl">
       <Filter>shaders</Filter>
     </None>
   </ItemGroup>

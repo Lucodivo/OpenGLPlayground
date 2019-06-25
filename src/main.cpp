@@ -4,7 +4,7 @@
 #include "main.h"
 #include "NessCubesScene.h"
 #include "InfiniteCubeScene.h"
-#include "ReflectionScene.h"
+#include "ReflectRefractScene.h"
 
 #include <iostream>
 
@@ -19,7 +19,7 @@ int main() {
 
     initializeGLAD();
 
-	scene = new ReflectionScene(window, VIEWPORT_INIT_HEIGHT, VIEWPORT_INIT_WIDTH);
+	scene = new ReflectRefractScene(window, VIEWPORT_INIT_HEIGHT, VIEWPORT_INIT_WIDTH);
 	scene->runScene();
 
 	glfwTerminate(); // clean up gl resources
