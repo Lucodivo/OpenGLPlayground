@@ -8,9 +8,9 @@
 #include "ObjectData.h"
 #include "Shader.h"
 
-class PlaygroundScene final : public FirstPersonScene {
+class NessCubesScene final : public FirstPersonScene {
 public:
-	PlaygroundScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth);
+	NessCubesScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth);
 	void runScene();
 
 	// FrameBufferSizeConsumer override
@@ -49,37 +49,9 @@ private:
 	double kernelModeSwitchTimer = 0.0f;
 	uint32 kernelCount = ArrayCount(kernels5x5);
 
-	void renderLoop(GLFWwindow* window, uint32& shapesVAO, uint32& lightVAO, uint32& quadVAO, uint32& skyboxVAO);
+	void renderLoop(GLFWwindow* window, uint32& cubeVAO, uint32& lightVAO, uint32& quadVAO, uint32& skyboxVAO);
 	void initializeTextures(uint32& diffTextureId, uint32& specTextureId, uint32& skyboxTextureId);
 	void toggleFlashlight();
 	void nextImageKernel();
 	void prevImageKernel();
 };
-
-
-// ===== cube values =====
-const uint32 numCubes = 9;
-const glm::vec3 cubePositions[] = {
-	glm::vec3(2.0f,  5.0f, -15.0f),
-	glm::vec3(-1.5f, -2.2f, -2.5f),
-	glm::vec3(-3.8f, -2.0f, -12.3f),
-	glm::vec3(2.4f, -0.4f, -3.5f),
-	glm::vec3(-1.7f,  3.0f, -7.5f),
-	glm::vec3(1.3f, -2.0f, -2.5f),
-	glm::vec3(1.5f,  2.0f, -2.5f),
-	glm::vec3(1.5f,  0.2f, -1.5f),
-	glm::vec3(-1.3f,  1.0f, -1.5f)
-};
-
-const float32 cubeScales[] = {
-	0.6f,
-	0.65f,
-	0.7f,
-	0.75f,
-	0.8f,
-	0.85f,
-	0.9f,
-	0.95f,
-	1.0f
-};
-// ===== cube values =====

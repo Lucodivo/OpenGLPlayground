@@ -29,9 +29,6 @@
     <ClCompile Include="..\..\..\dependencies\OpenGL\include\stb\stb_image.cpp">
       <Filter>external dependencies</Filter>
     </ClCompile>
-    <ClCompile Include="src\PlaygroundScene.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\Input.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -45,6 +42,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Util.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\NessCubesScene.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ReflectionScene.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -75,9 +78,6 @@
     <ClInclude Include="src\LearnOpenGLPlatform.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\PlaygroundScene.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\Kernels.h">
       <Filter>Source Files</Filter>
     </ClInclude>
@@ -97,6 +97,12 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="src\ObjectData.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\NessCubesScene.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ReflectionScene.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -150,6 +156,12 @@
       <Filter>shaders</Filter>
     </None>
     <None Include="src\shaders\SkyboxFragmentShader.glsl">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="src\shaders\SkyboxReflectionFragmentShader.glsl">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="src\shaders\SkyboxReflectionVertexShader.glsl">
       <Filter>shaders</Filter>
     </None>
   </ItemGroup>

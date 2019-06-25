@@ -96,8 +96,17 @@ void processXInput(ControllerConsumer* consumer) {
 				consumer->button_start_pressed();
 			}
 
+
+			local_persist bool selectWasDown = false;
 			if (select) {
-				consumer->button_select_pressed();
+				if (!selectWasDown) {
+					selectWasDown = true;
+					consumer->button_select_pressed();
+				}
+			}
+			else if (selectWasDown) {
+				selectWasDown = false;
+				consumer->button_select_released();
 			}
 
 			local_persist bool aWasDown = false;

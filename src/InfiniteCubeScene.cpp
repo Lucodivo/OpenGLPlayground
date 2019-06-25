@@ -5,13 +5,13 @@
 
 InfiniteCubeScene::InfiniteCubeScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth)
 	: FirstPersonScene(window, initScreenHeight, initScreenWidth), 
-	cubeShader(PosTexNormalVertexShader, cropCenterSquareTexFragmentShader),
-	cubeOutlineShader(PosTexNormalVertexShader, discardAlphaFragmentShaderFileLoc),
+	cubeShader(posTexNormalVertexShader, cropCenterSquareTexFragmentShader),
+	cubeOutlineShader(posTexNormalVertexShader, discardAlphaFragmentShaderFileLoc),
 	frameBufferShader(frameBufferVertexShaderFileLoc, basicTextureFragmentShader)  {}
 
 void InfiniteCubeScene::runScene() {
 	uint32 cubeVAO, cubeVBO, cubeEBO;
-	initializeCubeVertexAttBuffers(cubeVAO, cubeVBO, cubeEBO);
+	initializeCubePosTexNormAttBuffers(cubeVAO, cubeVBO, cubeEBO);
 
 	uint32 quadVAO, quadVBO, quadEBO;
 	initializeQuadVertexAttBuffers(quadVAO, quadVBO, quadEBO);
@@ -162,7 +162,7 @@ void InfiniteCubeScene::renderLoop(GLFWwindow* window, uint32& cubeVAO, uint32& 
 		cubeOutlineShader.setUniform("view", viewMat);
 
 		glDrawElements(GL_TRIANGLES,
-			cubeNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
+			cubePosTexNormNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
 			GL_UNSIGNED_INT,
 			0);
 
@@ -172,7 +172,7 @@ void InfiniteCubeScene::renderLoop(GLFWwindow* window, uint32& cubeVAO, uint32& 
 		cubeShader.setUniform("view", viewMat);
 		cubeShader.setUniform("diffTexture", previousFrameBufferIndex);
 		glDrawElements(GL_TRIANGLES,
-			cubeNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
+			cubePosTexNormNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
 			GL_UNSIGNED_INT,
 			0);
 

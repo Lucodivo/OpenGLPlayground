@@ -2,8 +2,9 @@
 #include <GLFW/glfw3.h>
 
 #include "main.h"
-#include "PlaygroundScene.h"
+#include "NessCubesScene.h"
 #include "InfiniteCubeScene.h"
+#include "ReflectionScene.h"
 
 #include <iostream>
 
@@ -18,7 +19,7 @@ int main() {
 
     initializeGLAD();
 
-	scene = new InfiniteCubeScene(window, VIEWPORT_INIT_HEIGHT, VIEWPORT_INIT_WIDTH);
+	scene = new ReflectionScene(window, VIEWPORT_INIT_HEIGHT, VIEWPORT_INIT_WIDTH);
 	scene->runScene();
 
 	glfwTerminate(); // clean up gl resources

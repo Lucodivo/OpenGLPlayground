@@ -91,6 +91,8 @@ void FirstPersonScene::button_start_pressed() {
 void FirstPersonScene::button_select_pressed() {
 	adjustWindowSize();
 }
+
+void FirstPersonScene::button_select_released() {}
 // +++ CONTROLLER CONSUMER IMPLEMETNATION - START +++
 
 // +++ KEYBOARD CONSUMER IMPLEMENTATION - START +++

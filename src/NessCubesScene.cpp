@@ -8,35 +8,61 @@
 #include "FileLocations.h"
 #include "Util.h"
 
-#include "PlaygroundScene.h"
+#include "NessCubesScene.h"
 
-PlaygroundScene::PlaygroundScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth)
+// ===== cube values =====
+const glm::vec3 cubePositions[] = {
+	glm::vec3(2.0f,  5.0f, -15.0f),
+	glm::vec3(-1.5f, -2.2f, -2.5f),
+	glm::vec3(-3.8f, -2.0f, -12.3f),
+	glm::vec3(2.4f, -0.4f, -3.5f),
+	glm::vec3(-1.7f,  3.0f, -7.5f),
+	glm::vec3(1.3f, -2.0f, -2.5f),
+	glm::vec3(1.5f,  2.0f, -2.5f),
+	glm::vec3(1.5f,  0.2f, -1.5f),
+	glm::vec3(-1.3f,  1.0f, -1.5f)
+};
+
+const float32 cubeScales[] = {
+	0.6f,
+	0.65f,
+	0.7f,
+	0.75f,
+	0.8f,
+	0.85f,
+	0.9f,
+	0.95f,
+	1.0f
+};
+// ===== cube values =====
+
+NessCubesScene::NessCubesScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth)
 	: FirstPersonScene(window, initScreenHeight, initScreenWidth), 
-	cubeShader(PosTexNormalVertexShader, cubeFragmentShaderFileLoc),
+	cubeShader(posTexNormalVertexShader, cubeFragmentShaderFileLoc),
 	lightShader(lightVertexShaderFileLoc, lightFragmentShaderFileLoc),
-	modelShader(PosTexNormalVertexShader, modelFragmentShaderFileLoc),
-	stencilShader(PosTexNormalVertexShader, stencilFragmentShaderFileLoc),
+	modelShader(posTexNormalVertexShader, modelFragmentShaderFileLoc),
+	stencilShader(posTexNormalVertexShader, singleColorFragmentShaderFileLoc),
 	frameBufferShader(frameBufferVertexShaderFileLoc, kernel5x5TextureFragmentShaderFileLoc),
 	skyboxShader(skyboxVertexShaderFileLoc, skyboxFragmentShaderFileLoc) {}
 
-void PlaygroundScene::runScene() {
+void NessCubesScene::runScene() {
 	uint32 lightVAO, lightVBO, lightEBO;
-	initializeLightVertexAttBuffers(lightVAO, lightVBO, lightEBO);
+	initializeCubePositionAttBuffers(lightVAO, lightVBO, lightEBO);
 
-	uint32 shapesVAO, shapesVBO, shapesEBO;
-	initializeCubeVertexAttBuffers(shapesVAO, shapesVBO, shapesEBO);
+	uint32 cubeVAO, cubeVBO, cubeEBO;
+	initializeCubePosTexNormAttBuffers(cubeVAO, cubeVBO, cubeEBO);
 
 	uint32 quadVAO, quadVBO, quadEBO;
 	initializeQuadVertexAttBuffers(quadVAO, quadVBO, quadEBO);
 
 	uint32 skyboxVAO, skyboxVBO, skyboxEBO;
-	initializeSkyboxVertexAttBuffers(skyboxVAO, skyboxVBO, skyboxEBO);
+	initializeCubePositionAttBuffers(skyboxVAO, skyboxVBO, skyboxEBO);
 
-	renderLoop(window, shapesVAO, lightVAO, quadVAO, skyboxVAO);
+	renderLoop(window, cubeVAO, lightVAO, quadVAO, skyboxVAO);
 
-	glDeleteVertexArrays(1, &shapesVAO);
-	glDeleteBuffers(1, &shapesVBO);
-	glDeleteBuffers(1, &shapesEBO);
+	glDeleteVertexArrays(1, &cubeVAO);
+	glDeleteBuffers(1, &cubeVBO);
+	glDeleteBuffers(1, &cubeEBO);
 
 	glDeleteVertexArrays(1, &lightVAO);
 	glDeleteBuffers(1, &lightVBO);
@@ -45,9 +71,13 @@ void PlaygroundScene::runScene() {
 	glDeleteVertexArrays(1, &quadVAO);
 	glDeleteBuffers(1, &quadVBO);
 	glDeleteBuffers(1, &quadEBO);
+
+	glDeleteVertexArrays(1, &skyboxVAO);
+	glDeleteBuffers(1, &skyboxVBO);
+	glDeleteBuffers(1, &skyboxEBO);
 }
 
-void PlaygroundScene::renderLoop(GLFWwindow* window, uint32& shapesVAO, uint32& lightVAO, uint32& quadVAO, uint32& skyboxVAO) {
+void NessCubesScene::renderLoop(GLFWwindow* window, uint32& shapesVAO, uint32& lightVAO, uint32& quadVAO, uint32& skyboxVAO) {
 
 	uint32 diffTextureId;
 	uint32 specTextureId;
@@ -69,9 +99,9 @@ void PlaygroundScene::renderLoop(GLFWwindow* window, uint32& shapesVAO, uint32& 
 	glm::vec3 directionalLightDir = glm::vec3(1.0f, -0.5f, 1.0f);
 	glm::vec3 directionalLightColor = glm::vec3(1.0f);
 
-	glEnable(GL_CULL_FACE);
-	glCullFace(GL_BACK);
-	glFrontFace(GL_CCW);
+	//glEnable(GL_CULL_FACE);
+	//glCullFace(GL_BACK);
+	//glFrontFace(GL_CCW);
 
 	// background clear color
 	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
@@ -185,7 +215,7 @@ void PlaygroundScene::renderLoop(GLFWwindow* window, uint32& shapesVAO, uint32& 
 		lightShader.setUniform("view", viewMat);
 		lightShader.setUniform("lightColor", positionalLightColor);
 		glDrawElements(GL_TRIANGLES, // drawing mode
-			cubeNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
+			cubePosTexNormNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
 			GL_UNSIGNED_INT, // type of the indices
 			0); // offset in the EBO
 		glBindVertexArray(0);
@@ -253,7 +283,7 @@ void PlaygroundScene::renderLoop(GLFWwindow* window, uint32& shapesVAO, uint32& 
 		cubeShader.setUniform("viewPos", camera.Position);
 		cubeShader.setUniform("view", viewMat);
 
-		for (uint32 i = 0; i < numCubes; i++) {
+		for (uint32 i = 0; i < ArrayCount(cubePositions); i++) {
 			glm::mat4 model;
 			float32 angularSpeed = 7.3f * (i + 1);
 
@@ -267,13 +297,13 @@ void PlaygroundScene::renderLoop(GLFWwindow* window, uint32& shapesVAO, uint32& 
 			model = glm::scale(model, glm::vec3(cubeScales[i]));
 			cubeShader.setUniform("model", model);
 			glDrawElements(GL_TRIANGLES, // drawing mode
-				cubeNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
+				cubePosTexNormNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
 				GL_UNSIGNED_INT, // type of the indices
 				0); // offset in the EBO
 		}
 
 		// draw cube stencil outlines
-		for (uint32 i = 0; i < numCubes; i++) {
+		for (uint32 i = 0; i < ArrayCount(cubePositions); i++) {
 			float32 angularSpeed = 7.3f * (i + 1);
 
 			glm::mat4 model;
@@ -293,7 +323,7 @@ void PlaygroundScene::renderLoop(GLFWwindow* window, uint32& shapesVAO, uint32& 
 			glStencilMask(0x00);
 			glDisable(GL_DEPTH_TEST);
 			glDrawElements(GL_TRIANGLES, // drawing mode
-				cubeNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
+				cubePosTexNormNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
 				GL_UNSIGNED_INT, // type of the indices
 				0); // offset in the EBO
 			glEnable(GL_DEPTH_TEST);
@@ -359,49 +389,49 @@ void PlaygroundScene::renderLoop(GLFWwindow* window, uint32& shapesVAO, uint32& 
 	}
 }
 
-void PlaygroundScene::initializeTextures(uint32& diffTextureId, uint32& specTextureId, uint32& skyboxTextureId)
+void NessCubesScene::initializeTextures(uint32& diffTextureId, uint32& specTextureId, uint32& skyboxTextureId)
 {
 	load2DTexture(diffuseTextureLoc, diffTextureId, true);
 	load2DTexture(specularTextureLoc, specTextureId, true);
 	loadCubeMapTexture(skyboxFaceLocations, skyboxTextureId);
 }
 
-void PlaygroundScene::frameBufferSize(uint32 width, uint32 height) {
+void NessCubesScene::frameBufferSize(uint32 width, uint32 height) {
 	FirstPersonScene::frameBufferSize(width, height);
 	initializeFrameBuffer(frameBuffer, rbo, frameBufferTexture, width, height);
 	frameBufferShader.setUniform("textureWidth", (float32)width);
 	frameBufferShader.setUniform("textureHeight", (float32)height);
 }
 
-void PlaygroundScene::key_Up() {
+void NessCubesScene::key_Up() {
 	nextImageKernel();
 }
 
-void PlaygroundScene::key_Down() {
+void NessCubesScene::key_Down() {
 	prevImageKernel();
 }
 
-void PlaygroundScene::key_LeftMouseButton_pressed() {
+void NessCubesScene::key_LeftMouseButton_pressed() {
 	toggleFlashlight();
 }
 
-void PlaygroundScene::button_X_pressed() {
+void NessCubesScene::button_X_pressed() {
 	key_LeftMouseButton_pressed();
 }
 
-void PlaygroundScene::button_dPadUp_pressed() {
+void NessCubesScene::button_dPadUp_pressed() {
 	nextImageKernel();
 }
 
-void PlaygroundScene::button_dPadDown_pressed() {
+void NessCubesScene::button_dPadDown_pressed() {
 	prevImageKernel();
 }
 
-void PlaygroundScene::toggleFlashlight() {
+void NessCubesScene::toggleFlashlight() {
 	flashLightOn = !flashLightOn;
 }
 
-void PlaygroundScene::nextImageKernel() {
+void NessCubesScene::nextImageKernel() {
 	double currentTime = glfwGetTime();
 	if (currentTime - kernelModeSwitchTimer > 0.5f) {
 		selectedKernelIndex = (selectedKernelIndex + 1) % kernelCount;
@@ -409,7 +439,7 @@ void PlaygroundScene::nextImageKernel() {
 	}
 }
 
-void PlaygroundScene::prevImageKernel() {
+void NessCubesScene::prevImageKernel() {
 	double currentTime = glfwGetTime();
 	if (currentTime - kernelModeSwitchTimer > 0.5f) {
 		selectedKernelIndex = selectedKernelIndex != 0 ? ((selectedKernelIndex - 1) % kernelCount) : (kernelCount - 1);

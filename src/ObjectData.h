@@ -2,10 +2,10 @@
 
 #include "LearnOpenGLPlatform.h"
 
-void initializeCubeVertexAttBuffers(uint32& VAO, uint32& VBO, uint32& EBO); 
-void initializeLightVertexAttBuffers(uint32& VAO, uint32& VBO, uint32& EBO);
+void initializeCubePosTexNormAttBuffers(uint32& VAO, uint32& VBO, uint32& EBO);
+void initializeCubePosNormAttBuffers(uint32& VAO, uint32& VBO, uint32& EBO);
+void initializeCubePositionAttBuffers(uint32& VAO, uint32& VBO, uint32& EBO);
 void initializeQuadVertexAttBuffers(uint32& VAO, uint32& VBO, uint32& EBO);
-void initializeSkyboxVertexAttBuffers(uint32& VAO, uint32& VBO, uint32& EBO);
 void initializeFrameBuffer(uint32& frameBuffer, uint32& rbo, uint32& frameBufferTexture, uint32 width, uint32 height);
 
 // ===== cube values =====
@@ -13,43 +13,78 @@ void initializeFrameBuffer(uint32& frameBuffer, uint32& rbo, uint32& frameBuffer
 #define BottomRightTexture 1.0f, 0.0f
 #define TopLeftTexture 0.0f, 1.0f
 #define TopRightTexture 1.0f, 1.0f
-const uint32 cubeVertexAttSizeInBytes = 8 * sizeof(float32);
-const uint32 cubeNumElements = 12; // 2 triangles per side * 6 sides per cube
-const float cubeVertexAttributes[] = {
-	// positions          // texture positions  // normals (unit vectors orthogonal to surface) 
+const uint32 cubePosTexNormAttSizeInBytes = 8 * sizeof(float32);
+const uint32 cubePosTexNormNumElements = 12; // 2 triangles per side * 6 sides per cube
+const float cubePosTexNormAttributes[] = {
+	// positions           // texture positions  // normals (unit vectors orthogonal to surface) 
 	// face #1
-	-0.5f, -0.5f, -0.5f,  BottomLeftTexture,     0.0f,  0.0f, -1.0f, // bottom left
-	0.5f, -0.5f, -0.5f,   BottomRightTexture,    0.0f,  0.0f, -1.0f, // bottom right
-	0.5f,  0.5f, -0.5f,   TopRightTexture,       0.0f,  0.0f, -1.0f, // top right
-	-0.5f,  0.5f, -0.5f,  TopLeftTexture,        0.0f,  0.0f, -1.0f, // top left
-	// face #2
-	-0.5f, -0.5f,  0.5f,  BottomLeftTexture,     0.0f,  0.0f, 1.0f, // bottom left
-	0.5f, -0.5f,  0.5f,   BottomRightTexture,    0.0f,  0.0f, 1.0f, // bottom right
-	0.5f,  0.5f,  0.5f,   TopRightTexture,       0.0f,  0.0f, 1.0f, // top right
-	-0.5f,  0.5f,  0.5f,  TopLeftTexture,        0.0f,  0.0f, 1.0f, // top left
-	// face #3
-	-0.5f,  0.5f,  0.5f,  BottomRightTexture,    -1.0f,  0.0f,  0.0f, // bottom right
-	-0.5f,  0.5f, -0.5f,  TopRightTexture,       -1.0f,  0.0f,  0.0f, // top right
-	-0.5f, -0.5f, -0.5f,  TopLeftTexture,        -1.0f,  0.0f,  0.0f, // top left
-	-0.5f, -0.5f,  0.5f,  BottomLeftTexture,     -1.0f,  0.0f,  0.0f, // bottom left
-	// face #4
-	0.5f,  0.5f,  0.5f,   BottomRightTexture,    1.0f,  0.0f,  0.0f, // bottom right
-	0.5f,  0.5f, -0.5f,   TopRightTexture,       1.0f,  0.0f,  0.0f, // top right
-	0.5f, -0.5f, -0.5f,   TopLeftTexture,        1.0f,  0.0f,  0.0f, // top left
-	0.5f, -0.5f,  0.5f,   BottomLeftTexture,     1.0f,  0.0f,  0.0f, // bottom left
-	// face #5
-	-0.5f, -0.5f, -0.5f,  TopLeftTexture,        0.0f, -1.0f,  0.0f, // top left
-	0.5f, -0.5f, -0.5f,   TopRightTexture,       0.0f, -1.0f,  0.0f, // top right
-	0.5f, -0.5f,  0.5f,   BottomRightTexture,    0.0f, -1.0f,  0.0f, // bottom right
-	-0.5f, -0.5f,  0.5f,  BottomLeftTexture,     0.0f, -1.0f,  0.0f, // bottom left
-	// face #6
-	-0.5f,  0.5f, -0.5f,  TopLeftTexture,        0.0f,  1.0f,  0.0f, // top left
-	0.5f,  0.5f, -0.5f,   TopRightTexture,       0.0f,  1.0f,  0.0f, // top right
-	0.5f,  0.5f,  0.5f,   BottomRightTexture,    0.0f,  1.0f,  0.0f, // bottom right
-	-0.5f,  0.5f,  0.5f,  BottomLeftTexture,     0.0f,  1.0f,  0.0f  // bottom left
+	-0.5f, -0.5f, -0.5f,   0.0f,  0.0f, -1.0f,   BottomLeftTexture,     // bottom left
+	0.5f, -0.5f, -0.5f,    0.0f,  0.0f, -1.0f,   BottomRightTexture,    // bottom right
+	0.5f,  0.5f, -0.5f,    0.0f,  0.0f, -1.0f,   TopRightTexture,       // top right
+	-0.5f,  0.5f, -0.5f,   0.0f,  0.0f, -1.0f,   TopLeftTexture,        // top left
+	// face #2			   
+	-0.5f, -0.5f,  0.5f,   0.0f,  0.0f, 1.0f,    BottomLeftTexture,     // bottom left
+	0.5f, -0.5f,  0.5f,    0.0f,  0.0f, 1.0f,    BottomRightTexture,    // bottom right
+	0.5f,  0.5f,  0.5f,    0.0f,  0.0f, 1.0f,    TopRightTexture,       // top right
+	-0.5f,  0.5f,  0.5f,   0.0f,  0.0f, 1.0f,    TopLeftTexture,        // top left
+	// face #3			   
+	-0.5f,  0.5f,  0.5f,   -1.0f,  0.0f,  0.0f,  BottomRightTexture,     // bottom right
+	-0.5f,  0.5f, -0.5f,   -1.0f,  0.0f,  0.0f,  TopRightTexture,        // top right
+	-0.5f, -0.5f, -0.5f,   -1.0f,  0.0f,  0.0f,  TopLeftTexture,         // top left
+	-0.5f, -0.5f,  0.5f,   -1.0f,  0.0f,  0.0f,  BottomLeftTexture,      // bottom left
+	// face #4			   
+	0.5f,  0.5f,  0.5f,    1.0f,  0.0f,  0.0f,   BottomRightTexture,    // bottom right
+	0.5f,  0.5f, -0.5f,    1.0f,  0.0f,  0.0f,   TopRightTexture,       // top right
+	0.5f, -0.5f, -0.5f,    1.0f,  0.0f,  0.0f,   TopLeftTexture,        // top left
+	0.5f, -0.5f,  0.5f,    1.0f,  0.0f,  0.0f,   BottomLeftTexture,     // bottom left
+	// face #5			   
+	-0.5f, -0.5f, -0.5f,   0.0f, -1.0f,  0.0f,   TopLeftTexture,        // top left
+	0.5f, -0.5f, -0.5f,    0.0f, -1.0f,  0.0f,   TopRightTexture,       // top right
+	0.5f, -0.5f,  0.5f,    0.0f, -1.0f,  0.0f,   BottomRightTexture,    // bottom right
+	-0.5f, -0.5f,  0.5f,   0.0f, -1.0f,  0.0f,   BottomLeftTexture,     // bottom left
+	// face #6			   
+	-0.5f,  0.5f, -0.5f,   0.0f,  1.0f,  0.0f,   TopLeftTexture,        // top left
+	0.5f,  0.5f, -0.5f,    0.0f,  1.0f,  0.0f,   TopRightTexture,       // top right
+	0.5f,  0.5f,  0.5f,    0.0f,  1.0f,  0.0f,   BottomRightTexture,    // bottom right
+	-0.5f,  0.5f,  0.5f,   0.0f,  1.0f,  0.0f,   BottomLeftTexture     // bottom left
 };
 
-const uint32 cubeIndices[]{
+const uint32 cubePosNormAttSizeInBytes = 6 * sizeof(float32);
+const float cubePosNormAttributes[] = {
+	// positions           // normals (unit vectors orthogonal to surface) 
+	// face #1
+	-0.5f, -0.5f, -0.5f,	0.0f,  0.0f, -1.0f, // bottom left
+	0.5f, -0.5f, -0.5f,		0.0f,  0.0f, -1.0f, // bottom right
+	0.5f,  0.5f, -0.5f,		0.0f,  0.0f, -1.0f, // top right
+	-0.5f,  0.5f, -0.5f,	0.0f,  0.0f, -1.0f, // top left
+	// face #2
+	-0.5f, -0.5f,  0.5f,	0.0f,  0.0f, 1.0f, // bottom left
+	0.5f, -0.5f,  0.5f,		0.0f,  0.0f, 1.0f, // bottom right
+	0.5f,  0.5f,  0.5f,		0.0f,  0.0f, 1.0f, // top right
+	-0.5f,  0.5f,  0.5f,	0.0f,  0.0f, 1.0f, // top left
+	// face #3
+	-0.5f,  0.5f,  0.5f,	-1.0f,  0.0f,  0.0f, // bottom right
+	-0.5f,  0.5f, -0.5f,	-1.0f,  0.0f,  0.0f, // top right
+	-0.5f, -0.5f, -0.5f,	-1.0f,  0.0f,  0.0f, // top left
+	-0.5f, -0.5f,  0.5f,	-1.0f,  0.0f,  0.0f, // bottom left
+	// face #4
+	0.5f,  0.5f,  0.5f,		1.0f,  0.0f,  0.0f, // bottom right
+	0.5f,  0.5f, -0.5f,		1.0f,  0.0f,  0.0f, // top right
+	0.5f, -0.5f, -0.5f,		1.0f,  0.0f,  0.0f, // top left
+	0.5f, -0.5f,  0.5f,		1.0f,  0.0f,  0.0f, // bottom left
+	// face #5
+	-0.5f, -0.5f, -0.5f,	0.0f, -1.0f,  0.0f, // top left
+	0.5f, -0.5f, -0.5f,		0.0f, -1.0f,  0.0f, // top right
+	0.5f, -0.5f,  0.5f,		0.0f, -1.0f,  0.0f, // bottom right
+	-0.5f, -0.5f,  0.5f,	0.0f, -1.0f,  0.0f, // bottom left
+	// face #6
+	-0.5f,  0.5f, -0.5f,	0.0f,  1.0f,  0.0f, // top left
+	0.5f,  0.5f, -0.5f,		0.0f,  1.0f,  0.0f, // top right
+	0.5f,  0.5f,  0.5f,		0.0f,  1.0f,  0.0f, // bottom right
+	-0.5f,  0.5f,  0.5f,	0.0f,  1.0f,  0.0f  // bottom left
+};
+
+const uint32 cubePosNormIndices[]{
 	0, 2, 1,
 	2, 0, 3,
 	4, 5, 6,
@@ -66,8 +101,8 @@ const uint32 cubeIndices[]{
 // ===== cube values =====
 
 // ===== Skybox values =====
-const uint32 skyboxVertexAttSizeInBytes = 3 * sizeof(float32);
-const float32 skyboxVertexAttributes[] = {
+const uint32 cubePositionSizeInBytes = 3 * sizeof(float32);
+const float32 cubePositionAttributes[] = {
 	// positions      
 	-1.0f, -1.0f, -1.0f,
 	-1.0f, -1.0f, 1.0f,
@@ -79,7 +114,7 @@ const float32 skyboxVertexAttributes[] = {
 	1.0f, 1.0f, 1.0f
 };
 
-const uint32 skyboxIndices[]{
+const uint32 cubePositionIndices[]{
 	0, 2, 1,
 	1, 2, 3,
 	0, 1, 4,

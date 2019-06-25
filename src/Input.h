@@ -51,6 +51,7 @@ public:
 	virtual void button_rightShoulder_pressed() = 0;
 	virtual void button_start_pressed() = 0;
 	virtual void button_select_pressed() = 0;
+	virtual void button_select_released() = 0;
 };
 
 class FrameBufferSizeConsumer {

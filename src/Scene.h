@@ -45,6 +45,7 @@ public:
 	void button_rightShoulder_pressed();
 	void button_start_pressed();
 	void button_select_pressed();
+	void button_select_released();
 
 	// KeyboardConsumer implementation
 	void key_LeftShift_pressed();

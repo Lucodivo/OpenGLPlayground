@@ -25,7 +25,8 @@
     <ClCompile Include="src\Input.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\ObjectData.cpp" />
-    <ClCompile Include="src\PlaygroundScene.cpp" />
+    <ClCompile Include="src\NessCubesScene.cpp" />
+    <ClCompile Include="src\ReflectionScene.cpp" />
     <ClCompile Include="src\Scene.cpp" />
     <ClCompile Include="src\Util.cpp" />
   </ItemGroup>
@@ -44,7 +45,8 @@
     <ClInclude Include="src\Mesh.h" />
     <ClInclude Include="src\Model.h" />
     <ClInclude Include="src\ObjectData.h" />
-    <ClInclude Include="src\PlaygroundScene.h" />
+    <ClInclude Include="src\NessCubesScene.h" />
+    <ClInclude Include="src\ReflectionScene.h" />
     <ClInclude Include="src\Scene.h" />
     <ClInclude Include="src\Shader.h" />
     <ClInclude Include="src\Util.h" />
@@ -66,6 +68,8 @@
     <None Include="src\shaders\NegativeTextureFragmentShader.glsl" />
     <None Include="src\shaders\SingleColorFragmentShader.glsl" />
     <None Include="src\shaders\SkyboxFragmentShader.glsl" />
+    <None Include="src\shaders\SkyboxReflectionFragmentShader.glsl" />
+    <None Include="src\shaders\SkyboxReflectionVertexShader.glsl" />
     <None Include="src\shaders\SkyboxVertexShader.glsl" />
   </ItemGroup>
   <ItemGroup>
