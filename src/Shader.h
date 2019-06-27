@@ -146,4 +146,9 @@ public:
 	void setUniform(const std::string& name, const glm::vec3& vector3) {
 		setUniform(name, vector3.x, vector3.y, vector3.z);
 	}
+
+	void bindBlockIndex(const char* name, uint32 index) {
+		uint32 blockIndex = glGetUniformBlockIndex(ID, name);
+		glUniformBlockBinding(ID, blockIndex, index);
+	}
 };

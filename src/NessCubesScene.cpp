@@ -39,7 +39,7 @@ const float32 cubeScales[] = {
 NessCubesScene::NessCubesScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth)
 	: FirstPersonScene(window, initScreenHeight, initScreenWidth), 
 	cubeShader(posTexNormalVertexShader, cubeFragmentShaderFileLoc),
-	lightShader(lightVertexShaderFileLoc, lightFragmentShaderFileLoc),
+	lightShader(posVertexShaderFileLoc, lightFragmentShaderFileLoc),
 	modelShader(posTexNormalVertexShader, modelFragmentShaderFileLoc),
 	stencilShader(posTexNormalVertexShader, singleColorFragmentShaderFileLoc),
 	frameBufferShader(frameBufferVertexShaderFileLoc, kernel5x5TextureFragmentShaderFileLoc),
@@ -120,12 +120,6 @@ void NessCubesScene::renderLoop(GLFWwindow* window, uint32& shapesVAO, uint32& l
 		shader.setUniform("positionalLight.attenuation.linear", 0.09f);
 		shader.setUniform("positionalLight.attenuation.quadratic", 0.032f);
 
-		// directional light constants
-		shader.setUniform("directionalLight.direction", directionalLightDir);
-		shader.setUniform("directionalLight.color.ambient", directionalLightColor * glm::vec3(0.3f));
-		shader.setUniform("directionalLight.color.diffuse", directionalLightColor * glm::vec3(0.5f));
-		shader.setUniform("directionalLight.color.specular", directionalLightColor * glm::vec3(0.6f));
-
 		// flashlight constants
 		shader.setUniform("spotLight.cutOff", glm::cos(glm::radians(12.5f)));
 		shader.setUniform("spotLight.outerCutOff", glm::cos(glm::radians(17.5f)));
@@ -134,27 +128,67 @@ void NessCubesScene::renderLoop(GLFWwindow* window, uint32& shapesVAO, uint32& l
 		shader.setUniform("spotLight.attenuation.quadratic", 0.032f);
 	};
 
-	// set all constant uniforms
-	lightShader.use();
-	lightShader.setUniform("projection", projectionMat);
+	uint32 globalFSUniformBuffer;
+	uint32 globalFSBufferBindIndex = 0;
+	{
+		glGenBuffers(1, &globalFSUniformBuffer);
+
+		glBindBuffer(GL_UNIFORM_BUFFER, globalFSUniformBuffer);
+		glBufferData(GL_UNIFORM_BUFFER, 64, NULL, GL_STATIC_DRAW);
+
+		glBindBufferRange(GL_UNIFORM_BUFFER,		// target
+							globalFSBufferBindIndex,	// index of binding point 
+							globalFSUniformBuffer,	// buffer id
+							0,						// starting offset into buffer object
+							4 * 16);				// size: 4 vec3's, 16 bits alignments
+
+		glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::vec3), glm::value_ptr(directionalLightDir));
+		glBufferSubData(GL_UNIFORM_BUFFER, 16, sizeof(glm::vec3), glm::value_ptr(directionalLightColor* glm::vec3(0.3f)));
+		glBufferSubData(GL_UNIFORM_BUFFER, 32, sizeof(glm::vec3), glm::value_ptr(directionalLightColor* glm::vec3(0.5f)));
+		glBufferSubData(GL_UNIFORM_BUFFER, 48, sizeof(glm::vec3), glm::value_ptr(directionalLightColor* glm::vec3(0.6f)));
+		glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+		cubeShader.bindBlockIndex("globalBlockFS", globalFSBufferBindIndex);
+		modelShader.bindBlockIndex("globalBlockFS", globalFSBufferBindIndex);
+	}
+
+	uint32 globalVSUniformBuffer;
+	uint32 globalVSBufferBindIndex = 1;
+	uint32 globalVSBufferViewMatOffset = sizeof(glm::mat4);
+	{
+		glGenBuffers(1, &globalVSUniformBuffer);
+
+		glBindBuffer(GL_UNIFORM_BUFFER, globalVSUniformBuffer);
+		glBufferData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4), NULL, GL_STATIC_DRAW);
+
+		glBindBufferRange(GL_UNIFORM_BUFFER,		// target
+			globalVSBufferBindIndex,	// index of binding point 
+			globalVSUniformBuffer,	// buffer id
+			0,						// starting offset into buffer object
+			4 * 16);				// size: 4 vec3's, 16 bits alignments
+
+		glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(projectionMat));
+		glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+		cubeShader.bindBlockIndex("globalBlockVS", globalVSBufferBindIndex);
+		modelShader.bindBlockIndex("globalBlockVS", globalVSBufferBindIndex);
+		lightShader.bindBlockIndex("globalBlockVS", globalVSBufferBindIndex);
+		stencilShader.bindBlockIndex("globalBlockVS", globalVSBufferBindIndex);
+	}
 
 	cubeShader.use();
 	setConstantLightUniforms(cubeShader);
-	cubeShader.setUniform("projection", projectionMat);
 	cubeShader.setUniform("material.shininess", 32.0f);
 
 	modelShader.use();
 	setConstantLightUniforms(modelShader);
 
-	stencilShader.use();
-	stencilShader.setUniform("projection", projectionMat);
+	skyboxShader.use();
+	skyboxShader.setUniform("projection", projectionMat);
 
 	frameBufferShader.use();
 	frameBufferShader.setUniform("textureWidth", (float32)viewportWidth);
 	frameBufferShader.setUniform("textureHeight", (float32)viewportHeight);
-
-	skyboxShader.use();
-	skyboxShader.setUniform("projection", projectionMat);
 
 	// NOTE: render/game loop
 	while (glfwWindowShouldClose(window) == GL_FALSE) {
@@ -195,9 +229,14 @@ void NessCubesScene::renderLoop(GLFWwindow* window, uint32& shapesVAO, uint32& l
 		float32 lightR = (sinf((t + 30.0f) / 3.0f) / 2.0f) + 0.5f;
 		float32 lightG = (sinf((t + 60.0f) / 8.0f) / 2.0f) + 0.5f;
 		float32 lightB = (sinf(t / 17.0f) / 2.0f) + 0.5f;
-		glm::vec3 positionalLightColor(lightR, lightG, lightB);
+		glm::vec3 positionalLightColor(0.0f);
 
 		glm::mat4 viewMat = camera.GetViewMatrix(deltaTime);
+
+		glBindBuffer(GL_UNIFORM_BUFFER, globalVSUniformBuffer);
+		// update global view matrix uniform
+		glBufferSubData(GL_UNIFORM_BUFFER, globalVSBufferViewMatOffset, sizeof(glm::mat4), glm::value_ptr(viewMat));
+		glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
 		// oscillate with time
 		const glm::vec3 lightPosition = glm::vec3(2.0f, 0.0f + sineVal, 2.0f);
@@ -212,7 +251,6 @@ void NessCubesScene::renderLoop(GLFWwindow* window, uint32& shapesVAO, uint32& l
 		glBindVertexArray(lightVAO);
 
 		lightShader.setUniform("model", lightModel);
-		lightShader.setUniform("view", viewMat);
 		lightShader.setUniform("lightColor", positionalLightColor);
 		glDrawElements(GL_TRIANGLES, // drawing mode
 			cubePosTexNormNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
@@ -348,7 +386,6 @@ void NessCubesScene::renderLoop(GLFWwindow* window, uint32& shapesVAO, uint32& l
 			modelShader.setUniform("material.shininess", 32.0f);
 
 			modelShader.setUniform("viewPos", camera.Position);
-			modelShader.setUniform("projection", projectionMat);
 			modelShader.setUniform("view", viewMat);
 
 			glm::mat4 model;

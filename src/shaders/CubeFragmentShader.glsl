@@ -1,24 +1,29 @@
 #version 330 core
 
+
 struct LightColor{
 	vec3 ambient;
 	vec3 diffuse;
 	vec3 specular;
 };
+
 struct LightAttenuation {
 	float constant;
 	float linear;
 	float quadratic;
 };
+
 struct PositionalLight{
 	vec3 position;
 	LightColor color;
 	LightAttenuation attenuation;
 };
+
 struct DirectionalLight{
 	vec3 direction;
 	LightColor color;
 };
+
 struct SpotLight{
 	vec3 position;
 	vec3 direction;
@@ -26,6 +31,16 @@ struct SpotLight{
 	float outerCutOff;
 	LightColor color;
 	LightAttenuation attenuation;
+};
+
+
+layout (std140) uniform globalBlockFS {
+										// base alignment	// aligned offset
+	DirectionalLight directionalLight;	// 16				// 0				// vec3 direction
+										// 16				// 16				// vec3 LightColor.ambient
+										// 16				// 32				// vec3 LightColor.diffuse
+										// 16				// 48				// vec3 LightColor.specular
+										
 };
 
 struct Material {
@@ -37,7 +52,6 @@ struct Material {
 uniform vec3 viewPos;
 uniform bool animSwitch;
 uniform PositionalLight positionalLight;
-uniform DirectionalLight directionalLight;
 uniform SpotLight spotLight;
 uniform Material material;
 

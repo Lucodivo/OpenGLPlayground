@@ -34,10 +34,18 @@ struct Material {
 	float shininess; // TODO: Currently set manually, set in Mesh.h?
 };
 
+layout (std140) uniform globalBlockFS {
+										// base alignment	// aligned offset
+	DirectionalLight directionalLight;	// 16				// 0				// vec3 direction
+										// 16				// 16				// vec3 LightColor.ambient
+										// 16				// 32				// vec3 LightColor.diffuse
+										// 16				// 48				// vec3 LightColor.specular
+										
+};
+
 uniform vec3 viewPos;
 uniform float emissionStength;
 uniform PositionalLight positionalLight;
-uniform DirectionalLight directionalLight;
 uniform SpotLight spotLight;
 uniform Material material;
 

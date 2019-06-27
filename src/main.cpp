@@ -19,7 +19,7 @@ int main() {
 
     initializeGLAD();
 
-	scene = new ReflectRefractScene(window, VIEWPORT_INIT_HEIGHT, VIEWPORT_INIT_WIDTH);
+	scene = new NessCubesScene(window, VIEWPORT_INIT_HEIGHT, VIEWPORT_INIT_WIDTH);
 	scene->runScene();
 
 	glfwTerminate(); // clean up gl resources

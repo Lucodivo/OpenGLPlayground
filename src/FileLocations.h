@@ -3,7 +3,7 @@
 // shaders
 const char* const posTexNormalVertexShader = "src/shaders/PosTexNormalVertexShader.glsl";
 const char* const cubeFragmentShaderFileLoc = "src/shaders/CubeFragmentShader.glsl";
-const char* const lightVertexShaderFileLoc = "src/shaders/LightSourceVertexShader.glsl";
+const char* const posVertexShaderFileLoc = "src/shaders/PosVertexShader.glsl";
 const char* const lightFragmentShaderFileLoc = "src/shaders/LightSourceFragmentShader.glsl";
 const char* const modelFragmentShaderFileLoc = "src/shaders/ModelFragmentShader.glsl";
 const char* const depthFragmentShaderFileLoc = "src/shaders/DepthBufferVisualizerFragmentShader.glsl";

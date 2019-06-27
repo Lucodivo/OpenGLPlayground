@@ -116,9 +116,6 @@
     <None Include="src\shaders\LightSourceFragmentShader.glsl">
       <Filter>shaders</Filter>
     </None>
-    <None Include="src\shaders\LightSourceVertexShader.glsl">
-      <Filter>shaders</Filter>
-    </None>
     <None Include="src\shaders\ModelFragmentShader.glsl">
       <Filter>shaders</Filter>
     </None>
@@ -165,6 +162,9 @@
       <Filter>shaders</Filter>
     </None>
     <None Include="src\shaders\SkyboxRefractionFragmentShader.glsl">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="src\shaders\PosVertexShader.glsl">
       <Filter>shaders</Filter>
     </None>
   </ItemGroup>

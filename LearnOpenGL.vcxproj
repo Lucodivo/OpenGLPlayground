@@ -63,7 +63,7 @@
     <None Include="src\shaders\CropCenterSquareTexFragmentShader.glsl" />
     <None Include="src\shaders\Kernel3x3TextureFragmentShader.glsl" />
     <None Include="src\shaders\LightSourceFragmentShader.glsl" />
-    <None Include="src\shaders\LightSourceVertexShader.glsl" />
+    <None Include="src\shaders\PosVertexShader.glsl" />
     <None Include="src\shaders\ModelFragmentShader.glsl" />
     <None Include="src\shaders\NegativeTextureFragmentShader.glsl" />
     <None Include="src\shaders\SingleColorFragmentShader.glsl" />
