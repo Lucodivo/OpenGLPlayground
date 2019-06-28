@@ -229,7 +229,7 @@ void NessCubesScene::renderLoop(GLFWwindow* window, uint32& shapesVAO, uint32& l
 		float32 lightR = (sinf((t + 30.0f) / 3.0f) / 2.0f) + 0.5f;
 		float32 lightG = (sinf((t + 60.0f) / 8.0f) / 2.0f) + 0.5f;
 		float32 lightB = (sinf(t / 17.0f) / 2.0f) + 0.5f;
-		glm::vec3 positionalLightColor(0.0f);
+		glm::vec3 positionalLightColor(lightR, lightG, lightB);
 
 		glm::mat4 viewMat = camera.GetViewMatrix(deltaTime);
 

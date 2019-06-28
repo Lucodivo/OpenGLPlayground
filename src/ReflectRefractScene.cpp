@@ -14,15 +14,18 @@ const float32 startDist = 2.5f;
 const float32 sqr2over2 = 0.70710678118f;
 
 const glm::vec3 cubePositions[] = {
-	glm::vec3(startDist, 0.0f,  0.0f),
-	glm::vec3(-startDist, 0.0f, 0.0f),
-	glm::vec3(0.0f, 0.0f, startDist),
-	glm::vec3(0.0f, 0.0f, -startDist),
-	glm::vec3(startDist * sqr2over2, 0.0f,  startDist * sqr2over2),
-	glm::vec3(startDist * sqr2over2, 0.0f, -startDist * sqr2over2),
-	glm::vec3(-startDist * sqr2over2, 0.0f, startDist * sqr2over2),
-	glm::vec3(-startDist * sqr2over2, 0.0f, -startDist * sqr2over2)
+	glm::vec3(startDist, -0.5f,  0.0f),
+	glm::vec3(-startDist, -0.5f, 0.0f),
+	glm::vec3(0.0f, -0.5f, startDist),
+	glm::vec3(0.0f, -0.5f, -startDist),
+	glm::vec3(startDist * sqr2over2, -0.5f,  startDist * sqr2over2),
+	glm::vec3(startDist * sqr2over2, -0.5f, -startDist * sqr2over2),
+	glm::vec3(-startDist * sqr2over2, -0.5f, startDist * sqr2over2),
+	glm::vec3(-startDist * sqr2over2, -0.5f, -startDist * sqr2over2)
 };
+
+const glm::vec3 modelPosition = glm::vec3(0.0f, -2.0f, 0.0f);
+const float32 modelScale = 0.3f;
 
 const float32 refractionIndexValues[] = {
 	1.33f,	// Water
@@ -36,8 +39,8 @@ uint32 selectedReflactionIndex = ArrayCount(refractionIndexValues);
 
 ReflectRefractScene::ReflectRefractScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth)
 	: FirstPersonScene(window, initScreenHeight, initScreenWidth),
-	reflectionShader(skyboxReflectionVertexShaderFileLoc, skyboxReflectionFragmentShaderFileLoc),
-	refractionShader(skyboxReflectionVertexShaderFileLoc, skyboxRefractionFragmentShaderFileLoc),
+	reflectionShader(skyboxReflectionVertexShaderFileLoc, skyboxReflectionFragmentShaderFileLoc, explodeGeometryShaderFileLoc),
+	refractionShader(skyboxReflectionVertexShaderFileLoc, skyboxRefractionFragmentShaderFileLoc, explodeGeometryShaderFileLoc),
 	skyboxShader(skyboxVertexShaderFileLoc, skyboxFragmentShaderFileLoc) {}
 
 void ReflectRefractScene::runScene() {
@@ -111,9 +114,9 @@ void ReflectRefractScene::renderLoop(GLFWwindow* window, uint32& cubeVAO, uint32
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		float32 t = (float32)glfwGetTime();
-		deltaTime = t - lastFrame;
-		lastFrame = t;
+		float32 currTime = (float32)glfwGetTime();
+		deltaTime = currTime - lastFrame;
+		lastFrame = currTime;
 
 		glm::mat4 viewMat = camera.GetViewMatrix(deltaTime);
 
@@ -124,6 +127,7 @@ void ReflectRefractScene::renderLoop(GLFWwindow* window, uint32& cubeVAO, uint32
 
 		reflectionShader.setUniform("cameraPos", camera.Position);
 		reflectionShader.setUniform("view", viewMat);
+    reflectionShader.setUniform("time", currTime);
 
 		float32 angularSpeed = 7.3f;
 		glm::vec3 orbitAxis = glm::vec3(0.0f, 1.0f, 0.0f);
@@ -131,9 +135,9 @@ void ReflectRefractScene::renderLoop(GLFWwindow* window, uint32& cubeVAO, uint32
 
 		for (int i = 0; i < ArrayCount(cubePositions); i++) {
 			glm::mat4 model;
-			model = glm::rotate(model, t * glm::radians(angularSpeed), orbitAxis); // orbit with time
+			model = glm::rotate(model, currTime * glm::radians(angularSpeed), orbitAxis); // orbit with time
 			model = glm::translate(model, cubePositions[i]);
-			model = glm::rotate(model, t * glm::radians(angularSpeed), rotationAxis); // rotate with time
+			model = glm::rotate(model, currTime * glm::radians(angularSpeed), rotationAxis); // rotate with time
 			
 			reflectionShader.setUniform("model", model);
 			glDrawElements(GL_TRIANGLES, // drawing mode
@@ -144,12 +148,8 @@ void ReflectRefractScene::renderLoop(GLFWwindow* window, uint32& cubeVAO, uint32
 		glBindVertexArray(0);
 
 		// draw model
-		float32 modelScale = 0.2f;
 		if (selectedReflactionIndex == ArrayCount(refractionIndexValues)) {
 			reflectionShader.use();
-
-			reflectionShader.setUniform("cameraPos", camera.Position);
-			reflectionShader.setUniform("view", viewMat);
 
 			glm::mat4 model;
 			model = glm::scale(model, glm::vec3(modelScale));	// it's a bit too big for our scene, so scale it down
@@ -164,6 +164,7 @@ void ReflectRefractScene::renderLoop(GLFWwindow* window, uint32& cubeVAO, uint32
 
 			refractionShader.setUniform("cameraPos", camera.Position);
 			refractionShader.setUniform("view", viewMat);
+      refractionShader.setUniform("time", currTime);
 
 			refractionShader.setUniform("refractiveIndex", refractionIndexValues[selectedReflactionIndex]);
 

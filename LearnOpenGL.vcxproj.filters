@@ -167,6 +167,9 @@
     <None Include="src\shaders\PosVertexShader.glsl">
       <Filter>shaders</Filter>
     </None>
+    <None Include="src\shaders\ExplodeGeometryShader.glsl">
+      <Filter>shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Image Include="src\data\emission_map.png">

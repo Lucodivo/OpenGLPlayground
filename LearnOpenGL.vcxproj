@@ -54,6 +54,7 @@
   <ItemGroup>
     <None Include="README.md" />
     <None Include="src\shaders\CubeFragmentShader.glsl" />
+    <None Include="src\shaders\ExplodeGeometryShader.glsl" />
     <None Include="src\shaders\Kernel5x5TextureFragmentShader.glsl" />
     <None Include="src\shaders\PosTexNormalVertexShader.glsl" />
     <None Include="src\shaders\DepthBufferVisualizerFragmentShader.glsl" />

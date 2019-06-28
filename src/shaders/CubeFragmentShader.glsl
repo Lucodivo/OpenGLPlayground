@@ -35,12 +35,11 @@ struct SpotLight{
 
 
 layout (std140) uniform globalBlockFS {
-										// base alignment	// aligned offset
+										                  // base alignment	// aligned offset
 	DirectionalLight directionalLight;	// 16				// 0				// vec3 direction
-										// 16				// 16				// vec3 LightColor.ambient
-										// 16				// 32				// vec3 LightColor.diffuse
-										// 16				// 48				// vec3 LightColor.specular
-										
+										                  // 16				// 16				// vec3 LightColor.ambient
+										                  // 16				// 32				// vec3 LightColor.diffuse
+										                  // 16				// 48				// vec3 LightColor.specular										
 };
 
 struct Material {
