@@ -14,9 +14,11 @@ public:
 	void runScene();
 
 private:
-	Shader reflectionShader;
-	Shader refractionShader;
+	Shader explodingReflectionShader;
+  Shader reflectionShader;
+	Shader explodingRefractionShader;
 	Shader skyboxShader;
+  Shader normalVisualizationShader;
 
 	// frame rate
 	float32 deltaTime = 0.0f;	// Time between current frame and last frame

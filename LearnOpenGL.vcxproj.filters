@@ -158,9 +158,6 @@
     <None Include="src\shaders\SkyboxReflectionFragmentShader.glsl">
       <Filter>shaders</Filter>
     </None>
-    <None Include="src\shaders\SkyboxReflectionVertexShader.glsl">
-      <Filter>shaders</Filter>
-    </None>
     <None Include="src\shaders\SkyboxRefractionFragmentShader.glsl">
       <Filter>shaders</Filter>
     </None>
@@ -168,6 +165,12 @@
       <Filter>shaders</Filter>
     </None>
     <None Include="src\shaders\ExplodeGeometryShader.glsl">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="src\shaders\TriangleNormalVisualizerGeometryShader.glsl">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="src\shaders\PosNormalVertexShader.glsl">
       <Filter>shaders</Filter>
     </None>
   </ItemGroup>

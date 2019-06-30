@@ -354,7 +354,7 @@ void NessCubesScene::renderLoop(GLFWwindow* window, uint32& shapesVAO, uint32& l
 			// scale object
 			model = glm::scale(model, glm::vec3(cubeScales[i] + 0.05f));
 			stencilShader.use();
-			stencilShader.setUniform("singleColor", glm::vec3(1.0f, 1.0f, 1.0f));
+			stencilShader.setUniform("color", glm::vec3(1.0f, 1.0f, 1.0f));
 			stencilShader.setUniform("view", viewMat);
 			stencilShader.setUniform("model", model);
 			glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
@@ -396,7 +396,7 @@ void NessCubesScene::renderLoop(GLFWwindow* window, uint32& shapesVAO, uint32& l
 
 			//  Wall Hack Stencil For Model
 			stencilShader.use();
-			stencilShader.setUniform("singleColor", glm::vec3(0.5f, 0.0f, 0.0f));
+			stencilShader.setUniform("color", glm::vec3(0.5f, 0.0f, 0.0f));
 			stencilShader.setUniform("view", viewMat);
 			stencilShader.setUniform("model", model);
 			glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
@@ -430,7 +430,7 @@ void NessCubesScene::initializeTextures(uint32& diffTextureId, uint32& specTextu
 {
 	load2DTexture(diffuseTextureLoc, diffTextureId, true);
 	load2DTexture(specularTextureLoc, specTextureId, true);
-	loadCubeMapTexture(skyboxFaceLocations, skyboxTextureId);
+	loadCubeMapTexture(skyboxGrassFaceLocations, skyboxTextureId);
 }
 
 void NessCubesScene::frameBufferSize(uint32 width, uint32 height) {

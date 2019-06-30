@@ -17,10 +17,11 @@ const char* const cropCenterSquareTexFragmentShader = "src/shaders/CropCenterSqu
 const char* const discardAlphaFragmentShaderFileLoc = "src/shaders/DiscardAlphaFragmentShader.glsl";
 const char* const skyboxVertexShaderFileLoc = "src/shaders/SkyboxVertexShader.glsl";
 const char* const skyboxFragmentShaderFileLoc = "src/shaders/SkyboxFragmentShader.glsl";
-const char* const skyboxReflectionVertexShaderFileLoc = "src/shaders/SkyboxReflectionVertexShader.glsl";
+const char* const posNormalVertexShaderFileLoc = "src/shaders/PosNormalVertexShader.glsl";
 const char* const skyboxReflectionFragmentShaderFileLoc = "src/shaders/SkyboxReflectionFragmentShader.glsl";
 const char* const skyboxRefractionFragmentShaderFileLoc = "src/shaders/SkyboxRefractionFragmentShader.glsl";
 const char* const explodeGeometryShaderFileLoc = "src/shaders/ExplodeGeometryShader.glsl";
+const char* const triangleNormalVisualizerGeometryShaderFileLoc = "src/shaders/TriangleNormalVisualizerGeometryShader.glsl";
 
 
 // 2D textures
@@ -32,11 +33,21 @@ const char* const outlineWhiteFillTextureLoc = "src/data/cube_outline_white_fill
 const char* const nanoSuitModelAbsoluteLoc = "C:/developer/repos/LearnOpenGL/LearnOpenGL/src/data/nanosuit/nanosuit.obj";
 
 // Cube Map textures
-const std::vector<const char*> skyboxFaceLocations{
-	"src/data/skybox/right.jpg",
-	"src/data/skybox/left.jpg",
-	"src/data/skybox/top.jpg",
-	"src/data/skybox/bottom.jpg",
-	"src/data/skybox/front.jpg",
-	"src/data/skybox/back.jpg"
+const std::vector<const char*> skyboxWaterFaceLocations{
+	"src/data/skybox1/right.jpg",
+	"src/data/skybox1/left.jpg",
+	"src/data/skybox1/top.jpg",
+	"src/data/skybox1/bottom.jpg",
+	"src/data/skybox1/front.jpg",
+	"src/data/skybox1/back.jpg"
+};
+
+// Cube Map textures
+const std::vector<const char*> skyboxGrassFaceLocations{
+  "src/data/skybox2/right.jpg",
+  "src/data/skybox2/left.jpg",
+  "src/data/skybox2/top.jpg",
+  "src/data/skybox2/bottom.jpg",
+  "src/data/skybox2/front.jpg",
+  "src/data/skybox2/back.jpg"
 };

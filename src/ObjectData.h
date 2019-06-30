@@ -16,7 +16,7 @@ void initializeFrameBuffer(uint32& frameBuffer, uint32& rbo, uint32& frameBuffer
 const uint32 cubePosTexNormAttSizeInBytes = 8 * sizeof(float32);
 const uint32 cubePosTexNormNumElements = 12; // 2 triangles per side * 6 sides per cube
 const float cubePosTexNormAttributes[] = {
-	// positions           // texture positions  // normals (unit vectors orthogonal to surface) 
+	// positions           // normals            // texture positions 
 	// face #1
 	-0.5f, -0.5f, -0.5f,   0.0f,  0.0f, -1.0f,   BottomLeftTexture,     // bottom left
 	0.5f, -0.5f, -0.5f,    0.0f,  0.0f, -1.0f,   BottomRightTexture,    // bottom right

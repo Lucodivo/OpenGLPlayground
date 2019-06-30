@@ -1,6 +1,5 @@
 #version 330 core
-layout (location = 0) in
-vec3 aPosition;
+layout (location = 0) in vec3 aPosition;
 
 layout (std140) uniform globalBlockVS {
 										// base alignment	// aligned offset

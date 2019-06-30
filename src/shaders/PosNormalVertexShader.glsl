@@ -13,7 +13,8 @@ uniform mat4 projection;
 
 void main()
 {
-    vs_out.Normal = normalize(mat3(transpose(inverse(model))) * aNormal);
+    mat3 normalMat = mat3(transpose(inverse(view * model)));
+    vs_out.Normal = normalize(vec3(projection * vec4(normalMat * aNormal, 0.0)));
     vs_out.Position = vec3(model * vec4(aPos, 1.0));
     gl_Position = projection * view * model * vec4(aPos, 1.0);
 }  

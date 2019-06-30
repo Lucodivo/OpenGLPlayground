@@ -70,9 +70,10 @@
     <None Include="src\shaders\SingleColorFragmentShader.glsl" />
     <None Include="src\shaders\SkyboxFragmentShader.glsl" />
     <None Include="src\shaders\SkyboxReflectionFragmentShader.glsl" />
-    <None Include="src\shaders\SkyboxReflectionVertexShader.glsl" />
+    <None Include="src\shaders\PosNormalVertexShader.glsl" />
     <None Include="src\shaders\SkyboxRefractionFragmentShader.glsl" />
     <None Include="src\shaders\SkyboxVertexShader.glsl" />
+    <None Include="src\shaders\TriangleNormalVisualizerGeometryShader.glsl" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="src\data\diffuse_map.png" />
