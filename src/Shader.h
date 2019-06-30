@@ -14,12 +14,12 @@
 class Shader
 {
 public:
-    // the program ID
-    uint32 ID;
+  // the program ID
+  uint32 ID;
 
-    // constructor reads and builds the shader
-    Shader(const char* vertexPath, const char* fragmentPath, const char* geometryPath = NULL)
-	{
+  // constructor reads and builds the shader
+  Shader(const char* vertexPath, const char* fragmentPath, const char* geometryPath = NULL)
+  {
 
     auto getShaderCodeAsString = [&](const char* shaderPath, std::string& shaderCode)
     {
@@ -46,43 +46,43 @@ public:
     std::string vertexCode;
     getShaderCodeAsString(vertexPath, vertexCode);
     const char* vShaderCode = vertexCode.c_str();
-    
+
     std::string fragmentCode;
     getShaderCodeAsString(fragmentPath, fragmentCode);
     const char* fShaderCode = fragmentCode.c_str();
 
-		// vertex Shader
-		uint32 vertexShader = glCreateShader(GL_VERTEX_SHADER);
-		glShaderSource(vertexShader, 1, &vShaderCode, NULL);
-		glCompileShader(vertexShader);
+    // vertex Shader
+    uint32 vertexShader = glCreateShader(GL_VERTEX_SHADER);
+    glShaderSource(vertexShader, 1, &vShaderCode, NULL);
+    glCompileShader(vertexShader);
 
-		// ensure that shader loaded successfully
-		int32 vertexSuccess;
-		glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &vertexSuccess);
-		if (vertexSuccess != GL_TRUE) 
+    // ensure that shader loaded successfully
+    int32 vertexSuccess;
+    glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &vertexSuccess);
+    if(vertexSuccess != GL_TRUE)
     {
-			char infoLog[512];
-			glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
-			std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
-		}
+      char infoLog[512];
+      glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
+      std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
+    }
 
-		// fragment Shader
-		uint32 fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-		glShaderSource(fragmentShader, 1, &fShaderCode, NULL);
-		glCompileShader(fragmentShader);
+    // fragment Shader
+    uint32 fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderSource(fragmentShader, 1, &fShaderCode, NULL);
+    glCompileShader(fragmentShader);
 
-		// ensure that fragment shader loaded successfully
-		int32 fragmentSuccess;
-		glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &fragmentSuccess);
-		if (fragmentSuccess != GL_TRUE) 
+    // ensure that fragment shader loaded successfully
+    int32 fragmentSuccess;
+    glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &fragmentSuccess);
+    if(fragmentSuccess != GL_TRUE)
     {
-			char infoLog[512];
-			glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
-			std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
-		}
+      char infoLog[512];
+      glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
+      std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
+    }
 
     bool geometryShaderExists = geometryPath != NULL;
-    int32 geometrySuccess = GL_FALSE; 
+    int32 geometrySuccess = GL_FALSE;
     uint32 geometryShader;
 
     if(geometryShaderExists)
@@ -107,78 +107,91 @@ public:
     }
 
 
-		// shader program
-		this->ID = glCreateProgram(); // NOTE: returns 0 if error occurs when creating program
-		glAttachShader(this->ID, vertexShader);
-		glAttachShader(this->ID, fragmentShader);
+    // shader program
+    this->ID = glCreateProgram(); // NOTE: returns 0 if error occurs when creating program
+    glAttachShader(this->ID, vertexShader);
+    glAttachShader(this->ID, fragmentShader);
     if(geometrySuccess == GL_TRUE) glAttachShader(this->ID, geometryShader);
-		glLinkProgram(this->ID);
+    glLinkProgram(this->ID);
 
-		int32 linkSuccess;
-		glGetProgramiv(this->ID, GL_LINK_STATUS, &linkSuccess);
-		if (!linkSuccess) {
-			char infoLog[512];
-			glGetProgramInfoLog(this->ID, 512, NULL, infoLog);
-			std::cout << "ERROR::PROGRAM::SHADER::LINK_FAILED\n" << infoLog << std::endl;
-		}
+    int32 linkSuccess;
+    glGetProgramiv(this->ID, GL_LINK_STATUS, &linkSuccess);
+    if(!linkSuccess)
+    {
+      char infoLog[512];
+      glGetProgramInfoLog(this->ID, 512, NULL, infoLog);
+      std::cout << "ERROR::PROGRAM::SHADER::LINK_FAILED\n" << infoLog << std::endl;
+    }
 
-		// delete the shaders
-		glDeleteShader(vertexShader);
-		glDeleteShader(fragmentShader);
+    // delete the shaders
+    glDeleteShader(vertexShader);
+    glDeleteShader(fragmentShader);
     if(geometrySuccess == GL_TRUE) glDeleteShader(geometryShader);
-	}
+  }
 
-    // use/activate the shader
-	void use() {
-		glUseProgram(this->ID);
-	}
+  // use/activate the shader
+  void use()
+  {
+    glUseProgram(this->ID);
+  }
 
-	// utility uniform functions
-	void setUniform(const std::string& name, bool value) const {
-		glUniform1i(glGetUniformLocation(ID, name.c_str()), (int)value);
-	}
+  // utility uniform functions
+  void setUniform(const std::string& name, bool value) const
+  {
+    glUniform1i(glGetUniformLocation(ID, name.c_str()), (int)value);
+  }
 
-	void setUniform(const std::string& name, int32 value) const {
-		glUniform1i(glGetUniformLocation(ID, name.c_str()), value);
-	}
+  void setUniform(const std::string& name, int32 value) const
+  {
+    glUniform1i(glGetUniformLocation(ID, name.c_str()), value);
+  }
 
-	void setUniform(const std::string& name, uint32 value) const {
-		glUniform1i(glGetUniformLocation(ID, name.c_str()), value);
-	}
+  void setUniform(const std::string& name, uint32 value) const
+  {
+    glUniform1i(glGetUniformLocation(ID, name.c_str()), value);
+  }
 
-	void setUniform(const std::string& name, float32 value) const {
-		glUniform1f(glGetUniformLocation(ID, name.c_str()), value);
-	}
+  void setUniform(const std::string& name, float32 value) const
+  {
+    glUniform1f(glGetUniformLocation(ID, name.c_str()), value);
+  }
 
-	void setUniform(const std::string& name, float32 value1, float32 value2) const {
-		glUniform2f(glGetUniformLocation(ID, name.c_str()), value1, value2);
-	}
+  void setUniform(const std::string& name, float32 value1, float32 value2) const
+  {
+    glUniform2f(glGetUniformLocation(ID, name.c_str()), value1, value2);
+  }
 
-	void setUniform(const std::string& name, float32 value1, float32 value2, float32 value3) const {
-		glUniform3f(glGetUniformLocation(ID, name.c_str()), value1, value2, value3);
-	}
+  void setUniform(const std::string& name, float32 value1, float32 value2, float32 value3) const
+  {
+    glUniform3f(glGetUniformLocation(ID, name.c_str()), value1, value2, value3);
+  }
 
-	void setUniform(const std::string& name, float32 value1, float32 value2, float32 value3, float32 value4) const {
-		glUniform4f(glGetUniformLocation(ID, name.c_str()), value1, value2, value3, value4);
-	}
+  void setUniform(const std::string& name, float32 value1, float32 value2, float32 value3, float32 value4) const
+  {
+    glUniform4f(glGetUniformLocation(ID, name.c_str()), value1, value2, value3, value4);
+  }
 
-	void setUniform(const std::string& name, const glm::mat4& trans) const {
-		glUniformMatrix4fv(glGetUniformLocation(ID, name.c_str()),
-			1, // count 
-			GL_FALSE, // transpose: swap columns and rows (true or false)
-			glm::value_ptr(trans)); // pointer to float values
-	}
+  void setUniform(const std::string& name, const glm::mat4& trans) const
+  {
+    glUniformMatrix4fv(glGetUniformLocation(ID, name.c_str()),
+                       1, // count 
+                       GL_FALSE, // transpose: swap columns and rows (true or false)
+                       glm::value_ptr(trans)); // pointer to float values
+  }
 
-	void setUniform(const std::string& name, const float* floatArray, const uint32 arraySize) {
-		glUniform1fv(glGetUniformLocation(ID, name.c_str()), arraySize, floatArray);
-	}
+  void setUniform(const std::string& name, const float* floatArray, const uint32 arraySize)
+  {
+    glUniform1fv(glGetUniformLocation(ID, name.c_str()), arraySize, floatArray);
+  }
 
-	void setUniform(const std::string& name, const glm::vec3& vector3) {
-		setUniform(name, vector3.x, vector3.y, vector3.z);
-	}
+  void setUniform(const std::string& name, const glm::vec3& vector3)
+  {
+    setUniform(name, vector3.x, vector3.y, vector3.z);
+  }
 
-	void bindBlockIndex(const char* name, uint32 index) {
-		uint32 blockIndex = glGetUniformBlockIndex(ID, name);
-		glUniformBlockBinding(ID, blockIndex, index);
-	}
+  void bindBlockIndex(const char* name, uint32 index)
+  {
+    uint32 blockIndex = glGetUniformBlockIndex(ID, name);
+    glUniformBlockBinding(ID, blockIndex, index);
+  }
 };

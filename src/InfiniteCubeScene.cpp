@@ -4,191 +4,223 @@
 #include "Util.h"
 
 InfiniteCubeScene::InfiniteCubeScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth)
-	: FirstPersonScene(window, initScreenHeight, initScreenWidth), 
-	cubeShader(posTexNormalVertexShader, cropCenterSquareTexFragmentShader),
-	cubeOutlineShader(posTexNormalVertexShader, discardAlphaFragmentShaderFileLoc),
-	frameBufferShader(frameBufferVertexShaderFileLoc, basicTextureFragmentShader)  {}
+  : FirstPersonScene(window, initScreenHeight, initScreenWidth),
+  cubeShader(posTexNormalVertexShaderFileLoc, cropCenterSquareTexFragmentShader),
+  cubeOutlineShader(posTexNormalVertexShaderFileLoc, discardAlphaFragmentShaderFileLoc),
+  frameBufferShader(frameBufferVertexShaderFileLoc, basicTextureFragmentShaderFileLoc)
+{}
 
-void InfiniteCubeScene::runScene() {
-	uint32 cubeVAO, cubeVBO, cubeEBO;
-	initializeCubePosTexNormAttBuffers(cubeVAO, cubeVBO, cubeEBO);
+void InfiniteCubeScene::runScene()
+{
+  uint32 cubeVAO, cubeVBO, cubeEBO;
+  initializeCubePosTexNormAttBuffers(cubeVAO, cubeVBO, cubeEBO);
 
-	uint32 quadVAO, quadVBO, quadEBO;
-	initializeQuadVertexAttBuffers(quadVAO, quadVBO, quadEBO);
+  uint32 quadVAO, quadVBO, quadEBO;
+  initializeQuadVertexAttBuffers(quadVAO, quadVBO, quadEBO);
 
-	initializeFrameBuffer(frameBuffers[0].frameBuffer, frameBuffers[0].rbo, frameBuffers[0].frameBufferTexture, viewportWidth, viewportHeight);
-	initializeFrameBuffer(frameBuffers[1].frameBuffer, frameBuffers[1].rbo, frameBuffers[1].frameBufferTexture, viewportWidth, viewportHeight);
+  initializeFrameBuffer(frameBuffers[0].frameBuffer, frameBuffers[0].rbo, frameBuffers[0].frameBufferTexture, viewportWidth, viewportHeight);
+  initializeFrameBuffer(frameBuffers[1].frameBuffer, frameBuffers[1].rbo, frameBuffers[1].frameBufferTexture, viewportWidth, viewportHeight);
 
-	renderLoop(window, cubeVAO, quadVAO);
+  renderLoop(window, cubeVAO, quadVAO);
 }
 
-void InfiniteCubeScene::frameBufferSize(uint32 width, uint32 height) {
-	FirstPersonScene::frameBufferSize(width, height);
-	initializeFrameBuffer(frameBuffers[0].frameBuffer, frameBuffers[0].rbo, frameBuffers[0].frameBufferTexture, width, height);
-	initializeFrameBuffer(frameBuffers[1].frameBuffer, frameBuffers[1].rbo, frameBuffers[1].frameBufferTexture, width, height);
+void InfiniteCubeScene::frameBufferSize(uint32 width, uint32 height)
+{
+  FirstPersonScene::frameBufferSize(width, height);
+  initializeFrameBuffer(frameBuffers[0].frameBuffer, frameBuffers[0].rbo, frameBuffers[0].frameBufferTexture, width, height);
+  initializeFrameBuffer(frameBuffers[1].frameBuffer, frameBuffers[1].rbo, frameBuffers[1].frameBufferTexture, width, height);
 
-	// start frame buffer with white background
-	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+  // start frame buffer with white background
+  glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 
-	// bind custom framebuffer
-	glBindFramebuffer(GL_FRAMEBUFFER, frameBuffers[0].frameBuffer);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+  // bind custom framebuffer
+  glBindFramebuffer(GL_FRAMEBUFFER, frameBuffers[0].frameBuffer);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-	// bind custom framebuffer
-	glBindFramebuffer(GL_FRAMEBUFFER, frameBuffers[1].frameBuffer);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+  // bind custom framebuffer
+  glBindFramebuffer(GL_FRAMEBUFFER, frameBuffers[1].frameBuffer);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, frameBuffers[0].frameBufferTexture);
-	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, frameBuffers[1].frameBufferTexture);
-	glActiveTexture(GL_TEXTURE0);
+  glActiveTexture(GL_TEXTURE0);
+  glBindTexture(GL_TEXTURE_2D, frameBuffers[0].frameBufferTexture);
+  glActiveTexture(GL_TEXTURE1);
+  glBindTexture(GL_TEXTURE_2D, frameBuffers[1].frameBufferTexture);
+  glActiveTexture(GL_TEXTURE0);
 
-	cubeShader.use();
-	cubeShader.setUniform("texWidth", (float32)viewportWidth);
-	cubeShader.setUniform("texHeight", (float32)viewportHeight);
+  cubeShader.use();
+  cubeShader.setUniform("texWidth", (float32)viewportWidth);
+  cubeShader.setUniform("texHeight", (float32)viewportHeight);
 }
 
-void InfiniteCubeScene::renderLoop(GLFWwindow* window, uint32& cubeVAO, uint32& quadVAO) {
-	uint32 outlineTexture;
-	load2DTexture(outlineTextureLoc, outlineTexture);
+void InfiniteCubeScene::renderLoop(GLFWwindow* window, uint32& cubeVAO, uint32& quadVAO)
+{
+  uint32 outlineTexture;
+  load2DTexture(outlineTextureLoc, outlineTexture);
 
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, frameBuffers[0].frameBufferTexture);
-	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, frameBuffers[1].frameBufferTexture);
-	glActiveTexture(GL_TEXTURE2);
-	glBindTexture(GL_TEXTURE_2D, outlineTexture);
-	glActiveTexture(GL_TEXTURE0);
+  glActiveTexture(GL_TEXTURE0);
+  glBindTexture(GL_TEXTURE_2D, frameBuffers[0].frameBufferTexture);
+  glActiveTexture(GL_TEXTURE1);
+  glBindTexture(GL_TEXTURE_2D, frameBuffers[1].frameBufferTexture);
+  glActiveTexture(GL_TEXTURE2);
+  glBindTexture(GL_TEXTURE_2D, outlineTexture);
+  glActiveTexture(GL_TEXTURE0);
 
-	// start frame buffer with white background
-	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+  // start frame buffer with white background
+  glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 
-	// bind custom framebuffer
-	glBindFramebuffer(GL_FRAMEBUFFER, frameBuffers[0].frameBuffer);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+  // bind custom framebuffer
+  glBindFramebuffer(GL_FRAMEBUFFER, frameBuffers[0].frameBuffer);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-	// bind custom framebuffer
-	glBindFramebuffer(GL_FRAMEBUFFER, frameBuffers[1].frameBuffer);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+  // bind custom framebuffer
+  glBindFramebuffer(GL_FRAMEBUFFER, frameBuffers[1].frameBuffer);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-	const glm::mat4 projectionMat = glm::perspective(glm::radians(camera.Zoom), (float32)viewportWidth / (float32)viewportHeight, 0.1f, 100.0f);
+  const glm::mat4 projectionMat = glm::perspective(glm::radians(camera.Zoom), (float32)viewportWidth / (float32)viewportHeight, 0.1f, 100.0f);
 
-	const float32 cubRotAngle = 2.5f;
+  const float32 cubRotAngle = 2.5f;
 
-	glEnable(GL_CULL_FACE);
-	glCullFace(GL_BACK);
-	glFrontFace(GL_CCW);
+  glEnable(GL_CULL_FACE);
+  glCullFace(GL_BACK);
+  glFrontFace(GL_CCW);
 
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	uint32 colorIndex = 0;
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  uint32 colorIndex = 0;
 
 #if 0
-	// draw in wireframe
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+  // draw in wireframe
+  glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 #endif
 
-	uint32 currentFrameBufferIndex = 0;
-	uint32 previousFrameBufferIndex = 1;
-	uint32 outlineTextureIndex = 2;
+  uint32 currentFrameBufferIndex = 0;
+  uint32 previousFrameBufferIndex = 1;
+  uint32 outlineTextureIndex = 2;
 
-	// set constant uniforms
-	cubeShader.use();
-	cubeShader.setUniform("projection", projectionMat);
-	cubeShader.setUniform("texWidth", (float32)viewportWidth);
-	cubeShader.setUniform("texHeight", (float32)viewportHeight);
+  // set constant uniforms
+  cubeShader.use();
+  cubeShader.setUniform("projection", projectionMat);
+  cubeShader.setUniform("texWidth", (float32)viewportWidth);
+  cubeShader.setUniform("texHeight", (float32)viewportHeight);
 
-	cubeOutlineShader.use();
-	cubeOutlineShader.setUniform("projection", projectionMat);
-	cubeOutlineShader.setUniform("diffTexture", outlineTextureIndex);
+  cubeOutlineShader.use();
+  cubeOutlineShader.setUniform("projection", projectionMat);
+  cubeOutlineShader.setUniform("diffTexture", outlineTextureIndex);
 
-	while (glfwWindowShouldClose(window) == GL_FALSE) {
-		// check for input
-		processKeyboardInput(window, this);
-		processXInput(this);
 
-		float32 t = (float32)glfwGetTime();
-		deltaTime = t - lastFrame;
-		lastFrame = t;
+  uint32 globalVSUniformBuffer;
+  uint32 globalVSBufferBindIndex = 0;
+  uint32 globalVSBufferViewMatOffset = sizeof(glm::mat4);
+  {
+    glGenBuffers(1, &globalVSUniformBuffer);
+
+    glBindBuffer(GL_UNIFORM_BUFFER, globalVSUniformBuffer);
+    glBufferData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4), NULL, GL_STATIC_DRAW);
+
+    glBindBufferRange(GL_UNIFORM_BUFFER,		// target
+                      globalVSBufferBindIndex,	// index of binding point 
+                      globalVSUniformBuffer,	// buffer id
+                      0,						// starting offset into buffer object
+                      4 * 16);				// size: 4 vec3's, 16 bits alignments
+
+    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(projectionMat));
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+    cubeShader.bindBlockIndex("globalBlockVS", globalVSBufferBindIndex);
+    cubeOutlineShader.bindBlockIndex("globalBlockVS", globalVSBufferBindIndex);
+  }
+
+  while(glfwWindowShouldClose(window) == GL_FALSE)
+  {
+    // check for input
+    processKeyboardInput(window, this);
+    processXInput(this);
+
+    float32 t = (float32)glfwGetTime();
+    deltaTime = t - lastFrame;
+    lastFrame = t;
 
 #if 0
-		// control when we "change frames" for the cube
-		local_persist float32 elapsedTime = 0;
-		elapsedTime += deltaTime;
-		if (elapsedTime > 1.0f) {
-			elapsedTime = 0;
+    // control when we "change frames" for the cube
+    local_persist float32 elapsedTime = 0;
+    elapsedTime += deltaTime;
+    if(elapsedTime > 1.0f)
+    {
+      elapsedTime = 0;
 
-			previousFrameBufferIndex = currentFrameBufferIndex;
-			currentFrameBufferIndex = currentFrameBufferIndex == 0 ? 1 : 0;
+      previousFrameBufferIndex = currentFrameBufferIndex;
+      currentFrameBufferIndex = currentFrameBufferIndex == 0 ? 1 : 0;
 
-			// set background color
-			// more abrupt color changes
-			colorIndex = (colorIndex + 1) % ArrayCount(colors);
-			glClearColor(colors[colorIndex].x, colors[colorIndex].y, colors[colorIndex].z, 1.0f);
-		}
+      // set background color
+      // more abrupt color changes
+      colorIndex = (colorIndex + 1) % ArrayCount(colors);
+      glClearColor(colors[colorIndex].x, colors[colorIndex].y, colors[colorIndex].z, 1.0f);
+    }
 #else
-		// constant frame changes for cube
-		previousFrameBufferIndex = currentFrameBufferIndex;
-		currentFrameBufferIndex = currentFrameBufferIndex == 0 ? 1 : 0;
+    // constant frame changes for cube
+    previousFrameBufferIndex = currentFrameBufferIndex;
+    currentFrameBufferIndex = currentFrameBufferIndex == 0 ? 1 : 0;
 
-		// set background color
-		// smoother color change
-		float32 lightR = (sinf((t + 30.0f) / 3.0f) / 2.0f) + 0.5f;
-		float32 lightG = (sinf((t + 60.0f) / 8.0f) / 2.0f) + 0.5f;
-		float32 lightB = (sinf(t / 17.0f) / 2.0f) + 0.5f;
-		glClearColor(lightR, lightG, lightB, 1.0f);
+    // set background color
+    // smoother color change
+    float32 lightR = (sinf((t + 30.0f) / 3.0f) / 2.0f) + 0.5f;
+    float32 lightG = (sinf((t + 60.0f) / 8.0f) / 2.0f) + 0.5f;
+    float32 lightB = (sinf(t / 17.0f) / 2.0f) + 0.5f;
+    glClearColor(lightR, lightG, lightB, 1.0f);
 #endif
 
-		// bind default frame buffer
-		glBindFramebuffer(GL_FRAMEBUFFER, frameBuffers[currentFrameBufferIndex].frameBuffer);
+    // bind default frame buffer
+    glBindFramebuffer(GL_FRAMEBUFFER, frameBuffers[currentFrameBufferIndex].frameBuffer);
 
-		glEnable(GL_DEPTH_TEST);
-		glDepthFunc(GL_LESS);
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LESS);
 
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-		glm::mat4 viewMat = camera.GetViewMatrix(deltaTime);
+    glm::mat4 viewMat = camera.GetViewMatrix(deltaTime);
 
-		// draw cube
-		cubeOutlineShader.use();
-		glBindVertexArray(cubeVAO);
+    glBindBuffer(GL_UNIFORM_BUFFER, globalVSUniformBuffer);
+    // update global view matrix uniform
+    glBufferSubData(GL_UNIFORM_BUFFER, globalVSBufferViewMatOffset, sizeof(glm::mat4), glm::value_ptr(viewMat));
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-		// rotate with time
-		glm::mat4 cubeModelMatrix = glm::mat4();
-		cubeModelMatrix = glm::rotate(cubeModelMatrix, t * glm::radians(cubRotAngle), glm::vec3(1.0f, 0.3f, 0.5f));
+    // draw cube
+    cubeOutlineShader.use();
+    glBindVertexArray(cubeVAO);
 
-		cubeOutlineShader.setUniform("model", cubeModelMatrix);
-		cubeOutlineShader.setUniform("view", viewMat);
+    // rotate with time
+    glm::mat4 cubeModelMatrix = glm::mat4();
+    cubeModelMatrix = glm::rotate(cubeModelMatrix, t * glm::radians(cubRotAngle), glm::vec3(1.0f, 0.3f, 0.5f));
 
-		glDrawElements(GL_TRIANGLES,
-			cubePosTexNormNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
-			GL_UNSIGNED_INT,
-			0);
+    cubeOutlineShader.setUniform("model", cubeModelMatrix);
 
-		cubeShader.use();
-		glBindVertexArray(cubeVAO);
-		cubeShader.setUniform("model", cubeModelMatrix);
-		cubeShader.setUniform("view", viewMat);
-		cubeShader.setUniform("diffTexture", previousFrameBufferIndex);
-		glDrawElements(GL_TRIANGLES,
-			cubePosTexNormNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
-			GL_UNSIGNED_INT,
-			0);
+    glDrawElements(GL_TRIANGLES,
+                   cubePosTexNormNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
+                   GL_UNSIGNED_INT,
+                   0);
 
-		// draw scene to quad
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    cubeShader.use();
+    glBindVertexArray(cubeVAO);
+    cubeShader.setUniform("model", cubeModelMatrix);
+    cubeShader.setUniform("diffTexture", previousFrameBufferIndex);
+    glDrawElements(GL_TRIANGLES,
+                   cubePosTexNormNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
+                   GL_UNSIGNED_INT,
+                   0);
 
-		frameBufferShader.use();
-		glBindVertexArray(quadVAO);
-		frameBufferShader.setUniform("screenTexture", currentFrameBufferIndex);
-		glDrawElements(GL_TRIANGLES, // drawing mode
-			6, // number of elements to draw (3 vertices per triangle * 2 triangles per quad)
-			GL_UNSIGNED_INT, // type of the indices
-			0); // offset in the EBO
+    // draw scene to quad
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-		glfwSwapBuffers(window); // swaps double buffers (call after all render commands are completed)
-		glfwPollEvents(); // checks for events (ex: keyboard/mouse input)
-	}
+    frameBufferShader.use();
+    glBindVertexArray(quadVAO);
+    frameBufferShader.setUniform("screenTexture", currentFrameBufferIndex);
+    glDrawElements(GL_TRIANGLES, // drawing mode
+                   6, // number of elements to draw (3 vertices per triangle * 2 triangles per quad)
+                   GL_UNSIGNED_INT, // type of the indices
+                   0); // offset in the EBO
+
+    glfwSwapBuffers(window); // swaps double buffers (call after all render commands are completed)
+    glfwPollEvents(); // checks for events (ex: keyboard/mouse input)
+  }
 }

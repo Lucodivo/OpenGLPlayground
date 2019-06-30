@@ -170,10 +170,10 @@
     <None Include="src\shaders\TriangleNormalVisualizerGeometryShader.glsl">
       <Filter>shaders</Filter>
     </None>
-    <None Include="src\shaders\NegativeTextureVertexShader.glsl">
+    <None Include="src\shaders\NormalVisualizerVertexShader.glsl">
       <Filter>shaders</Filter>
     </None>
-    <None Include="src\shaders\NormalVisualizerVertexShader.glsl">
+    <None Include="src\shaders\NegativeTextureFragmentShader.glsl">
       <Filter>shaders</Filter>
     </None>
   </ItemGroup>

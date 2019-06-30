@@ -1,7 +1,7 @@
 #pragma once
 
 // shaders
-const char* const posTexNormalVertexShader = "src/shaders/PosTexNormalVertexShader.glsl";
+const char* const posTexNormalVertexShaderFileLoc = "src/shaders/PosTexNormalVertexShader.glsl";
 const char* const cubeFragmentShaderFileLoc = "src/shaders/CubeFragmentShader.glsl";
 const char* const posVertexShaderFileLoc = "src/shaders/PosVertexShader.glsl";
 const char* const lightFragmentShaderFileLoc = "src/shaders/LightSourceFragmentShader.glsl";
@@ -9,7 +9,7 @@ const char* const modelFragmentShaderFileLoc = "src/shaders/ModelFragmentShader.
 const char* const depthFragmentShaderFileLoc = "src/shaders/DepthBufferVisualizerFragmentShader.glsl";
 const char* const singleColorFragmentShaderFileLoc = "src/shaders/SingleColorFragmentShader.glsl";
 const char* const frameBufferVertexShaderFileLoc = "src/shaders/FrameBufferVertexShader.glsl";
-const char* const basicTextureFragmentShader = "src/shaders/BasicTextureFragmentShader.glsl";
+const char* const basicTextureFragmentShaderFileLoc = "src/shaders/BasicTextureFragmentShader.glsl";
 const char* const negativeTextureFragmentShaderFileLoc = "src/shaders/NegativeTextureFragmentShader.glsl";
 const char* const kernel3x3TextureFragmentShaderFileLoc = "src/shaders/Kernel3x3TextureFragmentShader.glsl";
 const char* const kernel5x5TextureFragmentShaderFileLoc = "src/shaders/Kernel5x5TextureFragmentShader.glsl";
@@ -34,12 +34,12 @@ const char* const nanoSuitModelAbsoluteLoc = "C:/developer/repos/LearnOpenGL/Lea
 
 // Cube Map textures
 const std::vector<const char*> skyboxWaterFaceLocations{
-	"src/data/skybox1/right.jpg",
-	"src/data/skybox1/left.jpg",
-	"src/data/skybox1/top.jpg",
-	"src/data/skybox1/bottom.jpg",
-	"src/data/skybox1/front.jpg",
-	"src/data/skybox1/back.jpg"
+  "src/data/skybox1/right.jpg",
+  "src/data/skybox1/left.jpg",
+  "src/data/skybox1/top.jpg",
+  "src/data/skybox1/bottom.jpg",
+  "src/data/skybox1/front.jpg",
+  "src/data/skybox1/back.jpg"
 };
 
 // Cube Map textures

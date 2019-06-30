@@ -1,6 +1,5 @@
 #version 330 core
 
-
 struct LightColor{
 	vec3 ambient;
 	vec3 diffuse;
