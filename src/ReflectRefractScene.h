@@ -17,6 +17,7 @@ private:
 	Shader explodingReflectionShader;
   Shader reflectionShader;
 	Shader explodingRefractionShader;
+  Shader refractionShader;
 	Shader skyboxShader;
   Shader normalVisualizationShader;
 
@@ -25,15 +26,22 @@ private:
 	float32 lastFrame = 0.0f; // Time of last frame
 
 	double reflactionModeSwitchTimer = 0.0f;
+  double modeSwitchTimer = 0.0f;
 
 	void renderLoop(GLFWwindow* window, uint32& cubeVAO, uint32& skyboxVAO);
 	void initializeTextures(uint32& skyboxTextureId);
 
 	void key_Up();
 	void key_Down();
+  void key_Left();
+  void key_Right();
 	void button_dPadUp_pressed();
 	void button_dPadDown_pressed();
+  void button_dPadLeft_pressed();
+  void button_dPadRight_pressed();
 
 	void nextModelReflaction();
 	void prevModelReflaction();
+  void nextMode();
+  void prevMode();
 };

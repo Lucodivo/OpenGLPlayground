@@ -22,7 +22,7 @@ const char* const skyboxReflectionFragmentShaderFileLoc = "src/shaders/SkyboxRef
 const char* const skyboxRefractionFragmentShaderFileLoc = "src/shaders/SkyboxRefractionFragmentShader.glsl";
 const char* const explodeGeometryShaderFileLoc = "src/shaders/ExplodeGeometryShader.glsl";
 const char* const triangleNormalVisualizerGeometryShaderFileLoc = "src/shaders/TriangleNormalVisualizerGeometryShader.glsl";
-
+const char* const normalVisualizerVertexShaderFileLoc = "src/shaders/NormalVisualizerVertexShader.glsl";
 
 // 2D textures
 const char* const diffuseTextureLoc = "src/data/diffuse_map_alpha_channel.png";

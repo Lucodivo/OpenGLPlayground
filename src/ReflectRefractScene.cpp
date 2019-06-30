@@ -34,18 +34,26 @@ const float32 refractionIndexValues[] = {
 	2.42f	// Diamond
 };
 
-const uint32 reflactiveValCount = ArrayCount(refractionIndexValues) + 2;
+const uint32 reflactiveValCount = ArrayCount(refractionIndexValues) + 1;
 uint32 selectedReflactionIndex = ArrayCount(refractionIndexValues);
 const uint32 reflectionIndex = selectedReflactionIndex;
-const uint32 normalVisualizationIndex = selectedReflactionIndex + 1;
+
+enum Mode
+{
+  None = 0,
+  Exploding = 1,
+  NormalVisualization = 2
+};
+Mode currMode = None;
 
 ReflectRefractScene::ReflectRefractScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth)
 	: FirstPersonScene(window, initScreenHeight, initScreenWidth),
 	explodingReflectionShader(posNormalVertexShaderFileLoc, skyboxReflectionFragmentShaderFileLoc, explodeGeometryShaderFileLoc),
   reflectionShader(posNormalVertexShaderFileLoc, skyboxReflectionFragmentShaderFileLoc),
 	explodingRefractionShader(posNormalVertexShaderFileLoc, skyboxRefractionFragmentShaderFileLoc, explodeGeometryShaderFileLoc),
+  refractionShader(posNormalVertexShaderFileLoc, skyboxRefractionFragmentShaderFileLoc),
 	skyboxShader(skyboxVertexShaderFileLoc, skyboxFragmentShaderFileLoc),
-  normalVisualizationShader(posNormalVertexShaderFileLoc, singleColorFragmentShaderFileLoc, triangleNormalVisualizerGeometryShaderFileLoc){}
+  normalVisualizationShader(normalVisualizerVertexShaderFileLoc, singleColorFragmentShaderFileLoc, triangleNormalVisualizerGeometryShaderFileLoc){}
 
 void ReflectRefractScene::runScene() {
 
@@ -98,9 +106,17 @@ void ReflectRefractScene::renderLoop(GLFWwindow* window, uint32& cubeVAO, uint32
 	explodingReflectionShader.setUniform("projection", projectionMat);
 	explodingReflectionShader.setUniform("skybox", 0);
 
+  reflectionShader.use();
+  reflectionShader.setUniform("projection", projectionMat);
+  reflectionShader.setUniform("skybox", 0);
+
 	explodingRefractionShader.use();
 	explodingRefractionShader.setUniform("projection", projectionMat);
 	explodingRefractionShader.setUniform("skybox", 0);
+
+  refractionShader.use();
+  refractionShader.setUniform("projection", projectionMat);
+  refractionShader.setUniform("skybox", 0);
 
 	skyboxShader.use();
 	skyboxShader.setUniform("projection", projectionMat);
@@ -109,10 +125,6 @@ void ReflectRefractScene::renderLoop(GLFWwindow* window, uint32& cubeVAO, uint32
   normalVisualizationShader.use();
   normalVisualizationShader.setUniform("projection", projectionMat);
   normalVisualizationShader.setUniform("color", glm::vec3(1.0f, 1.0f, 0.0f));
-
-  reflectionShader.use();
-  reflectionShader.setUniform("projection", projectionMat);
-  reflectionShader.setUniform("skybox", 0);
 
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LEQUAL);
@@ -133,13 +145,14 @@ void ReflectRefractScene::renderLoop(GLFWwindow* window, uint32& cubeVAO, uint32
 		glm::mat4 viewMat = camera.GetViewMatrix(deltaTime);
 
 		// draw cube
-		explodingReflectionShader.use();
+    Shader* cubeShader = currMode == Exploding ? &explodingReflectionShader : &reflectionShader;
+    cubeShader->use();
 
 		glBindVertexArray(cubeVAO);
 
-		explodingReflectionShader.setUniform("cameraPos", camera.Position);
-		explodingReflectionShader.setUniform("view", viewMat);
-    explodingReflectionShader.setUniform("time", currTime);
+    cubeShader->setUniform("cameraPos", camera.Position);
+    cubeShader->setUniform("view", viewMat);
+    cubeShader->setUniform("time", currTime);
 
 		float32 angularSpeed = 7.3f;
 		glm::vec3 orbitAxis = glm::vec3(0.0f, 1.0f, 0.0f);
@@ -147,65 +160,74 @@ void ReflectRefractScene::renderLoop(GLFWwindow* window, uint32& cubeVAO, uint32
 
 		for (int i = 0; i < ArrayCount(cubePositions); i++) 
     {
-      explodingReflectionShader.use();
+      cubeShader->use();
       glm::mat4 model = glm::rotate(glm::mat4(), currTime * glm::radians(angularSpeed), orbitAxis); // orbit with time
 			model = glm::translate(model, cubePositions[i]);
 			model = glm::rotate(model, currTime * glm::radians(angularSpeed), rotationAxis); // rotate with time
 
-			explodingReflectionShader.setUniform("model", model);
+      cubeShader->setUniform("model", model);
 			glDrawElements(GL_TRIANGLES, // drawing mode
 				cubePosTexNormNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
 				GL_UNSIGNED_INT, // type of the indices
 				0); // offset in the EB
 
       // draw cube normal visualizations
-      normalVisualizationShader.use();
-      normalVisualizationShader.setUniform("view", viewMat);
-      normalVisualizationShader.setUniform("model", model);
+      if(currMode == NormalVisualization)
+      {
+        normalVisualizationShader.use();
+        normalVisualizationShader.setUniform("view", viewMat);
+        normalVisualizationShader.setUniform("model", model);
 
-      glDrawElements(GL_TRIANGLES, // drawing mode
-                     cubePosTexNormNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
-                     GL_UNSIGNED_INT, // type of the indices
-                     0); // offset in the EB
+        glDrawElements(GL_TRIANGLES, // drawing mode
+                       cubePosTexNormNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
+                       GL_UNSIGNED_INT, // type of the indices
+                       0); // offset in the EB
+      }
 		}
 		glBindVertexArray(0);
 
 		// draw model
+    Shader* modelShader;
+    if(currMode == Exploding)
+    {
+      if(selectedReflactionIndex == reflectionIndex)
+      {
+        modelShader = &explodingReflectionShader;
+      } else
+      {
+        modelShader = &explodingRefractionShader;
+      }
+    } else
+    {
+      if(selectedReflactionIndex == reflectionIndex)
+      {
+        modelShader = &reflectionShader;
+      } else
+      {
+        modelShader = &refractionShader;
+      }
+    }
+    
     glm::mat4 model;
     model = glm::scale(model, glm::vec3(modelScale));	// it's a bit too big for our scene, so scale it down
     model = glm::translate(model, glm::vec3(0.0f, -1.75f, 0.0f)); // translate it down so it's at the center of the scene
-		if (selectedReflactionIndex == reflectionIndex) { // reflection index
-			explodingReflectionShader.use();
+		
+    modelShader->use();
+    modelShader->setUniform("cameraPos", camera.Position);
+    modelShader->setUniform("view", viewMat);
+    modelShader->setUniform("refractiveIndex", refractionIndexValues[selectedReflactionIndex]);
+    modelShader->setUniform("model", model);
+    modelShader->setUniform("time", currTime);
+		nanoSuitModel.Draw(*modelShader);
 
-      // cameraPos, view, time uniforms already set after drawing cube
-
-			explodingReflectionShader.setUniform("model", model);
-			nanoSuitModel.Draw(explodingReflectionShader);
-		}
-    else if(selectedReflactionIndex == normalVisualizationIndex)
+    if(currMode == NormalVisualization)
     {
-      reflectionShader.use();
-      reflectionShader.setUniform("view", viewMat);
-      reflectionShader.setUniform("model", model);
-      reflectionShader.setUniform("cameraPos", camera.Position);
-      nanoSuitModel.Draw(reflectionShader);
-
       normalVisualizationShader.use();
       normalVisualizationShader.setUniform("view", viewMat);
       normalVisualizationShader.setUniform("model", model);
 
       nanoSuitModel.Draw(normalVisualizationShader);
     }
-    else { // refraction indices
-			explodingRefractionShader.use();
-
-			explodingRefractionShader.setUniform("cameraPos", camera.Position);
-			explodingRefractionShader.setUniform("view", viewMat);
-			explodingRefractionShader.setUniform("refractiveIndex", refractionIndexValues[selectedReflactionIndex]);
-			explodingRefractionShader.setUniform("model", model);
-      explodingRefractionShader.setUniform("time", currTime);
-			nanoSuitModel.Draw(explodingRefractionShader);
-		}
 
 		// draw skybox
 		skyboxShader.use();
@@ -239,12 +261,32 @@ void ReflectRefractScene::key_Down() {
 	prevModelReflaction();
 }
 
+void ReflectRefractScene::key_Left()
+{
+  prevMode();
+}
+
+void ReflectRefractScene::key_Right()
+{
+  nextMode();
+}
+
 void ReflectRefractScene::button_dPadUp_pressed() {
 	nextModelReflaction();
 }
 
 void ReflectRefractScene::button_dPadDown_pressed() {
 	prevModelReflaction();
+}
+
+void ReflectRefractScene::button_dPadLeft_pressed()
+{
+  prevMode();
+}
+
+void ReflectRefractScene::button_dPadRight_pressed()
+{
+  nextMode();
 }
 
 void ReflectRefractScene::nextModelReflaction() {
@@ -261,4 +303,28 @@ void ReflectRefractScene::prevModelReflaction() {
 		selectedReflactionIndex = selectedReflactionIndex != 0 ? ((selectedReflactionIndex - 1) % reflactiveValCount) : (reflactiveValCount - 1);
 		reflactionModeSwitchTimer = currentTime;
 	}
+}
+
+void ReflectRefractScene::nextMode()
+{
+  double currentTime = glfwGetTime();
+  if(currentTime - modeSwitchTimer > 0.5f)
+  {
+    if(currMode == None) currMode = Exploding;
+    else if(currMode == Exploding) currMode = NormalVisualization;
+    else if(currMode == NormalVisualization) currMode = None;
+    modeSwitchTimer = currentTime;
+  }
+}
+
+void ReflectRefractScene::prevMode()
+{
+  double currentTime = glfwGetTime();
+  if(currentTime - modeSwitchTimer > 0.5f)
+  {
+    if(currMode == None) currMode = NormalVisualization;
+    else if(currMode == Exploding) currMode = None;
+    else if(currMode == NormalVisualization) currMode = Exploding;
+    modeSwitchTimer = currentTime;
+  }
 }

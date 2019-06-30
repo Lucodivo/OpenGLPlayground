@@ -140,9 +140,6 @@
     <None Include="src\shaders\CropCenterSquareTexFragmentShader.glsl">
       <Filter>shaders</Filter>
     </None>
-    <None Include="src\shaders\NegativeTextureFragmentShader.glsl">
-      <Filter>shaders</Filter>
-    </None>
     <None Include="src\shaders\Kernel3x3TextureFragmentShader.glsl">
       <Filter>shaders</Filter>
     </None>
@@ -167,10 +164,16 @@
     <None Include="src\shaders\ExplodeGeometryShader.glsl">
       <Filter>shaders</Filter>
     </None>
+    <None Include="src\shaders\PosNormalVertexShader.glsl">
+      <Filter>shaders</Filter>
+    </None>
     <None Include="src\shaders\TriangleNormalVisualizerGeometryShader.glsl">
       <Filter>shaders</Filter>
     </None>
-    <None Include="src\shaders\PosNormalVertexShader.glsl">
+    <None Include="src\shaders\NegativeTextureVertexShader.glsl">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="src\shaders\NormalVisualizerVertexShader.glsl">
       <Filter>shaders</Filter>
     </None>
   </ItemGroup>
