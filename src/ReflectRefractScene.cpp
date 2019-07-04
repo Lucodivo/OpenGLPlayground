@@ -49,11 +49,14 @@ Mode currMode = None;
 ReflectRefractScene::ReflectRefractScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth)
   : FirstPersonScene(window, initScreenHeight, initScreenWidth),
   explodingReflectionShader(posNormalVertexShaderFileLoc, skyboxReflectionFragmentShaderFileLoc, explodeGeometryShaderFileLoc),
+  exploding10InstanceReflectionShader(posNormal10InstanceVertexShaderFileLoc, skyboxReflectionFragmentShaderFileLoc, explodeGeometryShaderFileLoc),
   reflectionShader(posNormalVertexShaderFileLoc, skyboxReflectionFragmentShaderFileLoc),
+  reflection10InstanceShader(posNormal10InstanceVertexShaderFileLoc, skyboxReflectionFragmentShaderFileLoc),
   explodingRefractionShader(posNormalVertexShaderFileLoc, skyboxRefractionFragmentShaderFileLoc, explodeGeometryShaderFileLoc),
   refractionShader(posNormalVertexShaderFileLoc, skyboxRefractionFragmentShaderFileLoc),
   skyboxShader(skyboxVertexShaderFileLoc, skyboxFragmentShaderFileLoc),
-  normalVisualizationShader(normalVisualizerVertexShaderFileLoc, singleColorFragmentShaderFileLoc, triangleNormalVisualizerGeometryShaderFileLoc)
+  normalVisualizationShader(normalVisualizerVertexShaderFileLoc, singleColorFragmentShaderFileLoc, triangleNormalVisualizerGeometryShaderFileLoc),
+  normalVisualization10InstanceShader(normalVisualizer10InstanceVertexShaderFileLoc, singleColorFragmentShaderFileLoc, triangleNormalVisualizerGeometryShaderFileLoc)
 {}
 
 void ReflectRefractScene::runScene()
@@ -109,9 +112,17 @@ void ReflectRefractScene::renderLoop(GLFWwindow* window, uint32& cubeVAO, uint32
   explodingReflectionShader.setUniform("projection", projectionMat);
   explodingReflectionShader.setUniform("skybox", 0);
 
+  exploding10InstanceReflectionShader.use();
+  exploding10InstanceReflectionShader.setUniform("projection", projectionMat);
+  exploding10InstanceReflectionShader.setUniform("skybox", 0);
+
   reflectionShader.use();
   reflectionShader.setUniform("projection", projectionMat);
   reflectionShader.setUniform("skybox", 0);
+
+  reflection10InstanceShader.use();
+  reflection10InstanceShader.setUniform("projection", projectionMat);
+  reflection10InstanceShader.setUniform("skybox", 0);
 
   explodingRefractionShader.use();
   explodingRefractionShader.setUniform("projection", projectionMat);
@@ -128,6 +139,10 @@ void ReflectRefractScene::renderLoop(GLFWwindow* window, uint32& cubeVAO, uint32
   normalVisualizationShader.use();
   normalVisualizationShader.setUniform("projection", projectionMat);
   normalVisualizationShader.setUniform("color", glm::vec3(1.0f, 1.0f, 0.0f));
+
+  normalVisualization10InstanceShader.use();
+  normalVisualization10InstanceShader.setUniform("projection", projectionMat);
+  normalVisualization10InstanceShader.setUniform("color", glm::vec3(1.0f, 1.0f, 0.0f));
 
   glEnable(GL_DEPTH_TEST);
   glDepthFunc(GL_LEQUAL);
@@ -149,7 +164,7 @@ void ReflectRefractScene::renderLoop(GLFWwindow* window, uint32& cubeVAO, uint32
     glm::mat4 viewMat = camera.GetViewMatrix(deltaTime);
 
     // draw cube
-    Shader* cubeShader = currMode == Exploding ? &explodingReflectionShader : &reflectionShader;
+    Shader* cubeShader = currMode == Exploding ? &exploding10InstanceReflectionShader : &reflection10InstanceShader;
     cubeShader->use();
 
     glBindVertexArray(cubeVAO);
@@ -164,30 +179,40 @@ void ReflectRefractScene::renderLoop(GLFWwindow* window, uint32& cubeVAO, uint32
 
     for(int i = 0; i < ArrayCount(cubePositions); i++)
     {
-      cubeShader->use();
       glm::mat4 model = glm::rotate(glm::mat4(), currTime * glm::radians(angularSpeed), orbitAxis); // orbit with time
       model = glm::translate(model, cubePositions[i]);
       model = glm::rotate(model, currTime * glm::radians(angularSpeed), rotationAxis); // rotate with time
 
-      cubeShader->setUniform("model", model);
-      glDrawElements(GL_TRIANGLES, // drawing mode
-                     cubePosTexNormNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
-                     GL_UNSIGNED_INT, // type of the indices
-                     0); // offset in the EB
+      const std::string instanceModelName = "models[" + std::to_string(i) + "]";
+      cubeShader->setUniform(instanceModelName, model);
 
-                   // draw cube normal visualizations
-      if(currMode == NormalVisualization)
+      if(currMode == NormalVisualization) // draw cube normal visualizations
       {
-        normalVisualizationShader.use();
-        normalVisualizationShader.setUniform("view", viewMat);
-        normalVisualizationShader.setUniform("model", model);
-
-        glDrawElements(GL_TRIANGLES, // drawing mode
-                       cubePosTexNormNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
-                       GL_UNSIGNED_INT, // type of the indices
-                       0); // offset in the EB
+        normalVisualization10InstanceShader.use();
+        normalVisualization10InstanceShader.setUniform(instanceModelName, model);
+        cubeShader->use();
       }
     }
+
+    glDrawElementsInstanced(GL_TRIANGLES, // drawing mode
+                            cubePosTexNormNumElements * 3, // number of elements to be rendered
+                            GL_UNSIGNED_INT, // type of values in the indices
+                            0, // offset in the EB
+                            8); // instance count
+
+    if(currMode == NormalVisualization)
+    {
+      normalVisualization10InstanceShader.use();
+      normalVisualization10InstanceShader.setUniform("view", viewMat);
+
+      glDrawElementsInstanced(GL_TRIANGLES, // drawing mode
+                              cubePosTexNormNumElements * 3, // number of elements to be rendered
+                              GL_UNSIGNED_INT, // type of values in the indices
+                              0, // offset in the EB
+                              8); // instance count
+    }
+
+
     glBindVertexArray(0);
 
     // draw model

@@ -18,11 +18,13 @@ const char* const discardAlphaFragmentShaderFileLoc = "src/shaders/DiscardAlphaF
 const char* const skyboxVertexShaderFileLoc = "src/shaders/SkyboxVertexShader.glsl";
 const char* const skyboxFragmentShaderFileLoc = "src/shaders/SkyboxFragmentShader.glsl";
 const char* const posNormalVertexShaderFileLoc = "src/shaders/PosNormalVertexShader.glsl";
+const char* const posNormal10InstanceVertexShaderFileLoc = "src/shaders/PosNormal10InstanceVertexShader.glsl";
 const char* const skyboxReflectionFragmentShaderFileLoc = "src/shaders/SkyboxReflectionFragmentShader.glsl";
 const char* const skyboxRefractionFragmentShaderFileLoc = "src/shaders/SkyboxRefractionFragmentShader.glsl";
 const char* const explodeGeometryShaderFileLoc = "src/shaders/ExplodeGeometryShader.glsl";
 const char* const triangleNormalVisualizerGeometryShaderFileLoc = "src/shaders/TriangleNormalVisualizerGeometryShader.glsl";
 const char* const normalVisualizerVertexShaderFileLoc = "src/shaders/NormalVisualizerVertexShader.glsl";
+const char* const normalVisualizer10InstanceVertexShaderFileLoc = "src/shaders/NormalVisualizer10InstanceVertexShader.glsl";
 
 // 2D textures
 const char* const diffuseTextureLoc = "src/data/diffuse_map_alpha_channel.png";

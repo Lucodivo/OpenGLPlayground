@@ -57,7 +57,9 @@
     <None Include="src\shaders\ExplodeGeometryShader.glsl" />
     <None Include="src\shaders\Kernel5x5TextureFragmentShader.glsl" />
     <None Include="src\shaders\NegativeTextureFragmentShader.glsl" />
+    <None Include="src\shaders\NormalVisualizer10InstanceVertexShader.glsl" />
     <None Include="src\shaders\NormalVisualizerVertexShader.glsl" />
+    <None Include="src\shaders\PosNormal10InstanceVertexShader.glsl" />
     <None Include="src\shaders\PosTexNormalVertexShader.glsl" />
     <None Include="src\shaders\DepthBufferVisualizerFragmentShader.glsl" />
     <None Include="src\shaders\DiscardAlphaFragmentShader.glsl" />

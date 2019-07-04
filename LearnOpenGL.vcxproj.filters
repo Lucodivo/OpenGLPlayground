@@ -176,6 +176,12 @@
     <None Include="src\shaders\NegativeTextureFragmentShader.glsl">
       <Filter>shaders</Filter>
     </None>
+    <None Include="src\shaders\PosNormal10InstanceVertexShader.glsl">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="src\shaders\NormalVisualizer10InstanceVertexShader.glsl">
+      <Filter>shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Image Include="src\data\emission_map.png">

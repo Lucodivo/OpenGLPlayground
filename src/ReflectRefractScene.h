@@ -16,11 +16,14 @@ public:
 
 private:
   Shader explodingReflectionShader;
+  Shader exploding10InstanceReflectionShader;
   Shader reflectionShader;
+  Shader reflection10InstanceShader;
   Shader explodingRefractionShader;
   Shader refractionShader;
   Shader skyboxShader;
   Shader normalVisualizationShader;
+  Shader normalVisualization10InstanceShader;
 
   // frame rate
   float32 deltaTime = 0.0f;	// Time between current frame and last frame
