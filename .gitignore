@@ -4,6 +4,7 @@ Debug/
 *.pyxel
 *.user
 src/data/fun/
-src/data/skybox*/
-src/data/nanosuit
+src/data/skyboxes/
+src/data/models/
+src/fonts/
 stb_image.cpp

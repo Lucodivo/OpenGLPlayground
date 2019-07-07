@@ -25,6 +25,8 @@ const char* const explodeGeometryShaderFileLoc = "src/shaders/ExplodeGeometrySha
 const char* const triangleNormalVisualizerGeometryShaderFileLoc = "src/shaders/TriangleNormalVisualizerGeometryShader.glsl";
 const char* const normalVisualizerVertexShaderFileLoc = "src/shaders/NormalVisualizerVertexShader.glsl";
 const char* const normalVisualizer10InstanceVertexShaderFileLoc = "src/shaders/NormalVisualizer10InstanceVertexShader.glsl";
+const char* const textVertexShaderFileLoc = "src/shaders/TextVertexShader.glsl";
+const char* const textFragmentShaderFileLoc = "src/shaders/TextFragmentShader.glsl";
 
 // 2D textures
 const char* const diffuseTextureLoc = "src/data/diffuse_map_alpha_channel.png";
@@ -32,24 +34,24 @@ const char* const specularTextureLoc = "src/data/specular_map.png";
 const char* const emissionTextureLoc = "src/data/emission_map.png";
 const char* const outlineTextureLoc = "src/data/cube_outline.png";
 const char* const outlineWhiteFillTextureLoc = "src/data/cube_outline_white_fill.png";
-const char* const nanoSuitModelAbsoluteLoc = "C:/developer/repos/LearnOpenGL/LearnOpenGL/src/data/nanosuit/nanosuit.obj";
+const char* const nanoSuitModelAbsoluteLoc = "C:/developer/repos/LearnOpenGL/LearnOpenGL/src/data/models/nanosuit/nanosuit.obj";
 
 // Cube Map textures
 const std::vector<const char*> skyboxWaterFaceLocations{
-  "src/data/skybox1/right.jpg",
-  "src/data/skybox1/left.jpg",
-  "src/data/skybox1/top.jpg",
-  "src/data/skybox1/bottom.jpg",
-  "src/data/skybox1/front.jpg",
-  "src/data/skybox1/back.jpg"
+  "src/data/skyboxes/skybox1/right.jpg",
+  "src/data/skyboxes/skybox1/left.jpg",
+  "src/data/skyboxes/skybox1/top.jpg",
+  "src/data/skyboxes/skybox1/bottom.jpg",
+  "src/data/skyboxes/skybox1/front.jpg",
+  "src/data/skyboxes/skybox1/back.jpg"
 };
 
 // Cube Map textures
 const std::vector<const char*> skyboxGrassFaceLocations{
-  "src/data/skybox2/right.jpg",
-  "src/data/skybox2/left.jpg",
-  "src/data/skybox2/top.jpg",
-  "src/data/skybox2/bottom.jpg",
-  "src/data/skybox2/front.jpg",
-  "src/data/skybox2/back.jpg"
+  "src/data/skyboxes/skybox2/right.jpg",
+  "src/data/skyboxes/skybox2/left.jpg",
+  "src/data/skyboxes/skybox2/top.jpg",
+  "src/data/skyboxes/skybox2/bottom.jpg",
+  "src/data/skyboxes/skybox2/front.jpg",
+  "src/data/skyboxes/skybox2/back.jpg"
 };

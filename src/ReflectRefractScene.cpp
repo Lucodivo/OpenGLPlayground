@@ -99,6 +99,9 @@ void ReflectRefractScene::renderLoop(GLFWwindow* window, uint32& cubeVAO, uint32
   // background clear color
   glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 #if 0
   // draw in wireframe
   glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -271,6 +274,11 @@ void ReflectRefractScene::renderLoop(GLFWwindow* window, uint32& cubeVAO, uint32
                    GL_UNSIGNED_INT, // type of the indices
                    0); // offset in the EBO
     glBindVertexArray(0);
+
+    glDisable(GL_DEPTH_TEST);
+    uint32 numFrames = 1 / deltaTime;
+    renderText(std::to_string(numFrames) + " FPS", 25.0f, 25.0f, 1.0f, glm::vec3(1.0f, 0.0f, 0.0f));
+    glEnable(GL_DEPTH_TEST);
 
     glfwSwapBuffers(window); // swaps double buffers (call after all render commands are completed)
     glfwPollEvents(); // checks for events (ex: keyboard/mouse input)

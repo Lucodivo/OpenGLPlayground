@@ -76,6 +76,8 @@
     <None Include="src\shaders\PosNormalVertexShader.glsl" />
     <None Include="src\shaders\SkyboxRefractionFragmentShader.glsl" />
     <None Include="src\shaders\SkyboxVertexShader.glsl" />
+    <None Include="src\shaders\TextFragmentShader.glsl" />
+    <None Include="src\shaders\TextVertexShader.glsl" />
     <None Include="src\shaders\TriangleNormalVisualizerGeometryShader.glsl" />
   </ItemGroup>
   <ItemGroup>
@@ -148,7 +150,7 @@
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>opengl32.lib;glfw3.lib;assimpd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;glfw3.lib;assimpd.lib;freetype.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">

@@ -182,6 +182,12 @@
     <None Include="src\shaders\NormalVisualizer10InstanceVertexShader.glsl">
       <Filter>shaders</Filter>
     </None>
+    <None Include="src\shaders\TextVertexShader.glsl">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="src\shaders\TextFragmentShader.glsl">
+      <Filter>shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Image Include="src\data\emission_map.png">
