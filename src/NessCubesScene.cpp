@@ -81,7 +81,6 @@ void NessCubesScene::runScene()
 
 void NessCubesScene::renderLoop(GLFWwindow* window, uint32& shapesVAO, uint32& lightVAO, uint32& quadVAO, uint32& skyboxVAO)
 {
-
   uint32 diffTextureId;
   uint32 specTextureId;
   uint32 skyboxTextureId;
@@ -144,7 +143,7 @@ void NessCubesScene::renderLoop(GLFWwindow* window, uint32& shapesVAO, uint32& l
                       globalFSBufferBindIndex,	// index of binding point 
                       globalFSUniformBuffer,	// buffer id
                       0,						// starting offset into buffer object
-                      4 * 16);				// size: 4 vec3's, 16 bits alignments
+                      4 * 16);					// size: 4 vec3's, 16 bits alignments
 
     glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::vec3), glm::value_ptr(directionalLightDir));
     glBufferSubData(GL_UNIFORM_BUFFER, 16, sizeof(glm::vec3), glm::value_ptr(directionalLightColor * glm::vec3(0.3f)));
@@ -193,6 +192,9 @@ void NessCubesScene::renderLoop(GLFWwindow* window, uint32& shapesVAO, uint32& l
   frameBufferShader.use();
   frameBufferShader.setUniform("textureWidth", (float32)viewportWidth);
   frameBufferShader.setUniform("textureHeight", (float32)viewportHeight);
+
+  const char* vendor = (char*)glGetString(GL_VENDOR); // Returns the vendor
+  const char* renderer = (char*)glGetString(GL_RENDERER); // Returns a hint to the model
 
   // NOTE: render/game loop
   while(glfwWindowShouldClose(window) == GL_FALSE)
@@ -428,6 +430,13 @@ void NessCubesScene::renderLoop(GLFWwindow* window, uint32& shapesVAO, uint32& l
                    6, // number of elements to draw (3 vertices per triangle * 2 triangles per quad)
                    GL_UNSIGNED_INT, // type of the indices
                    0); // offset in the EBO
+
+	glDisable(GL_DEPTH_TEST);
+	uint32 numFrames = 1 / deltaTime;
+	renderText(std::to_string(numFrames) + " FPS", 25.0f, 25.0f, 1.0f, glm::vec3(1.0f, 0.0f, 0.0f));
+	renderText(vendor, 25.0f, 100.0f, 1.0f, glm::vec3(1.0f, 0.0f, 0.0f));
+	renderText(renderer, 25.0f, 150.0f, 1.0f, glm::vec3(1.0f, 0.0f, 0.0f));
+	glEnable(GL_DEPTH_TEST);
 
     glfwSwapBuffers(window); // swaps double buffers (call after all render commands are completed)
     glfwPollEvents(); // checks for events (ex: keyboard/mouse input)

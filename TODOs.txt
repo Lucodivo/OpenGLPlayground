@@ -3,3 +3,5 @@ TODOs:
 	- Remember to turn off back culling when verifying
 - Change names of in/out glsl parameters as "WorldPosition" ?
 - fix bug where normal visualization moves with camera
+- Investigate why debug mode makes application run ~20 times slower
+- change project to x64?
