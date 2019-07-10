@@ -38,10 +38,10 @@ const float32 cubeScales[] = {
 
 NessCubesScene::NessCubesScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth)
   : FirstPersonScene(window, initScreenHeight, initScreenWidth),
-  cubeShader(posTexNormalVertexShaderFileLoc, cubeFragmentShaderFileLoc),
+  cubeShader(posNormTexVertexShaderFileLoc, cubeFragmentShaderFileLoc),
   lightShader(posVertexShaderFileLoc, lightFragmentShaderFileLoc),
-  modelShader(posTexNormalVertexShaderFileLoc, modelFragmentShaderFileLoc),
-  stencilShader(posTexNormalVertexShaderFileLoc, singleColorFragmentShaderFileLoc),
+  modelShader(posNormTexVertexShaderFileLoc, textureModelFragmentShaderFileLoc),
+  stencilShader(posNormTexVertexShaderFileLoc, singleColorFragmentShaderFileLoc),
   frameBufferShader(frameBufferVertexShaderFileLoc, kernel5x5TextureFragmentShaderFileLoc),
   skyboxShader(skyboxVertexShaderFileLoc, skyboxFragmentShaderFileLoc)
 {}

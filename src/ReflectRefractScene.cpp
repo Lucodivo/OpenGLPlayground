@@ -107,7 +107,6 @@ void ReflectRefractScene::renderLoop(GLFWwindow* window, uint32& cubeVAO, uint32
   glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 #endif
 
-
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_CUBE_MAP, skyboxTextureId);
 
@@ -287,7 +286,7 @@ void ReflectRefractScene::renderLoop(GLFWwindow* window, uint32& cubeVAO, uint32
 
 void ReflectRefractScene::initializeTextures(uint32& skyboxTextureId)
 {
-  loadCubeMapTexture(skyboxWaterFaceLocations, skyboxTextureId);
+  loadCubeMapTexture(skyboxSpaceLightBlueFaceLocations, skyboxTextureId);
 }
 
 void ReflectRefractScene::key_Up()

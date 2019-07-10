@@ -27,6 +27,7 @@ public:
   std::vector<Vertex> vertices;
   std::vector<uint32> indices;
   std::vector<Texture> textures;
+  uint32 VAO;
 
   Mesh(std::vector<Vertex> vertices, std::vector<uint32> indices, std::vector<Texture> textures)
   {
@@ -66,7 +67,7 @@ public:
   }
 
 private:
-  uint32 VAO, VBO, EBO;
+  uint32 VBO, EBO;
 
   void setupMesh()
   {

@@ -16,6 +16,7 @@
 class Model
 {
 public:
+  std::vector<Mesh> meshes;
 
   Model(char* path)
   {
@@ -28,7 +29,6 @@ public:
   }
 
 private:
-  std::vector<Mesh> meshes;
   std::string directory;
 
   void loadModel(std::string path)

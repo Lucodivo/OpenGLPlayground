@@ -5,6 +5,7 @@
 #include "NessCubesScene.h"
 #include "InfiniteCubeScene.h"
 #include "ReflectRefractScene.h"
+#include "AsteroidBeltScene.h"
 
 #include <iostream>
 
@@ -20,7 +21,7 @@ int main()
 
   initializeGLAD();
 
-  scene = new ReflectRefractScene(window, VIEWPORT_INIT_HEIGHT, VIEWPORT_INIT_WIDTH);
+  scene = new AsteroidBeltScene(window, VIEWPORT_INIT_HEIGHT, VIEWPORT_INIT_WIDTH);
   scene->runScene();
 
   glfwTerminate(); // clean up gl resources

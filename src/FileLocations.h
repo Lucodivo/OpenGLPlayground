@@ -1,11 +1,15 @@
 #pragma once
 
 // shaders
-const char* const posTexNormalVertexShaderFileLoc = "src/shaders/PosTexNormalVertexShader.glsl";
+const char* const posNormTexVertexShaderFileLoc = "src/shaders/PosNormTexVertexShader.glsl";
 const char* const cubeFragmentShaderFileLoc = "src/shaders/CubeFragmentShader.glsl";
 const char* const posVertexShaderFileLoc = "src/shaders/PosVertexShader.glsl";
 const char* const lightFragmentShaderFileLoc = "src/shaders/LightSourceFragmentShader.glsl";
-const char* const modelFragmentShaderFileLoc = "src/shaders/ModelFragmentShader.glsl";
+const char* const textureModelFragmentShaderFileLoc = "src/shaders/TextureModelFragmentShader.glsl";
+const char* const dirPosSpotLightModelFragmentShaderFileLoc = "src/shaders/DirPosSpotLightModelFragmentShader.glsl";
+const char* const posTexModelVertexShaderFileLoc = "src/shaders/PosTexModelVertexShader.glsl";
+const char* const posNormModelVertexShaderFileLoc = "src/shaders/PosNormModelVertexShader.glsl";
+const char* const posTexVertexShaderFileLoc = "src/shaders/PosTexVertexShader.glsl";
 const char* const depthFragmentShaderFileLoc = "src/shaders/DepthBufferVisualizerFragmentShader.glsl";
 const char* const singleColorFragmentShaderFileLoc = "src/shaders/SingleColorFragmentShader.glsl";
 const char* const frameBufferVertexShaderFileLoc = "src/shaders/FrameBufferVertexShader.glsl";
@@ -35,23 +39,24 @@ const char* const emissionTextureLoc = "src/data/emission_map.png";
 const char* const outlineTextureLoc = "src/data/cube_outline.png";
 const char* const outlineWhiteFillTextureLoc = "src/data/cube_outline_white_fill.png";
 const char* const nanoSuitModelAbsoluteLoc = "C:/developer/repos/LearnOpenGL/LearnOpenGL/src/data/models/nanosuit/nanosuit.obj";
+const char* const asteroidModelAbsoluteLoc = "C:/developer/repos/LearnOpenGL/LearnOpenGL/src/data/models/rock/rock.obj";
+const char* const planetModelAbsoluteLoc = "C:/developer/repos/LearnOpenGL/LearnOpenGL/src/data/models/planet/planet.obj";
+
+
+#define skybox(folder, extension) std::vector<const char*>{  \
+"src/data/skyboxes/"#folder"/right."#extension,              \
+"src/data/skyboxes/"#folder"/left."#extension,               \
+"src/data/skyboxes/"#folder"/top."#extension,                \
+"src/data/skyboxes/"#folder"/bottom."#extension,             \
+"src/data/skyboxes/"#folder"/front."#extension,              \
+"src/data/skyboxes/"#folder"/back."#extension                \
+}                                                            \
 
 // Cube Map textures
-const std::vector<const char*> skyboxWaterFaceLocations{
-  "src/data/skyboxes/skybox1/right.jpg",
-  "src/data/skyboxes/skybox1/left.jpg",
-  "src/data/skyboxes/skybox1/top.jpg",
-  "src/data/skyboxes/skybox1/bottom.jpg",
-  "src/data/skyboxes/skybox1/front.jpg",
-  "src/data/skyboxes/skybox1/back.jpg"
-};
-
-// Cube Map textures
-const std::vector<const char*> skyboxGrassFaceLocations{
-  "src/data/skyboxes/skybox2/right.jpg",
-  "src/data/skyboxes/skybox2/left.jpg",
-  "src/data/skyboxes/skybox2/top.jpg",
-  "src/data/skyboxes/skybox2/bottom.jpg",
-  "src/data/skyboxes/skybox2/front.jpg",
-  "src/data/skyboxes/skybox2/back.jpg"
-};
+const std::vector<const char*> skyboxWaterFaceLocations = skybox(water, jpg);
+const std::vector<const char*> skyboxGrassFaceLocations = skybox(grass_photograph, jpg);
+const std::vector<const char*> skyboxSpaceBlueFaceLocations = skybox(space_blue, png);
+const std::vector<const char*> skyboxSpaceLightBlueFaceLocations = skybox(space_light_blue, png);
+const std::vector<const char*> skyboxSpaceRed1FaceLocations = skybox(space_red_1, png);
+const std::vector<const char*> skyboxSpaceRed2FaceLocations = skybox(space_red_2, png);
+const std::vector<const char*> skyboxSpaceRed3FaceLocations = skybox(space_red_3, png);

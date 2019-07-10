@@ -5,8 +5,8 @@
 
 InfiniteCubeScene::InfiniteCubeScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth)
   : FirstPersonScene(window, initScreenHeight, initScreenWidth),
-  cubeShader(posTexNormalVertexShaderFileLoc, cropCenterSquareTexFragmentShader),
-  cubeOutlineShader(posTexNormalVertexShaderFileLoc, discardAlphaFragmentShaderFileLoc),
+  cubeShader(posNormTexVertexShaderFileLoc, cropCenterSquareTexFragmentShader),
+  cubeOutlineShader(posNormTexVertexShaderFileLoc, discardAlphaFragmentShaderFileLoc),
   frameBufferShader(frameBufferVertexShaderFileLoc, basicTextureFragmentShaderFileLoc)
 {}
 

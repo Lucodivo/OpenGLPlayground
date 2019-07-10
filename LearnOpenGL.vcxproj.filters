@@ -50,6 +50,9 @@
     <ClCompile Include="src\ReflectRefractScene.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\AsteroidBeltScene.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Text Include="notes.txt">
@@ -105,6 +108,9 @@
     <ClInclude Include="src\ReflectRefractScene.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\AsteroidBeltScene.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\shaders\CubeFragmentShader.glsl">
@@ -114,9 +120,6 @@
       <Filter>shaders</Filter>
     </None>
     <None Include="src\shaders\LightSourceFragmentShader.glsl">
-      <Filter>shaders</Filter>
-    </None>
-    <None Include="src\shaders\ModelFragmentShader.glsl">
       <Filter>shaders</Filter>
     </None>
     <None Include="README.md">
@@ -132,9 +135,6 @@
       <Filter>shaders</Filter>
     </None>
     <None Include="src\shaders\BasicTextureFragmentShader.glsl">
-      <Filter>shaders</Filter>
-    </None>
-    <None Include="src\shaders\PosTexNormalVertexShader.glsl">
       <Filter>shaders</Filter>
     </None>
     <None Include="src\shaders\CropCenterSquareTexFragmentShader.glsl">
@@ -186,6 +186,24 @@
       <Filter>shaders</Filter>
     </None>
     <None Include="src\shaders\TextFragmentShader.glsl">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="src\shaders\PosTexModelVertexShader.glsl">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="src\shaders\DirPosSpotLightModelFragmentShader.glsl">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="src\shaders\TextureModelFragmentShader.glsl">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="src\shaders\PosTexVertexShader.glsl">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="src\shaders\PosNormModelVertexShader.glsl">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="src\shaders\PosNormTexVertexShader.glsl">
       <Filter>shaders</Filter>
     </None>
   </ItemGroup>

@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClCompile Include="..\..\..\dependencies\OpenGL\include\glad\glad.c" />
     <ClCompile Include="..\..\..\dependencies\OpenGL\include\stb\stb_image.cpp" />
+    <ClCompile Include="src\AsteroidBeltScene.cpp" />
     <ClCompile Include="src\InfiniteCubeScene.cpp" />
     <ClCompile Include="src\Input.cpp" />
     <ClCompile Include="src\main.cpp" />
@@ -35,6 +36,7 @@
     <Text Include="TODOs.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\AsteroidBeltScene.h" />
     <ClInclude Include="src\Camera.h" />
     <ClInclude Include="src\FileLocations.h" />
     <ClInclude Include="src\InfiniteCubeScene.h" />
@@ -60,7 +62,9 @@
     <None Include="src\shaders\NormalVisualizer10InstanceVertexShader.glsl" />
     <None Include="src\shaders\NormalVisualizerVertexShader.glsl" />
     <None Include="src\shaders\PosNormal10InstanceVertexShader.glsl" />
-    <None Include="src\shaders\PosTexNormalVertexShader.glsl" />
+    <None Include="src\shaders\PosNormModelVertexShader.glsl" />
+    <None Include="src\shaders\PosTexModelVertexShader.glsl" />
+    <None Include="src\shaders\PosNormTexVertexShader.glsl" />
     <None Include="src\shaders\DepthBufferVisualizerFragmentShader.glsl" />
     <None Include="src\shaders\DiscardAlphaFragmentShader.glsl" />
     <None Include="src\shaders\BasicTextureFragmentShader.glsl" />
@@ -68,8 +72,9 @@
     <None Include="src\shaders\CropCenterSquareTexFragmentShader.glsl" />
     <None Include="src\shaders\Kernel3x3TextureFragmentShader.glsl" />
     <None Include="src\shaders\LightSourceFragmentShader.glsl" />
+    <None Include="src\shaders\PosTexVertexShader.glsl" />
     <None Include="src\shaders\PosVertexShader.glsl" />
-    <None Include="src\shaders\ModelFragmentShader.glsl" />
+    <None Include="src\shaders\DirPosSpotLightModelFragmentShader.glsl" />
     <None Include="src\shaders\SingleColorFragmentShader.glsl" />
     <None Include="src\shaders\SkyboxFragmentShader.glsl" />
     <None Include="src\shaders\SkyboxReflectionFragmentShader.glsl" />
@@ -77,6 +82,7 @@
     <None Include="src\shaders\SkyboxRefractionFragmentShader.glsl" />
     <None Include="src\shaders\SkyboxVertexShader.glsl" />
     <None Include="src\shaders\TextFragmentShader.glsl" />
+    <None Include="src\shaders\TextureModelFragmentShader.glsl" />
     <None Include="src\shaders\TextVertexShader.glsl" />
     <None Include="src\shaders\TriangleNormalVisualizerGeometryShader.glsl" />
   </ItemGroup>
