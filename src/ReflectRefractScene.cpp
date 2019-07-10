@@ -149,6 +149,8 @@ void ReflectRefractScene::renderLoop(GLFWwindow* window, uint32& cubeVAO, uint32
   glEnable(GL_DEPTH_TEST);
   glDepthFunc(GL_LEQUAL);
 
+  camera.Position += glm::vec3(0.0f, 0.0f, 7.0f);
+
   // NOTE: render/game loop
   while(glfwWindowShouldClose(window) == GL_FALSE)
   {
@@ -275,7 +277,7 @@ void ReflectRefractScene::renderLoop(GLFWwindow* window, uint32& cubeVAO, uint32
     glBindVertexArray(0);
 
     glDisable(GL_DEPTH_TEST);
-    uint32 numFrames = 1 / deltaTime;
+    uint32 numFrames = (uint32)(1 / deltaTime);
     renderText(std::to_string(numFrames) + " FPS", 25.0f, 25.0f, 1.0f, glm::vec3(1.0f, 0.0f, 0.0f));
     glEnable(GL_DEPTH_TEST);
 

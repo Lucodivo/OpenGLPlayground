@@ -53,7 +53,7 @@ void AsteroidBeltScene::renderLoop(uint32 skyboxVAO)
   unsigned int amount = 5000;
   glm::mat4* modelMatrices;
   modelMatrices = new glm::mat4[amount];
-  srand(glfwGetTime()); // initialize random seed	
+  srand((uint32)glfwGetTime()); // initialize random seed	
   float32 radius = 30.0;
   float32 offset = 10.0f;
   auto randDisplacement = [offset]() -> float32 { return ((rand() % (int)(2 * offset * 100)) / 100.0f - offset); };
@@ -76,7 +76,7 @@ void AsteroidBeltScene::renderLoop(uint32 skyboxVAO)
     model = glm::scale(model, glm::vec3(scale));
 
     // rotate
-    float32 rotAngle = (rand() % 360);
+    float32 rotAngle = (float32)(rand() % 360);
     model = glm::rotate(model, rotAngle, glm::vec3(0.4f, 0.6f, 0.8f));
 
     // 4. now add to list of matrices
@@ -178,7 +178,7 @@ void AsteroidBeltScene::renderLoop(uint32 skyboxVAO)
     glBindVertexArray(0);
 
     glDisable(GL_DEPTH_TEST);
-    uint32 numFrames = 1 / deltaTime;
+    uint32 numFrames = (uint32)(1 / deltaTime);
     renderText(std::to_string(numFrames) + " FPS", 25.0f, 25.0f, 1.0f, glm::vec3(1.0f, 0.0f, 0.0f));
     glEnable(GL_DEPTH_TEST);
 

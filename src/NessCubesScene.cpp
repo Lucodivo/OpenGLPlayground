@@ -40,7 +40,7 @@ NessCubesScene::NessCubesScene(GLFWwindow* window, uint32 initScreenHeight, uint
   : FirstPersonScene(window, initScreenHeight, initScreenWidth),
   cubeShader(posNormTexVertexShaderFileLoc, cubeFragmentShaderFileLoc),
   lightShader(posVertexShaderFileLoc, lightFragmentShaderFileLoc),
-  modelShader(posNormTexVertexShaderFileLoc, textureModelFragmentShaderFileLoc),
+  modelShader(posNormTexVertexShaderFileLoc, dirPosSpotLightModelFragmentShaderFileLoc),
   stencilShader(posNormTexVertexShaderFileLoc, singleColorFragmentShaderFileLoc),
   frameBufferShader(frameBufferVertexShaderFileLoc, kernel5x5TextureFragmentShaderFileLoc),
   skyboxShader(skyboxVertexShaderFileLoc, skyboxFragmentShaderFileLoc)
@@ -195,6 +195,8 @@ void NessCubesScene::renderLoop(GLFWwindow* window, uint32& shapesVAO, uint32& l
 
   const char* vendor = (char*)glGetString(GL_VENDOR); // Returns the vendor
   const char* renderer = (char*)glGetString(GL_RENDERER); // Returns a hint to the model
+
+  camera.Position += glm::vec3(0.0f, 0.0f, 6.0f);
 
   // NOTE: render/game loop
   while(glfwWindowShouldClose(window) == GL_FALSE)
@@ -432,7 +434,7 @@ void NessCubesScene::renderLoop(GLFWwindow* window, uint32& shapesVAO, uint32& l
                    0); // offset in the EBO
 
 	glDisable(GL_DEPTH_TEST);
-	uint32 numFrames = 1 / deltaTime;
+	uint32 numFrames = (uint32)(1 / deltaTime);
 	renderText(std::to_string(numFrames) + " FPS", 25.0f, 25.0f, 1.0f, glm::vec3(1.0f, 0.0f, 0.0f));
 	renderText(vendor, 25.0f, 100.0f, 1.0f, glm::vec3(1.0f, 0.0f, 0.0f));
 	renderText(renderer, 25.0f, 150.0f, 1.0f, glm::vec3(1.0f, 0.0f, 0.0f));
@@ -447,7 +449,7 @@ void NessCubesScene::initializeTextures(uint32& diffTextureId, uint32& specTextu
 {
   load2DTexture(diffuseTextureLoc, diffTextureId, true);
   load2DTexture(specularTextureLoc, specTextureId, true);
-  loadCubeMapTexture(skyboxGrassFaceLocations, skyboxTextureId);
+  loadCubeMapTexture(skyboxWaterFaceLocations, skyboxTextureId);
 }
 
 void NessCubesScene::frameBufferSize(uint32 width, uint32 height)
