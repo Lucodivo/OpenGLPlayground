@@ -189,9 +189,9 @@ public:
     setUniform(name, vector3.x, vector3.y, vector3.z);
   }
 
-  void bindBlockIndex(const char* name, uint32 index)
+  void bindBlockIndex(const std::string& name, uint32 index)
   {
-    uint32 blockIndex = glGetUniformBlockIndex(ID, name);
+    uint32 blockIndex = glGetUniformBlockIndex(ID, name.c_str());
     glUniformBlockBinding(ID, blockIndex, index);
   }
 };
