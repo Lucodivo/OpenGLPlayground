@@ -206,6 +206,9 @@
     <None Include="src\shaders\PosNormTexVertexShader.glsl">
       <Filter>shaders</Filter>
     </None>
+    <None Include="src\shaders\AsteroidVertexShader.glsl">
+      <Filter>shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Image Include="src\data\emission_map.png">

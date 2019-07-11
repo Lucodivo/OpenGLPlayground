@@ -9,6 +9,7 @@ const char* const textureModelFragmentShaderFileLoc = "src/shaders/TextureModelF
 const char* const dirPosSpotLightModelFragmentShaderFileLoc = "src/shaders/DirPosSpotLightModelFragmentShader.glsl";
 const char* const posTexModelVertexShaderFileLoc = "src/shaders/PosTexModelVertexShader.glsl";
 const char* const posNormModelVertexShaderFileLoc = "src/shaders/PosNormModelVertexShader.glsl";
+const char* const AsteroidVertexShaderFileLoc = "src/shaders/AsteroidVertexShader.glsl";
 const char* const posTexVertexShaderFileLoc = "src/shaders/PosTexVertexShader.glsl";
 const char* const depthFragmentShaderFileLoc = "src/shaders/DepthBufferVisualizerFragmentShader.glsl";
 const char* const singleColorFragmentShaderFileLoc = "src/shaders/SingleColorFragmentShader.glsl";

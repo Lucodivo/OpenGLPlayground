@@ -55,6 +55,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="README.md" />
+    <None Include="src\shaders\AsteroidVertexShader.glsl" />
     <None Include="src\shaders\CubeFragmentShader.glsl" />
     <None Include="src\shaders\ExplodeGeometryShader.glsl" />
     <None Include="src\shaders\Kernel5x5TextureFragmentShader.glsl" />

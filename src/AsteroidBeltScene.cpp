@@ -7,8 +7,8 @@
 AsteroidBeltScene::AsteroidBeltScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth)
   : FirstPersonScene(window, initScreenHeight, initScreenWidth), 
   modelShader(posTexVertexShaderFileLoc, textureModelFragmentShaderFileLoc),
-  modelInstanceShader(posTexModelVertexShaderFileLoc, textureModelFragmentShaderFileLoc),
-  reflectModelInstanceShader(posNormModelVertexShaderFileLoc, skyboxReflectionFragmentShaderFileLoc),
+  modelInstanceShader(AsteroidVertexShaderFileLoc, textureModelFragmentShaderFileLoc),
+  reflectModelInstanceShader(AsteroidVertexShaderFileLoc, skyboxReflectionFragmentShaderFileLoc),
   skyboxShader(skyboxVertexShaderFileLoc, skyboxFragmentShaderFileLoc) {}
 
 void AsteroidBeltScene::runScene()
@@ -124,6 +124,7 @@ void AsteroidBeltScene::renderLoop(uint32 skyboxVAO)
   camera.Position += glm::vec3(0.0f, 0.0f, 50.0f);
 
   float32 planetRotationSpeed = 5.0f;
+  float32 asteroidOrbitSpeed = 7.5f;
 
   // NOTE: render/game loop
   while(glfwWindowShouldClose(window) == GL_FALSE)
@@ -155,6 +156,7 @@ void AsteroidBeltScene::renderLoop(uint32 skyboxVAO)
     reflectModelInstanceShader.use();
     reflectModelInstanceShader.setUniform("view", viewMat);
     reflectModelInstanceShader.setUniform("cameraPos", camera.Position);
+    reflectModelInstanceShader.setUniform("orbit", glm::rotate(glm::mat4(), t * glm::radians(-planetRotationSpeed), glm::vec3(0.0f, 1.0f, 0.0f)));
     for(unsigned int i = 0; i < asteroidModel.meshes.size(); i++)
     {
       glBindVertexArray(asteroidModel.meshes[i].VAO);
