@@ -19,5 +19,5 @@ typedef double float64;
 #define local_persist static
 #define global_variable static
 
-#define VIEWPORT_INIT_WIDTH 960
-#define VIEWPORT_INIT_HEIGHT 540
+#define VIEWPORT_INIT_WIDTH 1920
+#define VIEWPORT_INIT_HEIGHT 1080

@@ -86,7 +86,9 @@ void InfiniteCubeScene::renderLoop(GLFWwindow* window, uint32& cubeVAO, uint32& 
 
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-  uint32 colorIndex = 0;
+
+  glEnable(GL_DEPTH_TEST);
+  glDepthFunc(GL_LESS);
 
 #if 0
   // draw in wireframe
@@ -171,9 +173,6 @@ void InfiniteCubeScene::renderLoop(GLFWwindow* window, uint32& cubeVAO, uint32& 
 
     // bind default frame buffer
     glBindFramebuffer(GL_FRAMEBUFFER, frameBuffers[currentFrameBufferIndex].frameBuffer);
-
-    glEnable(GL_DEPTH_TEST);
-    glDepthFunc(GL_LESS);
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 

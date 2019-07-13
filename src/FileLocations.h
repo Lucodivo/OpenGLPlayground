@@ -42,6 +42,8 @@ const char* const outlineWhiteFillTextureLoc = "src/data/cube_outline_white_fill
 const char* const nanoSuitModelAbsoluteLoc = "C:/developer/repos/LearnOpenGL/LearnOpenGL/src/data/models/nanosuit/nanosuit.obj";
 const char* const asteroidModelAbsoluteLoc = "C:/developer/repos/LearnOpenGL/LearnOpenGL/src/data/models/rock/rock.obj";
 const char* const planetModelAbsoluteLoc = "C:/developer/repos/LearnOpenGL/LearnOpenGL/src/data/models/planet/planet.obj";
+const char* const bb8ModelAbsoluteLoc = "C:/developer/repos/LearnOpenGL/LearnOpenGL/src/data/models/BB8.obj";
+const char* const theObjectModelAbsoluteLoc = "C:/developer/repos/LearnOpenGL/LearnOpenGL/src/data/models/TheObject.obj";
 
 
 #define skybox(folder, extension) std::vector<const char*>{  \

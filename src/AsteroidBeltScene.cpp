@@ -6,7 +6,7 @@
 
 AsteroidBeltScene::AsteroidBeltScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth)
   : FirstPersonScene(window, initScreenHeight, initScreenWidth), 
-  modelShader(posTexVertexShaderFileLoc, textureModelFragmentShaderFileLoc),
+  modelShader(posNormalVertexShaderFileLoc, skyboxReflectionFragmentShaderFileLoc),
   modelInstanceShader(AsteroidVertexShaderFileLoc, textureModelFragmentShaderFileLoc),
   reflectModelInstanceShader(AsteroidVertexShaderFileLoc, skyboxReflectionFragmentShaderFileLoc),
   skyboxShader(skyboxVertexShaderFileLoc, skyboxFragmentShaderFileLoc) {}
@@ -28,6 +28,9 @@ void AsteroidBeltScene::renderLoop(uint32 skyboxVAO)
   uint32 skyboxTextureId;
   loadCubeMapTexture(skyboxSpaceRed1FaceLocations, skyboxTextureId);
 
+  uint32 skybox2TextureId;
+  loadCubeMapTexture(skyboxSpaceLightBlueFaceLocations, skybox2TextureId);
+
   Model planetModel((char*)planetModelAbsoluteLoc);
   Model asteroidModel((char*)asteroidModelAbsoluteLoc);
 
@@ -36,8 +39,12 @@ void AsteroidBeltScene::renderLoop(uint32 skyboxVAO)
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_CUBE_MAP, skyboxTextureId);
 
+  glActiveTexture(GL_TEXTURE1);
+  glBindTexture(GL_TEXTURE_CUBE_MAP, skybox2TextureId);
+
   modelShader.use();
   modelShader.setUniform("projection", projectionMat);
+  modelShader.setUniform("skybox", 1);
 
   skyboxShader.use();
   skyboxShader.setUniform("projection", projectionMat);
@@ -50,19 +57,18 @@ void AsteroidBeltScene::renderLoop(uint32 skyboxVAO)
   reflectModelInstanceShader.setUniform("projection", projectionMat);
   reflectModelInstanceShader.setUniform("skybox", 0);
   
-  unsigned int amount = 5000;
+  unsigned int numAsteroids = 5000;
   glm::mat4* modelMatrices;
-  modelMatrices = new glm::mat4[amount];
+  modelMatrices = new glm::mat4[numAsteroids];
   srand((uint32)glfwGetTime()); // initialize random seed	
   float32 radius = 30.0;
-  float32 offset = 10.0f;
-  auto randDisplacement = [offset]() -> float32 { return ((rand() % (int)(2 * offset * 100)) / 100.0f - offset); };
-  for(unsigned int i = 0; i < amount; i++)
+  auto randDisplacement = []() -> float32 { return ((rand() % 2000) / 100.0f) - 10.0f; };
+  for(unsigned int i = 0; i < numAsteroids; i++)
   {
-    glm::mat4 model = glm::mat4(1.0f);
+    glm::mat4 model;
 
     // Displace along circle with 'radius' in range [-offset, offset]
-    float32 angle = (float)i / (float)amount * 360.0f;
+    float32 angle = (float)i / (float)numAsteroids * 360.0f;
     float32 displacement = randDisplacement();
     float32 x = sin(angle) * radius + displacement;
     displacement = randDisplacement();
@@ -72,7 +78,7 @@ void AsteroidBeltScene::renderLoop(uint32 skyboxVAO)
     model = glm::translate(model, glm::vec3(x, y, z));
 
     // scale
-    float32 scale = (rand() % 20) / 100.0f + 0.05f;
+    float32 scale = ((rand() % 200) / 1000.0f) + 0.05f;
     model = glm::scale(model, glm::vec3(scale));
 
     // rotate
@@ -83,11 +89,11 @@ void AsteroidBeltScene::renderLoop(uint32 skyboxVAO)
     modelMatrices[i] = model;
   }
   
-  // vertex Buffer Object
+  // vertex buffer object to store all model matrices for the asteroids
   unsigned int buffer;
   glGenBuffers(1, &buffer);
   glBindBuffer(GL_ARRAY_BUFFER, buffer);
-  glBufferData(GL_ARRAY_BUFFER, amount * sizeof(glm::mat4), &modelMatrices[0], GL_STATIC_DRAW);
+  glBufferData(GL_ARRAY_BUFFER, numAsteroids * sizeof(glm::mat4), modelMatrices, GL_STATIC_DRAW);
 
   for(unsigned int i = 0; i < asteroidModel.meshes.size(); i++)
   {
@@ -95,6 +101,8 @@ void AsteroidBeltScene::renderLoop(uint32 skyboxVAO)
     glBindVertexArray(VAO);
     // vertex Attributes
     GLsizei vec4Size = sizeof(glm::vec4);
+    // a vec4 is the largest attribute pointer available with a single call
+    // So we must individually assign the 4 vec4 attribute pointers to receiver a mat4x4 in the shader
     glEnableVertexAttribArray(3);
     glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, 4 * vec4Size, (void*)0);
     glEnableVertexAttribArray(4);
@@ -104,6 +112,7 @@ void AsteroidBeltScene::renderLoop(uint32 skyboxVAO)
     glEnableVertexAttribArray(6);
     glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, 4 * vec4Size, (void*)(3 * vec4Size));
 
+    // Modifies the rate at which vertex attributes advance when rendering multiple instances
     glVertexAttribDivisor(3, 1);
     glVertexAttribDivisor(4, 1);
     glVertexAttribDivisor(5, 1);
@@ -124,7 +133,6 @@ void AsteroidBeltScene::renderLoop(uint32 skyboxVAO)
   camera.Position += glm::vec3(0.0f, 0.0f, 50.0f);
 
   float32 planetRotationSpeed = 5.0f;
-  float32 asteroidOrbitSpeed = 7.5f;
 
   // NOTE: render/game loop
   while(glfwWindowShouldClose(window) == GL_FALSE)
@@ -143,9 +151,10 @@ void AsteroidBeltScene::renderLoop(uint32 skyboxVAO)
 
     modelShader.use();
     modelShader.setUniform("view", viewMat);
+    modelShader.setUniform("cameraPos", camera.Position);
 
     // draw Planet
-    glm::mat4 model = glm::mat4(1.0f);
+    glm::mat4 model;
     model = glm::translate(model, glm::vec3(0.0f, -3.0f, 0.0f));
     model = glm::rotate(model, t * glm::radians(planetRotationSpeed), glm::vec3(0.0f, 1.0f, 0.0f));
     model = glm::scale(model, glm::vec3(4.0f, 4.0f, 4.0f));
@@ -160,9 +169,7 @@ void AsteroidBeltScene::renderLoop(uint32 skyboxVAO)
     for(unsigned int i = 0; i < asteroidModel.meshes.size(); i++)
     {
       glBindVertexArray(asteroidModel.meshes[i].VAO);
-      glDrawElementsInstanced(
-        GL_TRIANGLES, asteroidModel.meshes[i].indices.size(), GL_UNSIGNED_INT, 0, amount
-      );
+      glDrawElementsInstanced(GL_TRIANGLES, asteroidModel.meshes[i].indices.size(), GL_UNSIGNED_INT, 0, numAsteroids);
     }
 
     // draw skybox
