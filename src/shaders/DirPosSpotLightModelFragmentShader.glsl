@@ -69,11 +69,11 @@ void main()
 	diffColor = texture(material.diffTexture1, TextureCoord).rgb;
 	specColor = texture(material.specTexture1, TextureCoord).rgb;
 
-	vec3 rotationalResult = calcPositionalLightColor();
+	vec3 positionalResult = calcPositionalLightColor();
 	vec3 directionalResult = calcDirectionalLightColor();
 	vec3 spotResult = calcSpotLightColor();
 
-	vec3 result = rotationalResult + directionalResult + spotResult;
+	vec3 result = positionalResult + directionalResult + spotResult;
     FragColor = vec4(result, 1.0);
 }
 

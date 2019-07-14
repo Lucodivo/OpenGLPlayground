@@ -6,6 +6,7 @@ void initializeCubePosTexNormAttBuffers(uint32& VAO, uint32& VBO, uint32& EBO);
 void initializeCubePosNormAttBuffers(uint32& VAO, uint32& VBO, uint32& EBO);
 void initializeCubePositionAttBuffers(uint32& VAO, uint32& VBO, uint32& EBO);
 void initializeQuadVertexAttBuffers(uint32& VAO, uint32& VBO, uint32& EBO);
+void initializeFrameBufferQuadVertexAttBuffers(uint32& VAO, uint32& VBO, uint32& EBO);
 void initializeFrameBuffer(uint32& frameBuffer, uint32& rbo, uint32& frameBufferTexture, uint32 width, uint32 height);
 
 // ===== cube values =====
@@ -131,17 +132,28 @@ const uint32 cubePositionIndices[]{
 // ===== Skybox values =====
 
 // ===== frame buffer quad values =====
-const uint32 quadVertexAttSizeInBytes = 4 * sizeof(float32);
+const uint32 quadVertexAttSizeInBytes = 8 * sizeof(float32);
 const float32 quadVertexAttributes[] = {
-  // positions   // texCoords
-  -1.0f,  1.0f,  0.0f, 1.0f,
-  -1.0f, -1.0f,  0.0f, 0.0f,
-   1.0f, -1.0f,  1.0f, 0.0f,
-   1.0f,  1.0f,  1.0f, 1.0f
+	// positions		// normal			// texCoords
+	-1.0f,  1.0f, 0.0f,	0.0f,  0.0f, 1.0f,	0.0f, 1.0f,
+	-1.0f, -1.0f, 0.0f,	0.0f,  0.0f, 1.0f,	0.0f, 0.0f,
+	 1.0f, -1.0f, 0.0f,	0.0f,  0.0f, 1.0f,	1.0f, 0.0f,
+	 1.0f,  1.0f, 0.0f,	0.0f,  0.0f, 1.0f,	1.0f, 1.0f
 };
 
 const uint32 quadIndices[]{
   0, 1, 2,
   0, 2, 3
+};
+// ===== frame buffer quad values =====
+
+// ===== frame buffer quad values =====
+const uint32 frameBufferQuadVertexAttSizeInBytes = 4 * sizeof(float32);
+const float32 frameBufferQuadVertexAttributes[] = {
+  // positions   // texCoords
+  -1.0f,  1.0f,  0.0f, 1.0f,
+  -1.0f, -1.0f,  0.0f, 0.0f,
+   1.0f, -1.0f,  1.0f, 0.0f,
+   1.0f,  1.0f,  1.0f, 1.0f
 };
 // ===== frame buffer quad values =====

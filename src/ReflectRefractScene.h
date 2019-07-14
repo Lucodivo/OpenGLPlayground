@@ -33,7 +33,6 @@ private:
   double modeSwitchTimer = 0.0f;
 
   void renderLoop(GLFWwindow* window, uint32& cubeVAO, uint32& skyboxVAO);
-  void initializeTextures(uint32& skyboxTextureId);
 
   void key_Up();
   void key_Down();

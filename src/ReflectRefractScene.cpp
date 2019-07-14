@@ -83,7 +83,7 @@ void ReflectRefractScene::renderLoop(GLFWwindow* window, uint32& cubeVAO, uint32
 {
 
   uint32 skyboxTextureId;
-  initializeTextures(skyboxTextureId);
+  loadCubeMapTexture(skyboxSpaceLightBlueFaceLocations, skyboxTextureId);
 
   // load models
   Model nanoSuitModel((char*)nanoSuitModelAbsoluteLoc);
@@ -284,11 +284,6 @@ void ReflectRefractScene::renderLoop(GLFWwindow* window, uint32& cubeVAO, uint32
     glfwSwapBuffers(window); // swaps double buffers (call after all render commands are completed)
     glfwPollEvents(); // checks for events (ex: keyboard/mouse input)
   }
-}
-
-void ReflectRefractScene::initializeTextures(uint32& skyboxTextureId)
-{
-  loadCubeMapTexture(skyboxSpaceLightBlueFaceLocations, skyboxTextureId);
 }
 
 void ReflectRefractScene::key_Up()

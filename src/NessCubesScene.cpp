@@ -39,7 +39,7 @@ const float32 cubeScales[] = {
 NessCubesScene::NessCubesScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth)
   : FirstPersonScene(window, initScreenHeight, initScreenWidth),
   cubeShader(posNormTexVertexShaderFileLoc, cubeFragmentShaderFileLoc),
-  lightShader(posVertexShaderFileLoc, lightFragmentShaderFileLoc),
+  lightShader(posVertexShaderFileLoc, singleColorFragmentShaderFileLoc),
   modelShader(posNormTexVertexShaderFileLoc, dirPosSpotLightModelFragmentShaderFileLoc),
   stencilShader(posNormTexVertexShaderFileLoc, singleColorFragmentShaderFileLoc),
   frameBufferShader(frameBufferVertexShaderFileLoc, kernel5x5TextureFragmentShaderFileLoc),
@@ -55,7 +55,7 @@ void NessCubesScene::runScene()
   initializeCubePosTexNormAttBuffers(cubeVAO, cubeVBO, cubeEBO);
 
   uint32 quadVAO, quadVBO, quadEBO;
-  initializeQuadVertexAttBuffers(quadVAO, quadVBO, quadEBO);
+  initializeFrameBufferQuadVertexAttBuffers(quadVAO, quadVBO, quadEBO);
 
   uint32 skyboxVAO, skyboxVBO, skyboxEBO;
   initializeCubePositionAttBuffers(skyboxVAO, skyboxVBO, skyboxEBO);
@@ -260,7 +260,7 @@ void NessCubesScene::renderLoop(GLFWwindow* window, uint32& shapesVAO, uint32& l
     glBindVertexArray(lightVAO);
 
     lightShader.setUniform("model", lightModel);
-    lightShader.setUniform("lightColor", positionalLightColor);
+    lightShader.setUniform("color", positionalLightColor);
     glDrawElements(GL_TRIANGLES, // drawing mode
                    cubePosTexNormNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
                    GL_UNSIGNED_INT, // type of the indices

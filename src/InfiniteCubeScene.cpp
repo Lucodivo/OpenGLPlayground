@@ -16,7 +16,7 @@ void InfiniteCubeScene::runScene()
   initializeCubePosTexNormAttBuffers(cubeVAO, cubeVBO, cubeEBO);
 
   uint32 quadVAO, quadVBO, quadEBO;
-  initializeQuadVertexAttBuffers(quadVAO, quadVBO, quadEBO);
+  initializeFrameBufferQuadVertexAttBuffers(quadVAO, quadVBO, quadEBO);
 
   initializeFrameBuffer(frameBuffers[0].frameBuffer, frameBuffers[0].rbo, frameBuffers[0].frameBufferTexture, viewportWidth, viewportHeight);
   initializeFrameBuffer(frameBuffers[1].frameBuffer, frameBuffers[1].rbo, frameBuffers[1].frameBufferTexture, viewportWidth, viewportHeight);

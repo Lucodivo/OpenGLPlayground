@@ -53,6 +53,9 @@
     <ClCompile Include="src\AsteroidBeltScene.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\FloorScene.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Text Include="notes.txt">
@@ -111,15 +114,15 @@
     <ClInclude Include="src\AsteroidBeltScene.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\FloorScene.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\shaders\CubeFragmentShader.glsl">
       <Filter>shaders</Filter>
     </None>
     <None Include="src\shaders\DepthBufferVisualizerFragmentShader.glsl">
-      <Filter>shaders</Filter>
-    </None>
-    <None Include="src\shaders\LightSourceFragmentShader.glsl">
       <Filter>shaders</Filter>
     </None>
     <None Include="README.md">
@@ -207,6 +210,9 @@
       <Filter>shaders</Filter>
     </None>
     <None Include="src\shaders\AsteroidVertexShader.glsl">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="src\shaders\BlinnPhongLightingFragmentShader.glsl">
       <Filter>shaders</Filter>
     </None>
   </ItemGroup>
