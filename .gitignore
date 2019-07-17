@@ -8,3 +8,4 @@ src/data/skyboxes/
 src/data/models/
 src/fonts/
 stb_image.cpp
+src/data/floor.jpg

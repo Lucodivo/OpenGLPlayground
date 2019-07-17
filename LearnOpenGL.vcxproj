@@ -22,7 +22,9 @@
     <ClCompile Include="..\..\..\dependencies\OpenGL\include\glad\glad.c" />
     <ClCompile Include="..\..\..\dependencies\OpenGL\include\stb\stb_image.cpp" />
     <ClCompile Include="src\AsteroidBeltScene.cpp" />
+    <ClCompile Include="src\FirstPersonScene.cpp" />
     <ClCompile Include="src\FloorScene.cpp" />
+    <ClCompile Include="src\GodModeScene.cpp" />
     <ClCompile Include="src\InfiniteCubeScene.cpp" />
     <ClCompile Include="src\Input.cpp" />
     <ClCompile Include="src\main.cpp" />
@@ -40,7 +42,9 @@
     <ClInclude Include="src\AsteroidBeltScene.h" />
     <ClInclude Include="src\Camera.h" />
     <ClInclude Include="src\FileLocations.h" />
+    <ClInclude Include="src\FirstPersonScene.h" />
     <ClInclude Include="src\FloorScene.h" />
+    <ClInclude Include="src\GodModeScene.h" />
     <ClInclude Include="src\InfiniteCubeScene.h" />
     <ClInclude Include="src\Input.h" />
     <ClInclude Include="src\Kernels.h" />

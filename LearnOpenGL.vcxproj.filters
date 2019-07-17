@@ -56,6 +56,12 @@
     <ClCompile Include="src\FloorScene.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\FirstPersonScene.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GodModeScene.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Text Include="notes.txt">
@@ -115,6 +121,12 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="src\FloorScene.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\FirstPersonScene.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\GodModeScene.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>

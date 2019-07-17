@@ -5,7 +5,7 @@
 #include "ObjectData.h"
 
 FloorScene::FloorScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth)
-	: FirstPersonScene(window, initScreenHeight, initScreenWidth),
+	: GodModeScene(window, initScreenHeight, initScreenWidth),
 	floorShader(posNormTexVertexShaderFileLoc, blinnPhongLightingFragmentShaderFileLoc),
 	lightShader(posVertexShaderFileLoc, singleColorFragmentShaderFileLoc) {}
 
@@ -43,15 +43,19 @@ void FloorScene::renderLoop(uint32 floorVAO, uint32 lightVAO)
 	glCullFace(GL_BACK);
 	glFrontFace(GL_CCW);
 
+  glEnable(GL_DEPTH_TEST);
+  glDepthFunc(GL_LEQUAL);
+
 	// background clear color
 	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 
-	glm::vec3 lightPosition(0.0f, 1.0f, 0.0f);
 	glm::vec3 lightColor(1.0f, 1.0f, 1.0f);
 	const float32 lightScale = 0.2f;
 
 	const float32 floorScale = 8.0f;
 	const glm::vec3 floorPosition(0.0f, -3.0f, 0.0f);
+  const float32 lightRadius = 4.0f;
+  const float32 lightAmplitude = 2.0f;
 
 	floorShader.use();
 
@@ -61,8 +65,7 @@ void FloorScene::renderLoop(uint32 floorVAO, uint32 lightVAO)
 	floorShader.setUniform("material.shininess", 32.0f);
 
 	// set lighting
-	floorShader.setUniform("positionalLight.position", lightPosition);
-	floorShader.setUniform("positionalLight.color.ambient", lightColor * 0.2f);
+	floorShader.setUniform("positionalLight.color.ambient", lightColor * 0.4f);
 	floorShader.setUniform("positionalLight.color.diffuse", lightColor * 0.9f);
 	floorShader.setUniform("positionalLight.color.specular", lightColor);
 	floorShader.setUniform("positionalLight.attenuation.constant", 1.0f);
@@ -117,6 +120,9 @@ void FloorScene::renderLoop(uint32 floorVAO, uint32 lightVAO)
 		lightShader.use();
 		glBindVertexArray(lightVAO);
 
+
+    glm::vec3 lightPosition(sin(t) * lightRadius, sin(t) * lightAmplitude, cos(t) * lightRadius);
+
 		glm::mat4 lightModel;
 		lightModel = glm::translate(lightModel, lightPosition);
 		lightModel = glm::scale(lightModel, glm::vec3(lightScale));
@@ -130,6 +136,7 @@ void FloorScene::renderLoop(uint32 floorVAO, uint32 lightVAO)
 
 		floorShader.use();
 		floorShader.setUniform("viewPos", camera.Position);
+    floorShader.setUniform("positionalLight.position", lightPosition);
 		glm::mat4 floorModel = glm::mat4();
 		floorModel = glm::translate(floorModel, floorPosition);
 		floorModel = glm::scale(floorModel, glm::vec3(floorScale, 1.0f, floorScale));

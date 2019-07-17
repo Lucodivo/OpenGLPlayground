@@ -37,17 +37,22 @@ public:
   glm::vec3 Up;
   glm::vec3 Right;
   glm::vec3 WorldUp;
+
   // Eular Angles
   float32 Yaw;
   float32 Pitch;
+
   // Camera options
   float32 MovementSpeed;
   float32 MouseSensitivity;
   float32 Zoom;
   glm::vec3 deltaPosition = glm::vec3(0.0f, 0.0f, 0.0f);
+
   // Jump values
   bool jumping = false;
   float32 jumpVal = 0.0f;
+
+  bool groundedMovement = true;
 
   // Constructor with vectors
   Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 3.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float32 yaw = YAW, float32 pitch = PITCH)
@@ -135,14 +140,34 @@ public:
   }
 
   // Processes input received from any keyboard-like input system. Accepts input parameter in the form of camera defined ENUM (to abstract it from windowing systems)
-  void ProcessKeyboard(Camera_Movement direction)
+  void ProcessInput(Camera_Movement direction)
   {
-    if(direction == FORWARD) deltaPosition += glm::vec3(Front.x, 0.0f, Front.z);
-    if(direction == BACKWARD) deltaPosition -= glm::vec3(Front.x, 0.0f, Front.z);
-    if(direction == LEFT) deltaPosition -= Right;
-    if(direction == RIGHT) deltaPosition += Right;
+    switch(direction)
+    {
+      case FORWARD:
+        deltaPosition += groundedMovement ? glm::vec3(Front.x, 0.0f, Front.z) : Front;
+        break;
+      case BACKWARD:
+        deltaPosition -= groundedMovement ? glm::vec3(Front.x, 0.0f, Front.z) : Front;
+        break;
+      case LEFT:
+        deltaPosition -= Right;
+        break;
+      case RIGHT:
+        deltaPosition += Right;
+        break;
+      case JUMP:
+        jumping = true;
+        break;
+    }
+  }
 
-    if(!jumping && direction == JUMP) jumping = true;
+  void ProcessLeftAnalog(int16 stickX, int16 stickY, GLboolean constrainPitch = true)
+  {
+      if(stickY > 0) ProcessInput(FORWARD);
+      else if(stickY < 0) ProcessInput(BACKWARD);
+      if(stickX > 0) ProcessInput(RIGHT);
+      else if(stickX < 0) ProcessInput(LEFT);
   }
 
   // Processes input received from a mouse input system. Expects the offset value in both the x and y direction.
@@ -180,14 +205,6 @@ public:
 
     // Update Front, Right and Up Vectors using the updated Eular angles
     updateCameraVectors();
-  }
-
-  void ProcessLeftAnalog(int16 stickX, int16 stickY, GLboolean constrainPitch = true)
-  {
-    if(stickY > 0) deltaPosition += glm::vec3(Front.x, 0.0f, Front.z);
-    else if(stickY < 0) deltaPosition -= glm::vec3(Front.x, 0.0f, Front.z);
-    if(stickX > 0) deltaPosition += Right;
-    else if(stickX < 0) deltaPosition -= Right;
   }
 
   // Processes input received from a mouse scroll-wheel event. Only requires input on the vertical wheel-axis

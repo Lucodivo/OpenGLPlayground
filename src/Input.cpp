@@ -223,7 +223,7 @@ void processKeyboardInput(GLFWwindow* window, KeyboardConsumer* consumer)
 
   if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
   {
-    glfwSetWindowShouldClose(window, GL_TRUE);
+    glfwSetWindowShouldClose(window, true);
   }
 
   local_persist bool leftShiftWasDown = false;

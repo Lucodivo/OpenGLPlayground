@@ -1,5 +1,7 @@
 #pragma once
 
+#include <vector>
+
 // shaders
 const char* const posNormTexVertexShaderFileLoc = "src/shaders/PosNormTexVertexShader.glsl";
 const char* const cubeFragmentShaderFileLoc = "src/shaders/CubeFragmentShader.glsl";
@@ -39,7 +41,7 @@ const char* const specularTextureLoc = "src/data/specular_map.png";
 const char* const emissionTextureLoc = "src/data/emission_map.png";
 const char* const outlineTextureLoc = "src/data/cube_outline.png";
 const char* const outlineWhiteFillTextureLoc = "src/data/cube_outline_white_fill.png";
-const char* const marbleTextureLoc = "src/data/marble.jpg";
+const char* const marbleTextureLoc = "src/data/floor.jpg";
 const char* const nanoSuitModelAbsoluteLoc = "C:/developer/repos/LearnOpenGL/LearnOpenGL/src/data/models/nanosuit/nanosuit.obj";
 const char* const asteroidModelAbsoluteLoc = "C:/developer/repos/LearnOpenGL/LearnOpenGL/src/data/models/rock/rock.obj";
 const char* const planetModelAbsoluteLoc = "C:/developer/repos/LearnOpenGL/LearnOpenGL/src/data/models/planet/planet.obj";
@@ -64,3 +66,5 @@ const std::vector<const char*> skyboxSpaceLightBlueFaceLocations = skybox(space_
 const std::vector<const char*> skyboxSpaceRed1FaceLocations = skybox(space_red_1, png);
 const std::vector<const char*> skyboxSpaceRed2FaceLocations = skybox(space_red_2, png);
 const std::vector<const char*> skyboxSpaceRed3FaceLocations = skybox(space_red_3, png);
+const std::vector<const char*> skyboxInterstellarFaceLocations = skybox(interstellar, png);
+const std::vector<const char*> skyboxGloomyFaceLocations = skybox(gloomy, png);

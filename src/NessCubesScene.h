@@ -4,7 +4,7 @@
 
 #include "LearnOpenGLPlatform.h"
 #include "Kernels.h"
-#include "Scene.h"
+#include "FirstPersonScene.h"
 #include "ObjectData.h"
 #include "Shader.h"
 

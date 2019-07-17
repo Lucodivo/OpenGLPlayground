@@ -1,6 +1,8 @@
-#include "Scene.h"
+#pragma once
 
-class FloorScene : public FirstPersonScene
+#include "GodModeScene.h"
+
+class FloorScene : public GodModeScene
 {
 public:
 	FloorScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth);

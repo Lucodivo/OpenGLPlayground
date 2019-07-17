@@ -26,7 +26,7 @@ void AsteroidBeltScene::runScene()
 void AsteroidBeltScene::renderLoop(uint32 skyboxVAO)
 {
   uint32 skyboxTextureId;
-  loadCubeMapTexture(skyboxSpaceRed1FaceLocations, skyboxTextureId);
+  loadCubeMapTexture(skyboxInterstellarFaceLocations, skyboxTextureId);
 
   uint32 skybox2TextureId;
   loadCubeMapTexture(skyboxSpaceLightBlueFaceLocations, skybox2TextureId);
