@@ -49,7 +49,10 @@ void FloorScene::renderLoop(uint32 floorVAO, uint32 lightVAO)
 	// background clear color
 	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 
-	glm::vec3 lightColor(1.0f, 1.0f, 1.0f);
+	glm::vec3 lightColor1(1.0f, 1.0f, 1.0f);
+  glm::vec3 lightColor2(1.0f, 0.0f, 0.0f);
+  glm::vec3 lightColor3(0.0f, 1.0f, 0.0f);
+  glm::vec3 lightColor4(0.0f, 0.0f, 1.0f);
 	const float32 lightScale = 0.2f;
 
 	const float32 floorScale = 8.0f;
@@ -63,14 +66,26 @@ void FloorScene::renderLoop(uint32 floorVAO, uint32 lightVAO)
 	floorShader.setUniform("material.diffTexture1", 0);
 	floorShader.setUniform("material.specTexture1", 0);
 	floorShader.setUniform("material.shininess", 32.0f);
+  floorShader.setUniform("attenuation.constant", 1.0f);
+  floorShader.setUniform("attenuation.linear", 0.09f);
+  floorShader.setUniform("attenuation.quadratic", 0.032f);
 
-	// set lighting
-	floorShader.setUniform("positionalLight.color.ambient", lightColor * 0.4f);
-	floorShader.setUniform("positionalLight.color.diffuse", lightColor * 0.9f);
-	floorShader.setUniform("positionalLight.color.specular", lightColor);
-	floorShader.setUniform("positionalLight.attenuation.constant", 1.0f);
-	floorShader.setUniform("positionalLight.attenuation.linear", 0.09f);
-	floorShader.setUniform("positionalLight.attenuation.quadratic", 0.032f);
+	// set lighting 1
+	floorShader.setUniform("positionalLights[0].color.ambient", lightColor1 * 0.1f);
+	floorShader.setUniform("positionalLights[0].color.diffuse", lightColor1 * 0.4f);
+	floorShader.setUniform("positionalLights[0].color.specular", lightColor1);
+  // set lighting 2
+  floorShader.setUniform("positionalLights[1].color.ambient", lightColor2 * 0.1f);
+  floorShader.setUniform("positionalLights[1].color.diffuse", lightColor2 * 0.4f);
+  floorShader.setUniform("positionalLights[1].color.specular", lightColor2);
+  // set lighting 3
+  floorShader.setUniform("positionalLights[2].color.ambient", lightColor3 * 0.1f);
+  floorShader.setUniform("positionalLights[2].color.diffuse", lightColor3 * 0.4f);
+  floorShader.setUniform("positionalLights[2].color.specular", lightColor3);
+  // set lighting 4
+  floorShader.setUniform("positionalLights[3].color.ambient", lightColor4 * 0.1f);
+  floorShader.setUniform("positionalLights[3].color.diffuse", lightColor4 * 0.4f);
+  floorShader.setUniform("positionalLights[3].color.specular", lightColor4);
 
 	uint32 globalVSUniformBuffer;
 	uint32 globalVSBufferBindIndex = 0;
@@ -121,22 +136,63 @@ void FloorScene::renderLoop(uint32 floorVAO, uint32 lightVAO)
 		glBindVertexArray(lightVAO);
 
 
-    glm::vec3 lightPosition(sin(t) * lightRadius, sin(t) * lightAmplitude, cos(t) * lightRadius);
 
-		glm::mat4 lightModel;
-		lightModel = glm::translate(lightModel, lightPosition);
-		lightModel = glm::scale(lightModel, glm::vec3(lightScale));
-		lightShader.setUniform("model", lightModel);
-		lightShader.setUniform("color", lightColor);
+    // draw light 1
+    float lightPairOffset = 1.5f;
+    glm::vec3 lightPosition1(sin(t) * lightRadius - lightPairOffset, -sin(t) * lightAmplitude, cos(t) * lightRadius - lightPairOffset);
+		glm::mat4 lightModel1;
+		lightModel1 = glm::translate(lightModel1, lightPosition1);
+		lightModel1 = glm::scale(lightModel1, glm::vec3(lightScale));
+		lightShader.setUniform("model", lightModel1);
+		lightShader.setUniform("color", lightColor1);
 		glDrawElements(GL_TRIANGLES, // drawing mode
 			cubePosTexNormNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
 			GL_UNSIGNED_INT, // type of the indices
 			0); // offset in the EBO
-		glBindVertexArray(0);
+
+    // draw light 2
+    glm::mat4 lightModel2;
+    glm::vec3 lightPosition2(sin(t) * lightRadius + lightPairOffset, sin(t) * lightAmplitude, -cos(t) * lightRadius + lightPairOffset);
+    lightModel2 = glm::translate(lightModel2, lightPosition2);
+    lightModel2 = glm::scale(lightModel2, glm::vec3(lightScale));
+    lightShader.setUniform("model", lightModel2);
+    lightShader.setUniform("color", lightColor2);
+    glDrawElements(GL_TRIANGLES, // drawing mode
+                   cubePosTexNormNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
+                   GL_UNSIGNED_INT, // type of the indices
+                   0); // offset in the EBO
+
+    // draw light 3
+    glm::mat4 lightModel3;
+    glm::vec3 lightPosition3(-sin(t) * lightRadius + lightPairOffset, sin(t)* lightAmplitude, cos(t) * lightRadius + lightPairOffset);
+    lightModel3 = glm::translate(lightModel3, lightPosition3);
+    lightModel3 = glm::scale(lightModel3, glm::vec3(lightScale));
+    lightShader.setUniform("model", lightModel3);
+    lightShader.setUniform("color", lightColor3);
+    glDrawElements(GL_TRIANGLES, // drawing mode
+                   cubePosTexNormNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
+                   GL_UNSIGNED_INT, // type of the indices
+                   0); // offset in the EBO
+
+    // draw light 4
+    glm::mat4 lightModel4;
+    glm::vec3 lightPosition4(-sin(t)* lightRadius - lightPairOffset, -sin(t)* lightAmplitude, -cos(t) * lightRadius - lightPairOffset);
+    lightModel4 = glm::translate(lightModel4, lightPosition4);
+    lightModel4 = glm::scale(lightModel4, glm::vec3(lightScale));
+    lightShader.setUniform("model", lightModel4);
+    lightShader.setUniform("color", lightColor4);
+    glDrawElements(GL_TRIANGLES, // drawing mode
+                   cubePosTexNormNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
+                   GL_UNSIGNED_INT, // type of the indices
+                   0); // offset in the EBO
+    glBindVertexArray(0);
 
 		floorShader.use();
 		floorShader.setUniform("viewPos", camera.Position);
-    floorShader.setUniform("positionalLight.position", lightPosition);
+    floorShader.setUniform("positionalLights[0].position", lightPosition1);
+    floorShader.setUniform("positionalLights[1].position", lightPosition2);
+    floorShader.setUniform("positionalLights[2].position", lightPosition3);
+    floorShader.setUniform("positionalLights[3].position", lightPosition4);
 		glm::mat4 floorModel = glm::mat4();
 		floorModel = glm::translate(floorModel, floorPosition);
 		floorModel = glm::scale(floorModel, glm::vec3(floorScale, 1.0f, floorScale));
