@@ -32,7 +32,7 @@ void FloorScene::runScene()
 void FloorScene::renderLoop(uint32 floorVAO, uint32 lightVAO)
 {
 	uint32 floorTextureId;
-	load2DTexture(marbleTextureLoc, floorTextureId);
+	load2DTexture(marbleTextureLoc, floorTextureId, false, true);
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, floorTextureId);
@@ -60,6 +60,9 @@ void FloorScene::renderLoop(uint32 floorVAO, uint32 lightVAO)
   const float32 lightRadius = 4.0f;
   const float32 lightAmplitude = 2.0f;
 
+  // Turn on gamma correction for entire scene
+  //glEnable(GL_FRAMEBUFFER_SRGB);
+
 	floorShader.use();
 
 	// set material
@@ -71,20 +74,20 @@ void FloorScene::renderLoop(uint32 floorVAO, uint32 lightVAO)
   floorShader.setUniform("attenuation.quadratic", 0.032f);
 
 	// set lighting 1
-	floorShader.setUniform("positionalLights[0].color.ambient", lightColor1 * 0.1f);
-	floorShader.setUniform("positionalLights[0].color.diffuse", lightColor1 * 0.4f);
+	floorShader.setUniform("positionalLights[0].color.ambient", lightColor1 * 0.05f);
+	floorShader.setUniform("positionalLights[0].color.diffuse", lightColor1 * 0.3f);
 	floorShader.setUniform("positionalLights[0].color.specular", lightColor1);
   // set lighting 2
-  floorShader.setUniform("positionalLights[1].color.ambient", lightColor2 * 0.1f);
-  floorShader.setUniform("positionalLights[1].color.diffuse", lightColor2 * 0.4f);
+  floorShader.setUniform("positionalLights[1].color.ambient", lightColor2 * 0.05f);
+  floorShader.setUniform("positionalLights[1].color.diffuse", lightColor2 * 0.3f);
   floorShader.setUniform("positionalLights[1].color.specular", lightColor2);
   // set lighting 3
-  floorShader.setUniform("positionalLights[2].color.ambient", lightColor3 * 0.1f);
-  floorShader.setUniform("positionalLights[2].color.diffuse", lightColor3 * 0.4f);
+  floorShader.setUniform("positionalLights[2].color.ambient", lightColor3 * 0.05f);
+  floorShader.setUniform("positionalLights[2].color.diffuse", lightColor3 * 0.3f);
   floorShader.setUniform("positionalLights[2].color.specular", lightColor3);
   // set lighting 4
-  floorShader.setUniform("positionalLights[3].color.ambient", lightColor4 * 0.1f);
-  floorShader.setUniform("positionalLights[3].color.diffuse", lightColor4 * 0.4f);
+  floorShader.setUniform("positionalLights[3].color.ambient", lightColor4 * 0.05f);
+  floorShader.setUniform("positionalLights[3].color.diffuse", lightColor4 * 0.3f);
   floorShader.setUniform("positionalLights[3].color.specular", lightColor4);
 
 	uint32 globalVSUniformBuffer;

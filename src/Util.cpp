@@ -5,7 +5,7 @@
 #include <GLFW/glfw3.h>
 #include <iostream>
 
-void load2DTexture(const char* imgLocation, uint32& textureId, bool flipImageVert)
+void load2DTexture(const char* imgLocation, uint32& textureId, bool flipImageVert, bool sRGB)
 {
   glGenTextures(1, &textureId);
   glBindTexture(GL_TEXTURE_2D, textureId);
@@ -16,14 +16,36 @@ void load2DTexture(const char* imgLocation, uint32& textureId, bool flipImageVer
   unsigned char* data = stbi_load(imgLocation, &width, &height, &numChannels, 0);
   if(data)
   {
-    auto pixelFormat = (numChannels == 3) ? GL_RGB : GL_RGBA;
+    uint32 internalFormat;
+    uint32 externalFormat;
+    if(sRGB)
+    {
+      if(numChannels == 3)
+      {
+        internalFormat = GL_SRGB;
+        externalFormat = GL_RGB;
+      } else
+      {
+        internalFormat = GL_SRGB_ALPHA;
+        externalFormat = GL_RGBA;
+      }
+    } else
+    {
+      if(numChannels == 3)
+      {
+        internalFormat = externalFormat = GL_RGB;
+      } else
+      {
+        internalFormat = externalFormat = GL_RGBA;
+      }
+    }
     glTexImage2D(GL_TEXTURE_2D, // target
                  0, // level of detail (level n is the nth mipmap reduction image)
-                 pixelFormat, // kind of format we want to store the texture
+                 internalFormat, // kind of format we want to store the texture
                  width, // width of texture
                  height, // height of texture
                  0, // border (legacy stuff, MUST BE 0)
-                 pixelFormat, // Specifies format of the pixel data
+                 externalFormat, // Specifies format of the pixel data
                  GL_UNSIGNED_BYTE, // specifies data type of pixel data
                  data); // pointer to the image data
     glGenerateMipmap(GL_TEXTURE_2D);

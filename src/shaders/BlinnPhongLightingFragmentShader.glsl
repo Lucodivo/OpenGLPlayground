@@ -50,7 +50,9 @@ void main()
     calcPositionalLightColor(positionalLights[2]) +
     calcPositionalLightColor(positionalLights[3]);
 
-  FragColor = vec4(finalColor, 1.0);
+  // apply gamma correction
+  float gamma = 2.2;
+  FragColor = vec4(pow(finalColor, vec3(1.0 / gamma)), 1.0);
 }
 
 vec3 calcPositionalLightColor(PositionalLight positionalLight) {
