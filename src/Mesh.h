@@ -42,16 +42,16 @@ public:
   {
     uint32 diffuseNr = 1;
     uint32 specularNr = 1;
-    for(uint32 i = 0; i < textures.size(); i++)
+    for (uint32 i = 0; i < textures.size(); i++)
     {
       Texture texture = textures[i];
       glActiveTexture(GL_TEXTURE0 + i); // activate proper texture unit before binding
       // retrieve texture number (the N in diffuse_textureN)
       std::string number;
       std::string name = texture.type;
-      if(name == "diffTexture")
+      if (name == "diffTexture")
         number = std::to_string(diffuseNr++);
-      else if(name == "specTexture")
+      else if (name == "specTexture")
         number = std::to_string(specularNr++);
 
       const std::string uniformName = "material." + name + number;
@@ -82,7 +82,7 @@ private:
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(uint32),
-                 &indices[0], GL_STATIC_DRAW);
+      &indices[0], GL_STATIC_DRAW);
 
     // vertex positions
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);

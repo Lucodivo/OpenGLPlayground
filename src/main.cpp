@@ -30,7 +30,7 @@ int main()
 void loadGLFW()
 {
   int loadSucceeded = glfwInit();
-  if(loadSucceeded == GLFW_FALSE)
+  if (loadSucceeded == GLFW_FALSE)
   {
     std::cout << "Failed to load GLFW" << std::endl;
     exit(-1);
@@ -40,7 +40,7 @@ void loadGLFW()
 void initializeGLAD()
 {
   // intialize GLAD to help manage function pointers for OpenGL
-  if(!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+  if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
   {
     std::cout << "Failed to initialize GLAD" << std::endl;
     exit(-1);
@@ -65,11 +65,11 @@ GLFWwindow* createWindow()
 
   // create window
   GLFWwindow* window = glfwCreateWindow(VIEWPORT_INIT_WIDTH, // int Width
-                                        VIEWPORT_INIT_HEIGHT, // int Height
-                                        "LearnOpenGL", // const char* Title
-                                        nullptr, // GLFWmonitor* Monitor: Specified for which monitor for fullscreen, NULL for windowed mode
-                                        nullptr); // GLFWwindow* Share: window to share resources with
-  if(window == NULL)
+    VIEWPORT_INIT_HEIGHT, // int Height
+    "LearnOpenGL", // const char* Title
+    nullptr, // GLFWmonitor* Monitor: Specified for which monitor for fullscreen, NULL for windowed mode
+    nullptr); // GLFWwindow* Share: window to share resources with
+  if (window == NULL)
   {
     std::cout << "Failed to create GLFW window" << std::endl;
     glfwTerminate();
@@ -78,6 +78,6 @@ GLFWwindow* createWindow()
 
   glfwMakeContextCurrent(window);
   glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-  
+
   return window;
 }

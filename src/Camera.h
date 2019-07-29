@@ -112,11 +112,11 @@ public:
 
   void changePositioning(float32 deltaTime)
   {
-    if(jumping)
+    if (jumping)
     {
       jumpVal += JUMP_SPEED * deltaTime * 6;
       float32 verticalOffset = sin(jumpVal) / 1.3f;
-      if(verticalOffset < 0.0f)
+      if (verticalOffset < 0.0f)
       {
         Position.y = 0.0f;
         jumpVal = 0.0f;
@@ -128,7 +128,7 @@ public:
     }
 
     // multiplying a vec3(0,0,0) by small fractions may lead to NAN values
-    if(deltaPosition.x != 0.0f || deltaPosition.y != 0.0f || deltaPosition.z != 0.0f)
+    if (deltaPosition.x != 0.0f || deltaPosition.y != 0.0f || deltaPosition.z != 0.0f)
     {
       // normalizing the deltaPosition helps:
       // - accomodate for slower movement when looking up or down
@@ -142,32 +142,32 @@ public:
   // Processes input received from any keyboard-like input system. Accepts input parameter in the form of camera defined ENUM (to abstract it from windowing systems)
   void ProcessInput(Camera_Movement direction)
   {
-    switch(direction)
+    switch (direction)
     {
-      case FORWARD:
-        deltaPosition += groundedMovement ? glm::vec3(Front.x, 0.0f, Front.z) : Front;
-        break;
-      case BACKWARD:
-        deltaPosition -= groundedMovement ? glm::vec3(Front.x, 0.0f, Front.z) : Front;
-        break;
-      case LEFT:
-        deltaPosition -= Right;
-        break;
-      case RIGHT:
-        deltaPosition += Right;
-        break;
-      case JUMP:
-        jumping = true;
-        break;
+    case FORWARD:
+      deltaPosition += groundedMovement ? glm::vec3(Front.x, 0.0f, Front.z) : Front;
+      break;
+    case BACKWARD:
+      deltaPosition -= groundedMovement ? glm::vec3(Front.x, 0.0f, Front.z) : Front;
+      break;
+    case LEFT:
+      deltaPosition -= Right;
+      break;
+    case RIGHT:
+      deltaPosition += Right;
+      break;
+    case JUMP:
+      jumping = true;
+      break;
     }
   }
 
   void ProcessLeftAnalog(int16 stickX, int16 stickY, GLboolean constrainPitch = true)
   {
-      if(stickY > 0) ProcessInput(FORWARD);
-      else if(stickY < 0) ProcessInput(BACKWARD);
-      if(stickX > 0) ProcessInput(RIGHT);
-      else if(stickX < 0) ProcessInput(LEFT);
+    if (stickY > 0) ProcessInput(FORWARD);
+    else if (stickY < 0) ProcessInput(BACKWARD);
+    if (stickX > 0) ProcessInput(RIGHT);
+    else if (stickX < 0) ProcessInput(LEFT);
   }
 
   // Processes input received from a mouse input system. Expects the offset value in both the x and y direction.
@@ -180,10 +180,10 @@ public:
     Pitch += yoffset;
 
     // Make sure that when pitch is out of bounds, screen doesn't get flipped
-    if(constrainPitch)
+    if (constrainPitch)
     {
-      if(Pitch > 89.0f) Pitch = 89.0f;
-      if(Pitch < -89.0f) Pitch = -89.0f;
+      if (Pitch > 89.0f) Pitch = 89.0f;
+      if (Pitch < -89.0f) Pitch = -89.0f;
     }
 
     // Update Front, Right and Up Vectors using the updated Eular angles
@@ -197,10 +197,10 @@ public:
     Pitch += (float32)stickY * stickSensitivty;
 
     // Make sure that when pitch is out of bounds, screen doesn't get flipped
-    if(constrainPitch)
+    if (constrainPitch)
     {
-      if(Pitch > 89.0f) Pitch = 89.0f;
-      if(Pitch < -89.0f) Pitch = -89.0f;
+      if (Pitch > 89.0f) Pitch = 89.0f;
+      if (Pitch < -89.0f) Pitch = -89.0f;
     }
 
     // Update Front, Right and Up Vectors using the updated Eular angles
@@ -212,8 +212,8 @@ public:
   {
     // TODO: Implement zoom
     Zoom -= yoffset;
-    if(Zoom < 1.0f) Zoom = 1.0f;
-    if(Zoom > 45.0f) Zoom = 45.0f;
+    if (Zoom < 1.0f) Zoom = 1.0f;
+    if (Zoom > 45.0f) Zoom = 45.0f;
   }
 
 private:

@@ -25,6 +25,7 @@ struct Material {
 
 uniform vec3 viewPos;
 uniform PositionalLight positionalLights[4];
+uniform int positionalLightCount;
 uniform LightAttenuation attenuation;
 uniform Material material;
 
@@ -45,14 +46,14 @@ void main()
 	diffColor = texture(material.diffTexture1, TextureCoord).rgb;
 	specColor = texture(material.specTexture1, TextureCoord).rgb;
 
-  vec3 finalColor = calcPositionalLightColor(positionalLights[0]) +
-    calcPositionalLightColor(positionalLights[1]) +
-    calcPositionalLightColor(positionalLights[2]) +
-    calcPositionalLightColor(positionalLights[3]);
+	vec3 finalColor = vec3(0.0f, 0.0f, 0.0f);
+	for(int i = 0; i < positionalLightCount; i++) {
+		finalColor += calcPositionalLightColor(positionalLights[i]);
+	}
 
-  // apply gamma correction
-  float gamma = 2.2;
-  FragColor = vec4(pow(finalColor, vec3(1.0 / gamma)), 1.0);
+	// apply gamma correction
+	float gamma = 2.2;
+	FragColor = vec4(pow(finalColor, vec3(1.0 / gamma)), 1.0);
 }
 
 vec3 calcPositionalLightColor(PositionalLight positionalLight) {
@@ -70,7 +71,7 @@ vec3 calcPositionalLightColor(PositionalLight positionalLight) {
 	// specular light
 	vec3 viewDir = normalize(viewPos - FragPos);
 	vec3 halfwayDir = normalize(lightDir + viewDir);
-  float specStrength = pow(max(dot(norm, halfwayDir), 0.0), 32.0);
+	float specStrength = pow(max(dot(norm, halfwayDir), 0.0), 32.0);
 	vec3 specular = positionalLight.color.specular * specStrength * specColor;
 	
 	float distanceFromLight = length(positionalLight.position - FragPos);

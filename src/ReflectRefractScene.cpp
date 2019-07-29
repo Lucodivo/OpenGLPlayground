@@ -152,7 +152,7 @@ void ReflectRefractScene::renderLoop(GLFWwindow* window, uint32& cubeVAO, uint32
   camera.Position += glm::vec3(0.0f, 0.0f, 7.0f);
 
   // NOTE: render/game loop
-  while(glfwWindowShouldClose(window) == GL_FALSE)
+  while (glfwWindowShouldClose(window) == GL_FALSE)
   {
 
     // check for input
@@ -168,7 +168,7 @@ void ReflectRefractScene::renderLoop(GLFWwindow* window, uint32& cubeVAO, uint32
     glm::mat4 viewMat = camera.GetViewMatrix(deltaTime);
 
     // draw cube
-    Shader* cubeShader = currMode == Exploding ? &exploding10InstanceReflectionShader : &reflection10InstanceShader;
+    Shader * cubeShader = currMode == Exploding ? &exploding10InstanceReflectionShader : &reflection10InstanceShader;
     cubeShader->use();
 
     glBindVertexArray(cubeVAO);
@@ -181,7 +181,7 @@ void ReflectRefractScene::renderLoop(GLFWwindow* window, uint32& cubeVAO, uint32
     glm::vec3 orbitAxis = glm::vec3(0.0f, 1.0f, 0.0f);
     glm::vec3 rotationAxis = glm::vec3(1.0f, 0.3f, 0.5f);
 
-    for(int i = 0; i < ArrayCount(cubePositions); i++)
+    for (int i = 0; i < ArrayCount(cubePositions); i++)
     {
       glm::mat4 model = glm::rotate(glm::mat4(), currTime * glm::radians(angularSpeed), orbitAxis); // orbit with time
       model = glm::translate(model, cubePositions[i]);
@@ -190,7 +190,7 @@ void ReflectRefractScene::renderLoop(GLFWwindow* window, uint32& cubeVAO, uint32
       const std::string instanceModelName = "models[" + std::to_string(i) + "]";
       cubeShader->setUniform(instanceModelName, model);
 
-      if(currMode == NormalVisualization) // draw cube normal visualizations
+      if (currMode == NormalVisualization) // draw cube normal visualizations
       {
         normalVisualization10InstanceShader.use();
         normalVisualization10InstanceShader.setUniform(instanceModelName, model);
@@ -199,21 +199,21 @@ void ReflectRefractScene::renderLoop(GLFWwindow* window, uint32& cubeVAO, uint32
     }
 
     glDrawElementsInstanced(GL_TRIANGLES, // drawing mode
-                            cubePosTexNormNumElements * 3, // number of elements to be rendered
-                            GL_UNSIGNED_INT, // type of values in the indices
-                            0, // offset in the EB
-                            8); // instance count
+      cubePosTexNormNumElements * 3, // number of elements to be rendered
+      GL_UNSIGNED_INT, // type of values in the indices
+      0, // offset in the EB
+      8); // instance count
 
-    if(currMode == NormalVisualization)
+    if (currMode == NormalVisualization)
     {
       normalVisualization10InstanceShader.use();
       normalVisualization10InstanceShader.setUniform("view", viewMat);
 
       glDrawElementsInstanced(GL_TRIANGLES, // drawing mode
-                              cubePosTexNormNumElements * 3, // number of elements to be rendered
-                              GL_UNSIGNED_INT, // type of values in the indices
-                              0, // offset in the EB
-                              8); // instance count
+        cubePosTexNormNumElements * 3, // number of elements to be rendered
+        GL_UNSIGNED_INT, // type of values in the indices
+        0, // offset in the EB
+        8); // instance count
     }
 
 
@@ -221,9 +221,9 @@ void ReflectRefractScene::renderLoop(GLFWwindow* window, uint32& cubeVAO, uint32
 
     // draw model
     Shader* modelShader;
-    if(currMode == Exploding)
+    if (currMode == Exploding)
     {
-      if(selectedReflactionIndex == reflectionIndex)
+      if (selectedReflactionIndex == reflectionIndex)
       {
         modelShader = &explodingReflectionShader;
       } else
@@ -232,7 +232,7 @@ void ReflectRefractScene::renderLoop(GLFWwindow* window, uint32& cubeVAO, uint32
       }
     } else
     {
-      if(selectedReflactionIndex == reflectionIndex)
+      if (selectedReflactionIndex == reflectionIndex)
       {
         modelShader = &reflectionShader;
       } else
@@ -253,7 +253,7 @@ void ReflectRefractScene::renderLoop(GLFWwindow* window, uint32& cubeVAO, uint32
     modelShader->setUniform("time", currTime);
     nanoSuitModel.Draw(*modelShader);
 
-    if(currMode == NormalVisualization)
+    if (currMode == NormalVisualization)
     {
       normalVisualizationShader.use();
       normalVisualizationShader.setUniform("view", viewMat);
@@ -271,9 +271,9 @@ void ReflectRefractScene::renderLoop(GLFWwindow* window, uint32& cubeVAO, uint32
     skyboxShader.setUniform("view", viewMinusTranslation);
 
     glDrawElements(GL_TRIANGLES, // drawing mode
-                   36, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
-                   GL_UNSIGNED_INT, // type of the indices
-                   0); // offset in the EBO
+      36, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
+      GL_UNSIGNED_INT, // type of the indices
+      0); // offset in the EBO
     glBindVertexArray(0);
 
     glDisable(GL_DEPTH_TEST);
@@ -329,7 +329,7 @@ void ReflectRefractScene::button_dPadRight_pressed()
 void ReflectRefractScene::nextModelReflaction()
 {
   double currentTime = glfwGetTime();
-  if(currentTime - reflactionModeSwitchTimer > 0.5f)
+  if (currentTime - reflactionModeSwitchTimer > 0.5f)
   {
     selectedReflactionIndex = (selectedReflactionIndex + 1) % reflactiveValCount;
     reflactionModeSwitchTimer = currentTime;
@@ -339,7 +339,7 @@ void ReflectRefractScene::nextModelReflaction()
 void ReflectRefractScene::prevModelReflaction()
 {
   double currentTime = glfwGetTime();
-  if(currentTime - reflactionModeSwitchTimer > 0.5f)
+  if (currentTime - reflactionModeSwitchTimer > 0.5f)
   {
     selectedReflactionIndex = selectedReflactionIndex != 0 ? ((selectedReflactionIndex - 1) % reflactiveValCount) : (reflactiveValCount - 1);
     reflactionModeSwitchTimer = currentTime;
@@ -349,11 +349,11 @@ void ReflectRefractScene::prevModelReflaction()
 void ReflectRefractScene::nextMode()
 {
   double currentTime = glfwGetTime();
-  if(currentTime - modeSwitchTimer > 0.5f)
+  if (currentTime - modeSwitchTimer > 0.5f)
   {
-    if(currMode == None) currMode = Exploding;
-    else if(currMode == Exploding) currMode = NormalVisualization;
-    else if(currMode == NormalVisualization) currMode = None;
+    if (currMode == None) currMode = Exploding;
+    else if (currMode == Exploding) currMode = NormalVisualization;
+    else if (currMode == NormalVisualization) currMode = None;
     modeSwitchTimer = currentTime;
   }
 }
@@ -361,11 +361,11 @@ void ReflectRefractScene::nextMode()
 void ReflectRefractScene::prevMode()
 {
   double currentTime = glfwGetTime();
-  if(currentTime - modeSwitchTimer > 0.5f)
+  if (currentTime - modeSwitchTimer > 0.5f)
   {
-    if(currMode == None) currMode = NormalVisualization;
-    else if(currMode == Exploding) currMode = None;
-    else if(currMode == NormalVisualization) currMode = Exploding;
+    if (currMode == None) currMode = NormalVisualization;
+    else if (currMode == Exploding) currMode = None;
+    else if (currMode == NormalVisualization) currMode = Exploding;
     modeSwitchTimer = currentTime;
   }
 }

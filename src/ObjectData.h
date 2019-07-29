@@ -134,11 +134,11 @@ const uint32 cubePositionIndices[]{
 // ===== frame buffer quad values =====
 const uint32 quadVertexAttSizeInBytes = 8 * sizeof(float32);
 const float32 quadVertexAttributes[] = {
-	// positions		// normal			// texCoords
-	-1.0f,  1.0f, 0.0f,	0.0f,  0.0f, 1.0f,	0.0f, 1.0f,
-	-1.0f, -1.0f, 0.0f,	0.0f,  0.0f, 1.0f,	0.0f, 0.0f,
-	 1.0f, -1.0f, 0.0f,	0.0f,  0.0f, 1.0f,	1.0f, 0.0f,
-	 1.0f,  1.0f, 0.0f,	0.0f,  0.0f, 1.0f,	1.0f, 1.0f
+  // positions		// normal			// texCoords
+  -1.0f,  1.0f, 0.0f,	0.0f,  0.0f, 1.0f,	0.0f, 1.0f,
+  -1.0f, -1.0f, 0.0f,	0.0f,  0.0f, 1.0f,	0.0f, 0.0f,
+   1.0f, -1.0f, 0.0f,	0.0f,  0.0f, 1.0f,	1.0f, 0.0f,
+   1.0f,  1.0f, 0.0f,	0.0f,  0.0f, 1.0f,	1.0f, 1.0f
 };
 
 const uint32 quadIndices[]{

@@ -6,8 +6,8 @@
 #include FT_FREETYPE_H
 
 Scene::Scene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth)
-  : window(window), 
-  viewportHeight(initScreenHeight), 
+  : window(window),
+  viewportHeight(initScreenHeight),
   viewportWidth(initScreenWidth),
   textDebugShader(textVertexShaderFileLoc, textFragmentShaderFileLoc)
 {
@@ -35,7 +35,7 @@ void Scene::adjustWindowSize()
   local_persist bool windowMode = true;
   GLFWmonitor* monitor = glfwGetPrimaryMonitor();
   const GLFWvidmode* mode = glfwGetVideoMode(monitor);
-  if(windowMode)
+  if (windowMode)
   {
     glfwSetWindowMonitor(window, monitor, 0, 0, mode->width, mode->height, GLFW_DONT_CARE);
   } else
@@ -53,20 +53,20 @@ void Scene::closeWindow()
 void Scene::initDebugTextCharacters()
 {
   FT_Library ft;
-  if(FT_Init_FreeType(&ft))
+  if (FT_Init_FreeType(&ft))
     std::cout << "ERROR::FREETYPE: Could not init FreeType Library" << std::endl;
 
   FT_Face face;
-  if(FT_New_Face(ft, "src/fonts/arial.ttf", 0, &face))
+  if (FT_New_Face(ft, "src/fonts/arial.ttf", 0, &face))
     std::cout << "ERROR::FREETYPE: Failed to load font" << std::endl;
 
   FT_Set_Pixel_Sizes(face, 0, 48);
   glPixelStorei(GL_UNPACK_ALIGNMENT, 1); // Disable byte-alignment restriction
 
-  for(GLubyte c = 0; c < 128; c++)
+  for (GLubyte c = 0; c < 128; c++)
   {
     // Load character glyph 
-    if(FT_Load_Char(face, c, FT_LOAD_RENDER))
+    if (FT_Load_Char(face, c, FT_LOAD_RENDER))
     {
       std::cout << "ERROR::FREETYTPE: Failed to load Glyph" << std::endl;
       continue;
@@ -130,7 +130,7 @@ void Scene::renderText(std::string text, GLfloat x, GLfloat y, GLfloat scale, gl
 
   // Iterate through all characters
   std::string::const_iterator c;
-  for(c = text.begin(); c != text.end(); c++)
+  for (c = text.begin(); c != text.end(); c++)
   {
     Character ch = Characters[*c];
 
