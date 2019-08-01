@@ -34,6 +34,9 @@ const char* const normalVisualizerVertexShaderFileLoc = "src/shaders/NormalVisua
 const char* const normalVisualizer10InstanceVertexShaderFileLoc = "src/shaders/NormalVisualizer10InstanceVertexShader.glsl";
 const char* const textVertexShaderFileLoc = "src/shaders/TextVertexShader.glsl";
 const char* const textFragmentShaderFileLoc = "src/shaders/TextFragmentShader.glsl";
+const char* const simpleDepthVertexShaderFileLoc = "src/shaders/SimpleDepthVertexShader.glsl";
+const char* const emptyFragmentShaderFileLoc = "src/shaders/EmptyFragmentShader.glsl";
+const char* const lightSpaceVertexShaderFileLoc = "src/shaders/LightSpaceVertexShader.glsl";
 
 // 2D textures
 const char* const diffuseTextureLoc = "src/data/diffuse_map_alpha_channel.png";

@@ -64,8 +64,10 @@
     <None Include="src\shaders\AsteroidVertexShader.glsl" />
     <None Include="src\shaders\BlinnPhongLightingFragmentShader.glsl" />
     <None Include="src\shaders\CubeFragmentShader.glsl" />
+    <None Include="src\shaders\EmptyFragmentShader.glsl" />
     <None Include="src\shaders\ExplodeGeometryShader.glsl" />
     <None Include="src\shaders\Kernel5x5TextureFragmentShader.glsl" />
+    <None Include="src\shaders\LightSpaceVertexShader.glsl" />
     <None Include="src\shaders\NegativeTextureFragmentShader.glsl" />
     <None Include="src\shaders\NormalVisualizer10InstanceVertexShader.glsl" />
     <None Include="src\shaders\NormalVisualizerVertexShader.glsl" />
@@ -82,6 +84,7 @@
     <None Include="src\shaders\PosTexVertexShader.glsl" />
     <None Include="src\shaders\PosVertexShader.glsl" />
     <None Include="src\shaders\DirPosSpotLightModelFragmentShader.glsl" />
+    <None Include="src\shaders\SimpleDepthVertexShader.glsl" />
     <None Include="src\shaders\SingleColorFragmentShader.glsl" />
     <None Include="src\shaders\SkyboxFragmentShader.glsl" />
     <None Include="src\shaders\SkyboxReflectionFragmentShader.glsl" />
@@ -92,13 +95,6 @@
     <None Include="src\shaders\TextureModelFragmentShader.glsl" />
     <None Include="src\shaders\TextVertexShader.glsl" />
     <None Include="src\shaders\TriangleNormalVisualizerGeometryShader.glsl" />
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="src\data\diffuse_map.png" />
-    <Image Include="src\data\emission_map.png" />
-    <Image Include="src\data\specular_map.png" />
-    <Image Include="src\data\specular_map_dumb.png" />
-    <Image Include="src\data\specular_map_inverse.png" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

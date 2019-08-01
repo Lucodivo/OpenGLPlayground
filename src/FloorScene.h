@@ -12,6 +12,7 @@ private:
 
   Shader fourPositionalLightShader;
   Shader lightShader;
+  Shader depthShader;
 
   float32 deltaTime = 0.0f;	// Time between current frame and last frame
   float32 lastFrame = 0.0f; // Time of last frame

@@ -5,18 +5,17 @@
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
-    <Filter Include="Resource Files">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
-    </Filter>
     <Filter Include="etc">
       <UniqueIdentifier>{87597123-334d-44bd-9798-0b015b7c2683}</UniqueIdentifier>
     </Filter>
-    <Filter Include="shaders">
-      <UniqueIdentifier>{0ae5bd10-9f07-4755-a96a-a042e1b31a03}</UniqueIdentifier>
-    </Filter>
     <Filter Include="external dependencies">
       <UniqueIdentifier>{bb56e5e7-0400-4afa-a58f-b6d3cd5e477e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\shaders">
+      <UniqueIdentifier>{0ae5bd10-9f07-4755-a96a-a042e1b31a03}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\scenes">
+      <UniqueIdentifier>{b03db70d-fc57-4626-8fa1-387cca92f17a}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -35,32 +34,32 @@
     <ClCompile Include="src\Scene.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\InfiniteCubeScene.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\ObjectData.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Util.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\NessCubesScene.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\ReflectRefractScene.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\AsteroidBeltScene.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="src\FirstPersonScene.cpp">
+      <Filter>Source Files\scenes</Filter>
     </ClCompile>
     <ClCompile Include="src\FloorScene.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\scenes</Filter>
     </ClCompile>
-    <ClCompile Include="src\FirstPersonScene.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="src\AsteroidBeltScene.cpp">
+      <Filter>Source Files\scenes</Filter>
     </ClCompile>
     <ClCompile Include="src\GodModeScene.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="src\InfiniteCubeScene.cpp">
+      <Filter>Source Files\scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="src\NessCubesScene.cpp">
+      <Filter>Source Files\scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ReflectRefractScene.cpp">
+      <Filter>Source Files\scenes</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -105,144 +104,136 @@
     <ClInclude Include="src\Scene.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\InfiniteCubeScene.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\ObjectData.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\NessCubesScene.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\ReflectRefractScene.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\AsteroidBeltScene.h">
-      <Filter>Source Files</Filter>
+    <ClInclude Include="src\FirstPersonScene.h">
+      <Filter>Source Files\scenes</Filter>
     </ClInclude>
     <ClInclude Include="src\FloorScene.h">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\scenes</Filter>
     </ClInclude>
-    <ClInclude Include="src\FirstPersonScene.h">
-      <Filter>Source Files</Filter>
+    <ClInclude Include="src\AsteroidBeltScene.h">
+      <Filter>Source Files\scenes</Filter>
     </ClInclude>
     <ClInclude Include="src\GodModeScene.h">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="src\InfiniteCubeScene.h">
+      <Filter>Source Files\scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="src\NessCubesScene.h">
+      <Filter>Source Files\scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ReflectRefractScene.h">
+      <Filter>Source Files\scenes</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\shaders\CubeFragmentShader.glsl">
-      <Filter>shaders</Filter>
+      <Filter>Source Files\shaders</Filter>
     </None>
     <None Include="src\shaders\DepthBufferVisualizerFragmentShader.glsl">
-      <Filter>shaders</Filter>
+      <Filter>Source Files\shaders</Filter>
     </None>
     <None Include="README.md">
       <Filter>etc</Filter>
     </None>
     <None Include="src\shaders\SingleColorFragmentShader.glsl">
-      <Filter>shaders</Filter>
+      <Filter>Source Files\shaders</Filter>
     </None>
     <None Include="src\shaders\FrameBufferVertexShader.glsl">
-      <Filter>shaders</Filter>
+      <Filter>Source Files\shaders</Filter>
     </None>
     <None Include="src\shaders\DiscardAlphaFragmentShader.glsl">
-      <Filter>shaders</Filter>
+      <Filter>Source Files\shaders</Filter>
     </None>
     <None Include="src\shaders\BasicTextureFragmentShader.glsl">
-      <Filter>shaders</Filter>
+      <Filter>Source Files\shaders</Filter>
     </None>
     <None Include="src\shaders\CropCenterSquareTexFragmentShader.glsl">
-      <Filter>shaders</Filter>
+      <Filter>Source Files\shaders</Filter>
     </None>
     <None Include="src\shaders\Kernel3x3TextureFragmentShader.glsl">
-      <Filter>shaders</Filter>
+      <Filter>Source Files\shaders</Filter>
     </None>
     <None Include="src\shaders\Kernel5x5TextureFragmentShader.glsl">
-      <Filter>shaders</Filter>
+      <Filter>Source Files\shaders</Filter>
     </None>
     <None Include="src\shaders\SkyboxVertexShader.glsl">
-      <Filter>shaders</Filter>
+      <Filter>Source Files\shaders</Filter>
     </None>
     <None Include="src\shaders\SkyboxFragmentShader.glsl">
-      <Filter>shaders</Filter>
+      <Filter>Source Files\shaders</Filter>
     </None>
     <None Include="src\shaders\SkyboxReflectionFragmentShader.glsl">
-      <Filter>shaders</Filter>
+      <Filter>Source Files\shaders</Filter>
     </None>
     <None Include="src\shaders\SkyboxRefractionFragmentShader.glsl">
-      <Filter>shaders</Filter>
+      <Filter>Source Files\shaders</Filter>
     </None>
     <None Include="src\shaders\PosVertexShader.glsl">
-      <Filter>shaders</Filter>
+      <Filter>Source Files\shaders</Filter>
     </None>
     <None Include="src\shaders\ExplodeGeometryShader.glsl">
-      <Filter>shaders</Filter>
+      <Filter>Source Files\shaders</Filter>
     </None>
     <None Include="src\shaders\PosNormalVertexShader.glsl">
-      <Filter>shaders</Filter>
+      <Filter>Source Files\shaders</Filter>
     </None>
     <None Include="src\shaders\TriangleNormalVisualizerGeometryShader.glsl">
-      <Filter>shaders</Filter>
+      <Filter>Source Files\shaders</Filter>
     </None>
     <None Include="src\shaders\NormalVisualizerVertexShader.glsl">
-      <Filter>shaders</Filter>
+      <Filter>Source Files\shaders</Filter>
     </None>
     <None Include="src\shaders\NegativeTextureFragmentShader.glsl">
-      <Filter>shaders</Filter>
+      <Filter>Source Files\shaders</Filter>
     </None>
     <None Include="src\shaders\PosNormal10InstanceVertexShader.glsl">
-      <Filter>shaders</Filter>
+      <Filter>Source Files\shaders</Filter>
     </None>
     <None Include="src\shaders\NormalVisualizer10InstanceVertexShader.glsl">
-      <Filter>shaders</Filter>
+      <Filter>Source Files\shaders</Filter>
     </None>
     <None Include="src\shaders\TextVertexShader.glsl">
-      <Filter>shaders</Filter>
+      <Filter>Source Files\shaders</Filter>
     </None>
     <None Include="src\shaders\TextFragmentShader.glsl">
-      <Filter>shaders</Filter>
+      <Filter>Source Files\shaders</Filter>
     </None>
     <None Include="src\shaders\PosTexModelVertexShader.glsl">
-      <Filter>shaders</Filter>
+      <Filter>Source Files\shaders</Filter>
     </None>
     <None Include="src\shaders\DirPosSpotLightModelFragmentShader.glsl">
-      <Filter>shaders</Filter>
+      <Filter>Source Files\shaders</Filter>
     </None>
     <None Include="src\shaders\TextureModelFragmentShader.glsl">
-      <Filter>shaders</Filter>
+      <Filter>Source Files\shaders</Filter>
     </None>
     <None Include="src\shaders\PosTexVertexShader.glsl">
-      <Filter>shaders</Filter>
+      <Filter>Source Files\shaders</Filter>
     </None>
     <None Include="src\shaders\PosNormModelVertexShader.glsl">
-      <Filter>shaders</Filter>
+      <Filter>Source Files\shaders</Filter>
     </None>
     <None Include="src\shaders\PosNormTexVertexShader.glsl">
-      <Filter>shaders</Filter>
+      <Filter>Source Files\shaders</Filter>
     </None>
     <None Include="src\shaders\AsteroidVertexShader.glsl">
-      <Filter>shaders</Filter>
+      <Filter>Source Files\shaders</Filter>
     </None>
     <None Include="src\shaders\BlinnPhongLightingFragmentShader.glsl">
-      <Filter>shaders</Filter>
+      <Filter>Source Files\shaders</Filter>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="src\data\emission_map.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="src\data\specular_map.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="src\data\specular_map_dumb.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="src\data\specular_map_inverse.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="src\data\diffuse_map.png">
-      <Filter>Resource Files</Filter>
-    </Image>
+    <None Include="src\shaders\SimpleDepthVertexShader.glsl">
+      <Filter>Source Files\shaders</Filter>
+    </None>
+    <None Include="src\shaders\EmptyFragmentShader.glsl">
+      <Filter>Source Files\shaders</Filter>
+    </None>
+    <None Include="src\shaders\LightSpaceVertexShader.glsl">
+      <Filter>Source Files\shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>
