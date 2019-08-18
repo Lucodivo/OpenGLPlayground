@@ -22,6 +22,14 @@ void InfiniteCubeScene::runScene()
   initializeFrameBuffer(frameBuffers[1].frameBuffer, frameBuffers[1].rbo, frameBuffers[1].frameBufferTexture, viewportWidth, viewportHeight);
 
   renderLoop(window, cubeVAO, quadVAO);
+
+  glDeleteVertexArrays(1, &cubeVAO);
+  glDeleteBuffers(1, &cubeVBO);
+  glDeleteBuffers(1, &cubeEBO);
+
+  glDeleteVertexArrays(1, &quadVAO);
+  glDeleteBuffers(1, &quadVBO);
+  glDeleteBuffers(1, &quadEBO);
 }
 
 void InfiniteCubeScene::frameBufferSize(uint32 width, uint32 height)
@@ -78,7 +86,7 @@ void InfiniteCubeScene::renderLoop(GLFWwindow * window, uint32 & cubeVAO, uint32
 
   const glm::mat4 projectionMat = glm::perspective(glm::radians(camera.Zoom), (float32)viewportWidth / (float32)viewportHeight, 0.1f, 100.0f);
 
-  const float32 cubRotAngle = 2.5f;
+  const float32 cubeRotationAngle = 2.5f;
 
   glEnable(GL_CULL_FACE);
   glCullFace(GL_BACK);
@@ -189,7 +197,7 @@ void InfiniteCubeScene::renderLoop(GLFWwindow * window, uint32 & cubeVAO, uint32
 
     // rotate with time
     glm::mat4 cubeModelMatrix = glm::mat4();
-    cubeModelMatrix = glm::rotate(cubeModelMatrix, t * glm::radians(cubRotAngle), glm::vec3(1.0f, 0.3f, 0.5f));
+    cubeModelMatrix = glm::rotate(cubeModelMatrix, t * glm::radians(cubeRotationAngle), glm::vec3(1.0f, 0.3f, 0.5f));
 
     cubeOutlineShader.setUniform("model", cubeModelMatrix);
 

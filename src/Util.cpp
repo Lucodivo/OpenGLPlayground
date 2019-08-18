@@ -39,6 +39,7 @@ void load2DTexture(const char* imgLocation, uint32& textureId, bool flipImageVer
         internalFormat = externalFormat = GL_RGBA;
       }
     }
+
     glTexImage2D(GL_TEXTURE_2D, // target
       0, // level of detail (level n is the nth mipmap reduction image)
       internalFormat, // kind of format we want to store the texture
