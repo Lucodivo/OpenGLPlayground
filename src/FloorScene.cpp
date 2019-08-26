@@ -32,13 +32,15 @@ void FloorScene::runScene()
 
 void FloorScene::renderLoop(uint32 floorVAO, uint32 cubeVAO)
 {
-  uint32 floorTextureId;
+  uint32 floorTextureId, cubeTextureId;
   load2DTexture(marbleTextureLoc, floorTextureId, false, true);
+  load2DTexture(cementTextureLoc, cubeTextureId, false, true);
 
   unsigned int depthMapFBO;
   glGenFramebuffers(1, &depthMapFBO);
 
-  const unsigned int SHADOW_WIDTH = 2048, SHADOW_HEIGHT = 2048;
+  const uint32 SHADOW_WIDTH = 1024;
+  const uint32 SHADOW_HEIGHT = 1024;
 
   unsigned int depthMapTextureId;
   glGenTextures(1, &depthMapTextureId);
@@ -47,8 +49,11 @@ void FloorScene::renderLoop(uint32 floorVAO, uint32 cubeVAO)
                SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+  // ensure that areas outside of the shadow map are never determined to be in shadow
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+  float borderColor[] = {1.0f, 1.0f, 1.0f, 1.0f};
+  glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
 
   glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMapTextureId, 0);
@@ -58,11 +63,14 @@ void FloorScene::renderLoop(uint32 floorVAO, uint32 cubeVAO)
 
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, floorTextureId);
+  glActiveTexture(GL_TEXTURE1);
+  glBindTexture(GL_TEXTURE_2D, cubeTextureId);
 
-  const glm::mat4 projectionMat = glm::perspective(glm::radians(camera.Zoom), (float32)viewportWidth / (float32)viewportHeight, 0.1f, 100.0f);
+  const glm::mat4 cameraProjMat = glm::perspective(glm::radians(camera.Zoom), (float32)viewportWidth / (float32)viewportHeight, 0.1f, 100.0f);
 
   const float near_plane = 1.0f, far_plane = 14.0f, projectionDimens = 10.0f;
-  const glm::mat4 directionalLightProjection = glm::ortho(-projectionDimens, projectionDimens, -projectionDimens, projectionDimens, near_plane, far_plane);
+  // Note: orthographic projection is used for directional lighting, as all light rays are parallel
+  const glm::mat4 lightProjMat = glm::ortho(-projectionDimens, projectionDimens, -projectionDimens, projectionDimens, near_plane, far_plane);
 
   glEnable(GL_DEPTH_TEST);
   glDepthFunc(GL_LEQUAL);
@@ -74,10 +82,14 @@ void FloorScene::renderLoop(uint32 floorVAO, uint32 cubeVAO)
   glm::vec3 lightColor2(1.0f, 0.0f, 0.0f);
   glm::vec3 lightColor3(0.0f, 1.0f, 0.0f);
   glm::vec3 lightColor4(0.0f, 0.0f, 1.0f);
-  const float32 lightScale = 0.2f;
+  const float32 lightScale = 0.5f;
 
-  const float32 floorScale = 8.0f;
+  const float32 floorScale = 32.0f;
   const glm::vec3 floorPosition(0.0f, -3.0f, 0.0f);
+
+  const float32 cubeScale = 3.0f;
+  const glm::vec3 cubePosition = glm::vec3(0.0f, -3.0f + (cubeScale / 2.0f), 0.0f);
+  
   const float32 lightRadius = 4.0f;
   const float32 lightAmplitude = 2.0f;
   const float32 lightHeightOffset = 6.0f;
@@ -88,8 +100,6 @@ void FloorScene::renderLoop(uint32 floorVAO, uint32 cubeVAO)
   fourPositionalLightShader.use();
 
   // set material
-  fourPositionalLightShader.setUniform("material.diffTexture1", 0);
-  fourPositionalLightShader.setUniform("material.specTexture1", 0);
   fourPositionalLightShader.setUniform("material.shininess", 32.0f);
   fourPositionalLightShader.setUniform("attenuation.constant", 1.0f);
   fourPositionalLightShader.setUniform("attenuation.linear", 0.04f);
@@ -100,7 +110,7 @@ void FloorScene::renderLoop(uint32 floorVAO, uint32 cubeVAO)
   fourPositionalLightShader.setUniform("positionalLight.color.diffuse", lightColor * 0.3f);
   fourPositionalLightShader.setUniform("positionalLight.color.specular", lightColor);
 
-  const uint32 shadowMap2DSamplerIndex = 1;
+  const uint32 shadowMap2DSamplerIndex = 2;
   fourPositionalLightShader.setUniform("shadowMap", shadowMap2DSamplerIndex);
 
   uint32 globalVSUniformBuffer;
@@ -118,14 +128,14 @@ void FloorScene::renderLoop(uint32 floorVAO, uint32 cubeVAO)
       0,						// starting offset into buffer object
       4 * 16);				// size: 4 vec3's, 16 bits alignments
 
-    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(projectionMat));
+    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(cameraProjMat));
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
     fourPositionalLightShader.bindBlockIndex("globalBlockVS", globalVSBufferBindIndex);
     lightShader.bindBlockIndex("globalBlockVS", globalVSBufferBindIndex);
   }
 
-  camera.Position += glm::vec3(0.0f, 0.0f, 10.0f);
+  camera.Position += glm::vec3(0.0f, 10.0f, 20.0f);
 
   glEnable(GL_CULL_FACE);
   glFrontFace(GL_CCW);
@@ -150,8 +160,7 @@ void FloorScene::renderLoop(uint32 floorVAO, uint32 cubeVAO)
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
     // light data
-    float lightPairOffset = 1.5f;
-    glm::vec3 lightPosition = glm::vec3(sin(t) * lightRadius - lightPairOffset, lightHeightOffset, cos(t) * lightRadius - lightPairOffset);
+    glm::vec3 lightPosition = glm::vec3(sin(t) * lightRadius, lightHeightOffset, cos(t) * lightRadius);
     glm::mat4 lightModel;
     lightModel = glm::translate(lightModel, lightPosition);
     lightModel = glm::scale(lightModel, glm::vec3(lightScale));
@@ -164,14 +173,14 @@ void FloorScene::renderLoop(uint32 floorVAO, uint32 cubeVAO)
 
     // cube data
     glm::mat4 cubeModel = glm::mat4();
-    cubeModel = glm::translate(cubeModel, glm::vec3(0.0f, 0.0f, 0.0f));
+    cubeModel = glm::translate(cubeModel, cubePosition);
+    cubeModel = glm::scale(cubeModel, glm::vec3(cubeScale));
 
-    // render depth mapp from light's point of view
-    // 1. first render to depth map
+    // render depth map from light's point of view
     glm::mat4 lightView = glm::lookAt(lightPosition,
-                                      glm::vec3(0.0f, 0.0f, 0.0f),
+                                      cubePosition,
                                       glm::vec3(0.0f, 1.0f, 0.0f));
-    glm::mat4 lightSpaceMatrix = directionalLightProjection * lightView;
+    glm::mat4 lightSpaceMatrix = lightProjMat * lightView;
 
 
     depthShader.use();
@@ -199,7 +208,7 @@ void FloorScene::renderLoop(uint32 floorVAO, uint32 cubeVAO)
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-    // 2. then render scene as normal with shadow mapping (using depth map)
+    // render scene using the depth map for shadows (using depth map)
     glViewport(0, 0, viewportWidth, viewportHeight);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -223,6 +232,8 @@ void FloorScene::renderLoop(uint32 floorVAO, uint32 cubeVAO)
 
     // draw floor
     fourPositionalLightShader.setUniform("model", floorModel);
+    fourPositionalLightShader.setUniform("material.diffTexture1", 0);
+    fourPositionalLightShader.setUniform("material.specTexture1", 0);
     glBindVertexArray(floorVAO);
     glDrawElements(GL_TRIANGLES, // drawing mode
       6, // number of elements to draw (3 vertices per triangle * 2 triangles per quad)
@@ -231,6 +242,8 @@ void FloorScene::renderLoop(uint32 floorVAO, uint32 cubeVAO)
 
     // draw center cube
     fourPositionalLightShader.setUniform("model", cubeModel);
+    fourPositionalLightShader.setUniform("material.diffTexture1", 1);
+    fourPositionalLightShader.setUniform("material.specTexture1", 1);
     glBindVertexArray(cubeVAO);
     glDrawElements(GL_TRIANGLES, // drawing mode
       cubePosTexNormNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)

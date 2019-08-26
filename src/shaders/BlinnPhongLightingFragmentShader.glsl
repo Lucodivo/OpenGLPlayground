@@ -29,14 +29,12 @@ uniform PositionalLight positionalLight;
 uniform LightAttenuation attenuation;
 uniform Material material;
 
-
 in VS_OUT{
   vec3 Normal;
   vec3 FragPos;
   vec2 TextureCoord;
   vec4 FragPosLightSpace;
 } fs_in;
-
 
 out vec4 FragColor;
 
@@ -91,20 +89,33 @@ float calcAttenuation(float distanceFromLight) {
 	return (1.0 / (attenuation.constant + (attenuation.linear * distanceFromLight) + (attenuation.quadratic * distanceFromLight * distanceFromLight)));
 }
 
-
 float calcShadow(vec4 fragPosLightSpace, float normalLightDirDot)
 {
   // perform perspective divide
   vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
   // transform NDC from the range of [-1,1] to the range of [0,1]
   projCoords = projCoords * 0.5 + 0.5;
-  // get closest depth value from light's perspective (using [0,1] range fragPosLight as coords)
-  float closestDepth = texture(shadowMap, projCoords.xy).r;
+
   // get depth of current fragment from light's perspective
   float currentDepth = projCoords.z;
-  // check whether current frag pos is in shadow
-  float bias = max(0.05 * (1.0 - normalLightDirDot), 0.005);
-  float shadow = (currentDepth - bias) > closestDepth ? 1.0 : 0.0;
+
+  if(currentDepth > 1.0) return 0.0f;
+
+  float shadow = 0.0f;
+  vec2 texelSize = 1.0f / textureSize(shadowMap, 0);
+
+  for(int x = -1; x <= 1; ++x)
+  {
+    for(int y = -1; y <= 1; ++y)
+    {
+      // get closest depth value from light's perspective (using [0,1] range fragPosLight as coords)
+      float pcfDepth = texture(shadowMap, projCoords.xy + vec2(x, y) * texelSize).r;
+      // check whether current frag pos is in shadow
+      float bias = max(0.05 * (1.0 - normalLightDirDot), 0.005);
+      shadow += (currentDepth - bias) > pcfDepth ? 1.0 : 0.0;
+    }
+  }
+  shadow /= 9.0f;
 
   return shadow;
 }
