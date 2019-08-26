@@ -6,27 +6,19 @@ struct LightColor{
 	vec3 specular;
 };
 
-struct LightAttenuation {
-	float constant;
-	float linear;
-	float quadratic;
-};
-
-struct PositionalLight{
-	vec3 position;
+struct DirectionalLight{
+	vec3 direction; // normalized direction from origin to light
 	LightColor color;
 };
 
 struct Material {
 	sampler2D diffTexture1;
 	sampler2D specTexture1;
-	float shininess; // TODO: Currently set manually, set in Mesh.h?
 };
 
 uniform sampler2D shadowMap;
 uniform vec3 viewPos;
-uniform PositionalLight positionalLight;
-uniform LightAttenuation attenuation;
+uniform DirectionalLight directionalLight;
 uniform Material material;
 
 in VS_OUT{
@@ -38,55 +30,47 @@ in VS_OUT{
 
 out vec4 FragColor;
 
-vec3 calcPositionalLightColor(PositionalLight positionalLight);
-float calcAttenuation(float distanceFromLight);
+vec3 calcDirectionalLightColor(DirectionalLight directionalLight);
 float calcShadow(vec4 fragPosLightSpace, float normalLightDirDot);
 
 vec3 diffColor;
 vec3 specColor;
+
+const float shadowBiasMax = 0.005;
+const float shadowBiasMin = 0.0005;
 
 void main()
 {
 	diffColor = texture(material.diffTexture1, fs_in.TextureCoord).rgb;
 	specColor = texture(material.specTexture1, fs_in.TextureCoord).rgb;
 
-  vec3 finalColor = calcPositionalLightColor(positionalLight);
+  vec3 finalColor = calcDirectionalLightColor(directionalLight);
 
 	// apply gamma correction
 	float gamma = 2.2;
 	FragColor = vec4(pow(finalColor, vec3(1.0 / gamma)), 1.0);
 }
 
-vec3 calcPositionalLightColor(PositionalLight positionalLight) {
-
-
-	vec3 lightDir = normalize(positionalLight.position - fs_in.FragPos);
+vec3 calcDirectionalLightColor(DirectionalLight directionalLight) {
 
 	// ambient light
-	vec3 ambient = positionalLight.color.ambient * diffColor;
+	vec3 ambient = directionalLight.color.ambient * diffColor;
 
 	// diffuse light
 	vec3 norm = normalize(fs_in.Normal);
-  float normalLightDirDot = dot(norm, lightDir);
+  float normalLightDirDot = dot(norm, directionalLight.direction);
 	float diffStrength = max(normalLightDirDot, 0.0);
-	vec3 diffuse = positionalLight.color.diffuse * diffStrength * diffColor;
+	vec3 diffuse = directionalLight.color.diffuse * diffStrength * diffColor;
 
 	// specular light
 	vec3 viewDir = normalize(viewPos - fs_in.FragPos);
-	vec3 halfwayDir = normalize(lightDir + viewDir);
+	vec3 halfwayDir = normalize(directionalLight.direction + viewDir);
 	float specStrength = pow(max(dot(norm, halfwayDir), 0.0), 32.0);
-	vec3 specular = positionalLight.color.specular * specStrength * specColor;
-	
-	float distanceFromLight = length(positionalLight.position - fs_in.FragPos);
-  float att = 1.0;//calcAttenuation(distanceFromLight); // TODO: Bring back
+	vec3 specular = directionalLight.color.specular * specStrength * specColor;
 
   float shadowInverse = 1.0 - calcShadow(fs_in.FragPosLightSpace, normalLightDirDot);
 
-	return (ambient + ((diffuse + specular) * shadowInverse)) * att;
-}
-
-float calcAttenuation(float distanceFromLight) {
-	return (1.0 / (attenuation.constant + (attenuation.linear * distanceFromLight) + (attenuation.quadratic * distanceFromLight * distanceFromLight)));
+	return (ambient + ((diffuse + specular) * shadowInverse));
 }
 
 float calcShadow(vec4 fragPosLightSpace, float normalLightDirDot)
@@ -111,7 +95,7 @@ float calcShadow(vec4 fragPosLightSpace, float normalLightDirDot)
       // get closest depth value from light's perspective (using [0,1] range fragPosLight as coords)
       float pcfDepth = texture(shadowMap, projCoords.xy + vec2(x, y) * texelSize).r;
       // check whether current frag pos is in shadow
-      float bias = max(0.05 * (1.0 - normalLightDirDot), 0.005);
+      float bias = max(shadowBiasMax * (1.0 - normalLightDirDot), shadowBiasMin);
       shadow += (currentDepth - bias) > pcfDepth ? 1.0 : 0.0;
     }
   }

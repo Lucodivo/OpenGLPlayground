@@ -6,7 +6,7 @@
 
 FloorScene::FloorScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth)
   : GodModeScene(window, initScreenHeight, initScreenWidth),
-  fourPositionalLightShader(lightSpaceVertexShaderFileLoc, blinnPhongLightingFragmentShaderFileLoc),
+  fourPositionalLightShader(lightSpaceVertexShaderFileLoc, directionalLightShadowMapFragmentShaderFIleLoc),
   lightShader(posVertexShaderFileLoc, singleColorFragmentShaderFileLoc),
   depthShader(simpleDepthVertexShaderFileLoc, emptyFragmentShaderFileLoc) {}
 
@@ -39,8 +39,8 @@ void FloorScene::renderLoop(uint32 floorVAO, uint32 cubeVAO)
   unsigned int depthMapFBO;
   glGenFramebuffers(1, &depthMapFBO);
 
-  const uint32 SHADOW_WIDTH = 1024;
-  const uint32 SHADOW_HEIGHT = 1024;
+  const uint32 SHADOW_WIDTH = 2048;
+  const uint32 SHADOW_HEIGHT = 2048;
 
   unsigned int depthMapTextureId;
   glGenTextures(1, &depthMapTextureId);
@@ -66,9 +66,9 @@ void FloorScene::renderLoop(uint32 floorVAO, uint32 cubeVAO)
   glActiveTexture(GL_TEXTURE1);
   glBindTexture(GL_TEXTURE_2D, cubeTextureId);
 
-  const glm::mat4 cameraProjMat = glm::perspective(glm::radians(camera.Zoom), (float32)viewportWidth / (float32)viewportHeight, 0.1f, 100.0f);
+  const glm::mat4 cameraProjMat = glm::perspective(glm::radians(camera.Zoom), (float32)viewportWidth / (float32)viewportHeight, 0.1f, 120.0f);
 
-  const float near_plane = 1.0f, far_plane = 14.0f, projectionDimens = 10.0f;
+  const float near_plane = 1.0f, far_plane = 40.0f, projectionDimens = 12.0f;
   // Note: orthographic projection is used for directional lighting, as all light rays are parallel
   const glm::mat4 lightProjMat = glm::ortho(-projectionDimens, projectionDimens, -projectionDimens, projectionDimens, near_plane, far_plane);
 
@@ -84,15 +84,21 @@ void FloorScene::renderLoop(uint32 floorVAO, uint32 cubeVAO)
   glm::vec3 lightColor4(0.0f, 0.0f, 1.0f);
   const float32 lightScale = 0.5f;
 
-  const float32 floorScale = 32.0f;
+  const float32 floorScale = 16.0f;
   const glm::vec3 floorPosition(0.0f, -3.0f, 0.0f);
 
-  const float32 cubeScale = 3.0f;
-  const glm::vec3 cubePosition = glm::vec3(0.0f, -3.0f + (cubeScale / 2.0f), 0.0f);
+  const float32 cubeScale1 = 3.0f;
+  const glm::vec3 cubePosition1 = glm::vec3(0.0f, floorPosition.y + (cubeScale1 / 2.0f), 0.0f);
+
+  const float32 cubeScale2 = 2.2f;
+  const glm::vec3 cubePosition2 = glm::vec3(8.0f, floorPosition.y + (cubeScale2 / 2) + 2.0f, 4.0f);
   
-  const float32 lightRadius = 4.0f;
+  const float32 cubeScale3 = 1.7f;
+  const glm::vec3 cubePosition3 = glm::vec3(2.0f, floorPosition.y + (cubeScale3 / 2.0f) + 4.0f, 3.0f);
+  
+  const float32 lightRadius = 16.0f;
   const float32 lightAmplitude = 2.0f;
-  const float32 lightHeightOffset = 6.0f;
+  const float32 lightHeightOffset = 16.0f;
 
   // Turn on gamma correction for entire scene
   //glEnable(GL_FRAMEBUFFER_SRGB);
@@ -100,15 +106,14 @@ void FloorScene::renderLoop(uint32 floorVAO, uint32 cubeVAO)
   fourPositionalLightShader.use();
 
   // set material
-  fourPositionalLightShader.setUniform("material.shininess", 32.0f);
   fourPositionalLightShader.setUniform("attenuation.constant", 1.0f);
   fourPositionalLightShader.setUniform("attenuation.linear", 0.04f);
   fourPositionalLightShader.setUniform("attenuation.quadratic", 0.016f);
 
   // set lighting 1
-  fourPositionalLightShader.setUniform("positionalLight.color.ambient", lightColor * 0.05f);
-  fourPositionalLightShader.setUniform("positionalLight.color.diffuse", lightColor * 0.3f);
-  fourPositionalLightShader.setUniform("positionalLight.color.specular", lightColor);
+  fourPositionalLightShader.setUniform("directionalLight.color.ambient", lightColor * 0.05f);
+  fourPositionalLightShader.setUniform("directionalLight.color.diffuse", lightColor * 0.3f);
+  fourPositionalLightShader.setUniform("directionalLight.color.specular", lightColor);
 
   const uint32 shadowMap2DSamplerIndex = 2;
   fourPositionalLightShader.setUniform("shadowMap", shadowMap2DSamplerIndex);
@@ -172,13 +177,19 @@ void FloorScene::renderLoop(uint32 floorVAO, uint32 cubeVAO)
     floorModel = glm::rotate(floorModel, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 
     // cube data
-    glm::mat4 cubeModel = glm::mat4();
-    cubeModel = glm::translate(cubeModel, cubePosition);
-    cubeModel = glm::scale(cubeModel, glm::vec3(cubeScale));
+    glm::mat4 cubeModel1 = glm::mat4();
+    cubeModel1 = glm::translate(cubeModel1, cubePosition1);
+    cubeModel1 = glm::scale(cubeModel1, glm::vec3(cubeScale1));
+    glm::mat4 cubeModel2 = glm::mat4();
+    cubeModel2 = glm::translate(cubeModel2, cubePosition2);
+    cubeModel2 = glm::scale(cubeModel2, glm::vec3(cubeScale2));
+    glm::mat4 cubeModel3 = glm::mat4();
+    cubeModel3 = glm::translate(cubeModel3, cubePosition3);
+    cubeModel3 = glm::scale(cubeModel3, glm::vec3(cubeScale3));
 
     // render depth map from light's point of view
     glm::mat4 lightView = glm::lookAt(lightPosition,
-                                      cubePosition,
+                                      glm::vec3(0.0f, 0.0f, 0.0f),
                                       glm::vec3(0.0f, 1.0f, 0.0f));
     glm::mat4 lightSpaceMatrix = lightProjMat * lightView;
 
@@ -197,13 +208,29 @@ void FloorScene::renderLoop(uint32 floorVAO, uint32 cubeVAO)
                    GL_UNSIGNED_INT, // type of the indices
                    0); // offset in the EBO
 
-    // depth map for cube
-    depthShader.setUniform("model", cubeModel);
+    // depth map for cubes
+    depthShader.setUniform("model", cubeModel1);
     glBindVertexArray(cubeVAO);
     glDrawElements(GL_TRIANGLES, // drawing mode
                    cubePosTexNormNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
                    GL_UNSIGNED_INT, // type of the indices
                    0); // offset in the EBO
+    glBindVertexArray(0);
+
+    depthShader.setUniform("model", cubeModel2);
+    glBindVertexArray(cubeVAO);
+    glDrawElements(GL_TRIANGLES, // drawing mode
+      cubePosTexNormNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
+      GL_UNSIGNED_INT, // type of the indices
+      0); // offset in the EBO
+    glBindVertexArray(0);
+
+    depthShader.setUniform("model", cubeModel3);
+    glBindVertexArray(cubeVAO);
+    glDrawElements(GL_TRIANGLES, // drawing mode
+      cubePosTexNormNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
+      GL_UNSIGNED_INT, // type of the indices
+      0); // offset in the EBO
     glBindVertexArray(0);
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -225,10 +252,11 @@ void FloorScene::renderLoop(uint32 floorVAO, uint32 cubeVAO)
                    GL_UNSIGNED_INT, // type of the indices
                    0); // offset in the EBO
 
+    glm::vec3 lightDir = glm::normalize(lightPosition);
     fourPositionalLightShader.use();
     fourPositionalLightShader.setUniform("viewPos", camera.Position);
     fourPositionalLightShader.setUniform("lightSpaceMatrix", lightSpaceMatrix);
-    fourPositionalLightShader.setUniform("positionalLight.position", lightPosition);
+    fourPositionalLightShader.setUniform("directionalLight.direction", lightDir);
 
     // draw floor
     fourPositionalLightShader.setUniform("model", floorModel);
@@ -241,10 +269,20 @@ void FloorScene::renderLoop(uint32 floorVAO, uint32 cubeVAO)
       0); // offset in the EBO
 
     // draw center cube
-    fourPositionalLightShader.setUniform("model", cubeModel);
+    fourPositionalLightShader.setUniform("model", cubeModel1);
     fourPositionalLightShader.setUniform("material.diffTexture1", 1);
     fourPositionalLightShader.setUniform("material.specTexture1", 1);
     glBindVertexArray(cubeVAO);
+    glDrawElements(GL_TRIANGLES, // drawing mode
+      cubePosTexNormNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
+      GL_UNSIGNED_INT, // type of the indices
+      0); // offset in the EBO
+    fourPositionalLightShader.setUniform("model", cubeModel2);
+    glDrawElements(GL_TRIANGLES, // drawing mode
+      cubePosTexNormNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
+      GL_UNSIGNED_INT, // type of the indices
+      0); // offset in the EBO
+    fourPositionalLightShader.setUniform("model", cubeModel3);
     glDrawElements(GL_TRIANGLES, // drawing mode
       cubePosTexNormNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
       GL_UNSIGNED_INT, // type of the indices

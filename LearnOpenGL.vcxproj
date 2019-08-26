@@ -62,7 +62,7 @@
   <ItemGroup>
     <None Include="README.md" />
     <None Include="src\shaders\AsteroidVertexShader.glsl" />
-    <None Include="src\shaders\BlinnPhongLightingFragmentShader.glsl" />
+    <None Include="src\shaders\DirectionalLightShadowMapFragmentShader.glsl" />
     <None Include="src\shaders\CubeFragmentShader.glsl" />
     <None Include="src\shaders\EmptyFragmentShader.glsl" />
     <None Include="src\shaders\ExplodeGeometryShader.glsl" />
