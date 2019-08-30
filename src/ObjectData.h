@@ -52,35 +52,35 @@ const float32 cubePosTexNormAttributes[192] = {
 const float32 cubePosTexNormAttributesInvertedNorms[192] = {
   // positions           // normals            // texture positions 
   // face #1
-  -0.5f, -0.5f, -0.5f,   -0.0f, -0.0f, 1.0f,   BottomLeftTexture,     // bottom left
-  0.5f, -0.5f, -0.5f,    -0.0f, -0.0f, 1.0f,   BottomRightTexture,    // bottom right
-  0.5f,  0.5f, -0.5f,    -0.0f, -0.0f, 1.0f,   TopRightTexture,       // top right
-  -0.5f,  0.5f, -0.5f,   -0.0f, -0.0f, 1.0f,   TopLeftTexture,        // top left
+  -0.5f, -0.5f, -0.5f,   0.0f,  0.0f,  1.0f,   BottomLeftTexture,     // bottom left
+  0.5f, -0.5f, -0.5f,    0.0f,  0.0f,  1.0f,   BottomRightTexture,    // bottom right
+  0.5f,  0.5f, -0.5f,    0.0f,  0.0f,  1.0f,   TopRightTexture,       // top right
+  -0.5f,  0.5f, -0.5f,   0.0f,  0.0f,  1.0f,   TopLeftTexture,        // top left
   // face #2			               
-  -0.5f, -0.5f,  0.5f,   -0.0f, -0.0f, -1.0f,    BottomLeftTexture,     // bottom left
-  0.5f, -0.5f,  0.5f,    -0.0f, -0.0f, -1.0f,    BottomRightTexture,    // bottom right
-  0.5f,  0.5f,  0.5f,    -0.0f, -0.0f, -1.0f,    TopRightTexture,       // top right
-  -0.5f,  0.5f,  0.5f,   -0.0f, -0.0f, -1.0f,    TopLeftTexture,        // top left
+  -0.5f, -0.5f,  0.5f,   0.0f,  0.0f, -1.0f,   BottomLeftTexture,     // bottom left
+  0.5f, -0.5f,  0.5f,    0.0f,  0.0f, -1.0f,   BottomRightTexture,    // bottom right
+  0.5f,  0.5f,  0.5f,    0.0f,  0.0f, -1.0f,   TopRightTexture,       // top right
+  -0.5f,  0.5f,  0.5f,   0.0f,  0.0f, -1.0f,   TopLeftTexture,        // top left
   // face #3			               -     
-  -0.5f,  0.5f,  0.5f,   1.0f,  -0.0f, -0.0f,  BottomRightTexture,    // bottom right
-  -0.5f,  0.5f, -0.5f,   1.0f,  -0.0f, -0.0f,  TopRightTexture,       // top right
-  -0.5f, -0.5f, -0.5f,   1.0f,  -0.0f, -0.0f,  TopLeftTexture,        // top left
-  -0.5f, -0.5f,  0.5f,   1.0f,  -0.0f, -0.0f,  BottomLeftTexture,     // bottom left
+  -0.5f,  0.5f,  0.5f,   1.0f,  0.0f,  0.0f,   BottomRightTexture,    // bottom right
+  -0.5f,  0.5f, -0.5f,   1.0f,  0.0f,  0.0f,   TopRightTexture,       // top right
+  -0.5f, -0.5f, -0.5f,   1.0f,  0.0f,  0.0f,   TopLeftTexture,        // top left
+  -0.5f, -0.5f,  0.5f,   1.0f,  0.0f,  0.0f,   BottomLeftTexture,     // bottom left
   // face #4			                     
-  0.5f,  0.5f,  0.5f,    -1.0f, -0.0f, -0.0f,   BottomRightTexture,    // bottom right
-  0.5f,  0.5f, -0.5f,    -1.0f, -0.0f, -0.0f,   TopRightTexture,       // top right
-  0.5f, -0.5f, -0.5f,    -1.0f, -0.0f, -0.0f,   TopLeftTexture,        // top left
-  0.5f, -0.5f,  0.5f,    -1.0f, -0.0f, -0.0f,   BottomLeftTexture,     // bottom left
+  0.5f,  0.5f,  0.5f,   -1.0f,  0.0f,  0.0f,   BottomRightTexture,    // bottom right
+  0.5f,  0.5f, -0.5f,   -1.0f,  0.0f,  0.0f,   TopRightTexture,       // top right
+  0.5f, -0.5f, -0.5f,   -1.0f,  0.0f,  0.0f,   TopLeftTexture,        // top left
+  0.5f, -0.5f,  0.5f,   -1.0f,  0.0f,  0.0f,   BottomLeftTexture,     // bottom left
   // face #5			                     
-  -0.5f, -0.5f, -0.5f,   -0.0f, 1.0f,  -0.0f,   TopLeftTexture,        // top left
-  0.5f, -0.5f, -0.5f,    -0.0f, 1.0f,  -0.0f,   TopRightTexture,       // top right
-  0.5f, -0.5f,  0.5f,    -0.0f, 1.0f,  -0.0f,   BottomRightTexture,    // bottom right
-  -0.5f, -0.5f,  0.5f,   -0.0f, 1.0f,  -0.0f,   BottomLeftTexture,     // bottom left
+  -0.5f, -0.5f, -0.5f,   0.0f,  1.0f,  0.0f,   TopLeftTexture,        // top left
+  0.5f, -0.5f, -0.5f,    0.0f,  1.0f,  0.0f,   TopRightTexture,       // top right
+  0.5f, -0.5f,  0.5f,    0.0f,  1.0f,  0.0f,   BottomRightTexture,    // bottom right
+  -0.5f, -0.5f,  0.5f,   0.0f,  1.0f,  0.0f,   BottomLeftTexture,     // bottom left
   // face #6			                     
-  -0.5f,  0.5f, -0.5f,   -0.0f, 1.0f,  -0.0f,   TopLeftTexture,        // top left
-  0.5f,  0.5f, -0.5f,    -0.0f, 1.0f,  -0.0f,   TopRightTexture,       // top right
-  0.5f,  0.5f,  0.5f,    -0.0f, 1.0f,  -0.0f,   BottomRightTexture,    // bottom right
-  -0.5f,  0.5f,  0.5f,   -0.0f, 1.0f,  -0.0f,   BottomLeftTexture      // bottom left
+  -0.5f,  0.5f, -0.5f,   0.0f, -1.0f,  0.0f,   TopLeftTexture,        // top left
+  0.5f,  0.5f, -0.5f,    0.0f, -1.0f,  0.0f,   TopRightTexture,       // top right
+  0.5f,  0.5f,  0.5f,    0.0f, -1.0f,  0.0f,   BottomRightTexture,    // bottom right
+  -0.5f,  0.5f,  0.5f,   0.0f, -1.0f,  0.0f,   BottomLeftTexture      // bottom left
 };
 
 const uint32 cubePosNormAttSizeInBytes = 6 * sizeof(float32);

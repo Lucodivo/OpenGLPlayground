@@ -94,7 +94,6 @@ void FloorScene::renderLoop(uint32 floorVAO, uint32 cubeVAO)
   const glm::vec3 cubePosition3 = glm::vec3(2.0f, floorPosition.y + (cubeScale3 / 2.0f) + 4.0f, 3.0f);
   
   const float32 lightRadius = 16.0f;
-  const float32 lightAmplitude = 2.0f;
   const float32 lightHeightOffset = 16.0f;
 
   // Turn on gamma correction for entire scene

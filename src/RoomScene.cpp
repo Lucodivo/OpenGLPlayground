@@ -96,8 +96,7 @@ void RoomScene::renderLoop(uint32 cubeVAO, uint32 invertedNormCubeVAO)
   const glm::vec3 cubePosition3 = glm::vec3(2.0f, roomPosition.y + (cubeScale3 / 2.0f) + 4.0f, 3.0f);
 
   const float32 lightRadius = 8.0f;
-  const float32 lightAmplitude = 2.0f;
-  const float32 lightHeightOffset = 8.0f;
+  const float32 lightAmplitude = 8.0f;
 
   // Turn on gamma correction for entire scene
   //glEnable(GL_FRAMEBUFFER_SRGB);
@@ -181,7 +180,7 @@ void RoomScene::renderLoop(uint32 cubeVAO, uint32 invertedNormCubeVAO)
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
     // light data
-    glm::vec3 lightPosition = glm::vec3(sin(t) * lightRadius, lightHeightOffset, cos(t) * lightRadius);
+    glm::vec3 lightPosition = glm::vec3(sin(t) * lightRadius, sin(1.5f * t) * lightAmplitude, cos(t) * lightRadius);
     glm::mat4 lightModel;
     lightModel = glm::translate(lightModel, lightPosition);
     lightModel = glm::scale(lightModel, glm::vec3(lightScale));
