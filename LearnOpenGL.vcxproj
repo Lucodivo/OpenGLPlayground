@@ -31,6 +31,7 @@
     <ClCompile Include="src\ObjectData.cpp" />
     <ClCompile Include="src\NessCubesScene.cpp" />
     <ClCompile Include="src\ReflectRefractScene.cpp" />
+    <ClCompile Include="src\RoomScene.cpp" />
     <ClCompile Include="src\Scene.cpp" />
     <ClCompile Include="src\Util.cpp" />
   </ItemGroup>
@@ -55,6 +56,7 @@
     <ClInclude Include="src\ObjectData.h" />
     <ClInclude Include="src\NessCubesScene.h" />
     <ClInclude Include="src\ReflectRefractScene.h" />
+    <ClInclude Include="src\RoomScene.h" />
     <ClInclude Include="src\Scene.h" />
     <ClInclude Include="src\Shader.h" />
     <ClInclude Include="src\Util.h" />

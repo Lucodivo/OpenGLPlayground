@@ -8,6 +8,7 @@
 #include "ReflectRefractScene.h"
 #include "AsteroidBeltScene.h"
 #include "FloorScene.h"
+#include "RoomScene.h"
 
 #include <iostream>
 
@@ -20,7 +21,7 @@ int main()
   initializeGLAD();
   loadXInput();
 
-  Scene* scene = new FloorScene(window, VIEWPORT_INIT_HEIGHT, VIEWPORT_INIT_WIDTH);
+  Scene* scene = new RoomScene(window, VIEWPORT_INIT_HEIGHT, VIEWPORT_INIT_WIDTH);
   scene->runScene();
 
   glfwTerminate(); // clean up gl resources

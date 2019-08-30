@@ -1,39 +1,40 @@
-#include "FloorScene.h"
+#include "RoomScene.h"
 #include "FileLocations.h"
 #include "Model.h"
 #include "Util.h"
 #include "ObjectData.h"
 
-FloorScene::FloorScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth)
+RoomScene::RoomScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth)
   : GodModeScene(window, initScreenHeight, initScreenWidth),
-  directionalLightShader(lightSpaceVertexShaderFileLoc, directionalLightShadowMapFragmentShaderFIleLoc),
+  positionalLightShader(lightSpaceVertexShaderFileLoc, directionalLightShadowMapFragmentShaderFIleLoc),
   singleColorShader(posVertexShaderFileLoc, singleColorFragmentShaderFileLoc),
-  depthMapShader(simpleDepthVertexShaderFileLoc, emptyFragmentShaderFileLoc) {}
+  depthMapShader(simpleDepthVertexShaderFileLoc, emptyFragmentShaderFileLoc)
+{}
 
-void FloorScene::runScene()
+void RoomScene::runScene()
 {
-  uint32 floorVAO, floorVBO, floorEBO;
-  initializeQuadVertexAttBuffers(floorVAO, floorVBO, floorEBO);
-
   uint32 cubeVAO, cubeVBO, cubeEBO;
   initializeCubePosTexNormAttBuffers(cubeVAO, cubeVBO, cubeEBO);
 
-  renderLoop(floorVAO, cubeVAO);
+  uint32 invertedNormCubeVAO, invertedNormCubeVBO, invertedNormCubeEBO;
+  initializeCubePosTexNormAttBuffers(invertedNormCubeVAO, invertedNormCubeVBO, invertedNormCubeEBO, true);
 
-  glDeleteVertexArrays(1, &floorVAO);
-  glDeleteBuffers(1, &floorVBO);
-  glDeleteBuffers(1, &floorEBO);
+  renderLoop(cubeVAO, invertedNormCubeVAO);
 
   glDeleteVertexArrays(1, &cubeVAO);
   glDeleteBuffers(1, &cubeVBO);
   glDeleteBuffers(1, &cubeEBO);
+
+  glDeleteVertexArrays(1, &invertedNormCubeVAO);
+  glDeleteBuffers(1, &invertedNormCubeVBO);
+  glDeleteBuffers(1, &invertedNormCubeEBO);
 }
 
 
-void FloorScene::renderLoop(uint32 floorVAO, uint32 cubeVAO)
+void RoomScene::renderLoop(uint32 cubeVAO, uint32 invertedNormCubeVAO)
 {
-  uint32 floorTextureId, cubeTextureId;
-  load2DTexture(hardwoodTextureLoc, floorTextureId, false, true);
+  uint32 wallpaperTextureId, cubeTextureId;
+  load2DTexture(hardwoodTextureLoc, wallpaperTextureId, false, true);
   load2DTexture(cementTextureLoc, cubeTextureId, false, true);
 
   unsigned int depthMapFBO;
@@ -46,10 +47,10 @@ void FloorScene::renderLoop(uint32 floorVAO, uint32 cubeVAO)
   glGenTextures(1, &depthMapTextureId);
   glBindTexture(GL_TEXTURE_2D, depthMapTextureId);
   glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT,
-               SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+    SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-  // ensure that areas outside of the shadow map are never determined to be in shadow
+  // ensure that areas outside of the shadow map are NEVER determined to be in shadow
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
   float borderColor[] = {1.0f, 1.0f, 1.0f, 1.0f};
@@ -57,12 +58,13 @@ void FloorScene::renderLoop(uint32 floorVAO, uint32 cubeVAO)
 
   glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMapTextureId, 0);
+  // The following two calls tell OpenGL that we are not trying to output any kind of color
   glDrawBuffer(GL_NONE);
   glReadBuffer(GL_NONE);
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
   glActiveTexture(GL_TEXTURE0);
-  glBindTexture(GL_TEXTURE_2D, floorTextureId);
+  glBindTexture(GL_TEXTURE_2D, wallpaperTextureId);
   glActiveTexture(GL_TEXTURE1);
   glBindTexture(GL_TEXTURE_2D, cubeTextureId);
 
@@ -79,36 +81,41 @@ void FloorScene::renderLoop(uint32 floorVAO, uint32 cubeVAO)
   glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 
   glm::vec3 lightColor(1.0f, 1.0f, 1.0f);
-  const float32 lightScale = 0.5f;
+  const float32 lightScale = 0.3f;
 
-  const float32 floorScale = 16.0f;
-  const glm::vec3 floorPosition(0.0f, -3.0f, 0.0f);
+  const float32 roomScale = 32.0f;
+  const glm::vec3 roomPosition(0.0f, -3.0f, 0.0f);
 
   const float32 cubeScale1 = 3.0f;
-  const glm::vec3 cubePosition1 = glm::vec3(0.0f, floorPosition.y + (cubeScale1 / 2.0f), 0.0f);
+  const glm::vec3 cubePosition1 = glm::vec3(0.0f, roomPosition.y + (cubeScale1 / 2.0f), 0.0f);
 
   const float32 cubeScale2 = 2.2f;
-  const glm::vec3 cubePosition2 = glm::vec3(8.0f, floorPosition.y + (cubeScale2 / 2) + 2.0f, 4.0f);
-  
+  const glm::vec3 cubePosition2 = glm::vec3(8.0f, roomPosition.y + (cubeScale2 / 2) + 2.0f, 4.0f);
+
   const float32 cubeScale3 = 1.7f;
-  const glm::vec3 cubePosition3 = glm::vec3(2.0f, floorPosition.y + (cubeScale3 / 2.0f) + 4.0f, 3.0f);
-  
-  const float32 lightRadius = 16.0f;
+  const glm::vec3 cubePosition3 = glm::vec3(2.0f, roomPosition.y + (cubeScale3 / 2.0f) + 4.0f, 3.0f);
+
+  const float32 lightRadius = 8.0f;
   const float32 lightAmplitude = 2.0f;
-  const float32 lightHeightOffset = 16.0f;
+  const float32 lightHeightOffset = 8.0f;
 
   // Turn on gamma correction for entire scene
   //glEnable(GL_FRAMEBUFFER_SRGB);
 
-  directionalLightShader.use();
+  positionalLightShader.use();
+
+  // set material
+  positionalLightShader.setUniform("attenuation.constant", 1.0f);
+  positionalLightShader.setUniform("attenuation.linear", 0.04f);
+  positionalLightShader.setUniform("attenuation.quadratic", 0.016f);
 
   // set lighting 1
-  directionalLightShader.setUniform("directionalLight.color.ambient", lightColor * 0.05f);
-  directionalLightShader.setUniform("directionalLight.color.diffuse", lightColor * 0.3f);
-  directionalLightShader.setUniform("directionalLight.color.specular", lightColor);
+  positionalLightShader.setUniform("directionalLight.color.ambient", lightColor * 0.05f);
+  positionalLightShader.setUniform("directionalLight.color.diffuse", lightColor * 0.3f);
+  positionalLightShader.setUniform("directionalLight.color.specular", lightColor);
 
   const uint32 shadowMap2DSamplerIndex = 2;
-  directionalLightShader.setUniform("shadowMap", shadowMap2DSamplerIndex);
+  positionalLightShader.setUniform("shadowMap", shadowMap2DSamplerIndex);
 
   uint32 globalVSUniformBuffer;
   uint32 globalVSBufferBindIndex = 0;
@@ -128,11 +135,28 @@ void FloorScene::renderLoop(uint32 floorVAO, uint32 cubeVAO)
     glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(cameraProjMat));
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-    directionalLightShader.bindBlockIndex("globalBlockVS", globalVSBufferBindIndex);
+    positionalLightShader.bindBlockIndex("globalBlockVS", globalVSBufferBindIndex);
     singleColorShader.bindBlockIndex("globalBlockVS", globalVSBufferBindIndex);
   }
 
-  camera.Position += glm::vec3(0.0f, 10.0f, 20.0f);
+  camera.Position += glm::vec3(0.0f, 10.0f, 30.0f);
+
+  // room data
+  glm::mat4 roomModelMat = glm::mat4();
+  roomModelMat = glm::translate(roomModelMat, roomPosition);
+  roomModelMat = glm::scale(roomModelMat, glm::vec3(roomScale));
+  roomModelMat = glm::rotate(roomModelMat, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+
+  // cube data
+  glm::mat4 cubeModelMat1 = glm::mat4();
+  cubeModelMat1 = glm::translate(cubeModelMat1, cubePosition1);
+  cubeModelMat1 = glm::scale(cubeModelMat1, glm::vec3(cubeScale1));
+  glm::mat4 cubeModelMat2 = glm::mat4();
+  cubeModelMat2 = glm::translate(cubeModelMat2, cubePosition2);
+  cubeModelMat2 = glm::scale(cubeModelMat2, glm::vec3(cubeScale2));
+  glm::mat4 cubeModelMat3 = glm::mat4();
+  cubeModelMat3 = glm::translate(cubeModelMat3, cubePosition3);
+  cubeModelMat3 = glm::scale(cubeModelMat3, glm::vec3(cubeScale3));
 
   glEnable(GL_CULL_FACE);
   glFrontFace(GL_CCW);
@@ -162,29 +186,11 @@ void FloorScene::renderLoop(uint32 floorVAO, uint32 cubeVAO)
     lightModel = glm::translate(lightModel, lightPosition);
     lightModel = glm::scale(lightModel, glm::vec3(lightScale));
 
-    // floor data
-    glm::mat4 floorModelMat = glm::mat4();
-    floorModelMat = glm::translate(floorModelMat, floorPosition);
-    floorModelMat = glm::scale(floorModelMat, glm::vec3(floorScale, 1.0f, floorScale));
-    floorModelMat = glm::rotate(floorModelMat, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-
-    // cube data
-    glm::mat4 cubeModelMat1 = glm::mat4();
-    cubeModelMat1 = glm::translate(cubeModelMat1, cubePosition1);
-    cubeModelMat1 = glm::scale(cubeModelMat1, glm::vec3(cubeScale1));
-    glm::mat4 cubeModelMat2 = glm::mat4();
-    cubeModelMat2 = glm::translate(cubeModelMat2, cubePosition2);
-    cubeModelMat2 = glm::scale(cubeModelMat2, glm::vec3(cubeScale2));
-    glm::mat4 cubeModelMat3 = glm::mat4();
-    cubeModelMat3 = glm::translate(cubeModelMat3, cubePosition3);
-    cubeModelMat3 = glm::scale(cubeModelMat3, glm::vec3(cubeScale3));
-
     // render depth map from light's point of view
     glm::mat4 lightView = glm::lookAt(lightPosition,
-                                      glm::vec3(0.0f, 0.0f, 0.0f),
-                                      glm::vec3(0.0f, 1.0f, 0.0f));
+      glm::vec3(0.0f, 0.0f, 0.0f),
+      glm::vec3(0.0f, 1.0f, 0.0f));
     glm::mat4 lightSpaceMatrix = lightProjMat * lightView;
-
 
     depthMapShader.use();
     depthMapShader.setUniform("lightSpaceMatrix", lightSpaceMatrix);
@@ -192,33 +198,31 @@ void FloorScene::renderLoop(uint32 floorVAO, uint32 cubeVAO)
     glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
     glClear(GL_DEPTH_BUFFER_BIT);
 
-    // depth map for floor
-    depthMapShader.setUniform("model", floorModelMat);
-    glBindVertexArray(floorVAO);
-    glDrawElements(GL_TRIANGLES, // drawing mode
-                   6, // number of elements to draw (3 vertices per triangle * 2 triangles per quad)
-                   GL_UNSIGNED_INT, // type of the indices
-                   0); // offset in the EBO
-
-    // depth map for cubes
-    depthMapShader.setUniform("model", cubeModelMat1);
-    glBindVertexArray(cubeVAO);
-    glDrawElements(GL_TRIANGLES, // drawing mode
-                   cubePosTexNormNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
-                   GL_UNSIGNED_INT, // type of the indices
-                   0); // offset in the EBO
-    glBindVertexArray(0);
-
-    depthMapShader.setUniform("model", cubeModelMat2);
-    glBindVertexArray(cubeVAO);
+    // depth map for room
+    glCullFace(GL_FRONT);
+    glBindVertexArray(invertedNormCubeVAO);
+    depthMapShader.setUniform("model", roomModelMat);
     glDrawElements(GL_TRIANGLES, // drawing mode
       cubePosTexNormNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
       GL_UNSIGNED_INT, // type of the indices
       0); // offset in the EBO
-    glBindVertexArray(0);
+
+    // depth map for cubes
+    glCullFace(GL_BACK);
+    glBindVertexArray(cubeVAO);
+    depthMapShader.setUniform("model", cubeModelMat1);
+    glDrawElements(GL_TRIANGLES, // drawing mode
+      cubePosTexNormNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
+      GL_UNSIGNED_INT, // type of the indices
+      0); // offset in the EBO
+
+    depthMapShader.setUniform("model", cubeModelMat2);
+    glDrawElements(GL_TRIANGLES, // drawing mode
+      cubePosTexNormNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
+      GL_UNSIGNED_INT, // type of the indices
+      0); // offset in the EBO
 
     depthMapShader.setUniform("model", cubeModelMat3);
-    glBindVertexArray(cubeVAO);
     glDrawElements(GL_TRIANGLES, // drawing mode
       cubePosTexNormNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
       GL_UNSIGNED_INT, // type of the indices
@@ -234,47 +238,49 @@ void FloorScene::renderLoop(uint32 floorVAO, uint32 cubeVAO)
     glActiveTexture(GL_TEXTURE0 + shadowMap2DSamplerIndex);
     glBindTexture(GL_TEXTURE_2D, depthMapTextureId);
 
-    // draw directional light representation
+    // draw positional light
     singleColorShader.use();
     glBindVertexArray(cubeVAO);
     singleColorShader.setUniform("model", lightModel);
     singleColorShader.setUniform("color", lightColor);
     glDrawElements(GL_TRIANGLES, // drawing mode
-                   cubePosTexNormNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
-                   GL_UNSIGNED_INT, // type of the indices
-                   0); // offset in the EBO
+      cubePosTexNormNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
+      GL_UNSIGNED_INT, // type of the indices
+      0); // offset in the EBO
 
     glm::vec3 lightDir = glm::normalize(lightPosition);
-    directionalLightShader.use();
-    directionalLightShader.setUniform("viewPos", camera.Position);
-    directionalLightShader.setUniform("lightSpaceMatrix", lightSpaceMatrix);
-    directionalLightShader.setUniform("directionalLight.direction", lightDir);
+    positionalLightShader.use();
+    positionalLightShader.setUniform("viewPos", camera.Position);
+    positionalLightShader.setUniform("lightSpaceMatrix", lightSpaceMatrix);
+    positionalLightShader.setUniform("directionalLight.direction", lightDir);
 
-    // draw floor
-    directionalLightShader.setUniform("model", floorModelMat);
-    directionalLightShader.setUniform("material.diffTexture1", 0);
-    directionalLightShader.setUniform("material.specTexture1", 0);
-    glBindVertexArray(floorVAO);
+    // draw room
+    glCullFace(GL_FRONT);
+    glBindVertexArray(invertedNormCubeVAO);
+    positionalLightShader.setUniform("model", roomModelMat);
+    positionalLightShader.setUniform("material.diffTexture1", 0);
+    positionalLightShader.setUniform("material.specTexture1", 0);
     glDrawElements(GL_TRIANGLES, // drawing mode
-      6, // number of elements to draw (3 vertices per triangle * 2 triangles per quad)
+      cubePosTexNormNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
       GL_UNSIGNED_INT, // type of the indices
       0); // offset in the EBO
 
     // draw cubes
-    directionalLightShader.setUniform("model", cubeModelMat1);
-    directionalLightShader.setUniform("material.diffTexture1", 1);
-    directionalLightShader.setUniform("material.specTexture1", 1);
+    glCullFace(GL_BACK);
     glBindVertexArray(cubeVAO);
+    positionalLightShader.setUniform("model", cubeModelMat1);
+    positionalLightShader.setUniform("material.diffTexture1", 1);
+    positionalLightShader.setUniform("material.specTexture1", 1);
     glDrawElements(GL_TRIANGLES, // drawing mode
       cubePosTexNormNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
       GL_UNSIGNED_INT, // type of the indices
       0); // offset in the EBO
-    directionalLightShader.setUniform("model", cubeModelMat2);
+    positionalLightShader.setUniform("model", cubeModelMat2);
     glDrawElements(GL_TRIANGLES, // drawing mode
       cubePosTexNormNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
       GL_UNSIGNED_INT, // type of the indices
       0); // offset in the EBO
-    directionalLightShader.setUniform("model", cubeModelMat3);
+    positionalLightShader.setUniform("model", cubeModelMat3);
     glDrawElements(GL_TRIANGLES, // drawing mode
       cubePosTexNormNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
       GL_UNSIGNED_INT, // type of the indices

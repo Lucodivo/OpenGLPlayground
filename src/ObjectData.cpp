@@ -5,17 +5,19 @@
 #include "ObjectData.h"
 
 
-void initializeCubePosTexNormAttBuffers(uint32& VAO, uint32& VBO, uint32& EBO)
+void initializeCubePosTexNormAttBuffers(uint32& VAO, uint32& VBO, uint32& EBO, bool invertNormals)
 {
   glGenVertexArrays(1, &VAO);
   glBindVertexArray(VAO);
+
+  const float32* attributes = invertNormals ? cubePosTexNormAttributesInvertedNorms : cubePosTexNormAttributes;
 
   glGenBuffers(1, // Num objects to generate 
     &VBO);  // Out parameters to store IDs of gen objects
   glBindBuffer(GL_ARRAY_BUFFER, VBO); // bind object to array buffer
   glBufferData(GL_ARRAY_BUFFER, // which buffer data is being entered in
     sizeof(cubePosTexNormAttributes), // size of data being placed in array buffer
-    cubePosTexNormAttributes,        // data to store in array buffer       
+    attributes,        // data to store in array buffer       
     GL_STATIC_DRAW); // GL_STATIC_DRAW (most likely not change), GL_DYNAMIC_DRAW (likely to change), GL_STREAM_DRAW (changes every time drawn)
 
   // position attribute
