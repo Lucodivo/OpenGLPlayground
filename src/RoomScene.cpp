@@ -60,7 +60,7 @@ void RoomScene::renderLoop(uint32 cubeVAO, uint32 invertedNormCubeVAO)
   // background clear color
   glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 
-  glm::vec3 lightColor(0.7f, 0.7f, 0.7f);
+  glm::vec3 lightColor(0.5f, 0.5f, 0.5f);
   const float32 lightScale = 0.3f;
 
   const float32 roomScale = 32.0f;
