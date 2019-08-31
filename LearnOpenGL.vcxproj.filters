@@ -72,6 +72,9 @@
     <Text Include="TODOs.txt">
       <Filter>etc</Filter>
     </Text>
+    <Text Include="src\shaders\LinearDepthMapFragmentShader.glsl">
+      <Filter>Source Files\shaders</Filter>
+    </Text>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\main.h">
@@ -239,6 +242,15 @@
       <Filter>Source Files\shaders</Filter>
     </None>
     <None Include="src\shaders\DirectionalLightShadowMapFragmentShader.glsl">
+      <Filter>Source Files\shaders</Filter>
+    </None>
+    <None Include="src\shaders\ModelMatVertexShader.glsl">
+      <Filter>Source Files\shaders</Filter>
+    </None>
+    <None Include="src\shaders\PositionalLightShadowMapFragmentShader.glsl">
+      <Filter>Source Files\shaders</Filter>
+    </None>
+    <None Include="src\shaders\CubeMapGeometryShader.glsl">
       <Filter>Source Files\shaders</Filter>
     </None>
   </ItemGroup>

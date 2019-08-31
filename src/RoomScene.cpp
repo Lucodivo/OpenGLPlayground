@@ -4,11 +4,14 @@
 #include "Util.h"
 #include "ObjectData.h"
 
+const uint32 SHADOW_MAP_WIDTH = 2048;
+const uint32 SHADOW_MAP_HEIGHT = 2048;
+
 RoomScene::RoomScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth)
   : GodModeScene(window, initScreenHeight, initScreenWidth),
-  positionalLightShader(lightSpaceVertexShaderFileLoc, directionalLightShadowMapFragmentShaderFIleLoc),
+  positionalLightShader(posNormTexVertexShaderFileLoc, positionalLightShadowMapFragmentShaderFileLoc),
   singleColorShader(posVertexShaderFileLoc, singleColorFragmentShaderFileLoc),
-  depthMapShader(simpleDepthVertexShaderFileLoc, emptyFragmentShaderFileLoc)
+  depthCubeMapShader(modelMatVertexShaderFileLoc, linearDepthMapFragmentShaderFileLoc, cubeMapGeometryShaderFileLoc)
 {}
 
 void RoomScene::runScene()
@@ -30,38 +33,14 @@ void RoomScene::runScene()
   glDeleteBuffers(1, &invertedNormCubeEBO);
 }
 
-
 void RoomScene::renderLoop(uint32 cubeVAO, uint32 invertedNormCubeVAO)
 {
   uint32 wallpaperTextureId, cubeTextureId;
   load2DTexture(hardwoodTextureLoc, wallpaperTextureId, false, true);
   load2DTexture(cementTextureLoc, cubeTextureId, false, true);
 
-  unsigned int depthMapFBO;
-  glGenFramebuffers(1, &depthMapFBO);
-
-  const uint32 SHADOW_WIDTH = 2048;
-  const uint32 SHADOW_HEIGHT = 2048;
-
-  unsigned int depthMapTextureId;
-  glGenTextures(1, &depthMapTextureId);
-  glBindTexture(GL_TEXTURE_2D, depthMapTextureId);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT,
-    SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-  // ensure that areas outside of the shadow map are NEVER determined to be in shadow
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-  float borderColor[] = {1.0f, 1.0f, 1.0f, 1.0f};
-  glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
-
-  glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
-  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMapTextureId, 0);
-  // The following two calls tell OpenGL that we are not trying to output any kind of color
-  glDrawBuffer(GL_NONE);
-  glReadBuffer(GL_NONE);
-  glBindFramebuffer(GL_FRAMEBUFFER, 0);
+  unsigned int depthCubeMapTextureId, depthMapFBO;
+  generateDepthMap(depthCubeMapTextureId, depthMapFBO);
 
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, wallpaperTextureId);
@@ -70,9 +49,10 @@ void RoomScene::renderLoop(uint32 cubeVAO, uint32 invertedNormCubeVAO)
 
   const glm::mat4 cameraProjMat = glm::perspective(glm::radians(camera.Zoom), (float32)viewportWidth / (float32)viewportHeight, 0.1f, 120.0f);
 
-  const float near_plane = 1.0f, far_plane = 40.0f, projectionDimens = 12.0f;
-  // Note: orthographic projection is used for directional lighting, as all light rays are parallel
-  const glm::mat4 lightProjMat = glm::ortho(-projectionDimens, projectionDimens, -projectionDimens, projectionDimens, near_plane, far_plane);
+  const float aspect_ratio = (float)SHADOW_MAP_WIDTH / (float)SHADOW_MAP_HEIGHT;
+  const float nearPlane = 1.0f;
+  const float farPlane = 40.0f;
+  const glm::mat4 lightProjMat = glm::perspective(glm::radians(90.0f), aspect_ratio, nearPlane, farPlane);
 
   glEnable(GL_DEPTH_TEST);
   glDepthFunc(GL_LEQUAL);
@@ -80,7 +60,7 @@ void RoomScene::renderLoop(uint32 cubeVAO, uint32 invertedNormCubeVAO)
   // background clear color
   glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 
-  glm::vec3 lightColor(1.0f, 1.0f, 1.0f);
+  glm::vec3 lightColor(0.7f, 0.7f, 0.7f);
   const float32 lightScale = 0.3f;
 
   const float32 roomScale = 32.0f;
@@ -90,7 +70,7 @@ void RoomScene::renderLoop(uint32 cubeVAO, uint32 invertedNormCubeVAO)
   const glm::vec3 cubePosition1 = glm::vec3(0.0f, roomPosition.y + (cubeScale1 / 2.0f), 0.0f);
 
   const float32 cubeScale2 = 2.2f;
-  const glm::vec3 cubePosition2 = glm::vec3(8.0f, roomPosition.y + (cubeScale2 / 2) + 2.0f, 4.0f);
+  const glm::vec3 cubePosition2 = glm::vec3(8.0f, roomPosition.y + (cubeScale2 / 2) - 8.0f, 8.0f);
 
   const float32 cubeScale3 = 1.7f;
   const glm::vec3 cubePosition3 = glm::vec3(2.0f, roomPosition.y + (cubeScale3 / 2.0f) + 4.0f, 3.0f);
@@ -109,12 +89,12 @@ void RoomScene::renderLoop(uint32 cubeVAO, uint32 invertedNormCubeVAO)
   positionalLightShader.setUniform("attenuation.quadratic", 0.016f);
 
   // set lighting 1
-  positionalLightShader.setUniform("directionalLight.color.ambient", lightColor * 0.05f);
-  positionalLightShader.setUniform("directionalLight.color.diffuse", lightColor * 0.3f);
-  positionalLightShader.setUniform("directionalLight.color.specular", lightColor);
+  positionalLightShader.setUniform("positionalLight.color.ambient", lightColor * 0.05f);
+  positionalLightShader.setUniform("positionalLight.color.diffuse", lightColor * 0.3f);
+  positionalLightShader.setUniform("positionalLight.color.specular", lightColor);
 
-  const uint32 shadowMap2DSamplerIndex = 2;
-  positionalLightShader.setUniform("shadowMap", shadowMap2DSamplerIndex);
+  const uint32 shadowCubeMapSamplerIndex = 2;
+  positionalLightShader.setUniform("shadowCubeMap", shadowCubeMapSamplerIndex);
 
   uint32 globalVSUniformBuffer;
   uint32 globalVSBufferBindIndex = 0;
@@ -144,7 +124,6 @@ void RoomScene::renderLoop(uint32 cubeVAO, uint32 invertedNormCubeVAO)
   glm::mat4 roomModelMat = glm::mat4();
   roomModelMat = glm::translate(roomModelMat, roomPosition);
   roomModelMat = glm::scale(roomModelMat, glm::vec3(roomScale));
-  roomModelMat = glm::rotate(roomModelMat, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 
   // cube data
   glm::mat4 cubeModelMat1 = glm::mat4();
@@ -185,22 +164,33 @@ void RoomScene::renderLoop(uint32 cubeVAO, uint32 invertedNormCubeVAO)
     lightModel = glm::translate(lightModel, lightPosition);
     lightModel = glm::scale(lightModel, glm::vec3(lightScale));
 
-    // render depth map from light's point of view
-    glm::mat4 lightView = glm::lookAt(lightPosition,
-      glm::vec3(0.0f, 0.0f, 0.0f),
-      glm::vec3(0.0f, 1.0f, 0.0f));
-    glm::mat4 lightSpaceMatrix = lightProjMat * lightView;
+    glm::mat4 shadowMapTransMats[6];
+    shadowMapTransMats[0] = (lightProjMat * glm::lookAt(lightPosition, lightPosition + glm::vec3(1.0, 0.0, 0.0), glm::vec3(0.0, -1.0, 0.0))); // right
+    shadowMapTransMats[1] = (lightProjMat * glm::lookAt(lightPosition, lightPosition + glm::vec3(-1.0, 0.0, 0.0), glm::vec3(0.0, -1.0, 0.0))); // left
+    shadowMapTransMats[2] = (lightProjMat * glm::lookAt(lightPosition, lightPosition + glm::vec3(0.0, 1.0, 0.0), glm::vec3(0.0, 0.0, 1.0))); // top
+    shadowMapTransMats[3] = (lightProjMat * glm::lookAt(lightPosition, lightPosition + glm::vec3(0.0, -1.0, 0.0), glm::vec3(0.0, 0.0, -1.0))); // bottom
+    shadowMapTransMats[4] = (lightProjMat * glm::lookAt(lightPosition, lightPosition + glm::vec3(0.0, 0.0, 1.0), glm::vec3(0.0, -1.0, 0.0))); // far
+    shadowMapTransMats[5] = (lightProjMat * glm::lookAt(lightPosition, lightPosition + glm::vec3(0.0, 0.0, -1.0), glm::vec3(0.0, -1.0, 0.0))); // near
 
-    depthMapShader.use();
-    depthMapShader.setUniform("lightSpaceMatrix", lightSpaceMatrix);
-    glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
+    depthCubeMapShader.use();
+    // TODO: don't?
+    depthCubeMapShader.setUniform("cubeMapTransMats[0]", shadowMapTransMats[0]);
+    depthCubeMapShader.setUniform("cubeMapTransMats[1]", shadowMapTransMats[1]);
+    depthCubeMapShader.setUniform("cubeMapTransMats[2]", shadowMapTransMats[2]);
+    depthCubeMapShader.setUniform("cubeMapTransMats[3]", shadowMapTransMats[3]);
+    depthCubeMapShader.setUniform("cubeMapTransMats[4]", shadowMapTransMats[4]);
+    depthCubeMapShader.setUniform("cubeMapTransMats[5]", shadowMapTransMats[5]);
+    depthCubeMapShader.setUniform("lightPos", lightPosition);
+    depthCubeMapShader.setUniform("farPlane", farPlane);
+
+    glViewport(0, 0, SHADOW_MAP_WIDTH, SHADOW_MAP_HEIGHT);
     glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
     glClear(GL_DEPTH_BUFFER_BIT);
 
     // depth map for room
     glCullFace(GL_FRONT);
     glBindVertexArray(invertedNormCubeVAO);
-    depthMapShader.setUniform("model", roomModelMat);
+    depthCubeMapShader.setUniform("model", roomModelMat);
     glDrawElements(GL_TRIANGLES, // drawing mode
       cubePosTexNormNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
       GL_UNSIGNED_INT, // type of the indices
@@ -209,19 +199,19 @@ void RoomScene::renderLoop(uint32 cubeVAO, uint32 invertedNormCubeVAO)
     // depth map for cubes
     glCullFace(GL_BACK);
     glBindVertexArray(cubeVAO);
-    depthMapShader.setUniform("model", cubeModelMat1);
+    depthCubeMapShader.setUniform("model", cubeModelMat1);
     glDrawElements(GL_TRIANGLES, // drawing mode
       cubePosTexNormNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
       GL_UNSIGNED_INT, // type of the indices
       0); // offset in the EBO
 
-    depthMapShader.setUniform("model", cubeModelMat2);
+    depthCubeMapShader.setUniform("model", cubeModelMat2);
     glDrawElements(GL_TRIANGLES, // drawing mode
       cubePosTexNormNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
       GL_UNSIGNED_INT, // type of the indices
       0); // offset in the EBO
 
-    depthMapShader.setUniform("model", cubeModelMat3);
+    depthCubeMapShader.setUniform("model", cubeModelMat3);
     glDrawElements(GL_TRIANGLES, // drawing mode
       cubePosTexNormNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
       GL_UNSIGNED_INT, // type of the indices
@@ -234,8 +224,8 @@ void RoomScene::renderLoop(uint32 cubeVAO, uint32 invertedNormCubeVAO)
     glViewport(0, 0, viewportWidth, viewportHeight);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    glActiveTexture(GL_TEXTURE0 + shadowMap2DSamplerIndex);
-    glBindTexture(GL_TEXTURE_2D, depthMapTextureId);
+    glActiveTexture(GL_TEXTURE0 + shadowCubeMapSamplerIndex);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, depthCubeMapTextureId);
 
     // draw positional light
     singleColorShader.use();
@@ -250,8 +240,8 @@ void RoomScene::renderLoop(uint32 cubeVAO, uint32 invertedNormCubeVAO)
     glm::vec3 lightDir = glm::normalize(lightPosition);
     positionalLightShader.use();
     positionalLightShader.setUniform("viewPos", camera.Position);
-    positionalLightShader.setUniform("lightSpaceMatrix", lightSpaceMatrix);
-    positionalLightShader.setUniform("directionalLight.direction", lightDir);
+    positionalLightShader.setUniform("positionalLight.position", lightPosition);
+    positionalLightShader.setUniform("farPlane", farPlane);
 
     // draw room
     glCullFace(GL_FRONT);
@@ -289,4 +279,39 @@ void RoomScene::renderLoop(uint32 cubeVAO, uint32 invertedNormCubeVAO)
     glfwSwapBuffers(window); // swaps double buffers
     glfwPollEvents(); // checks for events (ex: keyboard/mouse input)
   }
+}
+
+void RoomScene::generateDepthMap(uint32& depthCubeMapId, uint32& depthMapFBO)
+{
+  glGenFramebuffers(1, &depthMapFBO);
+
+  glGenTextures(1, &depthCubeMapId);
+  glBindTexture(GL_TEXTURE_CUBE_MAP, depthCubeMapId);
+  for(unsigned int i = 0; i < 6; ++i)
+  {
+    glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_DEPTH_COMPONENT,
+                 SHADOW_MAP_WIDTH, SHADOW_MAP_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+  }
+
+  // TODO: Remove
+  //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  //// ensure that areas outside of the shadow map are NEVER determined to be in shadow
+  //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+  //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+  //float borderColor[] = {1.0f, 1.0f, 1.0f, 1.0f};
+  //glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
+
+  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+  glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+  glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthCubeMapId, 0);
+  // The following two calls tell OpenGL that we are not trying to output any kind of color
+  glDrawBuffer(GL_NONE);
+  glReadBuffer(GL_NONE);
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }

@@ -37,6 +37,10 @@ const char* const textFragmentShaderFileLoc = "src/shaders/TextFragmentShader.gl
 const char* const simpleDepthVertexShaderFileLoc = "src/shaders/SimpleDepthVertexShader.glsl";
 const char* const emptyFragmentShaderFileLoc = "src/shaders/EmptyFragmentShader.glsl";
 const char* const lightSpaceVertexShaderFileLoc = "src/shaders/LightSpaceVertexShader.glsl";
+const char* const modelMatVertexShaderFileLoc = "src/shaders/ModelMatVertexShader.glsl";
+const char* const cubeMapGeometryShaderFileLoc = "src/shaders/CubeMapGeometryShader.glsl";
+const char* const linearDepthMapFragmentShaderFileLoc = "src/shaders/LinearDepthMapFragmentShader.glsl";
+const char* const positionalLightShadowMapFragmentShaderFileLoc = "src/shaders/PositionalLightShadowMapFragmentShader.glsl";
 
 // 2D textures
 const char* const diffuseTextureLoc = "src/data/diffuse_map_alpha_channel.png";
