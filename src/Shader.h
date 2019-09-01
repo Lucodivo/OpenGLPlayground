@@ -8,6 +8,7 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
+#include <vector>
 
 #include "LearnOpenGLPlatform.h"
 
@@ -171,12 +172,20 @@ public:
     glUniform4f(glGetUniformLocation(ID, name.c_str()), value1, value2, value3, value4);
   }
 
-  void setUniform(const std::string & name, const glm::mat4 & trans) const
+  void setUniform(const std::string & name, const glm::mat4 & mat) const
   {
     glUniformMatrix4fv(glGetUniformLocation(ID, name.c_str()),
       1, // count 
       GL_FALSE, // transpose: swap columns and rows (true or false)
-      glm::value_ptr(trans)); // pointer to float values
+      glm::value_ptr(mat)); // pointer to float values
+  }
+
+  void setUniform(const std::string& name, const glm::mat4* matArray, const uint32 arraySize)
+  {
+    glUniformMatrix4fv(glGetUniformLocation(ID, name.c_str()),
+                       arraySize, // count 
+                       GL_FALSE, // transpose: swap columns and rows (true or false)
+                       (GLfloat*)matArray); // pointer to float values // TODO: glm::value_ptr(mats[0])
   }
 
   void setUniform(const std::string & name, const float* floatArray, const uint32 arraySize)

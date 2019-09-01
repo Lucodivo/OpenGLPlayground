@@ -215,8 +215,6 @@ void ReflectRefractScene::renderLoop(GLFWwindow* window, uint32& cubeVAO, uint32
         0, // offset in the EB
         8); // instance count
     }
-
-
     glBindVertexArray(0);
 
     // draw model

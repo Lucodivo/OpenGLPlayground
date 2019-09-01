@@ -67,7 +67,7 @@ void loadCubeMapTexture(std::vector<const char*> imgLocations, uint32& textureId
 
   int width, height, nrChannels;
   stbi_set_flip_vertically_on_load(flipImageVert);
-  for (unsigned int i = 0; i < 6; i++)
+  for (uint32 i = 0; i < 6; i++)
   {
     unsigned char* data = stbi_load(imgLocations[i], &width, &height, &nrChannels, 0);
     if (data)

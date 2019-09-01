@@ -37,6 +37,10 @@ const char* const textFragmentShaderFileLoc = "src/shaders/TextFragmentShader.gl
 const char* const simpleDepthVertexShaderFileLoc = "src/shaders/SimpleDepthVertexShader.glsl";
 const char* const emptyFragmentShaderFileLoc = "src/shaders/EmptyFragmentShader.glsl";
 const char* const lightSpaceVertexShaderFileLoc = "src/shaders/LightSpaceVertexShader.glsl";
+const char* const modelMatVertexShaderFileLoc = "src/shaders/ModelMatVertexShader.glsl";
+const char* const cubeMapGeometryShaderFileLoc = "src/shaders/CubeMapGeometryShader.glsl";
+const char* const linearDepthMapFragmentShaderFileLoc = "src/shaders/LinearDepthMapFragmentShader.glsl";
+const char* const positionalLightShadowMapFragmentShaderFileLoc = "src/shaders/PositionalLightShadowMapFragmentShader.glsl";
 
 // 2D textures
 const char* const diffuseTextureLoc = "src/data/diffuse_map_alpha_channel.png";
@@ -44,7 +48,7 @@ const char* const specularTextureLoc = "src/data/specular_map.png";
 const char* const emissionTextureLoc = "src/data/emission_map.png";
 const char* const outlineTextureLoc = "src/data/cube_outline.png";
 const char* const outlineWhiteFillTextureLoc = "src/data/cube_outline_white_fill.png";
-const char* const marbleTextureLoc = "src/data/floor.jpg";
+const char* const hardwoodTextureLoc = "src/data/hardwood.jpg";
 const char* const cementTextureLoc = "src/data/cement.png";
 const char* const nanoSuitModelAbsoluteLoc = "C:/developer/repos/OpenGLScenes/LearnOpenGL/src/data/models/nanosuit/nanosuit.obj";
 const char* const asteroidModelAbsoluteLoc = "C:/developer/repos/OpenGLScenes/LearnOpenGL/src/data/models/rock/rock.obj";

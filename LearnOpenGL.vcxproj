@@ -31,11 +31,13 @@
     <ClCompile Include="src\ObjectData.cpp" />
     <ClCompile Include="src\NessCubesScene.cpp" />
     <ClCompile Include="src\ReflectRefractScene.cpp" />
+    <ClCompile Include="src\RoomScene.cpp" />
     <ClCompile Include="src\Scene.cpp" />
     <ClCompile Include="src\Util.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="notes.txt" />
+    <Text Include="src\shaders\LinearDepthMapFragmentShader.glsl" />
     <Text Include="TODOs.txt" />
   </ItemGroup>
   <ItemGroup>
@@ -55,6 +57,7 @@
     <ClInclude Include="src\ObjectData.h" />
     <ClInclude Include="src\NessCubesScene.h" />
     <ClInclude Include="src\ReflectRefractScene.h" />
+    <ClInclude Include="src\RoomScene.h" />
     <ClInclude Include="src\Scene.h" />
     <ClInclude Include="src\Shader.h" />
     <ClInclude Include="src\Util.h" />
@@ -62,15 +65,18 @@
   <ItemGroup>
     <None Include="README.md" />
     <None Include="src\shaders\AsteroidVertexShader.glsl" />
+    <None Include="src\shaders\CubeMapGeometryShader.glsl" />
     <None Include="src\shaders\DirectionalLightShadowMapFragmentShader.glsl" />
     <None Include="src\shaders\CubeFragmentShader.glsl" />
     <None Include="src\shaders\EmptyFragmentShader.glsl" />
     <None Include="src\shaders\ExplodeGeometryShader.glsl" />
     <None Include="src\shaders\Kernel5x5TextureFragmentShader.glsl" />
     <None Include="src\shaders\LightSpaceVertexShader.glsl" />
+    <None Include="src\shaders\ModelMatVertexShader.glsl" />
     <None Include="src\shaders\NegativeTextureFragmentShader.glsl" />
     <None Include="src\shaders\NormalVisualizer10InstanceVertexShader.glsl" />
     <None Include="src\shaders\NormalVisualizerVertexShader.glsl" />
+    <None Include="src\shaders\PositionalLightShadowMapFragmentShader.glsl" />
     <None Include="src\shaders\PosNormal10InstanceVertexShader.glsl" />
     <None Include="src\shaders\PosNormModelVertexShader.glsl" />
     <None Include="src\shaders\PosTexModelVertexShader.glsl" />

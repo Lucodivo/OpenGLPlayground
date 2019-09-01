@@ -101,10 +101,6 @@ void NessCubesScene::renderLoop(GLFWwindow * window, uint32 & shapesVAO, uint32 
   glm::vec3 directionalLightDir = glm::vec3(1.0f, -0.5f, 1.0f);
   glm::vec3 directionalLightColor = glm::vec3(1.0f);
 
-  //glEnable(GL_CULL_FACE);
-  //glCullFace(GL_BACK);
-  //glFrontFace(GL_CCW);
-
   // background clear color
   glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 
@@ -378,8 +374,6 @@ void NessCubesScene::renderLoop(GLFWwindow * window, uint32 & shapesVAO, uint32 
         0); // offset in the EBO
       glEnable(GL_DEPTH_TEST);
     }
-
-    // unbind shapesVAO
     glBindVertexArray(0);
 
     glStencilFunc(GL_ALWAYS, // stencil function

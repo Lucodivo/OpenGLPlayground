@@ -2,7 +2,7 @@
 
 #include "LearnOpenGLPlatform.h"
 
-void initializeCubePosTexNormAttBuffers(uint32& VAO, uint32& VBO, uint32& EBO);
+void initializeCubePosTexNormAttBuffers(uint32& VAO, uint32& VBO, uint32& EBO, bool invertNorms = false);
 void initializeCubePosNormAttBuffers(uint32& VAO, uint32& VBO, uint32& EBO);
 void initializeCubePositionAttBuffers(uint32& VAO, uint32& VBO, uint32& EBO);
 void initializeQuadVertexAttBuffers(uint32& VAO, uint32& VBO, uint32& EBO);
@@ -16,7 +16,7 @@ void initializeFrameBuffer(uint32& frameBuffer, uint32& rbo, uint32& frameBuffer
 #define TopRightTexture 1.0f, 1.0f
 const uint32 cubePosTexNormAttSizeInBytes = 8 * sizeof(float32);
 const uint32 cubePosTexNormNumElements = 12; // 2 triangles per side * 6 sides per cube
-const float32 cubePosTexNormAttributes[] = {
+const float32 cubePosTexNormAttributes[192] = {
   // positions           // normals            // texture positions 
   // face #1
   -0.5f, -0.5f, -0.5f,   0.0f,  0.0f, -1.0f,   BottomLeftTexture,     // bottom left
@@ -48,6 +48,39 @@ const float32 cubePosTexNormAttributes[] = {
   0.5f,  0.5f, -0.5f,    0.0f,  1.0f,  0.0f,   TopRightTexture,       // top right
   0.5f,  0.5f,  0.5f,    0.0f,  1.0f,  0.0f,   BottomRightTexture,    // bottom right
   -0.5f,  0.5f,  0.5f,   0.0f,  1.0f,  0.0f,   BottomLeftTexture      // bottom left
+};
+const float32 cubePosTexNormAttributesInvertedNorms[192] = {
+  // positions           // normals            // texture positions 
+  // face #1
+  -0.5f, -0.5f, -0.5f,   0.0f,  0.0f,  1.0f,   BottomLeftTexture,     // bottom left
+  0.5f, -0.5f, -0.5f,    0.0f,  0.0f,  1.0f,   BottomRightTexture,    // bottom right
+  0.5f,  0.5f, -0.5f,    0.0f,  0.0f,  1.0f,   TopRightTexture,       // top right
+  -0.5f,  0.5f, -0.5f,   0.0f,  0.0f,  1.0f,   TopLeftTexture,        // top left
+  // face #2			               
+  -0.5f, -0.5f,  0.5f,   0.0f,  0.0f, -1.0f,   BottomLeftTexture,     // bottom left
+  0.5f, -0.5f,  0.5f,    0.0f,  0.0f, -1.0f,   BottomRightTexture,    // bottom right
+  0.5f,  0.5f,  0.5f,    0.0f,  0.0f, -1.0f,   TopRightTexture,       // top right
+  -0.5f,  0.5f,  0.5f,   0.0f,  0.0f, -1.0f,   TopLeftTexture,        // top left
+  // face #3			               -     
+  -0.5f,  0.5f,  0.5f,   1.0f,  0.0f,  0.0f,   BottomRightTexture,    // bottom right
+  -0.5f,  0.5f, -0.5f,   1.0f,  0.0f,  0.0f,   TopRightTexture,       // top right
+  -0.5f, -0.5f, -0.5f,   1.0f,  0.0f,  0.0f,   TopLeftTexture,        // top left
+  -0.5f, -0.5f,  0.5f,   1.0f,  0.0f,  0.0f,   BottomLeftTexture,     // bottom left
+  // face #4			                     
+  0.5f,  0.5f,  0.5f,   -1.0f,  0.0f,  0.0f,   BottomRightTexture,    // bottom right
+  0.5f,  0.5f, -0.5f,   -1.0f,  0.0f,  0.0f,   TopRightTexture,       // top right
+  0.5f, -0.5f, -0.5f,   -1.0f,  0.0f,  0.0f,   TopLeftTexture,        // top left
+  0.5f, -0.5f,  0.5f,   -1.0f,  0.0f,  0.0f,   BottomLeftTexture,     // bottom left
+  // face #5			                     
+  -0.5f, -0.5f, -0.5f,   0.0f,  1.0f,  0.0f,   TopLeftTexture,        // top left
+  0.5f, -0.5f, -0.5f,    0.0f,  1.0f,  0.0f,   TopRightTexture,       // top right
+  0.5f, -0.5f,  0.5f,    0.0f,  1.0f,  0.0f,   BottomRightTexture,    // bottom right
+  -0.5f, -0.5f,  0.5f,   0.0f,  1.0f,  0.0f,   BottomLeftTexture,     // bottom left
+  // face #6			                     
+  -0.5f,  0.5f, -0.5f,   0.0f, -1.0f,  0.0f,   TopLeftTexture,        // top left
+  0.5f,  0.5f, -0.5f,    0.0f, -1.0f,  0.0f,   TopRightTexture,       // top right
+  0.5f,  0.5f,  0.5f,    0.0f, -1.0f,  0.0f,   BottomRightTexture,    // bottom right
+  -0.5f,  0.5f,  0.5f,   0.0f, -1.0f,  0.0f,   BottomLeftTexture      // bottom left
 };
 
 const uint32 cubePosNormAttSizeInBytes = 6 * sizeof(float32);
