@@ -39,7 +39,7 @@ void FloorScene::renderLoop(uint32 floorVAO, uint32 cubeVAO)
   load2DTexture(hardwoodTextureLoc, floorTextureId, false, true);
   load2DTexture(cementTextureLoc, cubeTextureId, false, true);
 
-  unsigned int depthMapTextureId, depthMapFBO;
+  uint32 depthMapTextureId, depthMapFBO;
   generateDepthMap(depthMapTextureId, depthMapFBO);
 
   glActiveTexture(GL_TEXTURE0);
@@ -49,7 +49,7 @@ void FloorScene::renderLoop(uint32 floorVAO, uint32 cubeVAO)
 
   const glm::mat4 cameraProjMat = glm::perspective(glm::radians(camera.Zoom), (float32)viewportWidth / (float32)viewportHeight, 0.1f, 120.0f);
 
-  const float nearPlane = 1.0f, farPlane = 40.0f, projectionDimens = 12.0f;
+  const float32 nearPlane = 1.0f, farPlane = 40.0f, projectionDimens = 12.0f;
   // Note: orthographic projection is used for directional lighting, as all light rays are parallel
   const glm::mat4 lightProjMat = glm::ortho(-projectionDimens, projectionDimens, -projectionDimens, projectionDimens, nearPlane, farPlane);
 
@@ -280,7 +280,7 @@ void FloorScene::generateDepthMap(uint32& depthMapTextureId, uint32& depthMapFBO
   // ensure that areas outside of the shadow map are NEVER determined to be in shadow
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-  float borderColor[] = {1.0f, 1.0f, 1.0f, 1.0f};
+  float32 borderColor[] = {1.0f, 1.0f, 1.0f, 1.0f};
   glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
 
   glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);

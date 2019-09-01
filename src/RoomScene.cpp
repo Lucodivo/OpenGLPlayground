@@ -47,14 +47,14 @@ void RoomScene::renderLoop(uint32 cubeVAO, uint32 invertedNormCubeVAO)
   glActiveTexture(GL_TEXTURE2);
   glBindTexture(GL_TEXTURE_CUBE_MAP, depthCubeMapTextureId);
 
-  float cameraAspectRatio = (float32)viewportWidth / (float32)viewportHeight;
-  const float cameraNearPlane = 0.1f;
-  const float cameraFarPlane = 120.f;
+  float32 cameraAspectRatio = (float32)viewportWidth / (float32)viewportHeight;
+  const float32 cameraNearPlane = 0.1f;
+  const float32 cameraFarPlane = 120.f;
   const glm::mat4 cameraProjMat = glm::perspective(glm::radians(camera.Zoom), cameraAspectRatio, cameraNearPlane, cameraFarPlane);
 
-  const float lightAspectRatio = (float)SHADOW_MAP_WIDTH / (float)SHADOW_MAP_HEIGHT;
-  const float lightNearPlane = 1.0f;
-  const float lightFarPlane = 40.0f;
+  const float32 lightAspectRatio = (float32)SHADOW_MAP_WIDTH / (float32)SHADOW_MAP_HEIGHT;
+  const float32 lightNearPlane = 1.0f;
+  const float32 lightFarPlane = 40.0f;
   const glm::mat4 lightProjMat = glm::perspective(glm::radians(90.0f), lightAspectRatio, lightNearPlane, lightFarPlane);
 
   glEnable(GL_DEPTH_TEST);
@@ -63,7 +63,7 @@ void RoomScene::renderLoop(uint32 cubeVAO, uint32 invertedNormCubeVAO)
   // background clear color
   glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 
-  glm::vec3 lightColor(0.7f, 0.7f, 0.7f);
+  glm::vec3 lightColor(0.8f, 0.8f, 0.8f);
   const float32 lightScale = 0.3f;
   const float32 lightRadius = 8.0f;
   const float32 lightAmplitude = 8.0f;
@@ -87,8 +87,8 @@ void RoomScene::renderLoop(uint32 cubeVAO, uint32 invertedNormCubeVAO)
   positionalLightShader.use();
   // set light attenuation
   positionalLightShader.setUniform("attenuation.constant", 1.0f);
-  positionalLightShader.setUniform("attenuation.linear", 0.04f);
-  positionalLightShader.setUniform("attenuation.quadratic", 0.016f);
+  positionalLightShader.setUniform("attenuation.linear", 0.02f);
+  positionalLightShader.setUniform("attenuation.quadratic", 0.008f);
   // set lighting
   positionalLightShader.setUniform("positionalLight.color.ambient", lightColor * 0.05f);
   positionalLightShader.setUniform("positionalLight.color.diffuse", lightColor * 0.3f);
