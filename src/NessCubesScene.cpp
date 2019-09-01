@@ -374,8 +374,6 @@ void NessCubesScene::renderLoop(GLFWwindow * window, uint32 & shapesVAO, uint32 
         0); // offset in the EBO
       glEnable(GL_DEPTH_TEST);
     }
-
-    // unbind shapesVAO
     glBindVertexArray(0);
 
     glStencilFunc(GL_ALWAYS, // stencil function

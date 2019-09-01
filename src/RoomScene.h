@@ -18,5 +18,5 @@ private:
   float32 lastFrame = 0.0f; // Time of last frame
 
   void renderLoop(uint32 cubeVAO, uint32 invertedNormCubeVAO);
-  void generateDepthMap(uint32& depthMapTextureId, uint32& depthMapFBO);
+  void generateDepthCubeMap(uint32& depthMapTextureId, uint32& depthMapFBO);
 };
