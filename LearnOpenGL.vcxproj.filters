@@ -19,14 +19,8 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\dependencies\OpenGL\include\glad\glad.c">
-      <Filter>external dependencies</Filter>
-    </ClCompile>
     <ClCompile Include="src\main.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\dependencies\OpenGL\include\stb\stb_image.cpp">
-      <Filter>external dependencies</Filter>
     </ClCompile>
     <ClCompile Include="src\Input.cpp">
       <Filter>Source Files</Filter>
@@ -63,6 +57,12 @@
     </ClCompile>
     <ClCompile Include="src\RoomScene.cpp">
       <Filter>Source Files\scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dependencies\glad.c">
+      <Filter>external dependencies</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dependencies\stb_image.cpp">
+      <Filter>external dependencies</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
