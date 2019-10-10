@@ -1,12 +1,20 @@
+
+
+
+
+
+
+
+
 #pragma once
 
 #include <glm/glm.hpp>
 
-#include "LearnOpenGLPlatform.h"
-#include "Kernels.h"
-#include "FirstPersonScene.h"
-#include "ObjectData.h"
-#include "Shader.h"
+#include "../../LearnOpenGLPlatform.h"
+#include "../../common/Kernels.h"
+#include "../FirstPersonScene.h"
+#include "../../common/ObjectData.h"
+#include "../../Shader.h"
 
 const glm::vec3 colors[] = {
   glm::vec3(1.0f, 0.0f, 0.0f),

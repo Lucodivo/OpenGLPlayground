@@ -1,9 +1,9 @@
 #include "Scene.h"
 
-#include "FileLocations.h"
+#include "../common/FileLocations.h"
 
 #include <ft2build.h>
-#include FT_FREETYPE_H
+#include FT_FREETYPE_H "freetype/freetype.h"
 
 Scene::Scene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth)
   : window(window),

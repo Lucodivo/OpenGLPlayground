@@ -4,9 +4,9 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "Model.h"
-#include "FileLocations.h"
-#include "Util.h"
+#include "../../Model.h"
+#include "../../common/FileLocations.h"
+#include "../../common/Util.h"
 
 #include "ReflectRefractScene.h"
 

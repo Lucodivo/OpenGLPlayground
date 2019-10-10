@@ -11,3 +11,4 @@ stb_image.cpp
 src/data/floor.jpg
 src/data/cement.png
 src/dependencies/
+build/

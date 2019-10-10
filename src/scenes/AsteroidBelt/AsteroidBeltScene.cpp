@@ -1,8 +1,8 @@
 #include "AsteroidBeltScene.h"
-#include "FileLocations.h"
-#include "Model.h"
-#include "Util.h"
-#include "ObjectData.h"
+#include "../../common/FileLocations.h"
+#include "../../Model.h"
+#include "../../common/Util.h"
+#include "../../common/ObjectData.h"
 
 AsteroidBeltScene::AsteroidBeltScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth)
   : FirstPersonScene(window, initScreenHeight, initScreenWidth),

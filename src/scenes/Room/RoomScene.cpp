@@ -1,8 +1,8 @@
 #include "RoomScene.h"
-#include "FileLocations.h"
-#include "Model.h"
-#include "Util.h"
-#include "ObjectData.h"
+#include "../../common/FileLocations.h"
+#include "../../Model.h"
+#include "../../common/Util.h"
+#include "../../common/ObjectData.h"
 
 const uint32 SHADOW_MAP_WIDTH = 2048;
 const uint32 SHADOW_MAP_HEIGHT = 2048;

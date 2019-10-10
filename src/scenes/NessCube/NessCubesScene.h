@@ -2,11 +2,11 @@
 
 #include <glm/glm.hpp>
 
-#include "LearnOpenGLPlatform.h"
-#include "Kernels.h"
-#include "FirstPersonScene.h"
-#include "ObjectData.h"
-#include "Shader.h"
+#include "../../LearnOpenGLPlatform.h"
+#include "../../common/Kernels.h"
+#include "../FirstPersonScene.h"
+#include "../../common/ObjectData.h"
+#include "../../Shader.h"
 
 class NessCubesScene final : public FirstPersonScene
 {

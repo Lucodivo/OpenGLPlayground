@@ -1,7 +1,7 @@
 #pragma once
 
 #include "FirstPersonScene.h"
-#include "Camera.h"
+#include "../Camera.h"
 
 class GodModeScene : public FirstPersonScene
 {

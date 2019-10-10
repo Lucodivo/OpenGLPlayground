@@ -1,7 +1,7 @@
 #include "InfiniteCubeScene.h"
-#include "FileLocations.h"
-#include "ObjectData.h"
-#include "Util.h"
+#include "../../common/FileLocations.h"
+#include "../../common/ObjectData.h"
+#include "../../common/Util.h"
 
 InfiniteCubeScene::InfiniteCubeScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth)
   : FirstPersonScene(window, initScreenHeight, initScreenWidth),

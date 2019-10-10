@@ -1,6 +1,6 @@
 #pragma once
 
-#include "GodModeScene.h"
+#include "../GodModeScene.h"
 
 class FloorScene : public GodModeScene
 {

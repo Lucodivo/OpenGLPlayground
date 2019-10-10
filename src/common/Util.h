@@ -1,6 +1,6 @@
 #pragma once
 
-#include "LearnOpenGLPlatform.h"
+#include "../LearnOpenGLPlatform.h"
 
 #include<vector>
 

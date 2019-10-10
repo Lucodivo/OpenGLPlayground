@@ -1,8 +1,8 @@
 #include "FloorScene.h"
-#include "FileLocations.h"
-#include "Model.h"
-#include "Util.h"
-#include "ObjectData.h"
+#include "../../common/FileLocations.h"
+#include "../../Model.h"
+#include "../../common/Util.h"
+#include "../../common/ObjectData.h"
 
 const uint32 SHADOW_MAP_WIDTH = 2048;
 const uint32 SHADOW_MAP_HEIGHT = 2048;
@@ -35,8 +35,9 @@ void FloorScene::runScene()
 
 void FloorScene::renderLoop(uint32 floorVAO, uint32 cubeVAO)
 {
-  uint32 floorTextureId, cubeTextureId;
-  load2DTexture(hardwoodTextureLoc, floorTextureId, false, true);
+  uint32 floorTextureId, floorNormalTextureId, cubeTextureId;
+  load2DTexture(brickTextureLoc, floorTextureId, false, true);
+  load2DTexture(brickNormalTextureLoc, floorNormalTextureId, false, true);
   load2DTexture(cementTextureLoc, cubeTextureId, false, true);
 
   uint32 depthMapTextureId, depthMapFBO;

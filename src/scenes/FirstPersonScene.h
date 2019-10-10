@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Scene.h"
-#include "Camera.h"
+#include "../Camera.h"
 
 class FirstPersonScene : public Scene, protected KeyboardConsumer, protected ControllerConsumer, MouseMovementConsumer, MouseScrollConsumer
 {

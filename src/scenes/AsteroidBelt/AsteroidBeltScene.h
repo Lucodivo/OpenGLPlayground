@@ -1,6 +1,6 @@
 #pragma once
 
-#include "FirstPersonScene.h"
+#include "../FirstPersonScene.h"
 
 class AsteroidBeltScene : public FirstPersonScene
 {

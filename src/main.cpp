@@ -3,12 +3,13 @@
 #include <glad/glad.h>
 
 #include "main.h"
-#include "NessCubesScene.h"
-#include "InfiniteCubeScene.h"
-#include "ReflectRefractScene.h"
-#include "AsteroidBeltScene.h"
-#include "FloorScene.h"
-#include "RoomScene.h"
+#include "scenes/NessCube/NessCubesScene.h"
+#include "scenes/InfiniteCube/InfiniteCubeScene.h"
+#include "scenes/ReflectRefract/ReflectRefractScene.h"
+#include "scenes/AsteroidBelt/AsteroidBeltScene.h"
+#include "scenes/Floor/FloorScene.h"
+#include "scenes/Room/RoomScene.h"
+#include "Input.h"
 
 #include <iostream>
 
@@ -21,7 +22,7 @@ int main()
   initializeGLAD();
   loadXInput();
 
-  Scene* scene = new RoomScene(window, VIEWPORT_INIT_HEIGHT, VIEWPORT_INIT_WIDTH);
+  Scene* scene = new FloorScene(window, VIEWPORT_INIT_HEIGHT, VIEWPORT_INIT_WIDTH);
   scene->runScene();
 
   glfwTerminate(); // clean up gl resources

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "LearnOpenGLPlatform.h"
+#include "../LearnOpenGLPlatform.h"
 
 void initializeCubePosTexNormAttBuffers(uint32& VAO, uint32& VBO, uint32& EBO, bool invertNorms = false);
 void initializeCubePosNormAttBuffers(uint32& VAO, uint32& VBO, uint32& EBO);
