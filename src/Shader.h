@@ -22,34 +22,12 @@ public:
   Shader(const char* vertexPath, const char* fragmentPath, const char* geometryPath = NULL)
   {
 
-    auto getShaderCodeAsString = [&](const char* shaderPath, std::string & shaderCode)
-    {
-      try
-      {
-        std::ifstream file;
-        // ensure ifstream objects can throw exceptions:
-        file.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-        // open file
-        file.open(shaderPath);
-        std::stringstream shaderStream;
-        // read file's buffer contents into streams
-        shaderStream << file.rdbuf();
-        // close file handler
-        file.close();
-        // convert stream into string
-        shaderCode = shaderStream.str();
-      } catch (std::ifstream::failure e)
-      {
-        std::cout << "ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ" << std::endl;
-      }
-    };
-
     std::string vertexCode;
-    getShaderCodeAsString(vertexPath, vertexCode);
+    readShaderCodeAsString(vertexPath, &vertexCode);
     const char* vShaderCode = vertexCode.c_str();
 
     std::string fragmentCode;
-    getShaderCodeAsString(fragmentPath, fragmentCode);
+    readShaderCodeAsString(fragmentPath, &fragmentCode);
     const char* fShaderCode = fragmentCode.c_str();
 
     // vertex Shader
@@ -82,14 +60,12 @@ public:
       std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
     }
 
-    bool geometryShaderExists = geometryPath != NULL;
-    int32 geometrySuccess = GL_FALSE;
     uint32 geometryShader;
-
-    if (geometryShaderExists)
+    int32 geometrySuccess = GL_FALSE;
+    if (geometryPath != NULL)
     {
       std::string geometryCode;
-      getShaderCodeAsString(geometryPath, geometryCode);
+      readShaderCodeAsString(geometryPath, &geometryCode);
       const char* gShaderCode = geometryCode.c_str();
 
       // fragment Shader
@@ -203,4 +179,27 @@ public:
     uint32 blockIndex = glGetUniformBlockIndex(ID, name.c_str());
     glUniformBlockBinding(ID, blockIndex, index);
   }
+
+private:
+    void readShaderCodeAsString(const char* shaderPath, std::string * shaderCode) {
+        try
+        {
+            std::ifstream file;
+            // ensure ifstream objects can throw exceptions:
+            file.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+            // open file
+            file.open(shaderPath);
+            std::stringstream shaderStream;
+            // read file's buffer contents into streams
+            shaderStream << file.rdbuf();
+            // close file handler
+            file.close();
+            // convert stream into string
+            *shaderCode = shaderStream.str();
+        } catch (std::ifstream::failure e)
+        {
+            std::cout << "ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ" << std::endl;
+        }
+    }
+
 };

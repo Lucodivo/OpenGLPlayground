@@ -10,7 +10,7 @@ Vertex: Collection of data per 3D coordinate
 Vertex Attributes: Any data associated with a vertex (ex: 3D position, color value)
 Primitives: Hints that tell OpenGL how to render data (ex: points, triangles, line)
 
-== GRAPHICS PIPLINE ==
+== GRAPHICS PIPELINE ==
 1. Vertex Shader: 3D coordinates => 3D coordinates & some basic processing on vertex attributes
 2. Primitive (Shape) Assembly: Takes all vertices from vertex shader that form a primitive and assembles all the points in the primitive shape given
 3. Geometry Shader: Takes in a collection of vertices that form a primitive and has the ability to generate other shapes by emitting new vertices to form new (or other) primitives.
@@ -22,7 +22,7 @@ Primitives: Hints that tell OpenGL how to render data (ex: points, triangles, li
 
 Fragment: All the data required for OpenGL to render a single pixel
 Shaders: Small programs on the GPU for each step of the graphics pipeline
-Normalized Device Coordinates: 3D coordinates in a specific range betweoon [-1.0, +1.0]
+Normalized Device Coordinates: 3D coordinates in a specific range between [-1.0, +1.0]
 Vertex Buffer Objects (VBO): Memory that can store a large amount of vertex data in the GPU's memory.
     - After binding the buffer using glBindBuffer(), glBufferData() function can be used to store data in VBO
 Vertex Array Object (VAO): Memory that can store the vertex attribute configurations (describes the data written into VBO)
@@ -133,19 +133,19 @@ Rotation matrix around the X-Axis (where A is the angle):
 |0 sinA cosA  0| |Z| = |YsinA+ZcosA| 
 |0 0    0     1| |1| = |1          |
 
-Rotaion matrix aruound the Y-axis
+Rotation matrix around the Y-axis
 |cosA  0 sinA 0| |X| = |XcosA+ZcosA |
 |0     0 0    0| |Y| = |Y           |
 |-sinA 0 cosA 0| |Z| = |-XsinA+ZcosA| 
 |0     0 0    1| |1| = |1           |
 
-Rotaion matrix aruound the Z-axis
+Rotation matrix around the Z-axis
 |cosA  -sinA 0 0| |X| = |XcosA-YsinA|
 |sinA  cosA  0 0| |Y| = |XsinA+YcosA|
 |0     0     0 0| |Z| = |Z          | 
 |0     0     0 1| |1| = |1          |
 
-++ Cordinate Systems ++
+++ Coordinate Systems ++
 There are 5 coordinate systems important to us:
 - Local Space (Object Space)
     - Coordinate system that is local to the object
@@ -166,8 +166,8 @@ Transformation Matrices for transforming coordinates between spaces:
 - Projection Matrix
     - View Space => Clip Space
     - Transforms coordinates within a specified range (e.g. -1000 to 1000 in each dimension) to device coordinates, (-1.0, 1.0).
-        - All coordinates outside of this rantge will not be mapped between (-1.0, 1.0) and therefore be clipped.
-        - If only a part of a primitieve is outside the clipping volume, OpenGL will reconstruct the triangle as one or more trinagels to fit inside clipping range
+        - All coordinates outside of this range will not be mapped between (-1.0, 1.0) and therefore be clipped.
+        - If only a part of a primitive is outside the clipping volume, OpenGL will reconstruct the triangle as one or more trinagels to fit inside clipping range
 
 Vertex coordinates first start in local space as local coordinates then are further processed to world coordinates, view coordinates, clip coordinates and eventually end up as screen coordinates.
 LOCAL SPACE ===MODEL MATRIX===> WORLD SPACE ===VIEW MATRIX===> VIEW SPACE ===PROJECTION MATRIX===> CLIP SPACE ===VIEWPORT TRANSFORMATION===> SCREEN SPACE
@@ -176,12 +176,12 @@ LOCAL SPACE ===MODEL MATRIX===> WORLD SPACE ===VIEW MATRIX===> VIEW SPACE ===PRO
 - When calculating certain operations on the object with respect to the position of other objects, it makes most sense in world coordinates
 
 Frustum: Viewing box that a projection matrix creates
-    - Each coordinate that ends up inside the frustrum will end up on the user's screen
+    - Each coordinate that ends up inside the frustum will end up on the user's screen
 Projection: Process of converting coordinates within a specified range to NDC (Normal Device Coordinates) that can easily be mapped to 2D view-space coordinates
     - "projects" 3D coordinates to the easy-to-map-to-2D NDCs
 Perspective Division: Dividing the x, y, and z components of the position vectors by the vector's homogeneous w component
     - transforms the 4D clip space coordinates to 3D normalized device coordinates
-Orthographic projection matrix defines a cube-like frustrum
+Orthographic projection matrix defines a cube-like frustum
     - defines the visible coordinates and is specified by a width, a height, and a near and far plane
     - produces unrealistic results since the projection doesn't take perspective into account
 Perspective projection matrix maps a given frustum range to clip space
@@ -216,9 +216,11 @@ Specular Lighting: Bright part of a light that appears on shiny objects
     - Specular highlights are often more inclined to the color of the light than the color of the object
 Attenuation: Reduced intensity of light, over the distance a light ray travels
 Directional Light: A light source modeled to be infinitely far away is called a directionla light since all it's light rays have the same direction.
-Point Light: A light source witha given position somewhere in a world that illuminates in all directions where the light rays fade out over distance(attenuate)
+Point Light: A light source with a given position somewhere in a world that illuminates in all directions where the light rays fade out over distance(attenuate)
 
 
 +++ Depth Testing +++
 Depth testing must be enabled using glEnable(GL_DEPTH_TEST) 
-Z-Fighting: A common visual artifight when two triangles are so closely aligned to each other that the depth buffer does not have enough precision to determing which one is in front of the other.
+Z-Fighting: A common visual artifact when two triangles are so closely aligned to each other that the depth buffer does not have enough precision to determining which one is in front of the other.
+
+=== Normal Mapping ===
