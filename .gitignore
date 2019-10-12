@@ -7,8 +7,11 @@ src/data/fun/
 src/data/skyboxes/
 src/data/models/
 src/fonts/
-stb_image.cpp
+build/
+cmake-build-debug/
+
+
 src/data/floor.jpg
 src/data/cement.png
-src/dependencies/
-build/
+src/data/brick.jpg
+src/data/brick_normal.jpg

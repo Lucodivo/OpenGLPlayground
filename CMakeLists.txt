@@ -12,13 +12,13 @@ link_directories(C:/developer/dependencies/OpenGL/libs)
 
 # Add source files
 file(GLOB_RECURSE SOURCE_FILES
-        ${CMAKE_SOURCE_DIR}/*.c
-        ${CMAKE_SOURCE_DIR}/*.cpp)
+        ${CMAKE_SOURCE_DIR}/src/*.c
+        ${CMAKE_SOURCE_DIR}/src/*.cpp)
 
 # Add header files
 file(GLOB_RECURSE HEADER_FILES
-        ${CMAKE_SOURCE_DIR}/*.h
-        ${CMAKE_SOURCE_DIR}/*.hpp)
+        ${CMAKE_SOURCE_DIR}/src/*.h
+        ${CMAKE_SOURCE_DIR}/src/*.hpp)
 
 # Define the executable
 add_executable(${PROJECT_NAME} ${HEADER_FILES} ${SOURCE_FILES})
@@ -27,17 +27,17 @@ add_executable(${PROJECT_NAME} ${HEADER_FILES} ${SOURCE_FILES})
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 
 # STB_IMAGE
-add_library(STB_IMAGE "dependencies/stb_image.cpp")
+add_library(STB_IMAGE "src/dependencies/stb_image.cpp")
 
 # GLAD
-add_library(GLAD "dependencies/glad.c")
+add_library(GLAD "src/dependencies/glad.c")
 
 # Put all libraries into a variable
 set(LIBS glfw3 opengl32 assimpd freetype STB_IMAGE GLAD)
 
 # Define the include DIRs
 include_directories(
-        "${CMAKE_SOURCE_DIR}/dependencies"
+        "${CMAKE_SOURCE_DIR}/src/dependencies"
         C:/developer/dependencies/OpenGL/include
 )
 
