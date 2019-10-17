@@ -12,8 +12,8 @@ struct DirectionalLight{
 };
 
 struct Material {
-	sampler2D diffTexture1;
-	sampler2D specTexture1;
+  sampler2D diffuse;
+  sampler2D normal;
 };
 
 uniform sampler2D shadowMap;
@@ -21,17 +21,17 @@ uniform vec3 viewPos;
 uniform DirectionalLight directionalLight;
 uniform Material material;
 
-in VS_OUT{
-  vec3 Normal;
-  vec3 FragPos;
+in VS_OUT {
+  vec3 Pos;
   vec2 TextureCoord;
-  vec4 FragPosLightSpace;
+  vec4 PosLightSpace;
+  mat3 TBN;
 } fs_in;
 
 out vec4 FragColor;
 
 vec3 calcDirectionalLightColor(DirectionalLight directionalLight);
-float calcShadow(vec4 fragPosLightSpace, float normalLightDirDot);
+float calcShadow(vec4 posLightSpace, float normalLightDirDot);
 
 vec3 diffColor;
 vec3 specColor;
@@ -41,8 +41,7 @@ const float shadowBiasMin = 0.0005;
 
 void main()
 {
-	diffColor = texture(material.diffTexture1, fs_in.TextureCoord).rgb;
-	specColor = texture(material.specTexture1, fs_in.TextureCoord).rgb;
+	diffColor = texture(material.diffuse, fs_in.TextureCoord).rgb;
 
   vec3 finalColor = calcDirectionalLightColor(directionalLight);
 
@@ -57,26 +56,29 @@ vec3 calcDirectionalLightColor(DirectionalLight directionalLight) {
 	vec3 ambient = directionalLight.color.ambient * diffColor;
 
 	// diffuse light
-	vec3 norm = normalize(fs_in.Normal);
-  float normalLightDirDot = dot(norm, directionalLight.direction);
+  vec3 normal = texture(material.normal, fs_in.TextureCoord).rgb;
+  normal = normalize((normal * 2) - vec3(1.0, 1.0, 1.0)); // normalize seems unnecessary
+  normal = normalize(fs_in.TBN * normal);
+  float normalLightDirDot = dot(normal, directionalLight.direction);
 	float diffStrength = max(normalLightDirDot, 0.0);
 	vec3 diffuse = directionalLight.color.diffuse * diffStrength * diffColor;
 
-	// specular light
-	vec3 viewDir = normalize(viewPos - fs_in.FragPos);
-	vec3 halfwayDir = normalize(directionalLight.direction + viewDir);
-	float specStrength = pow(max(dot(norm, halfwayDir), 0.0), 32.0);
-	vec3 specular = directionalLight.color.specular * specStrength * specColor;
+  // specular light
+  vec3 viewDir = normalize(viewPos - fs_in.Pos);
+  vec3 halfwayDir = normalize(directionalLight.direction + viewDir);
+  float specStrength = pow(max(dot(normal, halfwayDir), 0.0), 32.0);
+  vec3 specular = directionalLight.color.specular * specStrength;
 
-  float shadowInverse = 1.0 - calcShadow(fs_in.FragPosLightSpace, normalLightDirDot);
+  // shadow
+  float shadowInverse = 1.0 - calcShadow(fs_in.PosLightSpace, normalLightDirDot);
 
 	return (ambient + ((diffuse + specular) * shadowInverse));
 }
 
-float calcShadow(vec4 fragPosLightSpace, float normalLightDirDot)
+float calcShadow(vec4 posLightSpace, float normalLightDirDot)
 {
   // perform perspective divide
-  vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
+  vec3 projCoords = posLightSpace.xyz / posLightSpace.w;
   // transform NDC from the range of [-1,1] to the range of [0,1]
   projCoords = projCoords * 0.5 + 0.5;
 
@@ -92,7 +94,7 @@ float calcShadow(vec4 fragPosLightSpace, float normalLightDirDot)
   {
     for(int y = -1; y <= 1; ++y)
     {
-      // get closest depth value from light's perspective (using [0,1] range fragPosLight as coords)
+      // get closest depth value from light's perspective (using [0,1] range posLight as coords)
       float pcfDepth = texture(shadowMap, projCoords.xy + vec2(x, y) * texelSize).r;
       // check whether current frag pos is in shadow
       float bias = max(shadowBiasMax * (1.0 - normalLightDirDot), shadowBiasMin);

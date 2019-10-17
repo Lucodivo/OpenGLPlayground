@@ -49,16 +49,16 @@ NessCubesScene::NessCubesScene(GLFWwindow * window, uint32 initScreenHeight, uin
 void NessCubesScene::runScene()
 {
   uint32 lightVAO, lightVBO, lightEBO;
-  initializeCubePositionAttBuffers(lightVAO, lightVBO, lightEBO);
+  initializeCubePositionVertexAttBuffers(lightVAO, lightVBO, lightEBO);
 
   uint32 cubeVAO, cubeVBO, cubeEBO;
-  initializeCubePosTexNormAttBuffers(cubeVAO, cubeVBO, cubeEBO);
+  initializeCubePosTexNormVertexAttBuffers(cubeVAO, cubeVBO, cubeEBO);
 
   uint32 quadVAO, quadVBO, quadEBO;
   initializeFrameBufferQuadVertexAttBuffers(quadVAO, quadVBO, quadEBO);
 
   uint32 skyboxVAO, skyboxVBO, skyboxEBO;
-  initializeCubePositionAttBuffers(skyboxVAO, skyboxVBO, skyboxEBO);
+  initializeCubePositionVertexAttBuffers(skyboxVAO, skyboxVBO, skyboxEBO);
 
   renderLoop(window, cubeVAO, lightVAO, quadVAO, skyboxVAO);
 

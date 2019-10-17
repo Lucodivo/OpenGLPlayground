@@ -13,7 +13,7 @@ InfiniteCubeScene::InfiniteCubeScene(GLFWwindow* window, uint32 initScreenHeight
 void InfiniteCubeScene::runScene()
 {
   uint32 cubeVAO, cubeVBO, cubeEBO;
-  initializeCubePosTexNormAttBuffers(cubeVAO, cubeVBO, cubeEBO);
+  initializeCubePosTexNormVertexAttBuffers(cubeVAO, cubeVBO, cubeEBO);
 
   uint32 quadVAO, quadVBO, quadEBO;
   initializeFrameBufferQuadVertexAttBuffers(quadVAO, quadVBO, quadEBO);

@@ -1,6 +1,5 @@
 #include "FloorScene.h"
 #include "../../common/FileLocations.h"
-#include "../../Model.h"
 #include "../../common/Util.h"
 #include "../../common/ObjectData.h"
 
@@ -9,17 +8,17 @@ const uint32 SHADOW_MAP_HEIGHT = 2048;
 
 FloorScene::FloorScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth)
   : GodModeScene(window, initScreenHeight, initScreenWidth),
-  directionalLightShader(lightSpaceVertexShaderFileLoc, directionalLightShadowMapFragmentShaderFIleLoc),
+  directionalLightShader(lightSpaceVertexShaderFileLoc, directionalLightShadowMapFragmentShaderFileLoc, tbnGeometryShaderFileLoc),
   singleColorShader(posVertexShaderFileLoc, singleColorFragmentShaderFileLoc),
   depthMapShader(simpleDepthVertexShaderFileLoc, emptyFragmentShaderFileLoc) {}
 
 void FloorScene::runScene()
 {
   uint32 floorVAO, floorVBO, floorEBO;
-  initializeQuadVertexAttBuffers(floorVAO, floorVBO, floorEBO);
+  initializeQuadPosNormTexTanBiVertexAttBuffers(floorVAO, floorVBO, floorEBO);
 
   uint32 cubeVAO, cubeVBO, cubeEBO;
-  initializeCubePosTexNormAttBuffers(cubeVAO, cubeVBO, cubeEBO);
+  initializeCubePosTexNormVertexAttBuffers(cubeVAO, cubeVBO, cubeEBO);
 
   renderLoop(floorVAO, cubeVAO);
 
@@ -35,18 +34,23 @@ void FloorScene::runScene()
 
 void FloorScene::renderLoop(uint32 floorVAO, uint32 cubeVAO)
 {
-  uint32 floorTextureId, floorNormalTextureId, cubeTextureId;
-  load2DTexture(brickTextureLoc, floorTextureId, false, true);
-  load2DTexture(brickNormalTextureLoc, floorNormalTextureId, false, true);
-  load2DTexture(cementTextureLoc, cubeTextureId, false, true);
+  uint32 floorAlbedoTextureId, floorNormalTextureId, cubeAlbedoTextureId, cubeNormalTextureId;
+  load2DTexture(brickAlbedoTextureLoc, floorAlbedoTextureId, false, true);
+  load2DTexture(brickNormalTextureLoc, floorNormalTextureId, false, false);
+  load2DTexture(agedPlanksAlbedoTextureLoc, cubeAlbedoTextureId, false, true);
+  load2DTexture(agedPlanksNormalTextureLoc, cubeNormalTextureId, false, false);
 
   uint32 depthMapTextureId, depthMapFBO;
   generateDepthMap(depthMapTextureId, depthMapFBO);
 
   glActiveTexture(GL_TEXTURE0);
-  glBindTexture(GL_TEXTURE_2D, floorTextureId);
+  glBindTexture(GL_TEXTURE_2D, floorAlbedoTextureId);
   glActiveTexture(GL_TEXTURE1);
-  glBindTexture(GL_TEXTURE_2D, cubeTextureId);
+  glBindTexture(GL_TEXTURE_2D, floorNormalTextureId);
+  glActiveTexture(GL_TEXTURE2);
+  glBindTexture(GL_TEXTURE_2D, cubeAlbedoTextureId);
+  glActiveTexture(GL_TEXTURE3);
+  glBindTexture(GL_TEXTURE_2D, cubeNormalTextureId);
 
   const glm::mat4 cameraProjMat = glm::perspective(glm::radians(camera.Zoom), (float32)viewportWidth / (float32)viewportHeight, 0.1f, 120.0f);
 
@@ -66,17 +70,17 @@ void FloorScene::renderLoop(uint32 floorVAO, uint32 cubeVAO)
   const float32 floorScale = 16.0f;
   const glm::vec3 floorPosition(0.0f, -3.0f, 0.0f);
 
-  const float32 cubeScale1 = 3.0f;
+  const float32 cubeScale1 = 4.0f;
   const glm::vec3 cubePosition1 = glm::vec3(0.0f, floorPosition.y + (cubeScale1 / 2.0f), 0.0f);
 
-  const float32 cubeScale2 = 2.2f;
+  const float32 cubeScale2 = 3.0f;
   const glm::vec3 cubePosition2 = glm::vec3(8.0f, floorPosition.y + (cubeScale2 / 2) + 2.0f, 4.0f);
   
   const float32 cubeScale3 = 1.7f;
   const glm::vec3 cubePosition3 = glm::vec3(2.0f, floorPosition.y + (cubeScale3 / 2.0f) + 4.0f, 3.0f);
   
   const float32 lightRadius = 16.0f;
-  const float32 lightHeightOffset = 16.0f;
+  const float32 lightHeightOffset = 8.0f;
 
   // Turn on gamma correction for entire scene
   //glEnable(GL_FRAMEBUFFER_SRGB);
@@ -85,10 +89,10 @@ void FloorScene::renderLoop(uint32 floorVAO, uint32 cubeVAO)
 
   // set lighting 1
   directionalLightShader.setUniform("directionalLight.color.ambient", lightColor * 0.05f);
-  directionalLightShader.setUniform("directionalLight.color.diffuse", lightColor * 0.3f);
-  directionalLightShader.setUniform("directionalLight.color.specular", lightColor);
+  directionalLightShader.setUniform("directionalLight.color.diffuse", lightColor * 0.5f);
+  directionalLightShader.setUniform("directionalLight.color.specular", lightColor * 0.1f);
 
-  const uint32 shadowMap2DSamplerIndex = 2;
+  const uint32 shadowMap2DSamplerIndex = 4;
   directionalLightShader.setUniform("shadowMap", shadowMap2DSamplerIndex);
 
   uint32 globalVSUniformBuffer;
@@ -118,7 +122,7 @@ void FloorScene::renderLoop(uint32 floorVAO, uint32 cubeVAO)
   // floor data
   glm::mat4 floorModelMat = glm::mat4();
   floorModelMat = glm::translate(floorModelMat, floorPosition);
-  floorModelMat = glm::scale(floorModelMat, glm::vec3(floorScale, 1.0f, floorScale));
+  floorModelMat = glm::scale(floorModelMat, glm::vec3(floorScale, floorScale, floorScale));
   floorModelMat = glm::rotate(floorModelMat, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 
   // cube data
@@ -234,8 +238,8 @@ void FloorScene::renderLoop(uint32 floorVAO, uint32 cubeVAO)
 
     // draw floor
     directionalLightShader.setUniform("model", floorModelMat);
-    directionalLightShader.setUniform("material.diffTexture1", 0);
-    directionalLightShader.setUniform("material.specTexture1", 0);
+    directionalLightShader.setUniform("material.diffuse", 0);
+    directionalLightShader.setUniform("material.normal", 1);
     glBindVertexArray(floorVAO);
     glDrawElements(GL_TRIANGLES, // drawing mode
       6, // number of elements to draw (3 vertices per triangle * 2 triangles per quad)
@@ -243,10 +247,10 @@ void FloorScene::renderLoop(uint32 floorVAO, uint32 cubeVAO)
       0); // offset in the EBO
 
     // draw cubes
-    directionalLightShader.setUniform("model", cubeModelMat1);
-    directionalLightShader.setUniform("material.diffTexture1", 1);
-    directionalLightShader.setUniform("material.specTexture1", 1);
+    directionalLightShader.setUniform("material.diffuse", 2);
+    directionalLightShader.setUniform("material.normal", 3);
     glBindVertexArray(cubeVAO);
+    directionalLightShader.setUniform("model", cubeModelMat1);
     glDrawElements(GL_TRIANGLES, // drawing mode
       cubePosTexNormNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
       GL_UNSIGNED_INT, // type of the indices
