@@ -17,10 +17,10 @@ RoomScene::RoomScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScr
 void RoomScene::runScene()
 {
   uint32 cubeVAO, cubeVBO, cubeEBO;
-  initializeCubePosTexNormAttBuffers(cubeVAO, cubeVBO, cubeEBO);
+  initializeCubePosTexNormVertexAttBuffers(cubeVAO, cubeVBO, cubeEBO);
 
   uint32 invertedNormCubeVAO, invertedNormCubeVBO, invertedNormCubeEBO;
-  initializeCubePosTexNormAttBuffers(invertedNormCubeVAO, invertedNormCubeVBO, invertedNormCubeEBO, true);
+  initializeCubePosTexNormVertexAttBuffers(invertedNormCubeVAO, invertedNormCubeVBO, invertedNormCubeEBO, true);
 
   renderLoop(cubeVAO, invertedNormCubeVAO);
 

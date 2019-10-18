@@ -63,10 +63,10 @@ void ReflectRefractScene::runScene()
 {
 
   uint32 cubeVAO, cubeVBO, cubeEBO;
-  initializeCubePosNormAttBuffers(cubeVAO, cubeVBO, cubeEBO);
+  initializeCubePosNormVertexAttBuffers(cubeVAO, cubeVBO, cubeEBO);
 
   uint32 skyboxVAO, skyboxVBO, skyboxEBO;
-  initializeCubePositionAttBuffers(skyboxVAO, skyboxVBO, skyboxEBO);
+  initializeCubePositionVertexAttBuffers(skyboxVAO, skyboxVBO, skyboxEBO);
 
   renderLoop(window, cubeVAO, skyboxVAO);
 

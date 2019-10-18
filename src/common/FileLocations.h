@@ -32,8 +32,9 @@ const char* const textureModelFragmentShaderFileLoc = ASTEROID_BELT_BASE"Texture
 // Floor Shaders
 #define FLOOR_BASE "src/scenes/Floor/"
 const char* const lightSpaceVertexShaderFileLoc = FLOOR_BASE"LightSpaceVertexShader.glsl";
-const char* const directionalLightShadowMapFragmentShaderFIleLoc = FLOOR_BASE"DirectionalLightShadowMapFragmentShader.glsl";
+const char* const directionalLightShadowMapFragmentShaderFileLoc = FLOOR_BASE"DirectionalLightShadowMapFragmentShader.glsl";
 const char* const simpleDepthVertexShaderFileLoc = FLOOR_BASE"SimpleDepthVertexShader.glsl";
+const char* const tbnGeometryShaderFileLoc = FLOOR_BASE"TBNGeometryShader.glsl";
 
 // Infinite Cube Shaders
 #define INFINITE_CUBE_BASE "src/scenes/InfiniteCube/"
@@ -72,8 +73,27 @@ const char* const outlineTextureLoc = "src/data/cube_outline.png";
 const char* const outlineWhiteFillTextureLoc = "src/data/cube_outline_white_fill.png";
 const char* const hardwoodTextureLoc = "src/data/hardwood.jpg";
 const char* const cementTextureLoc = "src/data/cement.png";
-const char* const brickTextureLoc = "src/data/brick.jpg";
-const char* const brickNormalTextureLoc = "src/data/brick_normal.jpg";
+const char* const brickAlbedoTextureLoc = "src/data/PBR/brick_albedo.jpg";
+const char* const brickNormalTextureLoc = "src/data/PBR/brick_normal.jpg";
+const char* const agedPlanksAlbedoTextureLoc = "src/data/PBR/agedplanks_albedo.png";
+const char* const agedPlanksNormalTextureLoc = "src/data/PBR/agedplanks_normal.png";
+const char* const greasyAlbedoTextureLoc = "src/data/PBR/greasy_albedo.png";
+const char* const greasyNormalTextureLoc = "src/data/PBR/greasy_normal.png";
+const char* const cementAlbedoTextureLoc = "src/data/PBR/cement_albedo.png";
+const char* const cementNormalTextureLoc = "src/data/PBR/cement_normal.png";
+const char* const cementHeightTextureLoc = "src/data/PBR/cement_height.png";
+const char* const whiteSpruceAlbedoTextureLoc = "src/data/PBR/whitespruce_albedo.png";
+const char* const whiteSpruceNormalTextureLoc = "src/data/PBR/whitespruce_normal.png";
+const char* const whiteSpruceHeightTextureLoc = "src/data/PBR/whitespruce_height.png";
+const char* const copperRockAlbedoTextureLoc = "src/data/PBR/copperrock_albedo.png";
+const char* const copperRockNormalTextureLoc = "src/data/PBR/copperrock_normal.png";
+const char* const copperRockHeightTextureLoc = "src/data/PBR/copperrock_height.png";
+const char* const dungeonStoneAlbedoTextureLoc = "src/data/PBR/dungeonstone_albedo.png";
+const char* const dungeonStoneNormalTextureLoc = "src/data/PBR/dungeonstone_normal.png";
+const char* const dungeonStoneHeightTextureLoc = "src/data/PBR/dungeonstone_height.png";
+const char* const waterWornStoneAlbedoTextureLoc = "src/data/PBR/waterwornstone_albedo.png";
+const char* const waterWornStoneNormalTextureLoc = "src/data/PBR/waterwornstone_normal.png";
+const char* const waterWornStoneHeightTextureLoc = "src/data/PBR/waterwornstone_height.png";
 const char* const nanoSuitModelAbsoluteLoc = "src/data/models/nanosuit/nanosuit.obj";
 const char* const asteroidModelAbsoluteLoc = "src/data/models/rock/rock.obj";
 const char* const planetModelAbsoluteLoc = "src/data/models/planet/planet.obj";

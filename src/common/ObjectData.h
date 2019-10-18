@@ -2,10 +2,11 @@
 
 #include "../LearnOpenGLPlatform.h"
 
-void initializeCubePosTexNormAttBuffers(uint32& VAO, uint32& VBO, uint32& EBO, bool invertNorms = false);
-void initializeCubePosNormAttBuffers(uint32& VAO, uint32& VBO, uint32& EBO);
-void initializeCubePositionAttBuffers(uint32& VAO, uint32& VBO, uint32& EBO);
-void initializeQuadVertexAttBuffers(uint32& VAO, uint32& VBO, uint32& EBO);
+void initializeCubePosTexNormVertexAttBuffers(uint32& VAO, uint32& VBO, uint32& EBO, bool invertNormals = false);
+void initializeCubePosNormVertexAttBuffers(uint32& VAO, uint32& VBO, uint32& EBO);
+void initializeCubePositionVertexAttBuffers(uint32& VAO, uint32& VBO, uint32& EBO);
+void initializeQuadPosNormTexVertexAttBuffers(uint32& VAO, uint32& VBO, uint32& EBO);
+void initializeQuadPosNormTexTanBiVertexAttBuffers(uint32& VAO, uint32& VBO, uint32& EBO);
 void initializeFrameBufferQuadVertexAttBuffers(uint32& VAO, uint32& VBO, uint32& EBO);
 void initializeFrameBuffer(uint32& frameBuffer, uint32& rbo, uint32& frameBufferTexture, uint32 width, uint32 height);
 
@@ -16,7 +17,7 @@ void initializeFrameBuffer(uint32& frameBuffer, uint32& rbo, uint32& frameBuffer
 #define TopRightTexture 1.0f, 1.0f
 const uint32 cubePosTexNormAttSizeInBytes = 8 * sizeof(float32);
 const uint32 cubePosTexNormNumElements = 12; // 2 triangles per side * 6 sides per cube
-const float32 cubePosTexNormAttributes[192] = {
+const float32 cubePosTexNormAttributes[] = {
   // positions           // normals            // texture positions 
   // face #1
   -0.5f, -0.5f, -0.5f,   0.0f,  0.0f, -1.0f,   BottomLeftTexture,     // bottom left
@@ -49,7 +50,7 @@ const float32 cubePosTexNormAttributes[192] = {
   0.5f,  0.5f,  0.5f,    0.0f,  1.0f,  0.0f,   BottomRightTexture,    // bottom right
   -0.5f,  0.5f,  0.5f,   0.0f,  1.0f,  0.0f,   BottomLeftTexture      // bottom left
 };
-const float32 cubePosTexNormAttributesInvertedNorms[192] = {
+const float32 cubePosTexInvertedNormAttributes[] = {
   // positions           // normals            // texture positions 
   // face #1
   -0.5f, -0.5f, -0.5f,   0.0f,  0.0f,  1.0f,   BottomLeftTexture,     // bottom left
@@ -164,29 +165,43 @@ const uint32 cubePositionIndices[]{
 };
 // ===== Skybox values =====
 
-// ===== frame buffer quad values =====
-const uint32 quadVertexAttSizeInBytes = 8 * sizeof(float32);
-const float32 quadVertexAttributes[] = {
-  // positions		// normal			// texCoords
+// QUAD VALUES
+const uint32 quadIndices[]{
+        0, 1, 2,
+        0, 2, 3
+};
+
+// ===== Quad values (vec3 pos, vec3 norm, vec2 tex) =====
+const uint32 quadPosNormTexVertexAttSizeInBytes = 8 * sizeof(float32);
+const float32 quadPosNormTexVertexAttributes[] = {
+  // positions		    // normal		    // texCoords
   -1.0f,  1.0f, 0.0f,	0.0f,  0.0f, 1.0f,	0.0f, 1.0f,
   -1.0f, -1.0f, 0.0f,	0.0f,  0.0f, 1.0f,	0.0f, 0.0f,
    1.0f, -1.0f, 0.0f,	0.0f,  0.0f, 1.0f,	1.0f, 0.0f,
    1.0f,  1.0f, 0.0f,	0.0f,  0.0f, 1.0f,	1.0f, 1.0f
 };
+// ===== Quad values (vec3 pos, vec3 norm, vec2 tex) =====
 
-const uint32 quadIndices[]{
-  0, 1, 2,
-  0, 2, 3
-};
-// ===== frame buffer quad values =====
-
-// ===== frame buffer quad values =====
-const uint32 frameBufferQuadVertexAttSizeInBytes = 4 * sizeof(float32);
-const float32 frameBufferQuadVertexAttributes[] = {
+// ===== Quad values (vec2 position, vec2 tex) =====
+const uint32 quadPosTexVertexAttSizeInBytes = 4 * sizeof(float32);
+const float32 quadPosTexVertexAttributes[] = {
   // positions   // texCoords
   -1.0f,  1.0f,  0.0f, 1.0f,
   -1.0f, -1.0f,  0.0f, 0.0f,
    1.0f, -1.0f,  1.0f, 0.0f,
    1.0f,  1.0f,  1.0f, 1.0f
 };
-// ===== frame buffer quad values =====
+// ===== Quad values (vec2 position, vec2 tex) =====
+
+
+// ===== Quad values (vec3 position, vec3 normal, vec2 tex, vec3 tangent, vec3 bitangent) =====
+const uint32 quadPosNormTexTanBiVertexAttSizeInBytes = 14 * sizeof(float32);
+const float32 quadPosNormTexTanBiVertexAttributes[] = {
+        // positions		    // normal		        // texCoords    // tangent          // bitangent
+        -1.0f,  1.0f, 0.0f,	    0.0f,  0.0f, 1.0f,	    0.0f, 1.0f,     1.0f, 0.0f, 0.0f,   0.0f, 1.0f, 0.0f,
+        -1.0f, -1.0f, 0.0f,	    0.0f,  0.0f, 1.0f,	    0.0f, 0.0f,     1.0f, 0.0f, 0.0f,   0.0f, 1.0f, 0.0f,
+        1.0f, -1.0f, 0.0f,	    0.0f,  0.0f, 1.0f,	    1.0f, 0.0f,     1.0f, 0.0f, 0.0f,   0.0f, 1.0f, 0.0f,
+        1.0f,  1.0f, 0.0f,	    0.0f,  0.0f, 1.0f,	    1.0f, 1.0f,     1.0f, 0.0f, 0.0f,   0.0f, 1.0f, 0.0f
+};
+// ===== Quad values (vec3 position, vec3 normal, vec2 tex, vec3 tangent, vec3 bitangent) =====
+// QUAD VALUES

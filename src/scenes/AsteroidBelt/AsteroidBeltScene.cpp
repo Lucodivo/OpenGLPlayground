@@ -14,7 +14,7 @@ AsteroidBeltScene::AsteroidBeltScene(GLFWwindow* window, uint32 initScreenHeight
 void AsteroidBeltScene::runScene()
 {
   uint32 skyboxVAO, skyboxVBO, skyboxEBO;
-  initializeCubePositionAttBuffers(skyboxVAO, skyboxVBO, skyboxEBO);
+  initializeCubePositionVertexAttBuffers(skyboxVAO, skyboxVBO, skyboxEBO);
 
   renderLoop(skyboxVAO);
 
