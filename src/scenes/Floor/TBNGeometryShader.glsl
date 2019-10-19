@@ -10,13 +10,16 @@ in VS_OUT{
 } vs_in[];
 
 out VS_OUT {
-  vec3 Pos;
   vec2 TextureCoord;
   vec4 PosLightSpace;
-  mat3 TBN;
+  vec3 TangentPos;
+  vec3 TangentLightDir;
+  vec3 TangentViewPos;
 } gs_out;
 
 uniform mat4 model;
+uniform vec3 directionalLightDir; // normalized direction from origin to light
+uniform vec3 viewPos;
 
 void main() {
   mat3 normalMatrix = transpose(inverse(mat3(model)));
@@ -40,20 +43,22 @@ void main() {
   // then retrieve perpendicular vector B with the cross product of T and N
   vec3 bitangent = cross(normal, tangent);
 
-  gs_out.TBN = mat3(tangent, bitangent, normal);
+  mat3 inverseTBN = transpose(mat3(tangent, bitangent, normal));
+  gs_out.TangentLightDir = inverseTBN * directionalLightDir;
+  gs_out.TangentViewPos = inverseTBN * viewPos;
   gl_Position = gl_in[0].gl_Position;
   gs_out.PosLightSpace = vs_in[0].PosLightSpace;
-  gs_out.Pos = vs_in[0].Pos;
+  gs_out.TangentPos = inverseTBN * vs_in[0].Pos;
   gs_out.TextureCoord = vs_in[0].TextureCoord;
   EmitVertex();
   gl_Position = gl_in[1].gl_Position;
   gs_out.PosLightSpace = vs_in[1].PosLightSpace;
-  gs_out.Pos = vs_in[1].Pos;
+  gs_out.TangentPos = inverseTBN * vs_in[1].Pos;
   gs_out.TextureCoord = vs_in[1].TextureCoord;
   EmitVertex();
   gl_Position = gl_in[2].gl_Position;
   gs_out.PosLightSpace = vs_in[2].PosLightSpace;
-  gs_out.Pos = vs_in[2].Pos;
+  gs_out.TangentPos = inverseTBN * vs_in[2].Pos;
   gs_out.TextureCoord = vs_in[2].TextureCoord;
   EmitVertex();
   EndPrimitive();

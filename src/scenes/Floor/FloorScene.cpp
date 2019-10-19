@@ -101,9 +101,9 @@ void FloorScene::renderLoop(uint32 floorVAO, uint32 cubeVAO)
   directionalLightShader.use();
 
   // set lighting 1
-  directionalLightShader.setUniform("directionalLight.color.ambient", lightColor * 0.05f);
-  directionalLightShader.setUniform("directionalLight.color.diffuse", lightColor * 0.5f);
-  directionalLightShader.setUniform("directionalLight.color.specular", lightColor * 0.1f);
+  directionalLightShader.setUniform("directionalLightColor.ambient", lightColor * 0.05f);
+  directionalLightShader.setUniform("directionalLightColor.diffuse", lightColor * 0.5f);
+  directionalLightShader.setUniform("directionalLightColor.specular", lightColor * 0.1f);
 
   const uint32 shadowMap2DSamplerIndex = 8;
   directionalLightShader.setUniform("shadowMap", shadowMap2DSamplerIndex);
@@ -253,7 +253,7 @@ void FloorScene::renderLoop(uint32 floorVAO, uint32 cubeVAO)
     directionalLightShader.use();
     directionalLightShader.setUniform("viewPos", camera.Position);
     directionalLightShader.setUniform("lightSpaceMatrix", lightSpaceMatrix);
-    directionalLightShader.setUniform("directionalLight.direction", lightDir);
+    directionalLightShader.setUniform("directionalLightDir", lightDir);
 
     // draw floor
     directionalLightShader.setUniform("model", floorModelMat);
