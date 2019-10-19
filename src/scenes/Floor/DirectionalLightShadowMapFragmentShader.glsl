@@ -6,31 +6,27 @@ struct LightColor{
 	vec3 specular;
 };
 
-struct DirectionalLight{
-	vec3 direction; // normalized direction from origin to light
-	LightColor color;
-};
-
 struct Material {
   sampler2D diffuse;
   sampler2D normal;
 };
 
 uniform sampler2D shadowMap;
-uniform vec3 viewPos;
-uniform DirectionalLight directionalLight;
+uniform LightColor directionalLightColor;
+uniform vec3 directionalLightDir; // normalized direction from origin to light
 uniform Material material;
 
 in VS_OUT {
-  vec3 Pos;
   vec2 TextureCoord;
   vec4 PosLightSpace;
-  mat3 TBN;
+  vec3 TangentPos;
+  vec3 TangentLightDir;
+  vec3 TangentViewPos;
 } fs_in;
 
 out vec4 FragColor;
 
-vec3 calcDirectionalLightColor(DirectionalLight directionalLight);
+vec3 calcDirectionalLightColor();
 float calcShadow(vec4 posLightSpace, float normalLightDirDot);
 
 vec3 diffColor;
@@ -43,34 +39,34 @@ void main()
 {
 	diffColor = texture(material.diffuse, fs_in.TextureCoord).rgb;
 
-  vec3 finalColor = calcDirectionalLightColor(directionalLight);
+  vec3 finalColor = calcDirectionalLightColor();
 
 	// apply gamma correction
 	float gamma = 2.2;
 	FragColor = vec4(pow(finalColor, vec3(1.0 / gamma)), 1.0);
 }
 
-vec3 calcDirectionalLightColor(DirectionalLight directionalLight) {
+vec3 calcDirectionalLightColor() {
 
 	// ambient light
-	vec3 ambient = directionalLight.color.ambient * diffColor;
+	vec3 ambient = directionalLightColor.ambient * diffColor;
 
 	// diffuse light
   vec3 normal = texture(material.normal, fs_in.TextureCoord).rgb;
   normal = normalize((normal * 2) - vec3(1.0, 1.0, 1.0)); // normalize seems unnecessary
-  normal = normalize(fs_in.TBN * normal);
-  float normalLightDirDot = dot(normal, directionalLight.direction);
+  //normal = normalize(fs_in.TBN * normal);
+  float normalLightDirDot = dot(normal, fs_in.TangentLightDir);
 	float diffStrength = max(normalLightDirDot, 0.0);
-	vec3 diffuse = directionalLight.color.diffuse * diffStrength * diffColor;
+	vec3 diffuse = directionalLightColor.diffuse * diffStrength * diffColor;
 
   // specular light
-  vec3 viewDir = normalize(viewPos - fs_in.Pos);
-  vec3 halfwayDir = normalize(directionalLight.direction + viewDir);
+  vec3 viewDir = normalize(fs_in.TangentViewPos - fs_in.TangentPos);
+  vec3 halfwayDir = normalize(fs_in.TangentLightDir + viewDir);
   float specStrength = pow(max(dot(normal, halfwayDir), 0.0), 32.0);
-  vec3 specular = directionalLight.color.specular * specStrength;
+  vec3 specular = directionalLightColor.specular * specStrength;
 
   // shadow
-  float shadowInverse = 1.0 - calcShadow(fs_in.PosLightSpace, normalLightDirDot);
+  float shadowInverse = 1.0 - calcShadow(fs_in.PosLightSpace, dot(normal, directionalLightDir));
 
 	return (ambient + ((diffuse + specular) * shadowInverse));
 }
