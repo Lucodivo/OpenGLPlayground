@@ -34,9 +34,11 @@ void load2DTexture(const char* imgLocation, uint32& textureId, bool flipImageVer
       if (numChannels == 3)
       {
         internalFormat = externalFormat = GL_RGB;
-      } else
+      } else if (numChannels == 4)
       {
         internalFormat = externalFormat = GL_RGBA;
+      } else if (numChannels == 1) {
+        internalFormat = externalFormat = GL_RED;
       }
     }
 

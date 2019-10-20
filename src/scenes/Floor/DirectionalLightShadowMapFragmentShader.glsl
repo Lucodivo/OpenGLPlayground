@@ -9,6 +9,7 @@ struct LightColor{
 struct Material {
   sampler2D diffuse;
   sampler2D normal;
+  sampler2D height;
 };
 
 uniform sampler2D shadowMap;
@@ -28,17 +29,18 @@ out vec4 FragColor;
 
 vec3 calcDirectionalLightColor();
 float calcShadow(vec4 posLightSpace, float normalLightDirDot);
+vec2 parallaxMapping(vec2 texCoords, vec3 viewDir);
 
 vec3 diffColor;
 vec3 specColor;
+vec2 texCoords;
 
 const float shadowBiasMax = 0.005;
 const float shadowBiasMin = 0.0005;
+const float heightScale = 0.1;
 
 void main()
 {
-	diffColor = texture(material.diffuse, fs_in.TextureCoord).rgb;
-
   vec3 finalColor = calcDirectionalLightColor();
 
 	// apply gamma correction
@@ -47,20 +49,22 @@ void main()
 }
 
 vec3 calcDirectionalLightColor() {
+  vec3 viewDir = normalize(fs_in.TangentViewPos - fs_in.TangentPos);
+  texCoords = parallaxMapping(fs_in.TextureCoord, viewDir);
+  if(texCoords.x > 1.0 || texCoords.y > 1.0 || texCoords.x < 0.0 || texCoords.y < 0.0) discard; // remove border artifacts caused by parallax mapping
+  diffColor = texture(material.diffuse, texCoords).rgb;
 
 	// ambient light
 	vec3 ambient = directionalLightColor.ambient * diffColor;
 
 	// diffuse light
-  vec3 normal = texture(material.normal, fs_in.TextureCoord).rgb;
+  vec3 normal = texture(material.normal, texCoords).rgb;
   normal = normalize((normal * 2) - vec3(1.0, 1.0, 1.0)); // normalize seems unnecessary
-  //normal = normalize(fs_in.TBN * normal);
   float normalLightDirDot = dot(normal, fs_in.TangentLightDir);
 	float diffStrength = max(normalLightDirDot, 0.0);
 	vec3 diffuse = directionalLightColor.diffuse * diffStrength * diffColor;
 
   // specular light
-  vec3 viewDir = normalize(fs_in.TangentViewPos - fs_in.TangentPos);
   vec3 halfwayDir = normalize(fs_in.TangentLightDir + viewDir);
   float specStrength = pow(max(dot(normal, halfwayDir), 0.0), 32.0);
   vec3 specular = directionalLightColor.specular * specStrength;
@@ -70,6 +74,19 @@ vec3 calcDirectionalLightColor() {
 
 	return (ambient + ((diffuse + specular) * shadowInverse));
 }
+
+vec2 parallaxMapping(vec2 texCoords, vec3 viewDir) {
+  float height = 1.0f - texture(material.height, texCoords).r;
+  return texCoords - (viewDir.xy * (height * heightScale));
+}
+
+// Using an albedo texture for parallax mapping instead of the height map
+// Seems to give an interesting effect of a layer of "ice" resting on top of the surface
+//vec2 parallaxMapping(vec2 texCoords, vec3 viewDir) {
+//  float height =  1.0f - texture(material.diffuse, texCoords).r;
+//  vec2 p = viewDir.xy / viewDir.z * (height * heightScale);
+//  return texCoords - p;
+//}
 
 float calcShadow(vec4 posLightSpace, float normalLightDirDot)
 {
