@@ -30,6 +30,7 @@ out vec4 FragColor;
 vec3 calcDirectionalLightColor();
 float calcShadow(vec4 posLightSpace, float normalLightDirDot);
 vec2 parallaxMapping(vec2 texCoords, vec3 viewDir);
+vec2 steepParallaxMapping(vec2 texCoords, vec3 viewDir);
 
 vec3 diffColor;
 vec3 specColor;
@@ -50,7 +51,7 @@ void main()
 
 vec3 calcDirectionalLightColor() {
   vec3 viewDir = normalize(fs_in.TangentViewPos - fs_in.TangentPos);
-  texCoords = parallaxMapping(fs_in.TextureCoord, viewDir);
+  texCoords = steepParallaxMapping(fs_in.TextureCoord, viewDir);
   if(texCoords.x > 1.0 || texCoords.y > 1.0 || texCoords.x < 0.0 || texCoords.y < 0.0) discard; // remove border artifacts caused by parallax mapping
   diffColor = texture(material.diffuse, texCoords).rgb;
 
@@ -73,6 +74,28 @@ vec3 calcDirectionalLightColor() {
   float shadowInverse = 1.0 - calcShadow(fs_in.PosLightSpace, dot(normal, directionalLightDir));
 
 	return (ambient + ((diffuse + specular) * shadowInverse));
+}
+
+vec2 steepParallaxMapping(vec2 texCoords, vec3 viewDir) {
+  const float minLayers = 8.0;
+  const float maxLayers = 32.0;
+  float numLayers = mix(maxLayers, minLayers, abs(dot(vec3(0.0, 0.0, 1.0), viewDir)));
+
+  float layerDepth = 1.0 / numLayers;
+  float currentLayerDepth = 0.0;
+  vec2 P = viewDir.xy * heightScale;
+  vec2 deltaTexCoords = P / numLayers;
+
+  vec2 currentTexCoords = texCoords;
+  float currentDepthMapValue = 1 - texture(material.height, currentTexCoords).r;
+
+  while(currentLayerDepth < currentDepthMapValue) {
+    currentTexCoords -= deltaTexCoords;
+    currentDepthMapValue = 1 - texture(material.height, currentTexCoords).r;
+    currentLayerDepth += layerDepth;
+  }
+
+  return currentTexCoords;
 }
 
 vec2 parallaxMapping(vec2 texCoords, vec3 viewDir) {
