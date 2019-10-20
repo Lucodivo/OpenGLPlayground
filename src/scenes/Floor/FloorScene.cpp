@@ -35,9 +35,9 @@ void FloorScene::runScene()
 void FloorScene::renderLoop(uint32 floorVAO, uint32 cubeVAO)
 {
   uint32 floorAlbedoTextureId, floorNormalTextureId, floorHeightTextureId;
-  load2DTexture(brick2AlbedoTextureLoc, floorAlbedoTextureId, false, true);
-  load2DTexture(brick2NormalTextureLoc, floorNormalTextureId);
-  load2DTexture(brick2HeightTextureLoc, floorHeightTextureId);
+  load2DTexture(dungeonStoneAlbedoTextureLoc, floorAlbedoTextureId, false, true);
+  load2DTexture(dungeonStoneNormalTextureLoc, floorNormalTextureId);
+  load2DTexture(dungeonStoneHeightTextureLoc, floorHeightTextureId);
   uint32 cube1AlbedoTextureId, cube1NormalTextureId, cube1HeightTextureId;
   load2DTexture(waterWornStoneAlbedoTextureLoc, cube1AlbedoTextureId, false, true);
   load2DTexture(waterWornStoneNormalTextureLoc, cube1NormalTextureId);
@@ -183,7 +183,7 @@ void FloorScene::renderLoop(uint32 floorVAO, uint32 cubeVAO)
     // cube data
     glm::mat4 cubeModelMat1 = glm::mat4();
     cubeModelMat1 = glm::translate(cubeModelMat1, cubePosition1);
-    cubeModelMat1 = glm::scale(cubeModelMat1, glm::vec3(cubeScale1 * sint));
+    cubeModelMat1 = glm::scale(cubeModelMat1, glm::vec3(cubeScale1 * ((sint + 1) / 2)));
     glm::mat4 cubeModelMat2 = glm::mat4();
     const glm::vec3 cubePosition2 = glm::vec3(sin(t / 16.0f) * 8.0f, floorPosition.y + (cubeScale2 / 2) + 2.0f, cos(t / 16.0f) * 8.0f);
     cubeModelMat2 = glm::translate(cubeModelMat2, cubePosition2);

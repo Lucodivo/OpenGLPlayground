@@ -31,6 +31,7 @@ vec3 calcDirectionalLightColor();
 float calcShadow(vec4 posLightSpace, float normalLightDirDot);
 vec2 parallaxMapping(vec2 texCoords, vec3 viewDir);
 vec2 steepParallaxMapping(vec2 texCoords, vec3 viewDir);
+vec2 parallaxOcculusMapping(vec2 texCoords, vec3 viewDir);
 
 vec3 diffColor;
 vec3 specColor;
@@ -51,7 +52,7 @@ void main()
 
 vec3 calcDirectionalLightColor() {
   vec3 viewDir = normalize(fs_in.TangentViewPos - fs_in.TangentPos);
-  texCoords = steepParallaxMapping(fs_in.TextureCoord, viewDir);
+  texCoords = parallaxOcculusMapping(fs_in.TextureCoord, viewDir);
   if(texCoords.x > 1.0 || texCoords.y > 1.0 || texCoords.x < 0.0 || texCoords.y < 0.0) discard; // remove border artifacts caused by parallax mapping
   diffColor = texture(material.diffuse, texCoords).rgb;
 
@@ -74,6 +75,39 @@ vec3 calcDirectionalLightColor() {
   float shadowInverse = 1.0 - calcShadow(fs_in.PosLightSpace, dot(normal, directionalLightDir));
 
 	return (ambient + ((diffuse + specular) * shadowInverse));
+}
+
+vec2 parallaxOcculusMapping(vec2 texCoords, vec3 viewDir) {
+  const float minLayers = 8.0;
+  const float maxLayers = 32.0;
+  float numLayers = mix(maxLayers, minLayers, abs(dot(vec3(0.0, 0.0, 1.0), viewDir)));
+
+  float layerDepth = 1.0 / numLayers;
+  float currentLayerDepth = 0.0;
+  vec2 P = viewDir.xy * heightScale;
+  vec2 deltaTexCoords = P / numLayers;
+
+  vec2 currentTexCoords = texCoords;
+  float currentDepthMapValue = 1 - texture(material.height, currentTexCoords).r;
+
+  while(currentLayerDepth < currentDepthMapValue) {
+    currentTexCoords -= deltaTexCoords;
+    currentDepthMapValue = 1 - texture(material.height, currentTexCoords).r;
+    currentLayerDepth += layerDepth;
+  }
+
+  // get texture coordinates before collision (reverse operations)
+  vec2 prevTexCoords = currentTexCoords + deltaTexCoords;
+
+  // get depth after and before collision for linear interpolation
+  float afterDepth  = currentDepthMapValue - currentLayerDepth;
+  float beforeDepth = ( 1 - texture(material.height, prevTexCoords).r) - currentLayerDepth + layerDepth;
+
+  // interpolation of texture coordinates
+  float weight = afterDepth / (afterDepth - beforeDepth);
+  vec2 finalTexCoords = prevTexCoords * weight + currentTexCoords * (1.0 - weight);
+
+  return finalTexCoords;
 }
 
 vec2 steepParallaxMapping(vec2 texCoords, vec3 viewDir) {
