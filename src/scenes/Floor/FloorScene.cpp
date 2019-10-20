@@ -34,18 +34,22 @@ void FloorScene::runScene()
 
 void FloorScene::renderLoop(uint32 floorVAO, uint32 cubeVAO)
 {
-  uint32 floorAlbedoTextureId, floorNormalTextureId;
+  uint32 floorAlbedoTextureId, floorNormalTextureId, floorHeightTextureId;
   load2DTexture(dungeonStoneAlbedoTextureLoc, floorAlbedoTextureId, false, true);
   load2DTexture(dungeonStoneNormalTextureLoc, floorNormalTextureId);
-  uint32 cube1AlbedoTextureId, cube1NormalTextureId;
+  load2DTexture(dungeonStoneHeightTextureLoc, floorHeightTextureId);
+  uint32 cube1AlbedoTextureId, cube1NormalTextureId, cube1HeightTextureId;
   load2DTexture(waterWornStoneAlbedoTextureLoc, cube1AlbedoTextureId, false, true);
   load2DTexture(waterWornStoneNormalTextureLoc, cube1NormalTextureId);
-  uint32 cube2AlbedoTextureId, cube2NormalTextureId;
+  load2DTexture(waterWornStoneHeightTextureLoc, cube1HeightTextureId);
+  uint32 cube2AlbedoTextureId, cube2NormalTextureId, cube2HeightTextureId;
   load2DTexture(copperRockAlbedoTextureLoc, cube2AlbedoTextureId, false, true);
   load2DTexture(copperRockNormalTextureLoc, cube2NormalTextureId);
-  uint32 cube3AlbedoTextureId, cube3NormalTextureId;
+  load2DTexture(copperRockHeightTextureLoc, cube2HeightTextureId);
+  uint32 cube3AlbedoTextureId, cube3NormalTextureId, cube3HeightTextureId;
   load2DTexture(whiteSpruceAlbedoTextureLoc, cube3AlbedoTextureId, false, true);
   load2DTexture(whiteSpruceNormalTextureLoc, cube3NormalTextureId);
+  load2DTexture(whiteSpruceHeightTextureLoc, cube3HeightTextureId);
 
   uint32 depthMapTextureId, depthMapFBO;
   generateDepthMap(depthMapTextureId, depthMapFBO);
@@ -53,19 +57,27 @@ void FloorScene::renderLoop(uint32 floorVAO, uint32 cubeVAO)
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, floorAlbedoTextureId);
   glActiveTexture(GL_TEXTURE1);
-  glBindTexture(GL_TEXTURE_2D, floorNormalTextureId);
-  glActiveTexture(GL_TEXTURE2);
   glBindTexture(GL_TEXTURE_2D, cube1AlbedoTextureId);
-  glActiveTexture(GL_TEXTURE3);
-  glBindTexture(GL_TEXTURE_2D, cube1NormalTextureId);
-  glActiveTexture(GL_TEXTURE4);
+  glActiveTexture(GL_TEXTURE2);
   glBindTexture(GL_TEXTURE_2D, cube2AlbedoTextureId);
-  glActiveTexture(GL_TEXTURE5);
-  glBindTexture(GL_TEXTURE_2D, cube2NormalTextureId);
-  glActiveTexture(GL_TEXTURE6);
+  glActiveTexture(GL_TEXTURE3);
   glBindTexture(GL_TEXTURE_2D, cube3AlbedoTextureId);
+  glActiveTexture(GL_TEXTURE4);
+  glBindTexture(GL_TEXTURE_2D, floorNormalTextureId);
+  glActiveTexture(GL_TEXTURE5);
+  glBindTexture(GL_TEXTURE_2D, cube1NormalTextureId);
+  glActiveTexture(GL_TEXTURE6);
+  glBindTexture(GL_TEXTURE_2D, cube2NormalTextureId);
   glActiveTexture(GL_TEXTURE7);
   glBindTexture(GL_TEXTURE_2D, cube3NormalTextureId);
+  glActiveTexture(GL_TEXTURE8);
+  glBindTexture(GL_TEXTURE_2D, floorHeightTextureId);
+  glActiveTexture(GL_TEXTURE9);
+  glBindTexture(GL_TEXTURE_2D, cube1HeightTextureId);
+  glActiveTexture(GL_TEXTURE10);
+  glBindTexture(GL_TEXTURE_2D, cube2HeightTextureId);
+  glActiveTexture(GL_TEXTURE11);
+  glBindTexture(GL_TEXTURE_2D, cube3HeightTextureId);
 
   const glm::mat4 cameraProjMat = glm::perspective(glm::radians(camera.Zoom), (float32)viewportWidth / (float32)viewportHeight, 0.1f, 120.0f);
 
@@ -105,7 +117,7 @@ void FloorScene::renderLoop(uint32 floorVAO, uint32 cubeVAO)
   directionalLightShader.setUniform("directionalLightColor.diffuse", lightColor * 0.5f);
   directionalLightShader.setUniform("directionalLightColor.specular", lightColor * 0.1f);
 
-  const uint32 shadowMap2DSamplerIndex = 8;
+  const uint32 shadowMap2DSamplerIndex = 12;
   directionalLightShader.setUniform("shadowMap", shadowMap2DSamplerIndex);
 
   uint32 globalVSUniformBuffer;
@@ -171,7 +183,7 @@ void FloorScene::renderLoop(uint32 floorVAO, uint32 cubeVAO)
     // cube data
     glm::mat4 cubeModelMat1 = glm::mat4();
     cubeModelMat1 = glm::translate(cubeModelMat1, cubePosition1);
-    cubeModelMat1 = glm::scale(cubeModelMat1, glm::vec3(cubeScale1 * sint));
+    cubeModelMat1 = glm::scale(cubeModelMat1, glm::vec3(cubeScale1 * ((sint + 1) / 2)));
     glm::mat4 cubeModelMat2 = glm::mat4();
     const glm::vec3 cubePosition2 = glm::vec3(sin(t / 16.0f) * 8.0f, floorPosition.y + (cubeScale2 / 2) + 2.0f, cos(t / 16.0f) * 8.0f);
     cubeModelMat2 = glm::translate(cubeModelMat2, cubePosition2);
@@ -258,7 +270,8 @@ void FloorScene::renderLoop(uint32 floorVAO, uint32 cubeVAO)
     // draw floor
     directionalLightShader.setUniform("model", floorModelMat);
     directionalLightShader.setUniform("material.diffuse", 0);
-    directionalLightShader.setUniform("material.normal", 1);
+    directionalLightShader.setUniform("material.normal", 4);
+    directionalLightShader.setUniform("material.height", 8);
     glBindVertexArray(floorVAO);
     glDrawElements(GL_TRIANGLES, // drawing mode
       6, // number of elements to draw (3 vertices per triangle * 2 triangles per quad)
@@ -267,23 +280,26 @@ void FloorScene::renderLoop(uint32 floorVAO, uint32 cubeVAO)
 
     // draw cubes
     glBindVertexArray(cubeVAO);
-    directionalLightShader.setUniform("material.diffuse", 2);
-    directionalLightShader.setUniform("material.normal", 3);
     directionalLightShader.setUniform("model", cubeModelMat1);
-    glDrawElements(GL_TRIANGLES, // drawing mode
-      cubePosTexNormNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
-      GL_UNSIGNED_INT, // type of the indices
-      0); // offset in the EBO
-    directionalLightShader.setUniform("material.diffuse", 4);
+    directionalLightShader.setUniform("material.diffuse", 1);
     directionalLightShader.setUniform("material.normal", 5);
-    directionalLightShader.setUniform("model", cubeModelMat2);
+    directionalLightShader.setUniform("material.height", 9);
     glDrawElements(GL_TRIANGLES, // drawing mode
       cubePosTexNormNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
       GL_UNSIGNED_INT, // type of the indices
       0); // offset in the EBO
-    directionalLightShader.setUniform("material.diffuse", 6);
-    directionalLightShader.setUniform("material.normal", 7);
+    directionalLightShader.setUniform("model", cubeModelMat2);
+    directionalLightShader.setUniform("material.diffuse", 2);
+    directionalLightShader.setUniform("material.normal", 6);
+    directionalLightShader.setUniform("material.height", 10);
+    glDrawElements(GL_TRIANGLES, // drawing mode
+      cubePosTexNormNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
+      GL_UNSIGNED_INT, // type of the indices
+      0); // offset in the EBO
     directionalLightShader.setUniform("model", cubeModelMat3);
+    directionalLightShader.setUniform("material.diffuse", 3);
+    directionalLightShader.setUniform("material.normal", 7);
+    directionalLightShader.setUniform("material.height", 11);
     glDrawElements(GL_TRIANGLES, // drawing mode
       cubePosTexNormNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
       GL_UNSIGNED_INT, // type of the indices

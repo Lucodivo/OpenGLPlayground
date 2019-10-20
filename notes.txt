@@ -223,4 +223,8 @@ Point Light: A light source with a given position somewhere in a world that illu
 Depth testing must be enabled using glEnable(GL_DEPTH_TEST) 
 Z-Fighting: A common visual artifact when two triangles are so closely aligned to each other that the depth buffer does not have enough precision to determining which one is in front of the other.
 
-=== Normal Mapping ===
+
+
+
+==== Experimentation notes ====
+- When accidentally not setting the height map up properly, I used an albedo map in GL_TEXTURE0 as the height map. It seemed to create feel of a layer of ice lying on top of the surface.
