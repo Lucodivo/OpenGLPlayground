@@ -5,11 +5,12 @@
 #include "ObjectData.h"
 
 
-void initializeCubePosTexNormVertexAttBuffers(uint32 &VAO, uint32 &VBO, uint32 &EBO, bool invertNormals) {
+void initializeCubePosTexNormVertexAttBuffers(uint32& VAO, uint32& VBO, uint32& EBO, bool invertNormals)
+{
   glGenVertexArrays(1, &VAO);
   glBindVertexArray(VAO);
 
-  const float32 *attributes = invertNormals ? cubePosTexInvertedNormAttributes : cubePosTexNormAttributes;
+  const float32* attributes = invertNormals ? cubePosTexInvertedNormAttributes : cubePosTexNormAttributes;
 
   glGenBuffers(1, // Num objects to generate 
                &VBO);  // Out parameters to store IDs of gen objects
@@ -25,7 +26,7 @@ void initializeCubePosTexNormVertexAttBuffers(uint32 &VAO, uint32 &VBO, uint32 &
                         GL_FLOAT, // type of data being passed
                         GL_FALSE, // whether the data needs to be normalized
                         cubePosTexNormAttSizeInBytes, // stride: space between consecutive vertex attribute sets
-                        (void *) 0); // offset of where the data starts in the array
+                        (void*)0); // offset of where the data starts in the array
   glEnableVertexAttribArray(0);
 
   // normal attribute
@@ -34,7 +35,7 @@ void initializeCubePosTexNormVertexAttBuffers(uint32 &VAO, uint32 &VBO, uint32 &
                         GL_FLOAT,
                         GL_FALSE,
                         cubePosTexNormAttSizeInBytes,
-                        (void *) (3 * sizeof(float32)));
+                        (void*)(3 * sizeof(float32)));
   glEnableVertexAttribArray(1);
 
   // texture coords attribute
@@ -43,7 +44,7 @@ void initializeCubePosTexNormVertexAttBuffers(uint32 &VAO, uint32 &VBO, uint32 &
                         GL_FLOAT,
                         GL_FALSE,
                         cubePosTexNormAttSizeInBytes,
-                        (void *) (6 * sizeof(float32)));
+                        (void*)(6 * sizeof(float32)));
   glEnableVertexAttribArray(2);
 
   glGenBuffers(1, &EBO);
@@ -57,7 +58,8 @@ void initializeCubePosTexNormVertexAttBuffers(uint32 &VAO, uint32 &VBO, uint32 &
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
-void initializeCubePosNormVertexAttBuffers(uint32 &VAO, uint32 &VBO, uint32 &EBO) {
+void initializeCubePosNormVertexAttBuffers(uint32& VAO, uint32& VBO, uint32& EBO)
+{
   glGenVertexArrays(1, &VAO);
   glBindVertexArray(VAO);
 
@@ -75,7 +77,7 @@ void initializeCubePosNormVertexAttBuffers(uint32 &VAO, uint32 &VBO, uint32 &EBO
                         GL_FLOAT, // type of data being passed
                         GL_FALSE, // whether the data needs to be normalized
                         cubePosNormAttSizeInBytes, // stride: space between consecutive vertex attribute sets
-                        (void *) 0); // offset of where the data starts in the array
+                        (void*)0); // offset of where the data starts in the array
   glEnableVertexAttribArray(0);
 
   // normal attribute
@@ -84,7 +86,7 @@ void initializeCubePosNormVertexAttBuffers(uint32 &VAO, uint32 &VBO, uint32 &EBO
                         GL_FLOAT,
                         GL_FALSE,
                         cubePosNormAttSizeInBytes,
-                        (void *) (3 * sizeof(float32)));
+                        (void*)(3 * sizeof(float32)));
   glEnableVertexAttribArray(1);
 
   glGenBuffers(1, &EBO);
@@ -98,7 +100,8 @@ void initializeCubePosNormVertexAttBuffers(uint32 &VAO, uint32 &VBO, uint32 &EBO
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
-void initializeCubePositionVertexAttBuffers(uint32 &VAO, uint32 &VBO, uint32 &EBO) {
+void initializeCubePositionVertexAttBuffers(uint32& VAO, uint32& VBO, uint32& EBO)
+{
   glGenVertexArrays(1, &VAO);
   glGenBuffers(1, &VBO);
   glGenBuffers(1, &EBO);
@@ -115,7 +118,7 @@ void initializeCubePositionVertexAttBuffers(uint32 &VAO, uint32 &VBO, uint32 &EB
                         GL_FLOAT, // type of data
                         GL_FALSE, // whether the data needs to be normalized
                         cubePositionSizeInBytes, // stride
-                        (void *) 0); // offset
+                        (void*)0); // offset
   glEnableVertexAttribArray(0);
 
   // bind element buffer object to give indices
@@ -129,7 +132,8 @@ void initializeCubePositionVertexAttBuffers(uint32 &VAO, uint32 &VBO, uint32 &EB
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
-void initializeQuadPosNormTexVertexAttBuffers(uint32 &VAO, uint32 &VBO, uint32 &EBO) {
+void initializeQuadPosNormTexVertexAttBuffers(uint32& VAO, uint32& VBO, uint32& EBO)
+{
   glGenVertexArrays(1, &VAO);
   glGenBuffers(1,
                &VBO);
@@ -150,7 +154,7 @@ void initializeQuadPosNormTexVertexAttBuffers(uint32 &VAO, uint32 &VBO, uint32 &
                         GL_FLOAT,
                         GL_FALSE,
                         quadPosNormTexVertexAttSizeInBytes,
-                        (void *) 0);
+                        (void*)0);
   glEnableVertexAttribArray(0);
 
   // normal attribute
@@ -159,7 +163,7 @@ void initializeQuadPosNormTexVertexAttBuffers(uint32 &VAO, uint32 &VBO, uint32 &
                         GL_FLOAT,
                         GL_FALSE,
                         quadPosNormTexVertexAttSizeInBytes,
-                        (void *) (3 * sizeof(float32)));
+                        (void*)(3 * sizeof(float32)));
   glEnableVertexAttribArray(1);
 
   // texture attribute
@@ -168,7 +172,7 @@ void initializeQuadPosNormTexVertexAttBuffers(uint32 &VAO, uint32 &VBO, uint32 &
                         GL_FLOAT,
                         GL_FALSE,
                         quadPosNormTexVertexAttSizeInBytes,
-                        (void *) (6 * sizeof(float32)));
+                        (void*)(6 * sizeof(float32)));
   glEnableVertexAttribArray(2);
 
   // bind element buffer object to give indices
@@ -182,7 +186,8 @@ void initializeQuadPosNormTexVertexAttBuffers(uint32 &VAO, uint32 &VBO, uint32 &
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
-void initializeQuadPosNormTexTanBiVertexAttBuffers(uint32 &VAO, uint32 &VBO, uint32 &EBO) {
+void initializeQuadPosNormTexTanBiVertexAttBuffers(uint32& VAO, uint32& VBO, uint32& EBO)
+{
   glGenVertexArrays(1, &VAO);
   glGenBuffers(1, &VBO);
   glGenBuffers(1, &EBO);
@@ -202,7 +207,7 @@ void initializeQuadPosNormTexTanBiVertexAttBuffers(uint32 &VAO, uint32 &VBO, uin
                         GL_FLOAT,
                         GL_FALSE,
                         quadPosNormTexTanBiVertexAttSizeInBytes,
-                        (void *) 0);
+                        (void*)0);
   glEnableVertexAttribArray(0);
 
   // normal attribute
@@ -211,7 +216,7 @@ void initializeQuadPosNormTexTanBiVertexAttBuffers(uint32 &VAO, uint32 &VBO, uin
                         GL_FLOAT,
                         GL_FALSE,
                         quadPosNormTexTanBiVertexAttSizeInBytes,
-                        (void *) (3 * sizeof(float32)));
+                        (void*)(3 * sizeof(float32)));
   glEnableVertexAttribArray(1);
 
   // texture attribute
@@ -220,7 +225,7 @@ void initializeQuadPosNormTexTanBiVertexAttBuffers(uint32 &VAO, uint32 &VBO, uin
                         GL_FLOAT,
                         GL_FALSE,
                         quadPosNormTexTanBiVertexAttSizeInBytes,
-                        (void *) (6 * sizeof(float32)));
+                        (void*)(6 * sizeof(float32)));
   glEnableVertexAttribArray(2);
 
   // tangent attribute
@@ -229,7 +234,7 @@ void initializeQuadPosNormTexTanBiVertexAttBuffers(uint32 &VAO, uint32 &VBO, uin
                         GL_FLOAT,
                         GL_FALSE,
                         quadPosNormTexTanBiVertexAttSizeInBytes,
-                        (void *) (8 * sizeof(float32)));
+                        (void*)(8 * sizeof(float32)));
   glEnableVertexAttribArray(3);
 
   // bitangent attribute
@@ -238,7 +243,7 @@ void initializeQuadPosNormTexTanBiVertexAttBuffers(uint32 &VAO, uint32 &VBO, uin
                         GL_FLOAT,
                         GL_FALSE,
                         quadPosNormTexTanBiVertexAttSizeInBytes,
-                        (void *) (11 * sizeof(float32)));
+                        (void*)(11 * sizeof(float32)));
   glEnableVertexAttribArray(4);
 
   // bind element buffer object to give indices
@@ -252,7 +257,8 @@ void initializeQuadPosNormTexTanBiVertexAttBuffers(uint32 &VAO, uint32 &VBO, uin
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
-void initializeFrameBufferQuadVertexAttBuffers(uint32 &VAO, uint32 &VBO, uint32 &EBO) {
+void initializeFrameBufferQuadVertexAttBuffers(uint32& VAO, uint32& VBO, uint32& EBO)
+{
   glGenVertexArrays(1, &VAO);
   glGenBuffers(1,
                &VBO);
@@ -273,7 +279,7 @@ void initializeFrameBufferQuadVertexAttBuffers(uint32 &VAO, uint32 &VBO, uint32 
                         GL_FLOAT,
                         GL_FALSE,
                         quadPosTexVertexAttSizeInBytes,
-                        (void *) 0);
+                        (void*)0);
   glEnableVertexAttribArray(0);
 
   // texture attribute
@@ -282,7 +288,7 @@ void initializeFrameBufferQuadVertexAttBuffers(uint32 &VAO, uint32 &VBO, uint32 
                         GL_FLOAT,
                         GL_FALSE,
                         quadPosTexVertexAttSizeInBytes,
-                        (void *) (2 * sizeof(float32)));
+                        (void*)(2 * sizeof(float32)));
   glEnableVertexAttribArray(1);
 
   // bind element buffer object to give indices
@@ -296,7 +302,8 @@ void initializeFrameBufferQuadVertexAttBuffers(uint32 &VAO, uint32 &VBO, uint32 
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
-void initializeFrameBuffer(uint32 &frameBuffer, uint32 &rbo, uint32 &frameBufferTexture, uint32 width, uint32 height) {
+void initializeFrameBuffer(uint32& frameBuffer, uint32& rbo, uint32& frameBufferTexture, uint32 width, uint32 height)
+{
   glDeleteFramebuffers(1, &frameBuffer);
   glDeleteRenderbuffers(1, &rbo);
   glDeleteTextures(1, &frameBufferTexture);
@@ -331,7 +338,8 @@ void initializeFrameBuffer(uint32 &frameBuffer, uint32 &rbo, uint32 &frameBuffer
                             GL_RENDERBUFFER, // render buffer target
                             rbo);  // render buffer
 
-  if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+  if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+  {
     std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
   }
   glBindFramebuffer(GL_FRAMEBUFFER, 0);

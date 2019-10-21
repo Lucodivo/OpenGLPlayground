@@ -6,14 +6,14 @@ layout (location = 2) in vec2 aTextureCoord;
 uniform mat4 model;
 
 layout (std140) uniform globalBlockVS {
-						// base alignment			// aligned offset
-	mat4 projection;	// 64						// 64
-	mat4 view;			  // 64						// 0
+                    // base alignment			aligned offset
+  mat4 projection;  // 64						      64
+  mat4 view;        // 64						      0
 };
 
 out vec3 Normal;
 out vec3 FragPos;
-out vec2 TextureCoord; 
+out vec2 TextureCoord;
 
 void main()
 {

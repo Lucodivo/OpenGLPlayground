@@ -2,7 +2,6 @@
 
 #include <stb/stb_image.h>
 #include <glad/glad.h>
-#include <GLFW/glfw3.h>
 #include <iostream>
 
 void load2DTexture(const char* imgLocation, uint32& textureId, bool flipImageVert, bool sRGB)
@@ -37,20 +36,21 @@ void load2DTexture(const char* imgLocation, uint32& textureId, bool flipImageVer
       } else if (numChannels == 4)
       {
         internalFormat = externalFormat = GL_RGBA;
-      } else if (numChannels == 1) {
+      } else if (numChannels == 1)
+      {
         internalFormat = externalFormat = GL_RED;
       }
     }
 
     glTexImage2D(GL_TEXTURE_2D, // target
-      0, // level of detail (level n is the nth mipmap reduction image)
-      internalFormat, // kind of format we want to store the texture
-      width, // width of texture
-      height, // height of texture
-      0, // border (legacy stuff, MUST BE 0)
-      externalFormat, // Specifies format of the pixel data
-      GL_UNSIGNED_BYTE, // specifies data type of pixel data
-      data); // pointer to the image data
+                 0, // level of detail (level n is the nth mipmap reduction image)
+                 internalFormat, // kind of format we want to store the texture
+                 width, // width of texture
+                 height, // height of texture
+                 0, // border (legacy stuff, MUST BE 0)
+                 externalFormat, // Specifies format of the pixel data
+                 GL_UNSIGNED_BYTE, // specifies data type of pixel data
+                 data); // pointer to the image data
     glGenerateMipmap(GL_TEXTURE_2D);
 
     // set texture options
@@ -62,7 +62,7 @@ void load2DTexture(const char* imgLocation, uint32& textureId, bool flipImageVer
   stbi_image_free(data); // free texture image memory
 }
 
-void loadCubeMapTexture(std::vector<const char*> imgLocations, uint32& textureId, bool flipImageVert)
+void loadCubeMapTexture(const char* const imgLocations[6], uint32& textureId, bool flipImageVert)
 {
   glGenTextures(1, &textureId);
   glBindTexture(GL_TEXTURE_CUBE_MAP, textureId);
@@ -75,7 +75,7 @@ void loadCubeMapTexture(std::vector<const char*> imgLocations, uint32& textureId
     if (data)
     {
       glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
-        0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data
+                   0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data
       );
       glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
       glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);

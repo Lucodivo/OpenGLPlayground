@@ -46,7 +46,7 @@ private:
     processNode(scene->mRootNode, scene);
   }
 
-  void processNode(aiNode * node, const aiScene * scene)
+  void processNode(aiNode* node, const aiScene* scene)
   {
     // process all the node's meshes (if any)
     for (uint32 i = 0; i < node->mNumMeshes; i++)
@@ -61,7 +61,7 @@ private:
     }
   }
 
-  Mesh processMesh(aiMesh * mesh, const aiScene * scene)
+  Mesh processMesh(aiMesh* mesh, const aiScene* scene)
   {
     std::vector<Vertex> vertices;
     for (uint32 i = 0; i < mesh->mNumVertices; i++)
@@ -122,7 +122,8 @@ private:
   }
 
   std::vector<Texture> textures_loaded;
-  std::vector<Texture> loadMaterialTextures(aiMaterial * mat, aiTextureType type, std::string typeName)
+
+  std::vector<Texture> loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName)
   {
     std::vector<Texture> textures;
     for (uint32 i = 0; i < mat->GetTextureCount(type); i++)
@@ -152,7 +153,7 @@ private:
     return textures;
   }
 
-  uint32 TextureFromFile(const char* path, const std::string & directory)
+  uint32 TextureFromFile(const char* path, const std::string& directory)
   {
     std::string filename = std::string(path);
     filename = directory + '/' + filename;

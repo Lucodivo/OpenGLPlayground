@@ -10,9 +10,9 @@ out vec4 FragColor;
 
 void main()
 {
-	vec4 diffColor = texture(diffTexture, TextureCoord);
-	if(diffColor.a < 0.1){
-		discard;
-	}
-	FragColor = diffColor;
+  vec4 diffColor = texture(diffTexture, TextureCoord);
+  if (diffColor.a < 0.1){
+    discard;
+  }
+  FragColor = diffColor;
 }

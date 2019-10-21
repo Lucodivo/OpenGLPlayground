@@ -82,7 +82,7 @@ private:
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(uint32),
-      &indices[0], GL_STATIC_DRAW);
+                 &indices[0], GL_STATIC_DRAW);
 
     // vertex positions
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);

@@ -1,4 +1,5 @@
 #define GLFW_INCLUDE_NONE // ensure GLFW doesn't load OpenGL headers
+
 #include <GLFW/glfw3.h>
 #include <glad/glad.h>
 
@@ -67,10 +68,10 @@ GLFWwindow* createWindow()
 
   // create window
   GLFWwindow* window = glfwCreateWindow(VIEWPORT_INIT_WIDTH, // int Width
-    VIEWPORT_INIT_HEIGHT, // int Height
-    "LearnOpenGL", // const char* Title
-    nullptr, // GLFWmonitor* Monitor: Specified for which monitor for fullscreen, NULL for windowed mode
-    nullptr); // GLFWwindow* Share: window to share resources with
+                                        VIEWPORT_INIT_HEIGHT, // int Height
+                                        "LearnOpenGL", // const char* Title
+                                        nullptr, // GLFWmonitor* Monitor: Specified for which monitor for fullscreen, NULL for windowed mode
+                                        nullptr); // GLFWwindow* Share: window to share resources with
   if (window == NULL)
   {
     std::cout << "Failed to create GLFW window" << std::endl;

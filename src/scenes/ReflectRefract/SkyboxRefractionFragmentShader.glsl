@@ -11,9 +11,9 @@ uniform float refractiveIndex;
 uniform samplerCube skybox;
 
 void main()
-{             
-	float refractionRatio = 1.0 / refractiveIndex;
-    vec3 I = normalize(fs_in.Position - cameraPos);
-    vec3 R = refract(I, fs_in.Normal, refractionRatio);
-    FragColor = vec4(texture(skybox, R).rgb, 1.0);
+{
+  float refractionRatio = 1.0 / refractiveIndex;
+  vec3 I = normalize(fs_in.Position - cameraPos);
+  vec3 R = refract(I, fs_in.Normal, refractionRatio);
+  FragColor = vec4(texture(skybox, R).rgb, 1.0);
 }

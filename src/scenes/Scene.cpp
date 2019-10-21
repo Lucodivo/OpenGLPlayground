@@ -6,10 +6,10 @@
 #include FT_FREETYPE_H "freetype/freetype.h"
 
 Scene::Scene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth)
-  : window(window),
-  viewportHeight(initScreenHeight),
-  viewportWidth(initScreenWidth),
-  textDebugShader(textVertexShaderFileLoc, textFragmentShaderFileLoc)
+        : window(window),
+          viewportHeight(initScreenHeight),
+          viewportWidth(initScreenWidth),
+          textDebugShader(textVertexShaderFileLoc, textFragmentShaderFileLoc)
 {
   subscribeFrameBufferSize(window, this);
   initDebugTextCharacters();
@@ -76,15 +76,15 @@ void Scene::initDebugTextCharacters()
     glGenTextures(1, &texture);
     glBindTexture(GL_TEXTURE_2D, texture);
     glTexImage2D(
-      GL_TEXTURE_2D,
-      0,
-      GL_RED,
-      face->glyph->bitmap.width,
-      face->glyph->bitmap.rows,
-      0,
-      GL_RED,
-      GL_UNSIGNED_BYTE,
-      face->glyph->bitmap.buffer
+            GL_TEXTURE_2D,
+            0,
+            GL_RED,
+            face->glyph->bitmap.width,
+            face->glyph->bitmap.rows,
+            0,
+            GL_RED,
+            GL_UNSIGNED_BYTE,
+            face->glyph->bitmap.buffer
     );
     // Set texture options
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -93,10 +93,10 @@ void Scene::initDebugTextCharacters()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     // Now store character for later use
     Character character = {
-        texture,
-        glm::ivec2(face->glyph->bitmap.width, face->glyph->bitmap.rows),
-        glm::ivec2(face->glyph->bitmap_left, face->glyph->bitmap_top),
-        (GLuint)face->glyph->advance.x
+            texture,
+            glm::ivec2(face->glyph->bitmap.width, face->glyph->bitmap.rows),
+            glm::ivec2(face->glyph->bitmap_left, face->glyph->bitmap_top),
+            (GLuint)face->glyph->advance.x
     };
     Characters.insert(std::pair<GLchar, Character>(c, character));
   }
@@ -141,13 +141,13 @@ void Scene::renderText(std::string text, GLfloat x, GLfloat y, GLfloat scale, gl
     GLfloat h = ch.size.y * scale;
     // Update VBO for each character
     GLfloat vertices[6][4] = {
-        { xpos,     ypos + h,   0.0, 0.0 },
-        { xpos,     ypos,       0.0, 1.0 },
-        { xpos + w, ypos,       1.0, 1.0 },
+            {xpos,     ypos + h, 0.0, 0.0},
+            {xpos,     ypos,     0.0, 1.0},
+            {xpos + w, ypos,     1.0, 1.0},
 
-        { xpos,     ypos + h,   0.0, 0.0 },
-        { xpos + w, ypos,       1.0, 1.0 },
-        { xpos + w, ypos + h,   1.0, 0.0 }
+            {xpos,     ypos + h, 0.0, 0.0},
+            {xpos + w, ypos,     1.0, 1.0},
+            {xpos + w, ypos + h, 1.0, 0.0}
     };
     // Render glyph texture over quad
     glBindTexture(GL_TEXTURE_2D, ch.textureID);

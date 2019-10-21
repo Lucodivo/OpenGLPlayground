@@ -107,7 +107,7 @@ const char* const bb8ModelAbsoluteLoc = "src/data/models/BB8.obj";
 const char* const theObjectModelAbsoluteLoc = "src/data/models/TheObject.obj";
 
 // Skybox Cube Map textures
-#define skybox(folder, extension) std::vector<const char*>{  \
+#define skybox(folder, extension) {  \
 "src/data/skyboxes/"#folder"/right."#extension,              \
 "src/data/skyboxes/"#folder"/left."#extension,               \
 "src/data/skyboxes/"#folder"/top."#extension,                \
@@ -116,12 +116,12 @@ const char* const theObjectModelAbsoluteLoc = "src/data/models/TheObject.obj";
 "src/data/skyboxes/"#folder"/back."#extension                \
 }                                                            \
 
-const std::vector<const char*> skyboxWaterFaceLocations = skybox(water, jpg);
-const std::vector<const char*> skyboxGrassFaceLocations = skybox(grass_photograph, jpg);
-const std::vector<const char*> skyboxSpaceBlueFaceLocations = skybox(space_blue, png);
-const std::vector<const char*> skyboxSpaceLightBlueFaceLocations = skybox(space_light_blue, png);
-const std::vector<const char*> skyboxSpaceRed1FaceLocations = skybox(space_red_1, png);
-const std::vector<const char*> skyboxSpaceRed2FaceLocations = skybox(space_red_2, png);
-const std::vector<const char*> skyboxSpaceRed3FaceLocations = skybox(space_red_3, png);
-const std::vector<const char*> skyboxInterstellarFaceLocations = skybox(interstellar, png);
-const std::vector<const char*> skyboxGloomyFaceLocations = skybox(gloomy, png);
+const char* const skyboxWaterFaceLocations[6] = skybox(water, jpg);
+const char* const skyboxGrassFaceLocations[6] = skybox(grass_photograph, jpg);
+const char* const skyboxSpaceBlueFaceLocations[6] = skybox(space_blue, png);
+const char* const skyboxSpaceLightBlueFaceLocations[6] = skybox(space_light_blue, png);
+const char* const skyboxSpaceRed1FaceLocations[6] = skybox(space_red_1, png);
+const char* const skyboxSpaceRed2FaceLocations[6] = skybox(space_red_2, png);
+const char* const skyboxSpaceRed3FaceLocations[6] = skybox(space_red_3, png);
+const char* const skyboxInterstellarFaceLocations[6] = skybox(interstellar, png);
+const char* const skyboxGloomyFaceLocations[6] = skybox(gloomy, png);

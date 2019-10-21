@@ -5,11 +5,11 @@
 #include "../../common/ObjectData.h"
 
 AsteroidBeltScene::AsteroidBeltScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth)
-  : FirstPersonScene(window, initScreenHeight, initScreenWidth),
-  modelShader(posNormalVertexShaderFileLoc, skyboxReflectionFragmentShaderFileLoc),
-  modelInstanceShader(AsteroidVertexShaderFileLoc, textureModelFragmentShaderFileLoc),
-  reflectModelInstanceShader(AsteroidVertexShaderFileLoc, skyboxReflectionFragmentShaderFileLoc),
-  skyboxShader(skyboxVertexShaderFileLoc, skyboxFragmentShaderFileLoc) {}
+        : FirstPersonScene(window, initScreenHeight, initScreenWidth),
+          modelShader(posNormalVertexShaderFileLoc, skyboxReflectionFragmentShaderFileLoc),
+          modelInstanceShader(AsteroidVertexShaderFileLoc, textureModelFragmentShaderFileLoc),
+          reflectModelInstanceShader(AsteroidVertexShaderFileLoc, skyboxReflectionFragmentShaderFileLoc),
+          skyboxShader(skyboxVertexShaderFileLoc, skyboxFragmentShaderFileLoc) {}
 
 void AsteroidBeltScene::runScene()
 {
@@ -60,7 +60,7 @@ void AsteroidBeltScene::renderLoop(uint32 skyboxVAO)
   uint32 numAsteroids = 5000;
   glm::mat4* modelMatrices;
   modelMatrices = new glm::mat4[numAsteroids];
-  srand((uint32)glfwGetTime()); // initialize random seed	
+  srand((uint32)glfwGetTime()); // initialize random seed
   float32 radius = 30.0;
   auto randDisplacement = []() -> float32 { return ((rand() % 2000) / 100.0f) - 10.0f; };
   for (uint32 i = 0; i < numAsteroids; i++)
@@ -181,9 +181,9 @@ void AsteroidBeltScene::renderLoop(uint32 skyboxVAO)
     skyboxShader.setUniform("view", viewMinusTranslation);
 
     glDrawElements(GL_TRIANGLES, // drawing mode
-      36, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
-      GL_UNSIGNED_INT, // type of the indices
-      0); // offset in the EBO
+                   36, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
+                   GL_UNSIGNED_INT, // type of the indices
+                   0); // offset in the EBO
     glBindVertexArray(0);
 
     glDisable(GL_DEPTH_TEST);

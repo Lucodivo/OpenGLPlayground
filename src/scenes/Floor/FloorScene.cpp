@@ -7,10 +7,10 @@ const uint32 SHADOW_MAP_WIDTH = 2048;
 const uint32 SHADOW_MAP_HEIGHT = 2048;
 
 FloorScene::FloorScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth)
-  : GodModeScene(window, initScreenHeight, initScreenWidth),
-  directionalLightShader(lightSpaceVertexShaderFileLoc, directionalLightShadowMapFragmentShaderFileLoc, tbnGeometryShaderFileLoc),
-  singleColorShader(posVertexShaderFileLoc, singleColorFragmentShaderFileLoc),
-  depthMapShader(simpleDepthVertexShaderFileLoc, emptyFragmentShaderFileLoc) {}
+        : GodModeScene(window, initScreenHeight, initScreenWidth),
+          directionalLightShader(lightSpaceVertexShaderFileLoc, directionalLightShadowMapFragmentShaderFileLoc, tbnGeometryShaderFileLoc),
+          singleColorShader(posVertexShaderFileLoc, singleColorFragmentShaderFileLoc),
+          depthMapShader(simpleDepthVertexShaderFileLoc, emptyFragmentShaderFileLoc) {}
 
 void FloorScene::runScene()
 {
@@ -101,9 +101,9 @@ void FloorScene::renderLoop(uint32 floorVAO, uint32 cubeVAO)
   const glm::vec3 cubePosition1 = glm::vec3(0.0f, floorPosition.y + (cubeScale1 / 2.0f), 0.0f);
 
   const float32 cubeScale2 = 3.0f;
-  
+
   const float32 cubeScale3 = 1.7f;
-  
+
   const float32 lightRadius = 16.0f;
   const float32 lightHeightOffset = 8.0f;
 
@@ -129,11 +129,11 @@ void FloorScene::renderLoop(uint32 floorVAO, uint32 cubeVAO)
     glBindBuffer(GL_UNIFORM_BUFFER, globalVSUniformBuffer);
     glBufferData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4), NULL, GL_STATIC_DRAW);
 
-    glBindBufferRange(GL_UNIFORM_BUFFER,		// target
-      globalVSBufferBindIndex,	// index of binding point 
-      globalVSUniformBuffer,	// buffer id
-      0,						// starting offset into buffer object
-      4 * 16);				// size: 4 vec3's, 16 bits alignments
+    glBindBufferRange(GL_UNIFORM_BUFFER,    // target
+                      globalVSBufferBindIndex,  // index of binding point
+                      globalVSUniformBuffer,  // buffer id
+                      0,            // starting offset into buffer object
+                      4 * 16);        // size: 4 vec3's, 16 bits alignments
 
     glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(cameraProjMat));
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
@@ -229,17 +229,17 @@ void FloorScene::renderLoop(uint32 floorVAO, uint32 cubeVAO)
     depthMapShader.setUniform("model", cubeModelMat2);
     glBindVertexArray(cubeVAO);
     glDrawElements(GL_TRIANGLES, // drawing mode
-      cubePosTexNormNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
-      GL_UNSIGNED_INT, // type of the indices
-      0); // offset in the EBO
+                   cubePosTexNormNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
+                   GL_UNSIGNED_INT, // type of the indices
+                   0); // offset in the EBO
     glBindVertexArray(0);
 
     depthMapShader.setUniform("model", cubeModelMat3);
     glBindVertexArray(cubeVAO);
     glDrawElements(GL_TRIANGLES, // drawing mode
-      cubePosTexNormNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
-      GL_UNSIGNED_INT, // type of the indices
-      0); // offset in the EBO
+                   cubePosTexNormNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
+                   GL_UNSIGNED_INT, // type of the indices
+                   0); // offset in the EBO
     glBindVertexArray(0);
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -274,9 +274,9 @@ void FloorScene::renderLoop(uint32 floorVAO, uint32 cubeVAO)
     directionalLightShader.setUniform("material.height", 8);
     glBindVertexArray(floorVAO);
     glDrawElements(GL_TRIANGLES, // drawing mode
-      6, // number of elements to draw (3 vertices per triangle * 2 triangles per quad)
-      GL_UNSIGNED_INT, // type of the indices
-      0); // offset in the EBO
+                   6, // number of elements to draw (3 vertices per triangle * 2 triangles per quad)
+                   GL_UNSIGNED_INT, // type of the indices
+                   0); // offset in the EBO
 
     // draw cubes
     glBindVertexArray(cubeVAO);
@@ -285,25 +285,25 @@ void FloorScene::renderLoop(uint32 floorVAO, uint32 cubeVAO)
     directionalLightShader.setUniform("material.normal", 5);
     directionalLightShader.setUniform("material.height", 9);
     glDrawElements(GL_TRIANGLES, // drawing mode
-      cubePosTexNormNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
-      GL_UNSIGNED_INT, // type of the indices
-      0); // offset in the EBO
+                   cubePosTexNormNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
+                   GL_UNSIGNED_INT, // type of the indices
+                   0); // offset in the EBO
     directionalLightShader.setUniform("model", cubeModelMat2);
     directionalLightShader.setUniform("material.diffuse", 2);
     directionalLightShader.setUniform("material.normal", 6);
     directionalLightShader.setUniform("material.height", 10);
     glDrawElements(GL_TRIANGLES, // drawing mode
-      cubePosTexNormNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
-      GL_UNSIGNED_INT, // type of the indices
-      0); // offset in the EBO
+                   cubePosTexNormNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
+                   GL_UNSIGNED_INT, // type of the indices
+                   0); // offset in the EBO
     directionalLightShader.setUniform("model", cubeModelMat3);
     directionalLightShader.setUniform("material.diffuse", 3);
     directionalLightShader.setUniform("material.normal", 7);
     directionalLightShader.setUniform("material.height", 11);
     glDrawElements(GL_TRIANGLES, // drawing mode
-      cubePosTexNormNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
-      GL_UNSIGNED_INT, // type of the indices
-      0); // offset in the EBO
+                   cubePosTexNormNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
+                   GL_UNSIGNED_INT, // type of the indices
+                   0); // offset in the EBO
     glBindVertexArray(0);
 
     glfwSwapBuffers(window); // swaps double buffers

@@ -12,9 +12,9 @@ out VS_OUT{
 
 
 layout(std140) uniform globalBlockVS{
-  // base alignment			// aligned    offset
-  mat4 projection;	    // 64 				// 64
-  mat4 view;			      // 64				  // 0
+                      // base alignment			aligned offset
+  mat4 projection;    // 64 				        64
+  mat4 view;          // 64				          0
 };
 
 uniform mat4 model;

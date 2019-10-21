@@ -4,7 +4,7 @@
 #define CAMERA_SPEED_FAST (CAMERA_SPEED * 2)
 
 GodModeScene::GodModeScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth)
-  : FirstPersonScene(window, initScreenHeight, initScreenWidth)
+        : FirstPersonScene(window, initScreenHeight, initScreenWidth)
 {
   camera.groundedMovement = false;
   camera.MovementSpeed = CAMERA_SPEED;

@@ -90,11 +90,11 @@ vec3 calcPositionalLight(PositionalLight positionalLight)
 
 vec3 sampleOffsetDirections[20] = vec3[]
 (
-  vec3(1, 1, 1), vec3(1, -1, 1), vec3(-1, -1, 1), vec3(-1, 1, 1),
-  vec3(1, 1, -1), vec3(1, -1, -1), vec3(-1, -1, -1), vec3(-1, 1, -1),
-  vec3(1, 1, 0), vec3(1, -1, 0), vec3(-1, -1, 0), vec3(-1, 1, 0),
-  vec3(1, 0, 1), vec3(-1, 0, 1), vec3(1, 0, -1), vec3(-1, 0, -1),
-  vec3(0, 1, 1), vec3(0, -1, 1), vec3(0, -1, -1), vec3(0, 1, -1)
+vec3(1, 1, 1), vec3(1, -1, 1), vec3(-1, -1, 1), vec3(-1, 1, 1),
+vec3(1, 1, -1), vec3(1, -1, -1), vec3(-1, -1, -1), vec3(-1, 1, -1),
+vec3(1, 1, 0), vec3(1, -1, 0), vec3(-1, -1, 0), vec3(-1, 1, 0),
+vec3(1, 0, 1), vec3(-1, 0, 1), vec3(1, 0, -1), vec3(-1, 0, -1),
+vec3(0, 1, 1), vec3(0, -1, 1), vec3(0, -1, -1), vec3(0, 1, -1)
 );
 
 float calcShadow(float lightDirNormalDot, vec3 lightToFrag)
@@ -108,16 +108,16 @@ float calcShadow(float lightDirNormalDot, vec3 lightToFrag)
   float shadow = 0.0;
   float samples = 20.0;
   float diskRadius = 0.05;
-  for(int i = 0; i < samples; ++i)
+  for (int i = 0; i < samples; ++i)
   {
-      // use the light to fragment vector to sample from the depth map    
-      float closestDepth = texture(shadowCubeMap, lightToFrag + sampleOffsetDirections[i] * diskRadius).r;
-      // it is currently in linear range between [0,1]. Re-transform back to original value
-      closestDepth *= lightFarPlane;
-      if(currentDepth - bias > closestDepth)
-      {
-        shadow += 1.0;
-      }
+    // use the light to fragment vector to sample from the depth map
+    float closestDepth = texture(shadowCubeMap, lightToFrag + sampleOffsetDirections[i] * diskRadius).r;
+    // it is currently in linear range between [0,1]. Re-transform back to original value
+    closestDepth *= lightFarPlane;
+    if (currentDepth - bias > closestDepth)
+    {
+      shadow += 1.0;
+    }
   }
   shadow /= samples;
 

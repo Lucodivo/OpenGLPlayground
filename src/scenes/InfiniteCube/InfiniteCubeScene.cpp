@@ -4,11 +4,10 @@
 #include "../../common/Util.h"
 
 InfiniteCubeScene::InfiniteCubeScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth)
-  : FirstPersonScene(window, initScreenHeight, initScreenWidth),
-  cubeShader(posNormTexVertexShaderFileLoc, cropCenterSquareTexFragmentShader),
-  cubeOutlineShader(posNormTexVertexShaderFileLoc, discardAlphaFragmentShaderFileLoc),
-  frameBufferShader(frameBufferVertexShaderFileLoc, basicTextureFragmentShaderFileLoc)
-{}
+        : FirstPersonScene(window, initScreenHeight, initScreenWidth),
+          cubeShader(posNormTexVertexShaderFileLoc, cropCenterSquareTexFragmentShader),
+          cubeOutlineShader(posNormTexVertexShaderFileLoc, discardAlphaFragmentShaderFileLoc),
+          frameBufferShader(frameBufferVertexShaderFileLoc, basicTextureFragmentShaderFileLoc) {}
 
 void InfiniteCubeScene::runScene()
 {
@@ -60,7 +59,7 @@ void InfiniteCubeScene::frameBufferSize(uint32 width, uint32 height)
   cubeShader.setUniform("texHeight", (float32)viewportHeight);
 }
 
-void InfiniteCubeScene::renderLoop(GLFWwindow * window, uint32 & cubeVAO, uint32 & quadVAO)
+void InfiniteCubeScene::renderLoop(GLFWwindow* window, uint32& cubeVAO, uint32& quadVAO)
 {
   uint32 outlineTexture;
   load2DTexture(outlineTextureLoc, outlineTexture);
@@ -127,11 +126,11 @@ void InfiniteCubeScene::renderLoop(GLFWwindow * window, uint32 & cubeVAO, uint32
     glBindBuffer(GL_UNIFORM_BUFFER, globalVSUniformBuffer);
     glBufferData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4), NULL, GL_STATIC_DRAW);
 
-    glBindBufferRange(GL_UNIFORM_BUFFER,		// target
-      globalVSBufferBindIndex,	// index of binding point 
-      globalVSUniformBuffer,	// buffer id
-      0,						// starting offset into buffer object
-      4 * 16);				// size: 4 vec3's, 16 bits alignments
+    glBindBufferRange(GL_UNIFORM_BUFFER,    // target
+                      globalVSBufferBindIndex,  // index of binding point
+                      globalVSUniformBuffer,  // buffer id
+                      0,            // starting offset into buffer object
+                      4 * 16);        // size: 4 vec3's, 16 bits alignments
 
     glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(projectionMat));
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
@@ -202,18 +201,18 @@ void InfiniteCubeScene::renderLoop(GLFWwindow * window, uint32 & cubeVAO, uint32
     cubeOutlineShader.setUniform("model", cubeModelMatrix);
 
     glDrawElements(GL_TRIANGLES,
-      cubePosTexNormNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
-      GL_UNSIGNED_INT,
-      0);
+                   cubePosTexNormNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
+                   GL_UNSIGNED_INT,
+                   0);
 
     cubeShader.use();
     glBindVertexArray(cubeVAO);
     cubeShader.setUniform("model", cubeModelMatrix);
     cubeShader.setUniform("diffTexture", previousFrameBufferIndex);
     glDrawElements(GL_TRIANGLES,
-      cubePosTexNormNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
-      GL_UNSIGNED_INT,
-      0);
+                   cubePosTexNormNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
+                   GL_UNSIGNED_INT,
+                   0);
 
     // draw scene to quad
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -223,9 +222,9 @@ void InfiniteCubeScene::renderLoop(GLFWwindow * window, uint32 & cubeVAO, uint32
     glBindVertexArray(quadVAO);
     frameBufferShader.setUniform("screenTexture", currentFrameBufferIndex);
     glDrawElements(GL_TRIANGLES, // drawing mode
-      6, // number of elements to draw (3 vertices per triangle * 2 triangles per quad)
-      GL_UNSIGNED_INT, // type of the indices
-      0); // offset in the EBO
+                   6, // number of elements to draw (3 vertices per triangle * 2 triangles per quad)
+                   GL_UNSIGNED_INT, // type of the indices
+                   0); // offset in the EBO
 
     glfwSwapBuffers(window); // swaps double buffers (call after all render commands are completed)
     glfwPollEvents(); // checks for events (ex: keyboard/mouse input)

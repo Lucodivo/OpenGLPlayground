@@ -113,47 +113,47 @@ public:
   }
 
   // utility uniform functions
-  void setUniform(const std::string & name, bool value) const
+  void setUniform(const std::string& name, bool value) const
   {
     glUniform1i(glGetUniformLocation(ID, name.c_str()), (int)value);
   }
 
-  void setUniform(const std::string & name, int32 value) const
+  void setUniform(const std::string& name, int32 value) const
   {
     glUniform1i(glGetUniformLocation(ID, name.c_str()), value);
   }
 
-  void setUniform(const std::string & name, uint32 value) const
+  void setUniform(const std::string& name, uint32 value) const
   {
     glUniform1i(glGetUniformLocation(ID, name.c_str()), value);
   }
 
-  void setUniform(const std::string & name, float32 value) const
+  void setUniform(const std::string& name, float32 value) const
   {
     glUniform1f(glGetUniformLocation(ID, name.c_str()), value);
   }
 
-  void setUniform(const std::string & name, float32 value1, float32 value2) const
+  void setUniform(const std::string& name, float32 value1, float32 value2) const
   {
     glUniform2f(glGetUniformLocation(ID, name.c_str()), value1, value2);
   }
 
-  void setUniform(const std::string & name, float32 value1, float32 value2, float32 value3) const
+  void setUniform(const std::string& name, float32 value1, float32 value2, float32 value3) const
   {
     glUniform3f(glGetUniformLocation(ID, name.c_str()), value1, value2, value3);
   }
 
-  void setUniform(const std::string & name, float32 value1, float32 value2, float32 value3, float32 value4) const
+  void setUniform(const std::string& name, float32 value1, float32 value2, float32 value3, float32 value4) const
   {
     glUniform4f(glGetUniformLocation(ID, name.c_str()), value1, value2, value3, value4);
   }
 
-  void setUniform(const std::string & name, const glm::mat4 & mat) const
+  void setUniform(const std::string& name, const glm::mat4& mat) const
   {
     glUniformMatrix4fv(glGetUniformLocation(ID, name.c_str()),
-      1, // count 
-      GL_FALSE, // transpose: swap columns and rows (true or false)
-      glm::value_ptr(mat)); // pointer to float values
+                       1, // count
+                       GL_FALSE, // transpose: swap columns and rows (true or false)
+                       glm::value_ptr(mat)); // pointer to float values
   }
 
   void setUniform(const std::string& name, const glm::mat4* matArray, const uint32 arraySize)
@@ -164,42 +164,43 @@ public:
                        (GLfloat*)matArray); // pointer to float values // TODO: glm::value_ptr(mats[0])
   }
 
-  void setUniform(const std::string & name, const float* floatArray, const uint32 arraySize)
+  void setUniform(const std::string& name, const float* floatArray, const uint32 arraySize)
   {
     glUniform1fv(glGetUniformLocation(ID, name.c_str()), arraySize, floatArray);
   }
 
-  void setUniform(const std::string & name, const glm::vec3 & vector3)
+  void setUniform(const std::string& name, const glm::vec3& vector3)
   {
     setUniform(name, vector3.x, vector3.y, vector3.z);
   }
 
-  void bindBlockIndex(const std::string & name, uint32 index)
+  void bindBlockIndex(const std::string& name, uint32 index)
   {
     uint32 blockIndex = glGetUniformBlockIndex(ID, name.c_str());
     glUniformBlockBinding(ID, blockIndex, index);
   }
 
 private:
-    void readShaderCodeAsString(const char* shaderPath, std::string * shaderCode) {
-        try
-        {
-            std::ifstream file;
-            // ensure ifstream objects can throw exceptions:
-            file.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-            // open file
-            file.open(shaderPath);
-            std::stringstream shaderStream;
-            // read file's buffer contents into streams
-            shaderStream << file.rdbuf();
-            // close file handler
-            file.close();
-            // convert stream into string
-            *shaderCode = shaderStream.str();
-        } catch (std::ifstream::failure e)
-        {
-            std::cout << "ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ" << std::endl;
-        }
+  void readShaderCodeAsString(const char* shaderPath, std::string* shaderCode)
+  {
+    try
+    {
+      std::ifstream file;
+      // ensure ifstream objects can throw exceptions:
+      file.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+      // open file
+      file.open(shaderPath);
+      std::stringstream shaderStream;
+      // read file's buffer contents into streams
+      shaderStream << file.rdbuf();
+      // close file handler
+      file.close();
+      // convert stream into string
+      *shaderCode = shaderStream.str();
+    } catch (std::ifstream::failure e)
+    {
+      std::cout << "ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ" << std::endl;
     }
+  }
 
 };

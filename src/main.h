@@ -21,7 +21,7 @@ const float32 triangleVertices[] = {
   0.25f, 0.75f, 0.0f,     1.0f, 0.0f, 0.0f,   1.0f, 0.0f  // top right
 };
 const uint32 indices[]{
-    0, 1, 2,    // first triangle
-    2, 3, 4     // second triangle
+        0, 1, 2,    // first triangle
+        2, 3, 4     // second triangle
 };
 // ===== double triangle values =====

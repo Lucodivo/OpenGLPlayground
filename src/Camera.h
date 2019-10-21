@@ -56,7 +56,7 @@ public:
 
   // Constructor with vectors
   Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 3.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float32 yaw = YAW, float32 pitch = PITCH)
-    : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVTY), Zoom(ZOOM)
+          : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVTY), Zoom(ZOOM)
   {
     Position = position;
     WorldUp = up;
@@ -64,9 +64,10 @@ public:
     Pitch = pitch;
     updateCameraVectors();
   }
+
   // Constructor with scalar values
   Camera(float32 posX, float32 posY, float32 posZ, float32 upX, float32 upY, float32 upZ, float32 yaw, float32 pitch)
-    : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVTY), Zoom(ZOOM)
+          : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVTY), Zoom(ZOOM)
   {
     Position = glm::vec3(posX, posY, posZ);
     WorldUp = glm::vec3(upX, upY, upZ);
@@ -96,15 +97,15 @@ public:
 
     // In glm we access elements as mat[col][row] due to column-major layout
     glm::mat4 translation = glm::mat4(
-      1.0f, 0.0f, 0.0f, 0.0f,
-      0.0f, 1.0f, 0.0f, 0.0f,
-      0.0f, 0.0f, 1.0f, 0.0f,
-      -Position.x, -Position.y, -Position.z, 1.0f);
+            1.0f, 0.0f, 0.0f, 0.0f,
+            0.0f, 1.0f, 0.0f, 0.0f,
+            0.0f, 0.0f, 1.0f, 0.0f,
+            -Position.x, -Position.y, -Position.z, 1.0f);
     glm::mat4 rotation = glm::mat4(
-      xaxis.x, yaxis.x, zaxis.x, 0.0f,
-      xaxis.y, yaxis.y, zaxis.y, 0.0f,
-      xaxis.z, yaxis.z, zaxis.z, 0.0f,
-      0.0f, 0.0f, 0.0f, 1.0f);
+            xaxis.x, yaxis.x, zaxis.x, 0.0f,
+            xaxis.y, yaxis.y, zaxis.y, 0.0f,
+            xaxis.z, yaxis.z, zaxis.z, 0.0f,
+            0.0f, 0.0f, 0.0f, 1.0f);
 
     // Return lookAt matrix as combination of translation and rotation matrix
     return rotation * translation; // Remember to read from right to left (first translation then rotation)
@@ -144,21 +145,21 @@ public:
   {
     switch (direction)
     {
-    case FORWARD:
-      deltaPosition += groundedMovement ? glm::vec3(Front.x, 0.0f, Front.z) : Front;
-      break;
-    case BACKWARD:
-      deltaPosition -= groundedMovement ? glm::vec3(Front.x, 0.0f, Front.z) : Front;
-      break;
-    case LEFT:
-      deltaPosition -= Right;
-      break;
-    case RIGHT:
-      deltaPosition += Right;
-      break;
-    case JUMP:
-      jumping = true;
-      break;
+      case FORWARD:
+        deltaPosition += groundedMovement ? glm::vec3(Front.x, 0.0f, Front.z) : Front;
+        break;
+      case BACKWARD:
+        deltaPosition -= groundedMovement ? glm::vec3(Front.x, 0.0f, Front.z) : Front;
+        break;
+      case LEFT:
+        deltaPosition -= Right;
+        break;
+      case RIGHT:
+        deltaPosition += Right;
+        break;
+      case JUMP:
+        jumping = true;
+        break;
     }
   }
 
@@ -191,6 +192,7 @@ public:
   }
 
   float32 stickSensitivty = 0.00007f;
+
   void ProcessRightAnalog(int16 stickX, int16 stickY, GLboolean constrainPitch = true)
   {
     Yaw += (float32)stickX * stickSensitivty;;

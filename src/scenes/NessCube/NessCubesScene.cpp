@@ -12,39 +12,38 @@
 
 // ===== cube values =====
 const glm::vec3 cubePositions[] = {
-  glm::vec3(2.0f,  5.0f, -15.0f),
-  glm::vec3(-1.5f, -2.2f, -2.5f),
-  glm::vec3(-3.8f, -2.0f, -12.3f),
-  glm::vec3(2.4f, -0.4f, -3.5f),
-  glm::vec3(-1.7f,  3.0f, -7.5f),
-  glm::vec3(1.3f, -2.0f, -2.5f),
-  glm::vec3(1.5f,  2.0f, -2.5f),
-  glm::vec3(1.5f,  0.2f, -1.5f),
-  glm::vec3(-1.3f,  1.0f, -1.5f)
+        glm::vec3(2.0f, 5.0f, -15.0f),
+        glm::vec3(-1.5f, -2.2f, -2.5f),
+        glm::vec3(-3.8f, -2.0f, -12.3f),
+        glm::vec3(2.4f, -0.4f, -3.5f),
+        glm::vec3(-1.7f, 3.0f, -7.5f),
+        glm::vec3(1.3f, -2.0f, -2.5f),
+        glm::vec3(1.5f, 2.0f, -2.5f),
+        glm::vec3(1.5f, 0.2f, -1.5f),
+        glm::vec3(-1.3f, 1.0f, -1.5f)
 };
 
 const float32 cubeScales[] = {
-  0.6f,
-  0.65f,
-  0.7f,
-  0.75f,
-  0.8f,
-  0.85f,
-  0.9f,
-  0.95f,
-  1.0f
+        0.6f,
+        0.65f,
+        0.7f,
+        0.75f,
+        0.8f,
+        0.85f,
+        0.9f,
+        0.95f,
+        1.0f
 };
 // ===== cube values =====
 
-NessCubesScene::NessCubesScene(GLFWwindow * window, uint32 initScreenHeight, uint32 initScreenWidth)
-  : FirstPersonScene(window, initScreenHeight, initScreenWidth),
-  cubeShader(posNormTexVertexShaderFileLoc, cubeFragmentShaderFileLoc),
-  lightShader(posVertexShaderFileLoc, singleColorFragmentShaderFileLoc),
-  modelShader(posNormTexVertexShaderFileLoc, dirPosSpotLightModelFragmentShaderFileLoc),
-  stencilShader(posNormTexVertexShaderFileLoc, singleColorFragmentShaderFileLoc),
-  frameBufferShader(frameBufferVertexShaderFileLoc, kernel5x5TextureFragmentShaderFileLoc),
-  skyboxShader(skyboxVertexShaderFileLoc, skyboxFragmentShaderFileLoc)
-{}
+NessCubesScene::NessCubesScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth)
+        : FirstPersonScene(window, initScreenHeight, initScreenWidth),
+          cubeShader(posNormTexVertexShaderFileLoc, cubeFragmentShaderFileLoc),
+          lightShader(posVertexShaderFileLoc, singleColorFragmentShaderFileLoc),
+          modelShader(posNormTexVertexShaderFileLoc, dirPosSpotLightModelFragmentShaderFileLoc),
+          stencilShader(posNormTexVertexShaderFileLoc, singleColorFragmentShaderFileLoc),
+          frameBufferShader(frameBufferVertexShaderFileLoc, kernel5x5TextureFragmentShaderFileLoc),
+          skyboxShader(skyboxVertexShaderFileLoc, skyboxFragmentShaderFileLoc) {}
 
 void NessCubesScene::runScene()
 {
@@ -79,7 +78,7 @@ void NessCubesScene::runScene()
   glDeleteBuffers(1, &skyboxEBO);
 }
 
-void NessCubesScene::renderLoop(GLFWwindow * window, uint32 & shapesVAO, uint32 & lightVAO, uint32 & quadVAO, uint32 & skyboxVAO)
+void NessCubesScene::renderLoop(GLFWwindow* window, uint32& shapesVAO, uint32& lightVAO, uint32& quadVAO, uint32& skyboxVAO)
 {
   uint32 diffTextureId;
   uint32 specTextureId;
@@ -135,11 +134,11 @@ void NessCubesScene::renderLoop(GLFWwindow * window, uint32 & shapesVAO, uint32 
     glBindBuffer(GL_UNIFORM_BUFFER, globalFSUniformBuffer);
     glBufferData(GL_UNIFORM_BUFFER, 64, NULL, GL_STATIC_DRAW);
 
-    glBindBufferRange(GL_UNIFORM_BUFFER,		// target
-      globalFSBufferBindIndex,	// index of binding point 
-      globalFSUniformBuffer,	// buffer id
-      0,						// starting offset into buffer object
-      4 * 16);					// size: 4 vec3's, 16 bits alignments
+    glBindBufferRange(GL_UNIFORM_BUFFER,    // target
+                      globalFSBufferBindIndex,  // index of binding point
+                      globalFSUniformBuffer,  // buffer id
+                      0,            // starting offset into buffer object
+                      4 * 16);          // size: 4 vec3's, 16 bits alignments
 
     glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::vec3), glm::value_ptr(directionalLightDir));
     glBufferSubData(GL_UNIFORM_BUFFER, 16, sizeof(glm::vec3), glm::value_ptr(directionalLightColor * glm::vec3(0.3f)));
@@ -160,11 +159,11 @@ void NessCubesScene::renderLoop(GLFWwindow * window, uint32 & shapesVAO, uint32 
     glBindBuffer(GL_UNIFORM_BUFFER, globalVSUniformBuffer);
     glBufferData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4), NULL, GL_STATIC_DRAW);
 
-    glBindBufferRange(GL_UNIFORM_BUFFER,		// target
-      globalVSBufferBindIndex,	// index of binding point 
-      globalVSUniformBuffer,	// buffer id
-      0,						// starting offset into buffer object
-      4 * 16);				// size: 4 vec3's, 16 bits alignments
+    glBindBufferRange(GL_UNIFORM_BUFFER,    // target
+                      globalVSBufferBindIndex,  // index of binding point
+                      globalVSUniformBuffer,  // buffer id
+                      0,            // starting offset into buffer object
+                      4 * 16);        // size: 4 vec3's, 16 bits alignments
 
     glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(projectionMat));
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
@@ -210,11 +209,11 @@ void NessCubesScene::renderLoop(GLFWwindow * window, uint32 & shapesVAO, uint32 
 
     glEnable(GL_STENCIL_TEST);
     glStencilOp(GL_KEEP, // when stencil fails
-      GL_KEEP, // when stencil passes but depth fails
-      GL_REPLACE); // when stencil passes and depth passes
+                GL_KEEP, // when stencil passes but depth fails
+                GL_REPLACE); // when stencil passes and depth passes
     glStencilFunc(GL_ALWAYS, // stencil function
-      1, // reference value for stencil test
-      0xFF); // mask that is ANDed with stencil value and reference value before the test compares them
+                  1, // reference value for stencil test
+                  0xFF); // mask that is ANDed with stencil value and reference value before the test compares them
     glStencilMask(0xFF); // mask that is ANDed with the stencil value that is about to be written to stencil buffer
 
 #if 1
@@ -258,9 +257,9 @@ void NessCubesScene::renderLoop(GLFWwindow * window, uint32 & shapesVAO, uint32 
     lightShader.setUniform("model", lightModel);
     lightShader.setUniform("color", positionalLightColor);
     glDrawElements(GL_TRIANGLES, // drawing mode
-      cubePosTexNormNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
-      GL_UNSIGNED_INT, // type of the indices
-      0); // offset in the EBO
+                   cubePosTexNormNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
+                   GL_UNSIGNED_INT, // type of the indices
+                   0); // offset in the EBO
     glBindVertexArray(0);
 
     // User fragment shaders to draw a triangle
@@ -303,9 +302,9 @@ void NessCubesScene::renderLoop(GLFWwindow * window, uint32 & shapesVAO, uint32 
     skyboxShader.setUniform("view", viewMinusTranslation);
 
     glDrawElements(GL_TRIANGLES, // drawing mode
-      36, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
-      GL_UNSIGNED_INT, // type of the indices
-      0); // offset in the EBO
+                   36, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
+                   GL_UNSIGNED_INT, // type of the indices
+                   0); // offset in the EBO
 
     // draw cubes
     cubeShader.use();
@@ -342,9 +341,9 @@ void NessCubesScene::renderLoop(GLFWwindow * window, uint32 & shapesVAO, uint32 
       model = glm::scale(model, glm::vec3(cubeScales[i]));
       cubeShader.setUniform("model", model);
       glDrawElements(GL_TRIANGLES, // drawing mode
-        cubePosTexNormNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
-        GL_UNSIGNED_INT, // type of the indices
-        0); // offset in the EBO
+                     cubePosTexNormNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
+                     GL_UNSIGNED_INT, // type of the indices
+                     0); // offset in the EBO
     }
 
     // draw cube stencil outlines
@@ -369,16 +368,16 @@ void NessCubesScene::renderLoop(GLFWwindow * window, uint32 & shapesVAO, uint32 
       glStencilMask(0x00);
       glDisable(GL_DEPTH_TEST);
       glDrawElements(GL_TRIANGLES, // drawing mode
-        cubePosTexNormNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
-        GL_UNSIGNED_INT, // type of the indices
-        0); // offset in the EBO
+                     cubePosTexNormNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
+                     GL_UNSIGNED_INT, // type of the indices
+                     0); // offset in the EBO
       glEnable(GL_DEPTH_TEST);
     }
     glBindVertexArray(0);
 
     glStencilFunc(GL_ALWAYS, // stencil function
-      1, // reference value for stencil test
-      0xFF); // mask that is ANDed with stencil value and reference value before the test compares them
+                  1, // reference value for stencil test
+                  0xFF); // mask that is ANDed with stencil value and reference value before the test compares them
     glStencilMask(0xFF); // mask that is ANDed with the stencil value that is about to be written to stencil buffer
     glClear(GL_STENCIL_BUFFER_BIT); // NOTE: glClear(GL_STENCIL_BUFFER_BIT) counts as writing to the stencil buffer and will be directly ANDed with the stencil mask
 
@@ -395,7 +394,7 @@ void NessCubesScene::renderLoop(GLFWwindow * window, uint32 & shapesVAO, uint32 
       modelShader.setUniform("view", viewMat);
 
       glm::mat4 model;
-      model = glm::scale(model, glm::vec3(modelScale));	// it's a bit too big for our scene, so scale it down
+      model = glm::scale(model, glm::vec3(modelScale));  // it's a bit too big for our scene, so scale it down
       model = glm::translate(model, glm::vec3(0.0f, -1.75f, 0.0f)); // translate it down so it's at the center of the scene
       modelShader.setUniform("model", model);
       nanoSuitModel.Draw(modelShader);
@@ -423,9 +422,9 @@ void NessCubesScene::renderLoop(GLFWwindow * window, uint32 & shapesVAO, uint32 
     frameBufferShader.setUniform("kernel", kernels5x5[selectedKernelIndex], ArrayCount(kernels5x5[selectedKernelIndex]));
     glDisable(GL_DEPTH_TEST);
     glDrawElements(GL_TRIANGLES, // drawing mode
-      6, // number of elements to draw (3 vertices per triangle * 2 triangles per quad)
-      GL_UNSIGNED_INT, // type of the indices
-      0); // offset in the EBO
+                   6, // number of elements to draw (3 vertices per triangle * 2 triangles per quad)
+                   GL_UNSIGNED_INT, // type of the indices
+                   0); // offset in the EBO
 
     glDisable(GL_DEPTH_TEST);
     uint32 numFrames = (uint32)(1 / deltaTime);
@@ -439,7 +438,7 @@ void NessCubesScene::renderLoop(GLFWwindow * window, uint32 & shapesVAO, uint32 
   }
 }
 
-void NessCubesScene::initializeTextures(uint32 & diffTextureId, uint32 & specTextureId, uint32 & skyboxTextureId)
+void NessCubesScene::initializeTextures(uint32& diffTextureId, uint32& specTextureId, uint32& skyboxTextureId)
 {
   load2DTexture(diffuseTextureLoc, diffTextureId, true);
   load2DTexture(specularTextureLoc, specTextureId, true);

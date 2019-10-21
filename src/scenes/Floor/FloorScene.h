@@ -14,7 +14,7 @@ private:
   Shader singleColorShader;
   Shader depthMapShader;
 
-  float32 deltaTime = 0.0f;	// Time between current frame and last frame
+  float32 deltaTime = 0.0f;  // Time between current frame and last frame
   float32 lastFrame = 0.0f; // Time of last frame
 
   void renderLoop(uint32 quadVAO, uint32 cubeVAO);

@@ -1,7 +1,7 @@
 #include "FirstPersonScene.h"
 
 FirstPersonScene::FirstPersonScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth)
-  : Scene(window, initScreenHeight, initScreenWidth)
+        : Scene(window, initScreenHeight, initScreenWidth)
 {
   subscribeMouseMovement(window, this);
   subscribeMouseScroll(window, this);
