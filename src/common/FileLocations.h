@@ -1,7 +1,5 @@
 #pragma once
 
-#include <vector>
-
 // ==== shaders ====
 // Common Shaders
 #define COMMON_BASE_VERTEX "src/common/shaders/vertex/"
@@ -23,6 +21,7 @@ const char* const emptyFragmentShaderFileLoc = COMMON_BASE_FRAGMENT"EmptyFragmen
 const char* const textFragmentShaderFileLoc = COMMON_BASE_FRAGMENT"TextFragmentShader.glsl";
 const char* const depthVisualizerFragmentShaderFileLoc = COMMON_BASE_FRAGMENT"DepthBufferVisualizerFragmentShader.glsl";
 const char* const negativeTextureFragmentShaderFileLoc = COMMON_BASE_FRAGMENT"NegativeTextureFragmentShader.glsl";
+const char* const textureFragmentShaderFileLoc = COMMON_BASE_FRAGMENT"TextureFragmentShader.glsl";
 
 // Asteroid Belt Shaders
 #define ASTEROID_BELT_BASE "src/scenes/AsteroidBelt/"
@@ -35,12 +34,12 @@ const char* const lightSpaceVertexShaderFileLoc = FLOOR_BASE"LightSpaceVertexSha
 const char* const directionalLightShadowMapFragmentShaderFileLoc = FLOOR_BASE"DirectionalLightShadowMapFragmentShader.glsl";
 const char* const simpleDepthVertexShaderFileLoc = FLOOR_BASE"SimpleDepthVertexShader.glsl";
 const char* const tbnGeometryShaderFileLoc = FLOOR_BASE"TBNGeometryShader.glsl";
+const char* const billboardPosTexVertexShaderFileLoc = FLOOR_BASE"BillboardPosTexVertexShader.glsl";
 
 // Infinite Cube Shaders
 #define INFINITE_CUBE_BASE "src/scenes/InfiniteCube/"
 const char* const cropCenterSquareTexFragmentShader = INFINITE_CUBE_BASE"CropCenterSquareTexFragmentShader.glsl";
 const char* const discardAlphaFragmentShaderFileLoc = INFINITE_CUBE_BASE"DiscardAlphaFragmentShader.glsl";
-const char* const basicTextureFragmentShaderFileLoc = INFINITE_CUBE_BASE"BasicTextureFragmentShader.glsl";
 
 // Ness Cubes Shaders
 #define NESS_BASE "src/scenes/NessCube/"
@@ -100,11 +99,14 @@ const char* const dungeonStoneHeightTextureLoc = "src/data/PBR/dungeonstone_heig
 const char* const waterWornStoneAlbedoTextureLoc = "src/data/PBR/waterwornstone_albedo.png";
 const char* const waterWornStoneNormalTextureLoc = "src/data/PBR/waterwornstone_normal.png";
 const char* const waterWornStoneHeightTextureLoc = "src/data/PBR/waterwornstone_height.png";
-const char* const nanoSuitModelAbsoluteLoc = "src/data/models/nanosuit/nanosuit.obj";
-const char* const asteroidModelAbsoluteLoc = "src/data/models/rock/rock.obj";
-const char* const planetModelAbsoluteLoc = "src/data/models/planet/planet.obj";
-const char* const bb8ModelAbsoluteLoc = "src/data/models/BB8.obj";
-const char* const theObjectModelAbsoluteLoc = "src/data/models/TheObject.obj";
+const char* const moonTextureAlbedoLoc = "src/data/moon.png";
+
+// Models
+const char* const nanoSuitModelLoc = "src/data/models/nanosuit/nanosuit.obj";
+const char* const asteroidModelLoc = "src/data/models/rock/rock.obj";
+const char* const planetModelLoc = "src/data/models/planet/planet.obj";
+const char* const bb8ModelLoc = "src/data/models/BB8.obj";
+const char* const theObjectModelLoc = "src/data/models/TheObject.obj";
 
 // Skybox Cube Map textures
 #define skybox(folder, extension) {  \

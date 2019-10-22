@@ -5,12 +5,12 @@ layout (triangle_strip, max_vertices = 3) out;
 in VS_OUT{
   vec3 Normal;
   vec3 Pos;
-  vec2 TextureCoord;
+  vec2 TexCoords;
   vec4 PosLightSpace;
 } vs_in[];
 
 out VS_OUT {
-  vec2 TextureCoord;
+  vec2 TexCoords;
   vec4 PosLightSpace;
   vec3 TangentPos;
   vec3 TangentLightDir;
@@ -27,8 +27,8 @@ void main() {
 
   vec3 posDiff1 = vs_in[1].Pos - vs_in[0].Pos;
   vec3 posDiff2 = vs_in[2].Pos - vs_in[0].Pos;
-  vec2 texDiff1 = vs_in[1].TextureCoord - vs_in[0].TextureCoord;
-  vec2 texDiff2 = vs_in[2].TextureCoord - vs_in[0].TextureCoord;
+  vec2 texDiff1 = vs_in[1].TexCoords - vs_in[0].TexCoords;
+  vec2 texDiff2 = vs_in[2].TexCoords - vs_in[0].TexCoords;
 
   float f = 1.0f / (texDiff1.x * texDiff2.y - texDiff2.x * texDiff1.y);
 
@@ -49,17 +49,17 @@ void main() {
   gl_Position = gl_in[0].gl_Position;
   gs_out.PosLightSpace = vs_in[0].PosLightSpace;
   gs_out.TangentPos = inverseTBN * vs_in[0].Pos;
-  gs_out.TextureCoord = vs_in[0].TextureCoord;
+  gs_out.TexCoords = vs_in[0].TexCoords;
   EmitVertex();
   gl_Position = gl_in[1].gl_Position;
   gs_out.PosLightSpace = vs_in[1].PosLightSpace;
   gs_out.TangentPos = inverseTBN * vs_in[1].Pos;
-  gs_out.TextureCoord = vs_in[1].TextureCoord;
+  gs_out.TexCoords = vs_in[1].TexCoords;
   EmitVertex();
   gl_Position = gl_in[2].gl_Position;
   gs_out.PosLightSpace = vs_in[2].PosLightSpace;
   gs_out.TangentPos = inverseTBN * vs_in[2].Pos;
-  gs_out.TextureCoord = vs_in[2].TextureCoord;
+  gs_out.TexCoords = vs_in[2].TexCoords;
   EmitVertex();
   EndPrimitive();
 }

@@ -10,9 +10,10 @@ src/fonts/
 build/
 cmake-build-debug/
 
-
 src/data/floor.jpg
 src/data/cement.png
 src/data/brick.jpg
 src/data/brick_normal.jpg
+src/data/hardwood.jpg
+src/data/moon.png
 src/data/PBR/

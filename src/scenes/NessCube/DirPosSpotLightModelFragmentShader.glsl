@@ -51,7 +51,7 @@ uniform Material material;
 
 in vec3 Normal;
 in vec3 FragPos;
-in vec2 TextureCoord;
+in vec2 TexCoords;
 
 out vec4 FragColor;
 
@@ -66,8 +66,8 @@ vec3 specColor;
 
 void main()
 {
-  diffColor = texture(material.diffTexture1, TextureCoord).rgb;
-  specColor = texture(material.specTexture1, TextureCoord).rgb;
+  diffColor = texture(material.diffTexture1, TexCoords).rgb;
+  specColor = texture(material.specTexture1, TexCoords).rgb;
 
   vec3 positionalResult = calcPositionalLightColor();
   vec3 directionalResult = calcDirectionalLightColor();

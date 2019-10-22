@@ -85,7 +85,7 @@ void ReflectRefractScene::renderLoop(GLFWwindow* window, uint32& cubeVAO, uint32
   loadCubeMapTexture(skyboxSpaceLightBlueFaceLocations, skyboxTextureId);
 
   // load models
-  Model nanoSuitModel((char*)nanoSuitModelAbsoluteLoc);
+  Model nanoSuitModel((char*)nanoSuitModelLoc);
 
   const glm::mat4 projectionMat = glm::perspective(glm::radians(camera.Zoom), (float32)viewportWidth / (float32)viewportHeight, 0.1f, 100.0f);
 

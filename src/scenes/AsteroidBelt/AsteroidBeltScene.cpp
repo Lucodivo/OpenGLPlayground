@@ -31,8 +31,8 @@ void AsteroidBeltScene::renderLoop(uint32 skyboxVAO)
   uint32 skybox2TextureId;
   loadCubeMapTexture(skyboxSpaceLightBlueFaceLocations, skybox2TextureId);
 
-  Model planetModel((char*)planetModelAbsoluteLoc);
-  Model asteroidModel((char*)asteroidModelAbsoluteLoc);
+  Model planetModel((char*)planetModelLoc);
+  Model asteroidModel((char*)asteroidModelLoc);
 
   const glm::mat4 projectionMat = glm::perspective(glm::radians(camera.Zoom), (float32)viewportWidth / (float32)viewportHeight, 0.1f, 100.0f);
 

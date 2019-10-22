@@ -18,7 +18,7 @@ uniform vec3 directionalLightDir;// normalized direction from origin to light
 uniform Material material;
 
 in VS_OUT {
-  vec2 TextureCoord;
+  vec2 TexCoords;
   vec4 PosLightSpace;
   vec3 TangentPos;
   vec3 TangentLightDir;
@@ -52,7 +52,7 @@ void main()
 
 vec3 calcDirectionalLightColor() {
   vec3 viewDir = normalize(fs_in.TangentViewPos - fs_in.TangentPos);
-  texCoords = parallaxOcculusMapping(fs_in.TextureCoord, viewDir);
+  texCoords = parallaxOcculusMapping(fs_in.TexCoords, viewDir);
   if (texCoords.x > 1.0 || texCoords.y > 1.0 || texCoords.x < 0.0 || texCoords.y < 0.0) discard;// remove border artifacts caused by parallax mapping
   diffColor = texture(material.diffuse, texCoords).rgb;
 

@@ -55,7 +55,7 @@ uniform Material material;
 
 in vec3 Normal;
 in vec3 FragPos;
-in vec2 TextureCoord;
+in vec2 TexCoords;
 
 out vec4 FragColor;
 
@@ -72,9 +72,9 @@ void main()
 {
   vec2 animTextCoord;
   if (animSwitch) {
-    animTextCoord = vec2(-TextureCoord.x, TextureCoord.y);
+    animTextCoord = vec2(-TexCoords.x, TexCoords.y);
   } else {
-    animTextCoord = TextureCoord;
+    animTextCoord = TexCoords;
   }
 
   diffColor = texture(material.diffTexture1, animTextCoord);

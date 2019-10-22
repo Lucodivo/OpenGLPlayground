@@ -4,7 +4,7 @@
 
 #include <GLFW/glfw3.h>
 
-#include "LearnOpenGlPlatform.h"
+#include "../LearnOpenGLPlatform.h"
 
 class KeyboardConsumer
 {

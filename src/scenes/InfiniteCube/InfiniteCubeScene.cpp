@@ -7,7 +7,7 @@ InfiniteCubeScene::InfiniteCubeScene(GLFWwindow* window, uint32 initScreenHeight
         : FirstPersonScene(window, initScreenHeight, initScreenWidth),
           cubeShader(posNormTexVertexShaderFileLoc, cropCenterSquareTexFragmentShader),
           cubeOutlineShader(posNormTexVertexShaderFileLoc, discardAlphaFragmentShaderFileLoc),
-          frameBufferShader(frameBufferVertexShaderFileLoc, basicTextureFragmentShaderFileLoc) {}
+          frameBufferShader(frameBufferVertexShaderFileLoc, textureFragmentShaderFileLoc) {}
 
 void InfiniteCubeScene::runScene()
 {
@@ -220,7 +220,7 @@ void InfiniteCubeScene::renderLoop(GLFWwindow* window, uint32& cubeVAO, uint32& 
 
     frameBufferShader.use();
     glBindVertexArray(quadVAO);
-    frameBufferShader.setUniform("screenTexture", currentFrameBufferIndex);
+    frameBufferShader.setUniform("tex", currentFrameBufferIndex);
     glDrawElements(GL_TRIANGLES, // drawing mode
                    6, // number of elements to draw (3 vertices per triangle * 2 triangles per quad)
                    GL_UNSIGNED_INT, // type of the indices

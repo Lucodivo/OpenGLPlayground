@@ -9,13 +9,13 @@ struct Material
 
 uniform Material material;
 
-in vec2 TextureCoord;
+in vec2 TexCoords;
 
 out vec4 FragColor;
 
 void main()
 {
-  vec3 diffColor = texture(material.diffTexture1, TextureCoord).rgb;
+  vec3 diffColor = texture(material.diffTexture1, TexCoords).rgb;
 
   FragColor = vec4(diffColor, 1.0);
 }

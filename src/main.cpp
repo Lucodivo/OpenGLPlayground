@@ -10,7 +10,7 @@
 #include "scenes/AsteroidBelt/AsteroidBeltScene.h"
 #include "scenes/Floor/FloorScene.h"
 #include "scenes/Room/RoomScene.h"
-#include "Input.h"
+#include "common/Input.h"
 
 #include <iostream>
 

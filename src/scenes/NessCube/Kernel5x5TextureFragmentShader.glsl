@@ -3,7 +3,7 @@ out vec4 FragColor;
 
 in vec2 TexCoords;
 
-uniform sampler2D screenTexture;
+uniform sampler2D tex;
 uniform float kernel[25];
 uniform float textureWidth;
 uniform float textureHeight;
@@ -60,39 +60,39 @@ void main()
   vec3 col = vec3(0.0);
 
   // top row
-  col += vec3(texture(screenTexture, vec2(sMinusTwo, tPlusTwo))) * kernel[0];
-  col += vec3(texture(screenTexture, vec2(sMinusOne, tPlusTwo))) * kernel[1];
-  col += vec3(texture(screenTexture, vec2(TexCoords.s, tPlusTwo))) * kernel[2];
-  col += vec3(texture(screenTexture, vec2(sPlusOne, tPlusTwo))) * kernel[3];
-  col += vec3(texture(screenTexture, vec2(sPlusTwo, tPlusTwo))) * kernel[4];
+  col += vec3(texture(tex, vec2(sMinusTwo, tPlusTwo))) * kernel[0];
+  col += vec3(texture(tex, vec2(sMinusOne, tPlusTwo))) * kernel[1];
+  col += vec3(texture(tex, vec2(TexCoords.s, tPlusTwo))) * kernel[2];
+  col += vec3(texture(tex, vec2(sPlusOne, tPlusTwo))) * kernel[3];
+  col += vec3(texture(tex, vec2(sPlusTwo, tPlusTwo))) * kernel[4];
 
   // second row
-  col += vec3(texture(screenTexture, vec2(sMinusTwo, tPlusOne))) * kernel[5];
-  col += vec3(texture(screenTexture, vec2(sMinusOne, tPlusOne))) * kernel[6];
-  col += vec3(texture(screenTexture, vec2(TexCoords.s, tPlusOne))) * kernel[7];
-  col += vec3(texture(screenTexture, vec2(sPlusOne, tPlusOne))) * kernel[8];
-  col += vec3(texture(screenTexture, vec2(sPlusTwo, tPlusOne))) * kernel[9];
+  col += vec3(texture(tex, vec2(sMinusTwo, tPlusOne))) * kernel[5];
+  col += vec3(texture(tex, vec2(sMinusOne, tPlusOne))) * kernel[6];
+  col += vec3(texture(tex, vec2(TexCoords.s, tPlusOne))) * kernel[7];
+  col += vec3(texture(tex, vec2(sPlusOne, tPlusOne))) * kernel[8];
+  col += vec3(texture(tex, vec2(sPlusTwo, tPlusOne))) * kernel[9];
 
   // middle row
-  col += vec3(texture(screenTexture, vec2(sMinusTwo, TexCoords.t))) * kernel[10];
-  col += vec3(texture(screenTexture, vec2(sMinusOne, TexCoords.t))) * kernel[11];
-  col += vec3(texture(screenTexture, vec2(TexCoords.s, TexCoords.t))) * kernel[12];
-  col += vec3(texture(screenTexture, vec2(sPlusOne, TexCoords.t))) * kernel[13];
-  col += vec3(texture(screenTexture, vec2(sPlusTwo, TexCoords.t))) * kernel[14];
+  col += vec3(texture(tex, vec2(sMinusTwo, TexCoords.t))) * kernel[10];
+  col += vec3(texture(tex, vec2(sMinusOne, TexCoords.t))) * kernel[11];
+  col += vec3(texture(tex, vec2(TexCoords.s, TexCoords.t))) * kernel[12];
+  col += vec3(texture(tex, vec2(sPlusOne, TexCoords.t))) * kernel[13];
+  col += vec3(texture(tex, vec2(sPlusTwo, TexCoords.t))) * kernel[14];
 
   // fourth row
-  col += vec3(texture(screenTexture, vec2(sMinusTwo, tMinusOne))) * kernel[15];
-  col += vec3(texture(screenTexture, vec2(sMinusOne, tMinusOne))) * kernel[16];
-  col += vec3(texture(screenTexture, vec2(TexCoords.s, tMinusOne))) * kernel[17];
-  col += vec3(texture(screenTexture, vec2(sPlusOne, tMinusOne))) * kernel[18];
-  col += vec3(texture(screenTexture, vec2(sPlusTwo, tMinusOne))) * kernel[19];
+  col += vec3(texture(tex, vec2(sMinusTwo, tMinusOne))) * kernel[15];
+  col += vec3(texture(tex, vec2(sMinusOne, tMinusOne))) * kernel[16];
+  col += vec3(texture(tex, vec2(TexCoords.s, tMinusOne))) * kernel[17];
+  col += vec3(texture(tex, vec2(sPlusOne, tMinusOne))) * kernel[18];
+  col += vec3(texture(tex, vec2(sPlusTwo, tMinusOne))) * kernel[19];
 
   // bottom row
-  col += vec3(texture(screenTexture, vec2(sMinusTwo, tMinusTwo))) * kernel[20];
-  col += vec3(texture(screenTexture, vec2(sMinusOne, tMinusTwo))) * kernel[21];
-  col += vec3(texture(screenTexture, vec2(TexCoords.s, tMinusTwo))) * kernel[22];
-  col += vec3(texture(screenTexture, vec2(sPlusOne, tMinusTwo))) * kernel[23];
-  col += vec3(texture(screenTexture, vec2(sPlusTwo, tMinusTwo))) * kernel[24];
+  col += vec3(texture(tex, vec2(sMinusTwo, tMinusTwo))) * kernel[20];
+  col += vec3(texture(tex, vec2(sMinusOne, tMinusTwo))) * kernel[21];
+  col += vec3(texture(tex, vec2(TexCoords.s, tMinusTwo))) * kernel[22];
+  col += vec3(texture(tex, vec2(sPlusOne, tMinusTwo))) * kernel[23];
+  col += vec3(texture(tex, vec2(sPlusTwo, tMinusTwo))) * kernel[24];
 
   FragColor = vec4(col, 1.0);
 }  

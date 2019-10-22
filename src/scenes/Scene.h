@@ -3,7 +3,7 @@
 #include <map>
 
 #include "../LearnOpenGLPlatform.h"
-#include "../Input.h"
+#include "../common/Input.h"
 #include "../Shader.h"
 
 struct Character

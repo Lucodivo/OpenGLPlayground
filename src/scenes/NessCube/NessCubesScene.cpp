@@ -87,7 +87,7 @@ void NessCubesScene::renderLoop(GLFWwindow* window, uint32& shapesVAO, uint32& l
   initializeFrameBuffer(frameBuffer, rbo, frameBufferTexture, viewportWidth, viewportHeight);
 
   // load models
-  Model nanoSuitModel((char*)nanoSuitModelAbsoluteLoc);
+  Model nanoSuitModel((char*)nanoSuitModelLoc);
 
   const glm::mat4 projectionMat = glm::perspective(glm::radians(camera.Zoom), (float32)viewportWidth / (float32)viewportHeight, 0.1f, 100.0f);
 
@@ -418,7 +418,7 @@ void NessCubesScene::renderLoop(GLFWwindow* window, uint32& shapesVAO, uint32& l
     glBindVertexArray(quadVAO);
     glActiveTexture(GL_TEXTURE2);
     glBindTexture(GL_TEXTURE_2D, frameBufferTexture);
-    frameBufferShader.setUniform("screenTexture", 2);
+    frameBufferShader.setUniform("tex", 2);
     frameBufferShader.setUniform("kernel", kernels5x5[selectedKernelIndex], ArrayCount(kernels5x5[selectedKernelIndex]));
     glDisable(GL_DEPTH_TEST);
     glDrawElements(GL_TRIANGLES, // drawing mode

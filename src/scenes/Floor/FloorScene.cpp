@@ -9,7 +9,7 @@ const uint32 SHADOW_MAP_HEIGHT = 2048;
 FloorScene::FloorScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth)
         : GodModeScene(window, initScreenHeight, initScreenWidth),
           directionalLightShader(lightSpaceVertexShaderFileLoc, directionalLightShadowMapFragmentShaderFileLoc, tbnGeometryShaderFileLoc),
-          singleColorShader(posVertexShaderFileLoc, singleColorFragmentShaderFileLoc),
+          quadTextureShader(billboardPosTexVertexShaderFileLoc, textureFragmentShaderFileLoc),
           depthMapShader(simpleDepthVertexShaderFileLoc, emptyFragmentShaderFileLoc) {}
 
 void FloorScene::runScene()
@@ -32,7 +32,7 @@ void FloorScene::runScene()
 }
 
 
-void FloorScene::renderLoop(uint32 floorVAO, uint32 cubeVAO)
+void FloorScene::renderLoop(uint32 quadVAO, uint32 cubeVAO)
 {
   uint32 floorAlbedoTextureId, floorNormalTextureId, floorHeightTextureId;
   load2DTexture(dungeonStoneAlbedoTextureLoc, floorAlbedoTextureId, false, true);
@@ -50,6 +50,8 @@ void FloorScene::renderLoop(uint32 floorVAO, uint32 cubeVAO)
   load2DTexture(whiteSpruceAlbedoTextureLoc, cube3AlbedoTextureId, false, true);
   load2DTexture(whiteSpruceNormalTextureLoc, cube3NormalTextureId);
   load2DTexture(whiteSpruceHeightTextureLoc, cube3HeightTextureId);
+  uint32 lightTextureId;
+  load2DTexture(moonTextureAlbedoLoc, lightTextureId);
 
   uint32 depthMapTextureId, depthMapFBO;
   generateDepthMap(depthMapTextureId, depthMapFBO);
@@ -78,10 +80,13 @@ void FloorScene::renderLoop(uint32 floorVAO, uint32 cubeVAO)
   glBindTexture(GL_TEXTURE_2D, cube2HeightTextureId);
   glActiveTexture(GL_TEXTURE11);
   glBindTexture(GL_TEXTURE_2D, cube3HeightTextureId);
+  glActiveTexture(GL_TEXTURE12);
+  glBindTexture(GL_TEXTURE_2D, lightTextureId);
+  const uint32 shadowMap2DSamplerIndex = 13;
 
   const glm::mat4 cameraProjMat = glm::perspective(glm::radians(camera.Zoom), (float32)viewportWidth / (float32)viewportHeight, 0.1f, 120.0f);
 
-  const float32 nearPlane = 1.0f, farPlane = 40.0f, projectionDimens = 12.0f;
+  const float32 nearPlane = 1.0f, farPlane = 70.0f, projectionDimens = 12.0f;
   // Note: orthographic projection is used for directional lighting, as all light rays are parallel
   const glm::mat4 lightProjMat = glm::ortho(-projectionDimens, projectionDimens, -projectionDimens, projectionDimens, nearPlane, farPlane);
 
@@ -91,8 +96,8 @@ void FloorScene::renderLoop(uint32 floorVAO, uint32 cubeVAO)
   // background clear color
   glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 
-  glm::vec3 lightColor(1.0f, 1.0f, 1.0f);
-  const float32 lightScale = 0.5f;
+  glm::vec3 lightColor(0.15f);
+  const float32 lightScale = 8.0f;
 
   const float32 floorScale = 16.0f;
   const glm::vec3 floorPosition(0.0f, -3.0f, 0.0f);
@@ -104,11 +109,11 @@ void FloorScene::renderLoop(uint32 floorVAO, uint32 cubeVAO)
 
   const float32 cubeScale3 = 1.7f;
 
-  const float32 lightRadius = 16.0f;
-  const float32 lightHeightOffset = 8.0f;
+  const float32 lightRadius = 48.0f;
 
-  // Turn on gamma correction for entire scene
-  //glEnable(GL_FRAMEBUFFER_SRGB);
+  quadTextureShader.use();
+  quadTextureShader.setUniform("projection", cameraProjMat);
+  quadTextureShader.setUniform("tex", 12);
 
   directionalLightShader.use();
 
@@ -117,7 +122,6 @@ void FloorScene::renderLoop(uint32 floorVAO, uint32 cubeVAO)
   directionalLightShader.setUniform("directionalLightColor.diffuse", lightColor * 0.5f);
   directionalLightShader.setUniform("directionalLightColor.specular", lightColor * 0.1f);
 
-  const uint32 shadowMap2DSamplerIndex = 12;
   directionalLightShader.setUniform("shadowMap", shadowMap2DSamplerIndex);
 
   uint32 globalVSUniformBuffer;
@@ -139,7 +143,7 @@ void FloorScene::renderLoop(uint32 floorVAO, uint32 cubeVAO)
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
     directionalLightShader.bindBlockIndex("globalBlockVS", globalVSBufferBindIndex);
-    singleColorShader.bindBlockIndex("globalBlockVS", globalVSBufferBindIndex);
+    quadTextureShader.bindBlockIndex("globalBlockVS", globalVSBufferBindIndex);
   }
 
   camera.Position += glm::vec3(0.0f, 10.0f, 20.0f);
@@ -154,18 +158,20 @@ void FloorScene::renderLoop(uint32 floorVAO, uint32 cubeVAO)
   glFrontFace(GL_CCW);
   glCullFace(GL_BACK);
 
+  // Turn on gamma correction for entire scene
+  //glEnable(GL_FRAMEBUFFER_SRGB);
+
   // NOTE: render/game loop
+  float32 startTime = (float32)glfwGetTime();
   while (glfwWindowShouldClose(window) == GL_FALSE)
   {
     // check for input
     processKeyboardInput(window, this);
     processXInput(this);
 
-    float32 t = (float32)glfwGetTime();
+    float32 t = (float32)glfwGetTime() - startTime;
     deltaTime = t - lastFrame;
     lastFrame = t;
-    float32 sint = sin(t);
-    float32 cost = cos(t);
 
     glm::mat4 viewMat = camera.GetViewMatrix(deltaTime);
 
@@ -175,7 +181,9 @@ void FloorScene::renderLoop(uint32 floorVAO, uint32 cubeVAO)
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
     // light data
-    glm::vec3 lightPosition = glm::vec3(sint * lightRadius, lightHeightOffset, cost * lightRadius);
+    glm::vec3 lightPosition = glm::vec3(cos(t/20) * lightRadius, 0, sin(t/20) * lightRadius);
+    glm::mat4 lightOrbitRotation = glm::rotate(glm::mat4(1.0f), glm::radians(-45.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+    lightPosition = glm::mat3(lightOrbitRotation) * lightPosition;
     glm::mat4 lightModel;
     lightModel = glm::translate(lightModel, lightPosition);
     lightModel = glm::scale(lightModel, glm::vec3(lightScale));
@@ -183,7 +191,7 @@ void FloorScene::renderLoop(uint32 floorVAO, uint32 cubeVAO)
     // cube data
     glm::mat4 cubeModelMat1 = glm::mat4();
     cubeModelMat1 = glm::translate(cubeModelMat1, cubePosition1);
-    cubeModelMat1 = glm::scale(cubeModelMat1, glm::vec3(cubeScale1 * ((sint + 1) / 2)));
+    cubeModelMat1 = glm::scale(cubeModelMat1, glm::vec3(cubeScale1 * ((sin(t) + 1) / 2)));
     glm::mat4 cubeModelMat2 = glm::mat4();
     const glm::vec3 cubePosition2 = glm::vec3(sin(t / 16.0f) * 8.0f, floorPosition.y + (cubeScale2 / 2) + 2.0f, cos(t / 16.0f) * 8.0f);
     cubeModelMat2 = glm::translate(cubeModelMat2, cubePosition2);
@@ -210,7 +218,7 @@ void FloorScene::renderLoop(uint32 floorVAO, uint32 cubeVAO)
 
     // depth map for floor
     depthMapShader.setUniform("model", floorModelMat);
-    glBindVertexArray(floorVAO);
+    glBindVertexArray(quadVAO);
     glDrawElements(GL_TRIANGLES, // drawing mode
                    6, // number of elements to draw (3 vertices per triangle * 2 triangles per quad)
                    GL_UNSIGNED_INT, // type of the indices
@@ -252,12 +260,12 @@ void FloorScene::renderLoop(uint32 floorVAO, uint32 cubeVAO)
     glBindTexture(GL_TEXTURE_2D, depthMapTextureId);
 
     // draw directional light representation
-    singleColorShader.use();
-    glBindVertexArray(cubeVAO);
-    singleColorShader.setUniform("model", lightModel);
-    singleColorShader.setUniform("color", lightColor);
+    quadTextureShader.use();
+    quadTextureShader.setUniform("view", viewMat);
+    quadTextureShader.setUniform("model", lightModel);
+    glBindVertexArray(quadVAO);
     glDrawElements(GL_TRIANGLES, // drawing mode
-                   cubePosTexNormNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
+                   6, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
                    GL_UNSIGNED_INT, // type of the indices
                    0); // offset in the EBO
 
@@ -272,7 +280,7 @@ void FloorScene::renderLoop(uint32 floorVAO, uint32 cubeVAO)
     directionalLightShader.setUniform("material.diffuse", 0);
     directionalLightShader.setUniform("material.normal", 4);
     directionalLightShader.setUniform("material.height", 8);
-    glBindVertexArray(floorVAO);
+    glBindVertexArray(quadVAO);
     glDrawElements(GL_TRIANGLES, // drawing mode
                    6, // number of elements to draw (3 vertices per triangle * 2 triangles per quad)
                    GL_UNSIGNED_INT, // type of the indices

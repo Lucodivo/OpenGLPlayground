@@ -13,7 +13,7 @@ layout (std140) uniform globalBlockVS {
 
 out vec3 Normal;
 out vec3 FragPos;
-out vec2 TextureCoord;
+out vec2 TexCoords;
 
 void main()
 {
@@ -21,5 +21,5 @@ void main()
   FragPos = vec3(model * vec4(aPosition, 1.0));
   mat3 normalMat = mat3(transpose(inverse(model)));
   Normal = normalMat * aNormal;
-  TextureCoord = aTextureCoord;
+  TexCoords = aTextureCoord;
 }

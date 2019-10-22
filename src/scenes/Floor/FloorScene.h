@@ -11,7 +11,7 @@ public:
 private:
 
   Shader directionalLightShader;
-  Shader singleColorShader;
+  Shader quadTextureShader;
   Shader depthMapShader;
 
   float32 deltaTime = 0.0f;  // Time between current frame and last frame
