@@ -1,4 +1,4 @@
-#include "FloorScene.h"
+#include "MoonScene.h"
 #include "../../common/FileLocations.h"
 #include "../../common/Util.h"
 #include "../../common/ObjectData.h"
@@ -6,13 +6,13 @@
 const uint32 SHADOW_MAP_WIDTH = 2048;
 const uint32 SHADOW_MAP_HEIGHT = 2048;
 
-FloorScene::FloorScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth)
+MoonScene::MoonScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth)
         : GodModeScene(window, initScreenHeight, initScreenWidth),
           directionalLightShader(lightSpaceVertexShaderFileLoc, directionalLightShadowMapFragmentShaderFileLoc, tbnGeometryShaderFileLoc),
           quadTextureShader(billboardPosTexVertexShaderFileLoc, textureFragmentShaderFileLoc),
           depthMapShader(simpleDepthVertexShaderFileLoc, emptyFragmentShaderFileLoc) {}
 
-void FloorScene::runScene()
+void MoonScene::runScene()
 {
   uint32 floorVAO, floorVBO, floorEBO;
   initializeQuadPosNormTexVertexAttBuffers(floorVAO, floorVBO, floorEBO);
@@ -32,7 +32,7 @@ void FloorScene::runScene()
 }
 
 
-void FloorScene::renderLoop(uint32 quadVAO, uint32 cubeVAO)
+void MoonScene::renderLoop(uint32 quadVAO, uint32 cubeVAO)
 {
   uint32 floorAlbedoTextureId, floorNormalTextureId, floorHeightTextureId;
   load2DTexture(dungeonStoneAlbedoTextureLoc, floorAlbedoTextureId, false, true);
@@ -102,14 +102,14 @@ void FloorScene::renderLoop(uint32 quadVAO, uint32 cubeVAO)
   const float32 floorScale = 16.0f;
   const glm::vec3 floorPosition(0.0f, -3.0f, 0.0f);
 
-  const float32 cubeScale1 = 4.0f;
-  const glm::vec3 cubePosition1 = glm::vec3(0.0f, floorPosition.y + (cubeScale1 / 2.0f), 0.0f);
-
   const float32 cubeScale2 = 3.0f;
 
   const float32 cubeScale3 = 1.7f;
 
   const float32 lightRadius = 48.0f;
+  const float32 lightHeightOffset = 20.0f;
+  const float32 lightHeightHalfVariance = 12.0f;
+  const float32 lightCameraDistance = 32.0f;
 
   quadTextureShader.use();
   quadTextureShader.setUniform("projection", cameraProjMat);
@@ -146,7 +146,8 @@ void FloorScene::renderLoop(uint32 quadVAO, uint32 cubeVAO)
     quadTextureShader.bindBlockIndex("globalBlockVS", globalVSBufferBindIndex);
   }
 
-  camera.Position += glm::vec3(0.0f, 10.0f, 20.0f);
+  glm::vec3 cameraPosition = glm::vec3(0.0f, 0.0f, 10.0f);
+  camera.Position = cameraPosition;
 
   // floor data
   glm::mat4 floorModelMat = glm::mat4();
@@ -181,17 +182,18 @@ void FloorScene::renderLoop(uint32 quadVAO, uint32 cubeVAO)
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
     // light data
-    glm::vec3 lightPosition = glm::vec3(cos(t/20) * lightRadius, 0, sin(t/20) * lightRadius);
-    glm::mat4 lightOrbitRotation = glm::rotate(glm::mat4(1.0f), glm::radians(-45.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-    lightPosition = glm::mat3(lightOrbitRotation) * lightPosition;
+    glm::vec3 lightPosition = glm::vec3(cos(t/20) * lightRadius, lightHeightOffset + sin(t / 10) * lightHeightHalfVariance, sin(t / 20) * lightRadius);
     glm::mat4 lightModel;
     lightModel = glm::translate(lightModel, lightPosition);
     lightModel = glm::scale(lightModel, glm::vec3(lightScale));
+    glm::vec3 lightCameraPosition = glm::normalize(lightPosition) * lightCameraDistance;
 
     // cube data
     glm::mat4 cubeModelMat1 = glm::mat4();
+    const float32 cubeScale1 = 4.0f * ((sin(t) + 1) / 2);
+    const glm::vec3 cubePosition1 = glm::vec3(0.0f, floorPosition.y + (cubeScale1 / 2.0f), 0.0f);
     cubeModelMat1 = glm::translate(cubeModelMat1, cubePosition1);
-    cubeModelMat1 = glm::scale(cubeModelMat1, glm::vec3(cubeScale1 * ((sin(t) + 1) / 2)));
+    cubeModelMat1 = glm::scale(cubeModelMat1, glm::vec3(cubeScale1));
     glm::mat4 cubeModelMat2 = glm::mat4();
     const glm::vec3 cubePosition2 = glm::vec3(sin(t / 16.0f) * 8.0f, floorPosition.y + (cubeScale2 / 2) + 2.0f, cos(t / 16.0f) * 8.0f);
     cubeModelMat2 = glm::translate(cubeModelMat2, cubePosition2);
@@ -204,7 +206,7 @@ void FloorScene::renderLoop(uint32 quadVAO, uint32 cubeVAO)
     cubeModelMat3 = glm::scale(cubeModelMat3, glm::vec3(cubeScale3));
 
     // render depth map from light's point of view
-    glm::mat4 lightView = glm::lookAt(lightPosition,
+    glm::mat4 lightView = glm::lookAt(lightCameraPosition,
                                       glm::vec3(0.0f, 0.0f, 0.0f),
                                       glm::vec3(0.0f, 1.0f, 0.0f));
     glm::mat4 lightSpaceMatrix = lightProjMat * lightView;
@@ -319,7 +321,7 @@ void FloorScene::renderLoop(uint32 quadVAO, uint32 cubeVAO)
   }
 }
 
-void FloorScene::generateDepthMap(uint32& depthMapTextureId, uint32& depthMapFBO)
+void MoonScene::generateDepthMap(uint32& depthMapTextureId, uint32& depthMapFBO)
 {
   glGenFramebuffers(1, &depthMapFBO);
 

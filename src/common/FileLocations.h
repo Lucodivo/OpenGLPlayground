@@ -28,13 +28,13 @@ const char* const textureFragmentShaderFileLoc = COMMON_BASE_FRAGMENT"TextureFra
 const char* const AsteroidVertexShaderFileLoc = ASTEROID_BELT_BASE"AsteroidVertexShader.glsl";
 const char* const textureModelFragmentShaderFileLoc = ASTEROID_BELT_BASE"TextureModelFragmentShader.glsl";
 
-// Floor Shaders
-#define FLOOR_BASE "src/scenes/Floor/"
-const char* const lightSpaceVertexShaderFileLoc = FLOOR_BASE"LightSpaceVertexShader.glsl";
-const char* const directionalLightShadowMapFragmentShaderFileLoc = FLOOR_BASE"DirectionalLightShadowMapFragmentShader.glsl";
-const char* const simpleDepthVertexShaderFileLoc = FLOOR_BASE"SimpleDepthVertexShader.glsl";
-const char* const tbnGeometryShaderFileLoc = FLOOR_BASE"TBNGeometryShader.glsl";
-const char* const billboardPosTexVertexShaderFileLoc = FLOOR_BASE"BillboardPosTexVertexShader.glsl";
+// Moon Shaders
+#define MOON_BASE "src/scenes/Moon/"
+const char* const lightSpaceVertexShaderFileLoc = MOON_BASE"LightSpaceVertexShader.glsl";
+const char* const directionalLightShadowMapFragmentShaderFileLoc = MOON_BASE"DirectionalLightShadowMapFragmentShader.glsl";
+const char* const simpleDepthVertexShaderFileLoc = MOON_BASE"SimpleDepthVertexShader.glsl";
+const char* const tbnGeometryShaderFileLoc = MOON_BASE"TBNGeometryShader.glsl";
+const char* const billboardPosTexVertexShaderFileLoc = MOON_BASE"BillboardPosTexVertexShader.glsl";
 
 // Infinite Cube Shaders
 #define INFINITE_CUBE_BASE "src/scenes/InfiniteCube/"
@@ -71,7 +71,6 @@ const char* const emissionTextureLoc = "src/data/emission_map.png";
 const char* const outlineTextureLoc = "src/data/cube_outline.png";
 const char* const outlineWhiteFillTextureLoc = "src/data/cube_outline_white_fill.png";
 const char* const hardwoodTextureLoc = "src/data/hardwood.jpg";
-const char* const cementTextureLoc = "src/data/cement.png";
 const char* const brickAlbedoTextureLoc = "src/data/PBR/brick_albedo.jpg";
 const char* const brickNormalTextureLoc = "src/data/PBR/brick_normal.jpg";
 const char* const brick2AlbedoTextureLoc = "src/data/PBR/bricks2_albedo.jpg";

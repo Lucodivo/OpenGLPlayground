@@ -22,11 +22,10 @@ enum Camera_Movement
 
 const float32 PITCH = 0.0f;
 const float32 YAW = -90.0f;
-const float32 SPEED = 2.5f;
-const float32 SENSITIVTY = 0.1f;
+const float32 CAMERA_SPEED = 2.5f;
+const float32 SENSITIVITY = 0.1f;
 const float32 ZOOM = 45.0f;
 const float32 JUMP_SPEED = 1;
-
 
 class Camera
 {
@@ -56,7 +55,7 @@ public:
 
   // Constructor with vectors
   Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 3.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float32 yaw = YAW, float32 pitch = PITCH)
-          : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVTY), Zoom(ZOOM)
+          : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(CAMERA_SPEED), MouseSensitivity(SENSITIVITY), Zoom(ZOOM)
   {
     Position = position;
     WorldUp = up;
@@ -67,7 +66,7 @@ public:
 
   // Constructor with scalar values
   Camera(float32 posX, float32 posY, float32 posZ, float32 upX, float32 upY, float32 upZ, float32 yaw, float32 pitch)
-          : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVTY), Zoom(ZOOM)
+          : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(CAMERA_SPEED), MouseSensitivity(SENSITIVITY), Zoom(ZOOM)
   {
     Position = glm::vec3(posX, posY, posZ);
     WorldUp = glm::vec3(upX, upY, upZ);
@@ -132,7 +131,7 @@ public:
     if (deltaPosition.x != 0.0f || deltaPosition.y != 0.0f || deltaPosition.z != 0.0f)
     {
       // normalizing the deltaPosition helps:
-      // - accomodate for slower movement when looking up or down
+      // - accommodate for slower movement when looking up or down
       //      due to the front.xz values creating a < 1 magnitude vector
       float32 velocity = MovementSpeed * deltaTime;
       Position += glm::normalize(deltaPosition) * velocity;
@@ -191,12 +190,12 @@ public:
     updateCameraVectors();
   }
 
-  float32 stickSensitivty = 0.00007f;
+  float32 stickSensitivity = 0.00007f;
 
   void ProcessRightAnalog(int16 stickX, int16 stickY, GLboolean constrainPitch = true)
   {
-    Yaw += (float32)stickX * stickSensitivty;;
-    Pitch += (float32)stickY * stickSensitivty;
+    Yaw += (float32)stickX * stickSensitivity;;
+    Pitch += (float32)stickY * stickSensitivity;
 
     // Make sure that when pitch is out of bounds, screen doesn't get flipped
     if (constrainPitch)

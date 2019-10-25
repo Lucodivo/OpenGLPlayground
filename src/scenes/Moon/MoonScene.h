@@ -2,10 +2,10 @@
 
 #include "../GodModeScene.h"
 
-class FloorScene : public GodModeScene
+class MoonScene : public GodModeScene
 {
 public:
-  FloorScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth);
+  MoonScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth);
   void runScene();
 
 private:

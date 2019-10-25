@@ -36,7 +36,7 @@ void RoomScene::renderLoop(uint32 cubeVAO, uint32 invertedNormCubeVAO)
 {
   uint32 wallpaperTextureId, cubeTextureId, depthCubeMapTextureId, depthMapFBO;
   load2DTexture(hardwoodTextureLoc, wallpaperTextureId, false, true);
-  load2DTexture(cementTextureLoc, cubeTextureId, false, true);
+  load2DTexture(cementAlbedoTextureLoc, cubeTextureId, false, true);
   generateDepthCubeMap(depthCubeMapTextureId, depthMapFBO);
 
   glActiveTexture(GL_TEXTURE0);

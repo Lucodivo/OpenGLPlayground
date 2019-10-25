@@ -24,6 +24,8 @@ public:
   virtual void key_Right() = 0;
   virtual void key_AltEnter_pressed() = 0;
   virtual void key_AltEnter_released() = 0;
+  virtual void key_Tab_pressed() = 0;
+  virtual void key_Tab_released() = 0;
 };
 
 class MouseMovementConsumer

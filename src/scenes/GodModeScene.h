@@ -8,7 +8,7 @@ class GodModeScene : public FirstPersonScene
 public:
   GodModeScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth);
 
-  // Scene implementation // TODO: can we remove these in the header file?
+  // Scene implementation required
   virtual void runScene() = 0;
 
   // ControllerConsumer implementation

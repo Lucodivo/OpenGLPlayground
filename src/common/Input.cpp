@@ -302,6 +302,20 @@ void processKeyboardInput(GLFWwindow* window, KeyboardConsumer* consumer)
   {
     consumer->key_Right();
   }
+
+  local_persist bool tabWasDown = false;
+  if (glfwGetKey(window, GLFW_KEY_TAB) == GLFW_PRESS)
+  {
+    if (!tabWasDown)
+    {
+      tabWasDown = true;
+      consumer->key_Tab_pressed();
+    }
+  } else if (tabWasDown)
+  {
+    tabWasDown = false;
+    consumer->key_Tab_released();
+  }
 }
 
 void subscribeMouseMovement(GLFWwindow* window, MouseMovementConsumer* consumer)
