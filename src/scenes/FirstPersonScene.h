@@ -3,7 +3,7 @@
 #include "Scene.h"
 #include "../Camera.h"
 
-class FirstPersonScene : public Scene, protected KeyboardConsumer, protected ControllerConsumer, MouseMovementConsumer, MouseScrollConsumer
+class FirstPersonScene : public Scene, public KeyboardConsumer, public ControllerConsumer, public MouseMovementConsumer, public MouseScrollConsumer
 {
 public:
   FirstPersonScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth);
@@ -42,8 +42,10 @@ public:
   void key_A();
   void key_D();
   void key_Space();
-  void key_LeftMouseButton_pressed() {}
-  void key_LeftMouseButton_released() {}
+  void key_LeftMouseButton_pressed(float32 xPos, float32 yPos) {}
+  void key_LeftMouseButton_released(float32 xPos, float32 yPos) {}
+  void key_RightMouseButton_pressed(float32 xPos, float32 yPos) {}
+  void key_RightMouseButton_released(float32 xPos, float32 yPos) {}
   void key_Up() {}
   void key_Down() {}
   void key_Left() {}

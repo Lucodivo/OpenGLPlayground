@@ -39,7 +39,7 @@ const float32 cubeScales[] = {
 NessCubesScene::NessCubesScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth)
         : FirstPersonScene(window, initScreenHeight, initScreenWidth),
           cubeShader(posNormTexVertexShaderFileLoc, cubeFragmentShaderFileLoc),
-          lightShader(posVertexShaderFileLoc, singleColorFragmentShaderFileLoc),
+          lightShader(posGlobalBlockVertexShaderFileLoc, singleColorFragmentShaderFileLoc),
           modelShader(posNormTexVertexShaderFileLoc, dirPosSpotLightModelFragmentShaderFileLoc),
           stencilShader(posNormTexVertexShaderFileLoc, singleColorFragmentShaderFileLoc),
           frameBufferShader(frameBufferVertexShaderFileLoc, kernel5x5TextureFragmentShaderFileLoc),
@@ -463,14 +463,14 @@ void NessCubesScene::key_Down()
   prevImageKernel();
 }
 
-void NessCubesScene::key_LeftMouseButton_pressed()
+void NessCubesScene::key_LeftMouseButton_pressed(float32 xPos, float32 yPos)
 {
   toggleFlashlight();
 }
 
 void NessCubesScene::button_X_pressed()
 {
-  key_LeftMouseButton_pressed();
+  toggleFlashlight();
 }
 
 void NessCubesScene::button_dPadUp_pressed()

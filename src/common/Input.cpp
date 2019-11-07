@@ -260,12 +260,26 @@ void processKeyboardInput(GLFWwindow* window, KeyboardConsumer* consumer)
     if (!leftMouseButtonWasDown)
     {
       leftMouseButtonWasDown = true;
-      consumer->key_LeftMouseButton_pressed();
+      consumer->key_LeftMouseButton_pressed(lastX, lastY);
     }
   } else if (leftMouseButtonWasDown)
   {
     leftMouseButtonWasDown = false;
-    consumer->key_LeftMouseButton_released();
+    consumer->key_LeftMouseButton_released(lastX, lastY);
+  }
+
+  local_persist bool rightMouseButtonWasDown = false;
+  if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
+  {
+    if (!rightMouseButtonWasDown)
+    {
+      rightMouseButtonWasDown = true;
+      consumer->key_RightMouseButton_pressed(lastX, lastY);
+    }
+  } else if (rightMouseButtonWasDown)
+  {
+    rightMouseButtonWasDown = false;
+    consumer->key_RightMouseButton_released(lastX, lastY);
   }
 
   local_persist bool altEnterWasDown = false;
@@ -321,31 +335,19 @@ void processKeyboardInput(GLFWwindow* window, KeyboardConsumer* consumer)
 void subscribeMouseMovement(GLFWwindow* window, MouseMovementConsumer* consumer)
 {
   movementConsumer = consumer;
-  local_persist bool hasSetCallback = false;
-  if (!hasSetCallback)
-  {
-    glfwSetCursorPosCallback(window, mouse_callback);
-  }
+  glfwSetCursorPosCallback(window, mouse_callback);
 }
 
 void subscribeMouseScroll(GLFWwindow* window, MouseScrollConsumer* consumer)
 {
   scrollConsumer = consumer;
-  local_persist bool hasSetCallback = false;
-  if (!hasSetCallback)
-  {
-    glfwSetScrollCallback(window, scroll_callback);
-  }
+  glfwSetScrollCallback(window, scroll_callback);
 }
 
 void subscribeFrameBufferSize(GLFWwindow* window, FrameBufferSizeConsumer* consumer)
 {
   frameBufferConsumer = consumer;
-  local_persist bool hasSetCallback = false;
-  if (!hasSetCallback)
-  {
-    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-  }
+  glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 }
 
 // Callback function for when user moves mouse

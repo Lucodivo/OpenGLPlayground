@@ -18,7 +18,7 @@ public:
   void frameBufferSize(uint32 width, uint32 height);
 
   // KeyboardConsumer overrides
-  void key_LeftMouseButton_pressed();
+  void key_LeftMouseButton_pressed(float32 xPos, float32 yPos);
   void key_Up();
   void key_Down();
 

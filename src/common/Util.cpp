@@ -89,3 +89,10 @@ void loadCubeMapTexture(const char* const imgLocations[6], uint32& textureId, bo
     stbi_image_free(data);
   }
 }
+
+void swap(float32* a, float32* b)
+{
+  float32 tmp = *a;
+  *a = *b;
+  *b = tmp;
+}

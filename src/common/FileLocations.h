@@ -5,6 +5,7 @@
 #define COMMON_BASE_VERTEX "src/common/shaders/vertex/"
 const char* const posNormalVertexShaderFileLoc = COMMON_BASE_VERTEX"PosNormalVertexShader.glsl";
 const char* const posNormTexVertexShaderFileLoc = COMMON_BASE_VERTEX"PosNormTexVertexShader.glsl";
+const char* const posGlobalBlockVertexShaderFileLoc = COMMON_BASE_VERTEX"PosGlobalBlockVertexShader.glsl";
 const char* const posVertexShaderFileLoc = COMMON_BASE_VERTEX"PosVertexShader.glsl";
 const char* const frameBufferVertexShaderFileLoc = COMMON_BASE_VERTEX"FrameBufferVertexShader.glsl";
 const char* const skyboxVertexShaderFileLoc = COMMON_BASE_VERTEX"SkyboxVertexShader.glsl";
@@ -106,6 +107,7 @@ const char* const asteroidModelLoc = "src/data/models/rock/rock.obj";
 const char* const planetModelLoc = "src/data/models/planet/planet.obj";
 const char* const bb8ModelLoc = "src/data/models/BB8.obj";
 const char* const theObjectModelLoc = "src/data/models/TheObject.obj";
+const char* const superMario64LogoModelLoc = "src/data/models/SM64Logo.obj";
 
 // Skybox Cube Map textures
 #define skybox(folder, extension) {  \

@@ -10,7 +10,7 @@ const uint32 SHADOW_MAP_HEIGHT = 2048;
 RoomScene::RoomScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth)
         : GodModeScene(window, initScreenHeight, initScreenWidth),
           positionalLightShader(posNormTexVertexShaderFileLoc, positionalLightShadowMapFragmentShaderFileLoc),
-          singleColorShader(posVertexShaderFileLoc, singleColorFragmentShaderFileLoc),
+          singleColorShader(posGlobalBlockVertexShaderFileLoc, singleColorFragmentShaderFileLoc),
           depthCubeMapShader(modelMatVertexShaderFileLoc, linearDepthMapFragmentShaderFileLoc, cubeMapGeometryShaderFileLoc) {}
 
 void RoomScene::runScene()

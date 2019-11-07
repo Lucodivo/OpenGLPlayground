@@ -16,8 +16,10 @@ public:
   virtual void key_A() = 0;
   virtual void key_D() = 0;
   virtual void key_Space() = 0;
-  virtual void key_LeftMouseButton_pressed() = 0;
-  virtual void key_LeftMouseButton_released() = 0;
+  virtual void key_LeftMouseButton_pressed(float32 xPos, float32 yPos) = 0;
+  virtual void key_LeftMouseButton_released(float32 xPos, float32 yPos) = 0;
+  virtual void key_RightMouseButton_pressed(float32 xPos, float32 yPos) = 0;
+  virtual void key_RightMouseButton_released(float32 xPos, float32 yPos) = 0;
   virtual void key_Up() = 0;
   virtual void key_Down() = 0;
   virtual void key_Left() = 0;
@@ -77,7 +79,6 @@ void processXInput(ControllerConsumer* consumer);
 void subscribeMouseMovement(GLFWwindow* window, MouseMovementConsumer* consumer);
 void subscribeMouseScroll(GLFWwindow* window, MouseScrollConsumer* consumer);
 void subscribeFrameBufferSize(GLFWwindow* window, FrameBufferSizeConsumer* consumer);
-
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xOffset, double yOffset);
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
