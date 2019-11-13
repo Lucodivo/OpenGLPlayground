@@ -65,6 +65,11 @@ const char* const modelMatVertexShaderFileLoc = ROOM_BASE"ModelMatVertexShader.g
 const char* const linearDepthMapFragmentShaderFileLoc = ROOM_BASE"LinearDepthMapFragmentShader.glsl";
 const char* const cubeMapGeometryShaderFileLoc = ROOM_BASE"CubeMapGeometryShader.glsl";
 
+// Ray Marching Shaders
+#define RAY_MARCHING_BASE "src/scenes/RayMarching/"
+const char* const rayMarchingFragmentShaderFileLoc = RAY_MARCHING_BASE"RayMarchingFragmentShader.glsl";
+const char* const rayMarchingVertexShaderFileLoc = RAY_MARCHING_BASE"RayMarchingVertexShader.glsl";
+
 // 2D textures
 const char* const diffuseTextureLoc = "src/data/diffuse_map_alpha_channel.png";
 const char* const specularTextureLoc = "src/data/specular_map.png";

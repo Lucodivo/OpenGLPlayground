@@ -37,7 +37,7 @@ void GUIScene::renderLoop(uint32 cubeVAO)
   cubes[0].worldPos = glm::vec3(3.0f, 0.0f, 0.0f);
   cubes[0].boundingBoxMin = startingBoundingBoxMin + cubes[0].worldPos;
   cubes[0].boundingBoxMax = startingBoundingBoxMax + cubes[0].worldPos;
-  cubes[1].wireframe = true;
+  cubes[1].wireframe = false;
   cubes[1].worldPos = glm::vec3(-3.0f, 0.0f, 0.0f);
   cubes[1].boundingBoxMin = startingBoundingBoxMin + cubes[1].worldPos;
   cubes[1].boundingBoxMax = startingBoundingBoxMax + cubes[1].worldPos;
@@ -46,6 +46,7 @@ void GUIScene::renderLoop(uint32 cubeVAO)
   cubes[2].boundingBoxMin = startingBoundingBoxMin + cubes[2].worldPos;
   cubes[2].boundingBoxMax = startingBoundingBoxMax + cubes[2].worldPos;
 
+  glm::mat4 cubeModelMats[3];
 
   // set constant uniforms
   cubeShader.use();
@@ -80,33 +81,39 @@ void GUIScene::renderLoop(uint32 cubeVAO)
 
     viewMat = camera.GetViewMatrix(deltaTime);
 
+    // draw cubes
     cubeShader.use();
     cubeShader.setUniform("view", viewMat);
-
-    for(uint8 i = 0; i < numCubes; i++) {
-      glm::mat4 modelMat = glm::translate(glm::mat4(), cubes[i].worldPos);
-      cubeShader.setUniform("model", modelMat);
+    cubeShader.setUniform("color", cubeColor);
+    for(uint8 i = 0; i < numCubes; i++)
+    {
+      cubeModelMats[i] = glm::translate(glm::mat4(), cubes[i].worldPos);
+      cubeShader.setUniform("model", cubeModelMats[i]);
 
       glBindVertexArray(cubeVAO);
       glDrawElements(GL_TRIANGLES, // drawing mode
                      36, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
                      GL_UNSIGNED_INT, // type of the indices
                      0); // offset in the EBO
+    }
 
+    // draw wireframes on top
+    cubeShader.setUniform("color", wireFrameColor);
+    glDisable(GL_DEPTH_TEST);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    for(uint32 i = 0; i < numCubes; i++)
+    {
       if(cubes[i].wireframe) {
-        glDisable(GL_DEPTH_TEST);
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-        cubeShader.setUniform("color", wireFrameColor);
+        cubeShader.setUniform("model", cubeModelMats[i]);
         glBindVertexArray(cubeVAO);
         glDrawElements(GL_TRIANGLES, // drawing mode
                        36, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
                        GL_UNSIGNED_INT, // type of the indices
                        0); // offset in the EBO
-        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-        cubeShader.setUniform("color", cubeColor);
-        glEnable(GL_DEPTH_TEST);
       }
     }
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    glEnable(GL_DEPTH_TEST);
 
     glfwSwapBuffers(window); // swaps double buffers
     glfwPollEvents(); // checks for events (ex: keyboard/mouse input)
@@ -173,38 +180,40 @@ void GUIScene::checkMouseClickCollision(float32 mouseX, float32 mouseY)
 
 bool GUIScene::checkCubeCollision(glm::vec3* worldRay, glm::vec3* rayOrigin, Cube* cube)
 {
-  float32 tmin = (cube->boundingBoxMin.x - rayOrigin->x) / worldRay->x;
-  float32 tmax = (cube->boundingBoxMax.x - rayOrigin->x) / worldRay->x;
+  // At what time, t, will the world ray intersect the cube's planes parallel to the x-axis
+  float32 txmin = (cube->boundingBoxMin.x - rayOrigin->x) / worldRay->x;
+  float32 txmax = (cube->boundingBoxMax.x - rayOrigin->x) / worldRay->x;
+  if (txmin > txmax) swap(&txmin, &txmax);
 
-  if (tmin > tmax) swap(&tmin, &tmax);
-
+  // At what time, t, will the world ray intersect the cube's planes parallel to the y-axis
   float32 tymin = (cube->boundingBoxMin.y - rayOrigin->y) / worldRay->y;
   float32 tymax = (cube->boundingBoxMax.y - rayOrigin->y) / worldRay->y;
-
   if (tymin > tymax) swap(&tymin, &tymax);
 
-  if ((tmin > tymax) || (tymin > tmax))
-    return false;
+  // If the ray intersects both x-axis/y-axis aligned planes before intersecting one y-axis/x-axis aligned planes
+  // the ray cannot be within the four planes simultaneously and the ray misses the cube
+  if ((txmin > tymax) || (tymin > txmax)) return false;
 
-  if (tymin > tmin)
-    tmin = tymin;
+  // What is the time interval the world ray could exist between the 2 x-axis aligned and 2 y-axis aligned planes
+  float32 txymin = (txmin > tymin) ? txmin : tymin;
+  float32 txymax = (txmax < tymax) ? txmax : tymax;
 
-  if (tymax < tmax)
-    tmax = tymax;
-
+  // At what time, t, will the world ray intersect the cube's planes parallel to the z-axis
   float32 tzmin = (cube->boundingBoxMin.z - rayOrigin->z) / worldRay->z;
   float32 tzmax = (cube->boundingBoxMax.z - rayOrigin->z) / worldRay->z;
-
   if (tzmin > tzmax) swap(&tzmin, &tzmax);
 
-  if ((tmin > tzmax) || (tzmin > tmax))
-    return false;
+  // If the ray passes through the interval in which it could exist between the y-axis and x-axis aligned planes
+  // before intersecting either z-axis aligned planes, the ray cannot be within the six planes simultaneously
+  // and the ray misses the cube
+  if ((txymin > tzmax) || (tzmin > txymax)) return false;
 
-  if (tzmin > tmin)
-    tmin = tzmin;
+  // What is the time interval the world ray intersects all six axis aligned planes?
+  float32 tmin = (txymin > tzmin) ? txymin : tzmin;
+  float32 tmax = (txymax < tzmax) ? txymax : tzmin;
 
-  if (tzmax < tmax)
-    tmax = tzmax;
+  // If the time of the collisions is negative, an intersection happened "behind" the origin and we don't consider the intersection
+  if(tmin < 0 && tmax < 0) return false;
 
   return true;
 }

@@ -59,7 +59,7 @@ void NessCubesScene::runScene()
   uint32 skyboxVAO, skyboxVBO, skyboxEBO;
   initializeCubePositionVertexAttBuffers(skyboxVAO, skyboxVBO, skyboxEBO);
 
-  renderLoop(window, cubeVAO, lightVAO, quadVAO, skyboxVAO);
+  renderLoop(cubeVAO, lightVAO, quadVAO, skyboxVAO);
 
   glDeleteVertexArrays(1, &cubeVAO);
   glDeleteBuffers(1, &cubeVBO);
@@ -78,7 +78,7 @@ void NessCubesScene::runScene()
   glDeleteBuffers(1, &skyboxEBO);
 }
 
-void NessCubesScene::renderLoop(GLFWwindow* window, uint32& shapesVAO, uint32& lightVAO, uint32& quadVAO, uint32& skyboxVAO)
+void NessCubesScene::renderLoop(uint32& shapesVAO, uint32& lightVAO, uint32& quadVAO, uint32& skyboxVAO)
 {
   uint32 diffTextureId;
   uint32 specTextureId;
