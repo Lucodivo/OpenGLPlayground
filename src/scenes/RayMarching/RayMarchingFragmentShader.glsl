@@ -2,8 +2,8 @@
 
 out vec4 FragColor;
 
-#define MAX_STEPS 100
-#define MISS_DIST 20.0
+#define MAX_STEPS 150
+#define MISS_DIST 100.0
 #define HIT_DIST 0.01
 
 const vec4 sphere = vec4(1.5, 1.5, 1.5, 0.5);
@@ -17,23 +17,36 @@ vec3 getNormal(vec3 surfacePos);
 uniform vec2 viewPortResolution;
 uniform vec3 rayOrigin;
 uniform float elapsedTime;
+uniform mat4 viewRotationMat;
+
+float sinElapsedTime;
+float cosElapsedTime;
 
 void main()
 {
+  sinElapsedTime = sin(elapsedTime/4);
+  cosElapsedTime = cos(elapsedTime/4);
+
   vec2 uv = (gl_FragCoord.xy-0.5*viewPortResolution.xy)/viewPortResolution.y;
 
-  vec3 rayDir = normalize(vec3(uv.x, uv.y, 1.0)); // NOTE: Expected to be normalized!
+  vec3 rayDir = vec3(uv.x, uv.y, 1.0); // NOTE: Expected to be normalized!
+  rayDir = vec3(vec4(rayDir, 0.0) * viewRotationMat);
+  rayDir = normalize(rayDir);
 
   float dist = distanceRayToScene(rayOrigin, rayDir);
+  if(dist > 0.0) { // hit
+    vec3 surfacePos = rayOrigin + (rayDir * dist);
+    float diffuse = getLight(surfacePos);
+    vec3 col = vec3(diffuse);
 
-  vec3 surfacePos = rayOrigin + (rayDir * dist);
-  float diffuse = getLight(surfacePos);
-  vec3 col = vec3(diffuse);
+    //dist = dist / 7.0;
+    //vec3 col = vec3(dist);
 
-  //dist = dist / 7.0;
-  //vec3 col = vec3(dist);
+    FragColor = vec4(col, 1.0);
+  } else { // miss
 
-  FragColor = vec4(col, 1.0);
+    FragColor = vec4((sinElapsedTime + 1.0) / 2.0, cos(elapsedTime/7), (cosElapsedTime + 1.0) / 2.0, 1.0);
+  }
 }
 
 vec3 getNormal(vec3 surfacePos) {
@@ -49,7 +62,7 @@ vec3 getNormal(vec3 surfacePos) {
 
 float getLight(vec3 surfacePos) {
   vec3 lightPos = vec3(0, 40.0, 0.0);
-  lightPos.xz += vec2(sin(elapsedTime), cos(elapsedTime)) * 60;
+  lightPos.xz += vec2(sinElapsedTime, cosElapsedTime) * 60;
   vec3 lightDir = normalize(lightPos - surfacePos);
   vec3 normal = getNormal(surfacePos);
 
@@ -72,10 +85,11 @@ float distanceRayToScene(vec3 rayOrigin, vec3 rayDir) {
     vec3 pos = rayOrigin + (dist * rayDir);
     float posToScene = distPosToScene(pos);
     dist += posToScene;
-    if(posToScene < HIT_DIST || posToScene > MISS_DIST) break;
+    if(posToScene < HIT_DIST) return dist;
+    if(posToScene > MISS_DIST) break;
   }
 
-  return dist;
+  return -1.0f;
 }
 
 float distPosToScene(vec3 pos) {

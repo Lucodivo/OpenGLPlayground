@@ -6,8 +6,9 @@
 #define LEARNOPENGL_RAYMARCHINGSCENE_H
 
 #include "../FirstPersonScene.h"
+#include "../GodModeScene.h"
 
-class RayMarchingScene final : public FirstPersonScene {
+class RayMarchingScene final : public GodModeScene {
 public:
   RayMarchingScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth);
 

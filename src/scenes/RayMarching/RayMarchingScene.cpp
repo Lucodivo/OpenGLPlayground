@@ -7,7 +7,7 @@
 #include "../../common/ObjectData.h"
 
 RayMarchingScene::RayMarchingScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth)
-        : FirstPersonScene(window, initScreenHeight, initScreenWidth),
+        : GodModeScene(window, initScreenHeight, initScreenWidth),
           rayMarchingShader(rayMarchingVertexShaderFileLoc, rayMarchingFragmentShaderFileLoc) {}
 
 void RayMarchingScene::runScene()
@@ -52,8 +52,10 @@ void RayMarchingScene::renderLoop(uint32 quadVAO)
     glClear(GL_COLOR_BUFFER_BIT);
 
     camera.changePositioning(deltaTime);
+    glm::mat4 cameraRotationMatrix = camera.lookAtRotationMat();
     rayMarchingShader.setUniform("rayOrigin", camera.Position);
     rayMarchingShader.setUniform("elapsedTime", t);
+    rayMarchingShader.setUniform("viewRotationMat", cameraRotationMatrix);
     glDrawElements(GL_TRIANGLES, // drawing mode
                    6, // number of elements to draw (3 vertices per triangle * 2 triangles per quad)
                    GL_UNSIGNED_INT, // type of the indices
