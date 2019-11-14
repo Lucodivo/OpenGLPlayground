@@ -37,6 +37,7 @@ void RayMarchingScene::renderLoop(uint32 quadVAO)
   camera.Position = glm::vec3(0.0f, 1.0f, 0.0f);
 
   lastFrame = (float32)glfwGetTime();
+  float32 startTime = lastFrame;
   // NOTE: render/game loop
   while (glfwWindowShouldClose(window) == GL_FALSE)
   {
@@ -44,7 +45,7 @@ void RayMarchingScene::renderLoop(uint32 quadVAO)
     processKeyboardInput(window, this);
     processXInput(this);
 
-    float32 t = (float32)glfwGetTime();
+    float32 t = (float32)glfwGetTime() - startTime;
     deltaTime = t - lastFrame;
     lastFrame = t;
 
@@ -52,6 +53,7 @@ void RayMarchingScene::renderLoop(uint32 quadVAO)
 
     camera.changePositioning(deltaTime);
     rayMarchingShader.setUniform("rayOrigin", camera.Position);
+    rayMarchingShader.setUniform("elapsedTime", t);
     glDrawElements(GL_TRIANGLES, // drawing mode
                    6, // number of elements to draw (3 vertices per triangle * 2 triangles per quad)
                    GL_UNSIGNED_INT, // type of the indices
