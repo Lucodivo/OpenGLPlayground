@@ -31,6 +31,8 @@ void RayMarchingScene::renderLoop(uint32 quadVAO)
 
   rayMarchingShader.use();
   rayMarchingShader.setUniform("viewPortResolution", glm::vec2(viewportWidth, viewportHeight));
+  rayMarchingShader.setUniform("lightColor", glm::vec3(0.5, 0.5, 0.5));
+  rayMarchingShader.setUniform("lightPos", glm::vec3(0.0f, 0.0f, 0.0f));
 
   glBindVertexArray(quadVAO);
 
@@ -38,6 +40,8 @@ void RayMarchingScene::renderLoop(uint32 quadVAO)
 
   lastFrame = (float32)glfwGetTime();
   float32 startTime = lastFrame;
+
+
   // NOTE: render/game loop
   while (glfwWindowShouldClose(window) == GL_FALSE)
   {
@@ -56,6 +60,13 @@ void RayMarchingScene::renderLoop(uint32 quadVAO)
     rayMarchingShader.setUniform("rayOrigin", camera.Position);
     rayMarchingShader.setUniform("elapsedTime", t);
     rayMarchingShader.setUniform("viewRotationMat", cameraRotationMatrix);
+    if(lightAlive) {
+      rayMarchingShader.setUniform("lightPos", lightPosition);
+      glm::vec3 lightDelta = lightDir * deltaTime * 25.0f;
+      lightPosition += lightDelta;
+      lightDistanceTraveled += glm::length(lightDelta);
+      if(lightDistanceTraveled > 100.0) lightAlive = false;
+    }
     glDrawElements(GL_TRIANGLES, // drawing mode
                    6, // number of elements to draw (3 vertices per triangle * 2 triangles per quad)
                    GL_UNSIGNED_INT, // type of the indices
@@ -72,4 +83,11 @@ void RayMarchingScene::frameBufferSize(uint32 width, uint32 height)
   initializeFrameBuffer(frameBuffer, rbo, frameBufferTexture, width, height);
   rayMarchingShader.use();
   rayMarchingShader.setUniform("viewPortResolution", glm::vec2(width, height));
+}
+
+void RayMarchingScene::key_LeftMouseButton_pressed(float32 xPos, float32 yPos) {
+  lightAlive = true;
+  lightDistanceTraveled = 0.0f;
+  lightDir = camera.Front;
+  lightPosition = camera.Position + lightDir;
 }

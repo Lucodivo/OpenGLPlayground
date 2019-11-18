@@ -6,11 +6,14 @@ out vec4 FragColor;
 #define MISS_DIST 100.0
 #define HIT_DIST 0.01
 
-const vec4 sphere = vec4(1.5, 1.5, 1.5, 0.5);
-const float floorDistance = 0.0;
-
 float distPosToScene(vec3 pos);
 float distanceRayToScene(vec3 rayOrigin, vec3 rayDir);
+float distToInfiniteSpheres(vec3 pos);
+float distToInfiniteCapsules(vec3 rayPos);
+float distToXZAlignedPlane(vec3 rayPos, float planeValue);
+float distToSphere(vec3 rayPos, vec3 spherePos, float radius);
+float distToCapsule(vec3 rayPos, vec3 posA, vec3 posB, float radius);
+float distToTorus(vec3 rayPos, vec3 torusPos, float radiusOuter, float radiusInner);
 float getLight(vec3 surfacePos);
 vec3 getNormal(vec3 surfacePos);
 
@@ -18,14 +21,16 @@ uniform vec2 viewPortResolution;
 uniform vec3 rayOrigin;
 uniform float elapsedTime;
 uniform mat4 viewRotationMat;
+uniform vec3 lightPos;
+uniform vec3 lightColor;
 
 float sinElapsedTime;
 float cosElapsedTime;
 
 void main()
 {
-  sinElapsedTime = sin(elapsedTime/4);
-  cosElapsedTime = cos(elapsedTime/4);
+  sinElapsedTime = sin(elapsedTime / 4.0);
+  cosElapsedTime = cos(elapsedTime / 4.0);
 
   vec2 uv = (gl_FragCoord.xy-0.5*viewPortResolution.xy)/viewPortResolution.y;
 
@@ -34,6 +39,9 @@ void main()
   rayDir = normalize(rayDir);
 
   float dist = distanceRayToScene(rayOrigin, rayDir);
+  //vec3 worldColor = vec3((sinElapsedTime + 1.0) / 2.0, cos(elapsedTime/7), (cosElapsedTime + 1.0) / 2.0);
+  //vec3 worldColor = vec3(1.0, 1.0, 0.4);
+
   if(dist > 0.0) { // hit
     vec3 surfacePos = rayOrigin + (rayDir * dist);
     float diffuse = getLight(surfacePos);
@@ -42,10 +50,10 @@ void main()
     //dist = dist / 7.0;
     //vec3 col = vec3(dist);
 
-    FragColor = vec4(col, 1.0);
+    FragColor = vec4(col * (lightColor * 0.75), 1.0);
   } else { // miss
-
-    FragColor = vec4((sinElapsedTime + 1.0) / 2.0, cos(elapsedTime/7), (cosElapsedTime + 1.0) / 2.0, 1.0);
+    vec3 missColor = vec3(0.2, 0.2, 0.2);
+    FragColor = vec4(missColor, 1.0);
   }
 }
 
@@ -61,8 +69,7 @@ vec3 getNormal(vec3 surfacePos) {
 }
 
 float getLight(vec3 surfacePos) {
-  vec3 lightPos = vec3(0, 40.0, 0.0);
-  lightPos.xz += vec2(sinElapsedTime, cosElapsedTime) * 60;
+
   vec3 lightDir = normalize(lightPos - surfacePos);
   vec3 normal = getNormal(surfacePos);
 
@@ -71,6 +78,8 @@ float getLight(vec3 surfacePos) {
   // calculate for shadows
   //float dist = distanceRayToScene(surfacePos + (normal * HIT_DIST * 2.0), lightDir);
   //if(dist < length(lightPos - surfacePos)) diff *= 0.1;
+
+  if(lightPos == vec3(0.0, 0.0, 0.0)) return diff * 0.1;
 
   return diff;
 }
@@ -92,9 +101,52 @@ float distanceRayToScene(vec3 rayOrigin, vec3 rayDir) {
   return -1.0f;
 }
 
-float distPosToScene(vec3 pos) {
-  //float distToSphere = distance(sphere.xyz, pos.xyz) - sphere.w;
-  //float distToPlane = pos.y;
-  //return min(distToSphere, distToPlane);
-  return distance(mod(pos.xyz, 3.0), sphere.xyz) - sphere.w;
+float distPosToScene(vec3 rayPos) {
+  return distToInfiniteCapsules(rayPos);
+}
+
+float distToTorus(vec3 rayPos, vec3 torusPos, float radiusOuter, float radiusInner) {
+  float distXZRayToCenter = length(length(rayPos.xz - torusPos.xz));
+  float a = distXZRayToCenter - radiusInner;
+  float b = rayPos.y - torusPos.y;
+  float c = length(vec2(a, b));
+  return c - radiusOuter;
+}
+
+const vec3 offset = vec3(3.0, 3.0, 3.0);
+float distToInfiniteCapsules(vec3 rayPos) {
+  vec3 posA = vec3(vec4(-1.5, 0.0, 0.0, 0.0) * viewRotationMat);
+  vec3 posB = vec3(vec4(1.5, 0.0, 0.0, 0.0) * viewRotationMat);
+  posA = posA + offset;
+  posB = posB + offset;
+  float infiniteCapsuleDistance = distToCapsule(mod(rayPos, 2 * offset), posA, posB, 1.0);
+  float lightSphereDistance = distance(rayPos.xyz, lightPos) - 0.5;
+  return min(infiniteCapsuleDistance, lightSphereDistance);
+}
+
+float distToCapsule(vec3 rayPos, vec3 posA, vec3 posB, float radius) {
+  vec3 aToB = posB - posA;
+  vec3 aToRayPos = rayPos - posA;
+  float abCosTheta = dot(aToB, aToRayPos);
+  float magnitudeAToB = length(aToB);
+  float projectionAToRayOnAToB = abCosTheta / magnitudeAToB;
+  vec3 closestPoint = posA + (clamp(projectionAToRayOnAToB / magnitudeAToB, 0.0, 1.0) * aToB);
+  return length(rayPos - closestPoint) - radius;
+}
+
+float distToSphere(vec3 rayPos, vec3 spherePos, float radius) {
+  return distance(spherePos, rayPos) - radius;
+}
+
+float distToXZAlignedPlane(vec3 rayPos, float planeValue) {
+  return rayPos.y - planeValue;
+}
+
+const vec3 infiniteSpherePosition = vec3(1.5, 1.5, 1.5);
+const float infiniteSphereRadius = 0.5;
+const float repeatWidth = 3.0;
+float distToInfiniteSpheres(vec3 rayPos) {
+  float infiniteSphereDistance = distance(mod(rayPos, repeatWidth), infiniteSpherePosition) - infiniteSphereRadius;
+  float lightSphereDistance = distance(rayPos.xyz, lightPos) - 0.5;
+  return min(infiniteSphereDistance, lightSphereDistance);
 }

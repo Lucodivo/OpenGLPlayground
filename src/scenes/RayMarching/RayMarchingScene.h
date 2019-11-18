@@ -15,7 +15,7 @@ public:
 
   // FrameBufferSizeConsumer override
   void frameBufferSize(uint32 width, uint32 height) override;
-
+  void key_LeftMouseButton_pressed(float32 xPos, float32 yPos) override;
   void runScene() override;
 
 private:
@@ -30,6 +30,11 @@ private:
   uint32 rbo = 0;
 
   void renderLoop(uint32 quadVAO);
+
+  glm::vec3 lightPosition;
+  bool lightAlive = false;
+  glm::vec3 lightDir;
+  float lightDistanceTraveled;
 };
 
 #endif //LEARNOPENGL_RAYMARCHINGSCENE_H
