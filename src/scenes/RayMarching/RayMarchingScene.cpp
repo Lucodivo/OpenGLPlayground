@@ -62,7 +62,7 @@ void RayMarchingScene::renderLoop(uint32 quadVAO)
     rayMarchingShader.setUniform("viewRotationMat", cameraRotationMatrix);
     if(lightAlive) {
       rayMarchingShader.setUniform("lightPos", lightPosition);
-      glm::vec3 lightDelta = lightDir * deltaTime * 25.0f;
+      glm::vec3 lightDelta = lightMoveDir * deltaTime * 25.0f;
       lightPosition += lightDelta;
       lightDistanceTraveled += glm::length(lightDelta);
       if(lightDistanceTraveled > 100.0) lightAlive = false;
@@ -88,6 +88,6 @@ void RayMarchingScene::frameBufferSize(uint32 width, uint32 height)
 void RayMarchingScene::key_LeftMouseButton_pressed(float32 xPos, float32 yPos) {
   lightAlive = true;
   lightDistanceTraveled = 0.0f;
-  lightDir = camera.Front;
-  lightPosition = camera.Position + lightDir;
+  lightMoveDir = camera.Front;
+  lightPosition = camera.Position + lightMoveDir;
 }

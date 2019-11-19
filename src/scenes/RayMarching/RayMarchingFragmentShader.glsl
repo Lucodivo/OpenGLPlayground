@@ -13,7 +13,9 @@ float distToInfiniteCapsules(vec3 rayPos);
 float distToXZAlignedPlane(vec3 rayPos, float planeValue);
 float distToSphere(vec3 rayPos, vec3 spherePos, float radius);
 float distToCapsule(vec3 rayPos, vec3 posA, vec3 posB, float radius);
+float distToCylinder(vec3 rayPos, vec3 posA, vec3 posB, float radius);
 float distToTorus(vec3 rayPos, vec3 torusPos, float radiusOuter, float radiusInner);
+float distToBox(vec3 rayPos, float width, float height, float depth);
 float getLight(vec3 surfacePos);
 vec3 getNormal(vec3 surfacePos);
 
@@ -102,7 +104,14 @@ float distanceRayToScene(vec3 rayOrigin, vec3 rayDir) {
 }
 
 float distPosToScene(vec3 rayPos) {
+  //return distToBox(rayPos, 3.0, 3.0, 3.0);
+  //return distToCylinder(rayPos, vec3(-1.5, 1.5, -6.0), vec3(1.5, 1.5, -6.0), 1.0);
   return distToInfiniteCapsules(rayPos);
+}
+
+float distToBox(vec3 rayPos, float width, float height, float depth) {
+  vec3 rayToCorner = abs(rayPos) - vec3(width, height, depth);
+  return length(max(rayToCorner, 0.0));
 }
 
 float distToTorus(vec3 rayPos, vec3 torusPos, float radiusOuter, float radiusInner) {
@@ -132,6 +141,21 @@ float distToCapsule(vec3 rayPos, vec3 posA, vec3 posB, float radius) {
   float projectionAToRayOnAToB = abCosTheta / magnitudeAToB;
   vec3 closestPoint = posA + (clamp(projectionAToRayOnAToB / magnitudeAToB, 0.0, 1.0) * aToB);
   return length(rayPos - closestPoint) - radius;
+}
+
+float distToCylinder(vec3 rayPos, vec3 posA, vec3 posB, float radius) {
+  vec3 aToB = posB - posA;
+  vec3 aToRayPos = rayPos - posA;
+  float abCosTheta = dot(aToB, aToRayPos);
+  float magnitudeAToB = length(aToB);
+  float projectionAToRayOnAToB = abCosTheta / magnitudeAToB; // projection of ray onto vector from A to B
+  projectionAToRayOnAToB = projectionAToRayOnAToB / magnitudeAToB; // projection scaled (A = 0, B = 1)
+  vec3 closestPointToInfiniteCylinder = posA + (projectionAToRayOnAToB * aToB);
+  float distanceToInfiniteCylinder = length(rayPos - closestPointToInfiniteCylinder) - radius;
+  float yDist = (abs(projectionAToRayOnAToB - 0.5) - 0.5) * magnitudeAToB;
+  float exteriorDistance = length(max(vec2(distanceToInfiniteCylinder, yDist), 0.0));
+  float interiorDistance = min(max(distanceToInfiniteCylinder, yDist), 0.0);
+  return exteriorDistance + interiorDistance;
 }
 
 float distToSphere(vec3 rayPos, vec3 spherePos, float radius) {

@@ -33,7 +33,7 @@ private:
 
   glm::vec3 lightPosition;
   bool lightAlive = false;
-  glm::vec3 lightDir;
+  glm::vec3 lightMoveDir;
   float lightDistanceTraveled;
 };
 
