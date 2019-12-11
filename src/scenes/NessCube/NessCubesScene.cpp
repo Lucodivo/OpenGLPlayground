@@ -39,7 +39,7 @@ const float32 cubeScales[] = {
 NessCubesScene::NessCubesScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth)
         : FirstPersonScene(window, initScreenHeight, initScreenWidth),
           cubeShader(posNormTexVertexShaderFileLoc, cubeFragmentShaderFileLoc),
-          lightShader(posVertexShaderFileLoc, singleColorFragmentShaderFileLoc),
+          lightShader(posGlobalBlockVertexShaderFileLoc, singleColorFragmentShaderFileLoc),
           modelShader(posNormTexVertexShaderFileLoc, dirPosSpotLightModelFragmentShaderFileLoc),
           stencilShader(posNormTexVertexShaderFileLoc, singleColorFragmentShaderFileLoc),
           frameBufferShader(frameBufferVertexShaderFileLoc, kernel5x5TextureFragmentShaderFileLoc),
@@ -59,7 +59,7 @@ void NessCubesScene::runScene()
   uint32 skyboxVAO, skyboxVBO, skyboxEBO;
   initializeCubePositionVertexAttBuffers(skyboxVAO, skyboxVBO, skyboxEBO);
 
-  renderLoop(window, cubeVAO, lightVAO, quadVAO, skyboxVAO);
+  renderLoop(cubeVAO, lightVAO, quadVAO, skyboxVAO);
 
   glDeleteVertexArrays(1, &cubeVAO);
   glDeleteBuffers(1, &cubeVBO);
@@ -78,7 +78,7 @@ void NessCubesScene::runScene()
   glDeleteBuffers(1, &skyboxEBO);
 }
 
-void NessCubesScene::renderLoop(GLFWwindow* window, uint32& shapesVAO, uint32& lightVAO, uint32& quadVAO, uint32& skyboxVAO)
+void NessCubesScene::renderLoop(uint32& shapesVAO, uint32& lightVAO, uint32& quadVAO, uint32& skyboxVAO)
 {
   uint32 diffTextureId;
   uint32 specTextureId;
@@ -463,14 +463,14 @@ void NessCubesScene::key_Down()
   prevImageKernel();
 }
 
-void NessCubesScene::key_LeftMouseButton_pressed()
+void NessCubesScene::key_LeftMouseButton_pressed(float32 xPos, float32 yPos)
 {
   toggleFlashlight();
 }
 
 void NessCubesScene::button_X_pressed()
 {
-  key_LeftMouseButton_pressed();
+  toggleFlashlight();
 }
 
 void NessCubesScene::button_dPadUp_pressed()

@@ -169,9 +169,19 @@ public:
     glUniform1fv(glGetUniformLocation(ID, name.c_str()), arraySize, floatArray);
   }
 
+  void setUniform(const std::string& name, const glm::vec2& vector2)
+  {
+    setUniform(name, vector2.x, vector2.y);
+  }
+
   void setUniform(const std::string& name, const glm::vec3& vector3)
   {
     setUniform(name, vector3.x, vector3.y, vector3.z);
+  }
+
+  void setUniform(const std::string& name, const glm::vec4& vector4)
+  {
+    setUniform(name, vector4.x, vector4.y, vector4.z, vector4.w);
   }
 
   void bindBlockIndex(const std::string& name, uint32 index)

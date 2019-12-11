@@ -8,9 +8,12 @@
 #include "scenes/InfiniteCube/InfiniteCubeScene.h"
 #include "scenes/ReflectRefract/ReflectRefractScene.h"
 #include "scenes/AsteroidBelt/AsteroidBeltScene.h"
-#include "scenes/Floor/FloorScene.h"
+#include "scenes/Moon/MoonScene.h"
 #include "scenes/Room/RoomScene.h"
 #include "common/Input.h"
+#include "scenes/GUIScene/GUIScene.h"
+#include "scenes/InfiniteCapsules/InfiniteCapsulesScene.h"
+#include "scenes/FragmentShaderPlayground/FragmentShaderPlaygroundScene.h"
 
 #include <iostream>
 
@@ -23,7 +26,7 @@ int main()
   initializeGLAD();
   loadXInput();
 
-  Scene* scene = new FloorScene(window, VIEWPORT_INIT_HEIGHT, VIEWPORT_INIT_WIDTH);
+  Scene* scene = new FragmentShaderPlaygroundScene(window, VIEWPORT_INIT_HEIGHT, VIEWPORT_INIT_WIDTH);
   scene->runScene();
 
   glfwTerminate(); // clean up gl resources

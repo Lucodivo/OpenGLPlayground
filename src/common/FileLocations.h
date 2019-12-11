@@ -5,6 +5,7 @@
 #define COMMON_BASE_VERTEX "src/common/shaders/vertex/"
 const char* const posNormalVertexShaderFileLoc = COMMON_BASE_VERTEX"PosNormalVertexShader.glsl";
 const char* const posNormTexVertexShaderFileLoc = COMMON_BASE_VERTEX"PosNormTexVertexShader.glsl";
+const char* const posGlobalBlockVertexShaderFileLoc = COMMON_BASE_VERTEX"PosGlobalBlockVertexShader.glsl";
 const char* const posVertexShaderFileLoc = COMMON_BASE_VERTEX"PosVertexShader.glsl";
 const char* const frameBufferVertexShaderFileLoc = COMMON_BASE_VERTEX"FrameBufferVertexShader.glsl";
 const char* const skyboxVertexShaderFileLoc = COMMON_BASE_VERTEX"SkyboxVertexShader.glsl";
@@ -12,6 +13,7 @@ const char* const textVertexShaderFileLoc = COMMON_BASE_VERTEX"TextVertexShader.
 const char* const posTexModelVertexShaderFileLoc = COMMON_BASE_VERTEX"PosTexModelVertexShader.glsl";
 const char* const posNormModelVertexShaderFileLoc = COMMON_BASE_VERTEX"PosNormModelVertexShader.glsl";
 const char* const posTexVertexShaderFileLoc = COMMON_BASE_VERTEX"PosTexVertexShader.glsl";
+const char* const UVCoordVertexShaderFileLoc = COMMON_BASE_VERTEX"UVCoordVertexShader.glsl";
 
 #define COMMON_BASE_FRAGMENT "src/common/shaders/fragment/"
 const char* const singleColorFragmentShaderFileLoc = COMMON_BASE_FRAGMENT"SingleColorFragmentShader.glsl";
@@ -28,13 +30,13 @@ const char* const textureFragmentShaderFileLoc = COMMON_BASE_FRAGMENT"TextureFra
 const char* const AsteroidVertexShaderFileLoc = ASTEROID_BELT_BASE"AsteroidVertexShader.glsl";
 const char* const textureModelFragmentShaderFileLoc = ASTEROID_BELT_BASE"TextureModelFragmentShader.glsl";
 
-// Floor Shaders
-#define FLOOR_BASE "src/scenes/Floor/"
-const char* const lightSpaceVertexShaderFileLoc = FLOOR_BASE"LightSpaceVertexShader.glsl";
-const char* const directionalLightShadowMapFragmentShaderFileLoc = FLOOR_BASE"DirectionalLightShadowMapFragmentShader.glsl";
-const char* const simpleDepthVertexShaderFileLoc = FLOOR_BASE"SimpleDepthVertexShader.glsl";
-const char* const tbnGeometryShaderFileLoc = FLOOR_BASE"TBNGeometryShader.glsl";
-const char* const billboardPosTexVertexShaderFileLoc = FLOOR_BASE"BillboardPosTexVertexShader.glsl";
+// Moon Shaders
+#define MOON_BASE "src/scenes/Moon/"
+const char* const lightSpaceVertexShaderFileLoc = MOON_BASE"LightSpaceVertexShader.glsl";
+const char* const directionalLightShadowMapFragmentShaderFileLoc = MOON_BASE"DirectionalLightShadowMapFragmentShader.glsl";
+const char* const simpleDepthVertexShaderFileLoc = MOON_BASE"SimpleDepthVertexShader.glsl";
+const char* const tbnGeometryShaderFileLoc = MOON_BASE"TBNGeometryShader.glsl";
+const char* const billboardPosTexVertexShaderFileLoc = MOON_BASE"BillboardPosTexVertexShader.glsl";
 
 // Infinite Cube Shaders
 #define INFINITE_CUBE_BASE "src/scenes/InfiniteCube/"
@@ -64,6 +66,15 @@ const char* const modelMatVertexShaderFileLoc = ROOM_BASE"ModelMatVertexShader.g
 const char* const linearDepthMapFragmentShaderFileLoc = ROOM_BASE"LinearDepthMapFragmentShader.glsl";
 const char* const cubeMapGeometryShaderFileLoc = ROOM_BASE"CubeMapGeometryShader.glsl";
 
+// Infinite Capsules Shaders
+#define RAY_MARCHING_BASE "src/scenes/InfiniteCapsules/"
+const char* const InfiniteCapsulesFragmentShaderFileLoc = RAY_MARCHING_BASE"InfiniteCapsulesFragmentShader.glsl";
+
+// Fragment Shader Playground Shaders
+#define FRAGMENT_SHADER_PLAYGROUND_BASE "src/scenes/FragmentShaderPlayground/"
+const char* const HexagonPlaygroundShaderFileLoc = FRAGMENT_SHADER_PLAYGROUND_BASE"HexagonPlaygroundFragmentShader.glsl";
+const char* const MandelbrotFragmentShaderFileLoc = FRAGMENT_SHADER_PLAYGROUND_BASE"MandelbrotFragmentShader.glsl";
+
 // 2D textures
 const char* const diffuseTextureLoc = "src/data/diffuse_map_alpha_channel.png";
 const char* const specularTextureLoc = "src/data/specular_map.png";
@@ -71,7 +82,6 @@ const char* const emissionTextureLoc = "src/data/emission_map.png";
 const char* const outlineTextureLoc = "src/data/cube_outline.png";
 const char* const outlineWhiteFillTextureLoc = "src/data/cube_outline_white_fill.png";
 const char* const hardwoodTextureLoc = "src/data/hardwood.jpg";
-const char* const cementTextureLoc = "src/data/cement.png";
 const char* const brickAlbedoTextureLoc = "src/data/PBR/brick_albedo.jpg";
 const char* const brickNormalTextureLoc = "src/data/PBR/brick_normal.jpg";
 const char* const brick2AlbedoTextureLoc = "src/data/PBR/bricks2_albedo.jpg";
@@ -107,6 +117,7 @@ const char* const asteroidModelLoc = "src/data/models/rock/rock.obj";
 const char* const planetModelLoc = "src/data/models/planet/planet.obj";
 const char* const bb8ModelLoc = "src/data/models/BB8.obj";
 const char* const theObjectModelLoc = "src/data/models/TheObject.obj";
+const char* const superMario64LogoModelLoc = "src/data/models/SM64Logo.obj";
 
 // Skybox Cube Map textures
 #define skybox(folder, extension) {  \

@@ -18,27 +18,19 @@ void FirstPersonScene::rightAnalog(int16 stickX, int16 stickY)
   camera.ProcessRightAnalog(stickX, stickY);
 }
 
-void FirstPersonScene::button_A_pressed() { camera.ProcessInput(JUMP); }
-
-void FirstPersonScene::button_A_released() {}
+void FirstPersonScene::button_A_pressed() {
+  camera.ProcessInput(JUMP);
+}
 
 void FirstPersonScene::button_B_pressed()
 {
-  camera.MovementSpeed = SPEED * 2;
+  camera.MovementSpeed = CAMERA_SPEED * 2;
 }
 
 void FirstPersonScene::button_B_released()
 {
-  camera.MovementSpeed = SPEED;
+  camera.MovementSpeed = CAMERA_SPEED;
 }
-
-void FirstPersonScene::button_X_pressed() {}
-
-void FirstPersonScene::button_X_released() {}
-
-void FirstPersonScene::button_Y_pressed() {}
-
-void FirstPersonScene::button_Y_released() {}
 
 void FirstPersonScene::button_dPadUp_pressed()
 {
@@ -60,10 +52,6 @@ void FirstPersonScene::button_dPadRight_pressed()
   camera.ProcessInput(RIGHT);
 }
 
-void FirstPersonScene::button_leftShoulder_pressed() {}
-
-void FirstPersonScene::button_rightShoulder_pressed() {}
-
 void FirstPersonScene::button_start_pressed()
 {
   closeWindow();
@@ -74,18 +62,15 @@ void FirstPersonScene::button_select_pressed()
   adjustWindowSize();
 }
 
-void FirstPersonScene::button_select_released() {}
-// +++ CONTROLLER CONSUMER IMPLEMETNATION - START +++
-
 // +++ KEYBOARD CONSUMER IMPLEMENTATION - START +++
 void FirstPersonScene::key_LeftShift_pressed()
 {
-  camera.MovementSpeed = SPEED * 2;
+  camera.MovementSpeed = CAMERA_SPEED * 2;
 }
 
 void FirstPersonScene::key_LeftShift_released()
 {
-  camera.MovementSpeed = SPEED;
+  camera.MovementSpeed = CAMERA_SPEED;
 }
 
 void FirstPersonScene::key_W()
@@ -113,44 +98,9 @@ void FirstPersonScene::key_Space()
   camera.ProcessInput(JUMP);
 }
 
-void FirstPersonScene::key_LeftMouseButton_pressed()
-{
-  // Do nothing
-}
-
-void FirstPersonScene::key_LeftMouseButton_released()
-{
-  // Do nothing
-}
-
-void FirstPersonScene::key_Up()
-{
-  // Do nothing
-}
-
-void FirstPersonScene::key_Down()
-{
-  // Do nothing
-}
-
-void FirstPersonScene::key_Left()
-{
-  // Do nothing
-}
-
-void FirstPersonScene::key_Right()
-{
-  // Do nothing
-}
-
 void FirstPersonScene::key_AltEnter_pressed()
 {
   adjustWindowSize();
-}
-
-void FirstPersonScene::key_AltEnter_released()
-{
-  // Do nothing
 }
 // +++ INPUT CONSUMER IMPLEMENTATION - END +++
 

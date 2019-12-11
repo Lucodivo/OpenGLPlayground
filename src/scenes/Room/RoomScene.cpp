@@ -10,7 +10,7 @@ const uint32 SHADOW_MAP_HEIGHT = 2048;
 RoomScene::RoomScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth)
         : GodModeScene(window, initScreenHeight, initScreenWidth),
           positionalLightShader(posNormTexVertexShaderFileLoc, positionalLightShadowMapFragmentShaderFileLoc),
-          singleColorShader(posVertexShaderFileLoc, singleColorFragmentShaderFileLoc),
+          singleColorShader(posGlobalBlockVertexShaderFileLoc, singleColorFragmentShaderFileLoc),
           depthCubeMapShader(modelMatVertexShaderFileLoc, linearDepthMapFragmentShaderFileLoc, cubeMapGeometryShaderFileLoc) {}
 
 void RoomScene::runScene()
@@ -36,7 +36,7 @@ void RoomScene::renderLoop(uint32 cubeVAO, uint32 invertedNormCubeVAO)
 {
   uint32 wallpaperTextureId, cubeTextureId, depthCubeMapTextureId, depthMapFBO;
   load2DTexture(hardwoodTextureLoc, wallpaperTextureId, false, true);
-  load2DTexture(cementTextureLoc, cubeTextureId, false, true);
+  load2DTexture(cementAlbedoTextureLoc, cubeTextureId, false, true);
   generateDepthCubeMap(depthCubeMapTextureId, depthMapFBO);
 
   glActiveTexture(GL_TEXTURE0);

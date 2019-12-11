@@ -12,20 +12,20 @@ class NessCubesScene final : public FirstPersonScene
 {
 public:
   NessCubesScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth);
-  void runScene();
+  void runScene() override;
 
   // FrameBufferSizeConsumer override
-  void frameBufferSize(uint32 width, uint32 height);
+  void frameBufferSize(uint32 width, uint32 height) override;
 
   // KeyboardConsumer overrides
-  void key_LeftMouseButton_pressed();
-  void key_Up();
-  void key_Down();
+  void key_LeftMouseButton_pressed(float32 xPos, float32 yPos) override;
+  void key_Up() override;
+  void key_Down() override;
 
   // ControllerConsumer overrides
-  void button_X_pressed();
-  void button_dPadUp_pressed();
-  void button_dPadDown_pressed();
+  void button_X_pressed() override;
+  void button_dPadUp_pressed() override;
+  void button_dPadDown_pressed() override;
 
 private:
   Shader cubeShader;
@@ -50,7 +50,7 @@ private:
   double kernelModeSwitchTimer = 0.0f;
   uint32 kernelCount = ArrayCount(kernels5x5);
 
-  void renderLoop(GLFWwindow* window, uint32& cubeVAO, uint32& lightVAO, uint32& quadVAO, uint32& skyboxVAO);
+  void renderLoop(uint32& shapesVAO, uint32& lightVAO, uint32& quadVAO, uint32& skyboxVAO);
   void initializeTextures(uint32& diffTextureId, uint32& specTextureId, uint32& skyboxTextureId);
   void toggleFlashlight();
   void nextImageKernel();

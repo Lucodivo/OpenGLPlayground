@@ -119,6 +119,9 @@ void Scene::initDebugTextBuffers()
   glBindVertexArray(0);
 }
 
+// TODO: The following special blending function must be enabled for renderText to work. Make more flexible.
+//      glEnable(GL_BLEND);
+//      glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 void Scene::renderText(std::string text, GLfloat x, GLfloat y, GLfloat scale, glm::vec3 color)
 {
   textDebugShader.use();

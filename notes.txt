@@ -223,7 +223,22 @@ Point Light: A light source with a given position somewhere in a world that illu
 Depth testing must be enabled using glEnable(GL_DEPTH_TEST) 
 Z-Fighting: A common visual artifact when two triangles are so closely aligned to each other that the depth buffer does not have enough precision to determining which one is in front of the other.
 
-
+==== Physically Based Rendering ====
+- For a PBR lighting model to be considered physically based, it has to satisfy the following:
+    - Be based on the microfacet surface model
+    - Be energy conserving
+    - Use a physically based BRDF
+- Microfacet model: A theory that describes that any surface at a microscopic scale can be described by tiny little perfectly reflective mirrors called microfacets
+    - The way in which these little mirrors are aligned determines if a surface is rough (chaotically aligned) or smooth (similarly aligned)
+    - Incoming light rays are more likely to scatter along completely different directions on rough surfaces, resulting in a more widespread specular reflection.
+    - On a smooth surface, the light rays are more likely to reflect in roughly the same direction, giving smaller and sharper reflections.
+- When light hits a surface, it gets split into both a refraction part and a reflection part.
+    - Reflection is light that directly gets reflected and doesn't enter the surface; specular lighting
+    - Refraction is the remaining light that enters the surface and gets absorbed; diffuse lighting
+        - Light rays re-emerging out of the surface contribute to the surface's observed color
+- Usually rendering techniques simplify scattered light by assuming a small area of impact, eliminating the possibility of light exiting from a distant point of entry
+    - Subsurface scattering techniques aim to improve visual quality by not simplifying the real physics of
+- Dialectric: non-metallic surface
 
 
 ==== Experimentation notes ====
