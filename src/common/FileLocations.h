@@ -13,6 +13,7 @@ const char* const textVertexShaderFileLoc = COMMON_BASE_VERTEX"TextVertexShader.
 const char* const posTexModelVertexShaderFileLoc = COMMON_BASE_VERTEX"PosTexModelVertexShader.glsl";
 const char* const posNormModelVertexShaderFileLoc = COMMON_BASE_VERTEX"PosNormModelVertexShader.glsl";
 const char* const posTexVertexShaderFileLoc = COMMON_BASE_VERTEX"PosTexVertexShader.glsl";
+const char* const UVCoordVertexShaderFileLoc = COMMON_BASE_VERTEX"UVCoordVertexShader.glsl";
 
 #define COMMON_BASE_FRAGMENT "src/common/shaders/fragment/"
 const char* const singleColorFragmentShaderFileLoc = COMMON_BASE_FRAGMENT"SingleColorFragmentShader.glsl";
@@ -65,10 +66,14 @@ const char* const modelMatVertexShaderFileLoc = ROOM_BASE"ModelMatVertexShader.g
 const char* const linearDepthMapFragmentShaderFileLoc = ROOM_BASE"LinearDepthMapFragmentShader.glsl";
 const char* const cubeMapGeometryShaderFileLoc = ROOM_BASE"CubeMapGeometryShader.glsl";
 
-// Ray Marching Shaders
-#define RAY_MARCHING_BASE "src/scenes/RayMarching/"
-const char* const rayMarchingFragmentShaderFileLoc = RAY_MARCHING_BASE"RayMarchingFragmentShader.glsl";
-const char* const rayMarchingVertexShaderFileLoc = RAY_MARCHING_BASE"RayMarchingVertexShader.glsl";
+// Infinite Capsules Shaders
+#define RAY_MARCHING_BASE "src/scenes/InfiniteCapsules/"
+const char* const InfiniteCapsulesFragmentShaderFileLoc = RAY_MARCHING_BASE"InfiniteCapsulesFragmentShader.glsl";
+
+// Fragment Shader Playground Shaders
+#define FRAGMENT_SHADER_PLAYGROUND_BASE "src/scenes/FragmentShaderPlayground/"
+const char* const HexagonPlaygroundShaderFileLoc = FRAGMENT_SHADER_PLAYGROUND_BASE"HexagonPlaygroundFragmentShader.glsl";
+const char* const MandelbrotFragmentShaderFileLoc = FRAGMENT_SHADER_PLAYGROUND_BASE"MandelbrotFragmentShader.glsl";
 
 // 2D textures
 const char* const diffuseTextureLoc = "src/data/diffuse_map_alpha_channel.png";

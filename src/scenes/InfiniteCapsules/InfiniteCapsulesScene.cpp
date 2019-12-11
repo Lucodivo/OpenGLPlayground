@@ -2,15 +2,15 @@
 // Created by Connor on 11/12/2019.
 //
 
-#include "RayMarchingScene.h"
+#include "InfiniteCapsulesScene.h"
 #include "../../common/FileLocations.h"
 #include "../../common/ObjectData.h"
 
-RayMarchingScene::RayMarchingScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth)
+InfiniteCapsulesScene::InfiniteCapsulesScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth)
         : GodModeScene(window, initScreenHeight, initScreenWidth),
-          rayMarchingShader(rayMarchingVertexShaderFileLoc, rayMarchingFragmentShaderFileLoc) {}
+          rayMarchingShader(UVCoordVertexShaderFileLoc, InfiniteCapsulesFragmentShaderFileLoc) {}
 
-void RayMarchingScene::runScene()
+void InfiniteCapsulesScene::runScene()
 {
   uint32 quadVAO, quadVBO, quadEBO;
   initializeFrameBufferQuadVertexAttBuffers(quadVAO, quadVBO, quadEBO);
@@ -22,7 +22,7 @@ void RayMarchingScene::runScene()
   glDeleteBuffers(1, &quadEBO);
 }
 
-void RayMarchingScene::renderLoop(uint32 quadVAO)
+void InfiniteCapsulesScene::renderLoop(uint32 quadVAO)
 {
   initializeFrameBuffer(frameBuffer, rbo, frameBufferTexture, viewportWidth, viewportHeight);
 
@@ -77,7 +77,7 @@ void RayMarchingScene::renderLoop(uint32 quadVAO)
   }
 }
 
-void RayMarchingScene::frameBufferSize(uint32 width, uint32 height)
+void InfiniteCapsulesScene::frameBufferSize(uint32 width, uint32 height)
 {
   FirstPersonScene::frameBufferSize(width, height);
   initializeFrameBuffer(frameBuffer, rbo, frameBufferTexture, width, height);
@@ -85,7 +85,7 @@ void RayMarchingScene::frameBufferSize(uint32 width, uint32 height)
   rayMarchingShader.setUniform("viewPortResolution", glm::vec2(width, height));
 }
 
-void RayMarchingScene::key_LeftMouseButton_pressed(float32 xPos, float32 yPos) {
+void InfiniteCapsulesScene::key_LeftMouseButton_pressed(float32 xPos, float32 yPos) {
   lightAlive = true;
   lightDistanceTraveled = 0.0f;
   lightMoveDir = camera.Front;

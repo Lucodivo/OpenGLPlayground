@@ -2,15 +2,15 @@
 // Created by Connor on 11/12/2019.
 //
 
-#ifndef LEARNOPENGL_RAYMARCHINGSCENE_H
-#define LEARNOPENGL_RAYMARCHINGSCENE_H
+#ifndef LEARNOPENGL_INFINITECAPSULESSCENE_H
+#define LEARNOPENGL_INFINITECAPSULESSCENE_H
 
 #include "../FirstPersonScene.h"
 #include "../GodModeScene.h"
 
-class RayMarchingScene final : public GodModeScene {
+class InfiniteCapsulesScene final : public GodModeScene {
 public:
-  RayMarchingScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth);
+  InfiniteCapsulesScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth);
 
 
   // FrameBufferSizeConsumer override
@@ -37,4 +37,4 @@ private:
   float lightDistanceTraveled;
 };
 
-#endif //LEARNOPENGL_RAYMARCHINGSCENE_H
+#endif //LEARNOPENGL_INFINITECAPSULESSCENE_H
