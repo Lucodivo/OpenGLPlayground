@@ -61,6 +61,7 @@ void FragmentShaderPlaygroundScene::renderLoop(uint32 quadVAO)
     playgroundShader.setUniform("elapsedTime", t);
     playgroundShader.setUniform("zoom", zoom);
     playgroundShader.setUniform("centerOffset", centerOffset);
+    playgroundShader.setUniform("colorFavor", colorFavors[currentColorFavorIndex]);
     glDrawElements(GL_TRIANGLES, // drawing mode
                    6, // number of elements to draw (3 vertices per triangle * 2 triangles per quad)
                    GL_UNSIGNED_INT, // type of the indices
@@ -73,15 +74,23 @@ void FragmentShaderPlaygroundScene::renderLoop(uint32 quadVAO)
 
 void FragmentShaderPlaygroundScene::frameBufferSize(uint32 width, uint32 height)
 {
+  float32 oldWidth = (float32)viewportWidth;
+  float32 oldHeight = (float32)viewportHeight;
+
   FirstPersonScene::frameBufferSize(width, height);
   initializeFrameBuffer(frameBuffer, rbo, frameBufferTexture, width, height);
   playgroundShader.use();
   playgroundShader.setUniform("viewPortResolution", glm::vec2(width, height));
+
+  // The center needs to be adjusted when the viewport size changes in order to maintain the same position
+  float32 widthRatio = viewportWidth / oldWidth;
+  float32 heightRatio = viewportHeight / oldHeight;
+  centerOffset *= glm::vec2(widthRatio, heightRatio);
 }
 
 void FragmentShaderPlaygroundScene::mouseScroll(float32 yOffset)
 {
-  float zoomDelta = zoom * 0.03f;
+  float zoomDelta = zoom * 0.03f * zoomSpeed;
   if(yOffset < 0) {
     zoom -= zoomDelta;
   } else if(yOffset > 0) {
@@ -91,11 +100,16 @@ void FragmentShaderPlaygroundScene::mouseScroll(float32 yOffset)
 
 void FragmentShaderPlaygroundScene::key_LeftMouseButton_pressed(float32 xPos, float32 yPos)
 {
+  mouseDownTime = (float32)glfwGetTime();
   mouseDown = true;
 }
 
 void FragmentShaderPlaygroundScene::key_LeftMouseButton_released(float32 xPos, float32 yPos)
 {
+  if((float32)glfwGetTime() - mouseDownTime < MOUSE_ACTION_TIME_SECONDS) {
+    currentColorFavorIndex++;
+    if(currentColorFavorIndex >= ArrayCount(colorFavors)) currentColorFavorIndex = 0;
+  }
   mouseDown = false;
 }
 
@@ -104,4 +118,14 @@ void FragmentShaderPlaygroundScene::mouseMovement(float32 xOffset, float32 yOffs
   if(mouseDown) {
     centerOffset -= glm::vec2(xOffset / zoom, yOffset / zoom);
   }
+}
+
+void FragmentShaderPlaygroundScene::key_LeftShift_pressed()
+{
+  zoomSpeed = ZOOM_SPEED_FAST;
+}
+
+void FragmentShaderPlaygroundScene::key_LeftShift_released()
+{
+  zoomSpeed = ZOOM_SPEED_NORMAL;
 }
