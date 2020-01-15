@@ -70,10 +70,14 @@ const char* const cubeMapGeometryShaderFileLoc = ROOM_BASE"CubeMapGeometryShader
 #define RAY_MARCHING_BASE "src/scenes/InfiniteCapsules/"
 const char* const InfiniteCapsulesFragmentShaderFileLoc = RAY_MARCHING_BASE"InfiniteCapsulesFragmentShader.glsl";
 
-// Fragment Shader Playground Shaders
-#define FRAGMENT_SHADER_PLAYGROUND_BASE "src/scenes/FragmentShaderPlayground/"
-const char* const HexagonPlaygroundShaderFileLoc = FRAGMENT_SHADER_PLAYGROUND_BASE"HexagonPlaygroundFragmentShader.glsl";
-const char* const MandelbrotFragmentShaderFileLoc = FRAGMENT_SHADER_PLAYGROUND_BASE"MandelbrotFragmentShader.glsl";
+// Mandlebrot Shaders
+#define MANDELBROT_BASE "src/scenes/Mandelbrot/"
+const char* const HexagonPlaygroundShaderFileLoc = MANDELBROT_BASE"HexagonPlaygroundFragmentShader.glsl";
+const char* const MandelbrotFragmentShaderFileLoc = MANDELBROT_BASE"MandelbrotFragmentShader.glsl";
+
+// Menger Sponge Shaders
+#define MENGER_SPONGE_BASE "src/scenes/MengerSponge/"
+const char* const MengerSpongeFragmentShaderFileLoc = MENGER_SPONGE_BASE"MengerSpongeFragmentShader.glsl";
 
 // 2D textures
 const char* const diffuseTextureLoc = "src/data/diffuse_map_alpha_channel.png";

@@ -1,16 +1,16 @@
 //
-// Created by Connor on 11/12/2019.
+// Created by Connor on 11/21/2019.
 //
 
-#include "InfiniteCapsulesScene.h"
+#include "MengerSpongeScene.h"
 #include "../../common/FileLocations.h"
 #include "../../common/ObjectData.h"
 
-InfiniteCapsulesScene::InfiniteCapsulesScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth)
+MengerSpongeScene::MengerSpongeScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth)
         : GodModeScene(window, initScreenHeight, initScreenWidth),
-          rayMarchingShader(UVCoordVertexShaderFileLoc, InfiniteCapsulesFragmentShaderFileLoc) {}
+          mengerSpongeShader(UVCoordVertexShaderFileLoc, MengerSpongeFragmentShaderFileLoc) {}
 
-void InfiniteCapsulesScene::runScene()
+void MengerSpongeScene::runScene()
 {
   uint32 quadVAO, quadVBO, quadEBO;
   initializeFrameBufferQuadVertexAttBuffers(quadVAO, quadVBO, quadEBO);
@@ -22,25 +22,24 @@ void InfiniteCapsulesScene::runScene()
   glDeleteBuffers(1, &quadEBO);
 }
 
-void InfiniteCapsulesScene::renderLoop(uint32 quadVAO)
+void MengerSpongeScene::renderLoop(uint32 quadVAO)
 {
   initializeFrameBuffer(frameBuffer, rbo, frameBufferTexture, viewportWidth, viewportHeight);
 
   // background clear color
   glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 
-  rayMarchingShader.use();
-  rayMarchingShader.setUniform("viewPortResolution", glm::vec2(viewportWidth, viewportHeight));
-  rayMarchingShader.setUniform("lightColor", glm::vec3(0.5f, 0.5f, 0.5f));
-  rayMarchingShader.setUniform("lightPos", glm::vec3(0.0f, 0.0f, 0.0f));
+  mengerSpongeShader.use();
+  mengerSpongeShader.setUniform("viewPortResolution", glm::vec2(viewportWidth, viewportHeight));
+  mengerSpongeShader.setUniform("lightColor", glm::vec3(1.0f, 0.0f, 1.0f));
+  mengerSpongeShader.setUniform("lightPos", glm::vec3(10.0f, 10.0f, 10.0f));
 
   glBindVertexArray(quadVAO);
 
-  camera.Position = glm::vec3(0.0f, 1.0f, 0.0f);
+  camera.Position = glm::vec3(0.0f, 1.0f, 10.0f);
 
   lastFrame = (float32)glfwGetTime();
   float32 startTime = lastFrame;
-
 
   // NOTE: render/game loop
   while (glfwWindowShouldClose(window) == GL_FALSE)
@@ -57,16 +56,9 @@ void InfiniteCapsulesScene::renderLoop(uint32 quadVAO)
 
     camera.changePositioning(deltaTime);
     glm::mat4 cameraRotationMatrix = camera.lookAtRotationMat();
-    rayMarchingShader.setUniform("rayOrigin", camera.Position);
-    rayMarchingShader.setUniform("elapsedTime", t);
-    rayMarchingShader.setUniform("viewRotationMat", cameraRotationMatrix);
-    if(lightAlive) {
-      rayMarchingShader.setUniform("lightPos", lightPosition);
-      glm::vec3 lightDelta = lightMoveDir * deltaTime * 25.0f;
-      lightPosition += lightDelta;
-      lightDistanceTraveled += glm::length(lightDelta);
-      if(lightDistanceTraveled > 100.0) lightAlive = false;
-    }
+    mengerSpongeShader.setUniform("rayOrigin", camera.Position);
+    mengerSpongeShader.setUniform("elapsedTime", t);
+    mengerSpongeShader.setUniform("viewRotationMat", cameraRotationMatrix);
     glDrawElements(GL_TRIANGLES, // drawing mode
                    6, // number of elements to draw (3 vertices per triangle * 2 triangles per quad)
                    GL_UNSIGNED_INT, // type of the indices
@@ -77,17 +69,10 @@ void InfiniteCapsulesScene::renderLoop(uint32 quadVAO)
   }
 }
 
-void InfiniteCapsulesScene::frameBufferSize(uint32 width, uint32 height)
+void MengerSpongeScene::frameBufferSize(uint32 width, uint32 height)
 {
   FirstPersonScene::frameBufferSize(width, height);
   initializeFrameBuffer(frameBuffer, rbo, frameBufferTexture, width, height);
-  rayMarchingShader.use();
-  rayMarchingShader.setUniform("viewPortResolution", glm::vec2(width, height));
-}
-
-void InfiniteCapsulesScene::key_LeftMouseButton_pressed(float32 xPos, float32 yPos) {
-  lightAlive = true;
-  lightDistanceTraveled = 0.0f;
-  lightMoveDir = camera.Front;
-  lightPosition = camera.Position + lightMoveDir;
+  mengerSpongeShader.use();
+  mengerSpongeShader.setUniform("viewPortResolution", glm::vec2(width, height));
 }
