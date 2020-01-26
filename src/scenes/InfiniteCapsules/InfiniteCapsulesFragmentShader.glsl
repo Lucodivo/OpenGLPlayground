@@ -52,7 +52,7 @@ void main()
     //dist = dist / 7.0;
     //vec3 col = vec3(dist);
 
-    FragColor = vec4(col * (lightColor * 0.75), 1.0);
+    FragColor = vec4(col * lightColor, 1.0);
   } else { // miss
     vec3 missColor = vec3(0.2, 0.2, 0.2);
     FragColor = vec4(missColor, 1.0);
@@ -60,13 +60,12 @@ void main()
 }
 
 vec3 getNormal(vec3 surfacePos) {
+  vec2 epsilon = vec2(0.001, 0);
   float dist = distPosToScene(surfacePos);
-  vec2 epsilon = vec2(0.1, 0);
-  vec3 normal = vec3(dist) - vec3(
-    distPosToScene(surfacePos - epsilon.xyy),
-    distPosToScene(surfacePos - epsilon.yxy),
-    distPosToScene(surfacePos - epsilon.yyx)
-  );
+  float xDist = distPosToScene(surfacePos + epsilon.xyy);
+  float yDist = distPosToScene(surfacePos + epsilon.yxy);
+  float zDist = distPosToScene(surfacePos + epsilon.yyx);
+  vec3 normal = (vec3(xDist, yDist, zDist) - dist) / epsilon.x;
   return normalize(normal);
 }
 
