@@ -2,16 +2,16 @@
 
 out vec4 FragColor;
 
-#define MAX_STEPS 150
-#define MISS_DIST 100.0
+#define MAX_STEPS 70
+#define MISS_DIST 50.0
 #define HIT_DIST 0.01
 
 float distPosToScene(vec3 pos);
-float distanceRayToScene(vec3 rayOrigin, vec3 rayDir);
-float distToBox(vec3 rayPos, vec3 dimen);
-float distToCross(vec3 rayPos, vec3 dimen);
+vec2 distanceRayToScene(vec3 rayOrigin, vec3 rayDir);
+float sdBox(vec3 rayPos, vec3 dimen);
+float sdCross(vec3 rayPos, vec3 dimen);
 float getLight(vec3 surfacePos);
-float distToRect(vec2 rayPos, vec2 dimen);
+float sdRect(vec2 rayPos, vec2 dimen);
 vec3 getNormal(vec3 surfacePos);
 
 uniform vec2 viewPortResolution;
@@ -26,9 +26,6 @@ float cosElapsedTime;
 
 void main()
 {
-  sinElapsedTime = sin(elapsedTime / 4.0);
-  cosElapsedTime = cos(elapsedTime / 4.0);
-
   // Move (0,0) from bottom left to center
   vec2 pixelCoord = gl_FragCoord.xy-0.5*viewPortResolution.xy;
   // Scale y value to [-1.0, 1.0], scale x by same factor
@@ -38,12 +35,13 @@ void main()
   rayDir = vec3(vec4(rayDir, 0.0) * viewRotationMat);
   rayDir = normalize(rayDir);
 
-  float dist = distanceRayToScene(rayOrigin, rayDir);
+  vec2 dist = distanceRayToScene(rayOrigin, rayDir);
 
-  if(dist > 0.0) { // hit
-    vec3 surfacePos = rayOrigin + (rayDir * dist);
-    float diffuse = getLight(surfacePos);
-    vec3 col = vec3(diffuse * lightColor);
+  if(dist.x > 0.0) { // hit
+//    vec3 surfacePos = rayOrigin + (rayDir * dist.x);
+//    float diffuse = getLight(surfacePos);
+//    vec3 col = vec3(diffuse * lightColor);
+    vec3 col = vec3(1.0 - (dist.y/MAX_STEPS));
 
     FragColor = vec4(col, 1.0);
   } else { // miss
@@ -77,8 +75,9 @@ float getLight(vec3 surfacePos) {
   return diff;
 }
 
+// returns vec2(dist, iterations)
 // NOTE: ray dir is assumed to be normalized
-float distanceRayToScene(vec3 rayOrigin, vec3 rayDir) {
+vec2 distanceRayToScene(vec3 rayOrigin, vec3 rayDir) {
 
   float dist = 0.0;
 
@@ -86,49 +85,69 @@ float distanceRayToScene(vec3 rayOrigin, vec3 rayDir) {
     vec3 pos = rayOrigin + (dist * rayDir);
     float posToScene = distPosToScene(pos);
     dist += posToScene;
-    if(abs(posToScene) < HIT_DIST) return dist; // absolute value for posToScene incase the ray makes its way inside an object
+    if(abs(posToScene) < HIT_DIST) return vec2(dist, i); // absolute value for posToScene incase the ray makes its way inside an object
     if(posToScene > MISS_DIST) break;
   }
 
-  return -1.0f;
+  return vec2(-1.0f, MAX_STEPS);
 }
 
-//const float boxSize = 3.0f;
-//const float crossSize = boxSize / 3.0;
+const float maxDistBox = 4.0;
 float distPosToScene(vec3 rayPos) {
-  float boxSize = 3.0f + sinElapsedTime;
-  float crossSize = boxSize / 3.0;
-  float distBox = distToBox(rayPos, vec3(boxSize));
-  float dist = distBox;
+  float dist = sdBox(rayPos, vec3(1.0));
+  if(dist > maxDistBox) return dist; // Use the box as a bounding volume
+  //  float cross = sdCross(rayPos * 3.0, vec3(1.0)) / 3.0;
+  //  dist = min(cross, dist);
 
-  float s = boxSize;
-  for(int m = 0; m < 3; ++m) {
-    vec3 a = mod(rayPos * s, 2.0 * boxSize) - boxSize;
+//  rayPos = mod(rayPos * 1.0, 2.0) - 1.0;
+//  float cross = sdCross(1.0 - 3.0*abs(rayPos), vec3(1.0)) / 9.0;
+//  dist = min(cross, dist);
+
+//  float scale = 1.0;
+//  for(int m = 0; m < 3; m++)
+//  {
+//    vec3 a = mod(rayPos * scale, 2.0 ) - 1.0;
+//    scale *= 3.0;
+//    vec3 r = 1.0 - 3.0*abs(a);
+//
+//    float c = sdCross(r, vec3(1.0)) / scale;
+//    dist = min(dist,c);
+//  }
+
+  // works!
+  // TODO: why? lol
+  float s = 1.0;
+  for( int m=0; m<3; m++ )
+  {
+    vec3 a = mod(rayPos*s, 2.0 )-1.0;
     s *= 3.0;
-    vec3 r = boxSize - 3.0*abs(a);
+    vec3 r = abs(1.0 - 3.0*abs(a));
+    float da = max(r.x,r.y);
+    float db = max(r.y,r.z);
+    float dc = max(r.z,r.x);
+    float c = (min(da,min(db,dc))-1.0)/s;
 
-    float c = distToCross(r, vec3(boxSize))/s;
-    dist = max(dist, -c);
+    dist = max(dist,c);
   }
 
   return dist;
 }
 
-float distToBox(vec3 rayPos, vec3 dimen) {
+float sdBox(vec3 rayPos, vec3 dimen) {
   vec3 rayToCorner = abs(rayPos) - dimen;
   float maxDelta = min(max(rayToCorner.x, max(rayToCorner.y, rayToCorner.z)), 0.0);
   return length(max(rayToCorner, 0.0)) + maxDelta;
 }
 
-float distToRect(vec2 rayPos, vec2 dimen) {
+float sdRect(vec2 rayPos, vec2 dimen) {
   vec2 rayToCorner = abs(rayPos) - dimen;
   float maxDelta = min(max(rayToCorner.x, rayToCorner.y), 0.0);
   return length(max(rayToCorner, 0.0)) + maxDelta;
 }
 
-float distToCross(vec3 rayPos, vec3 dimen) {
-  float da = distToRect(rayPos.xy, dimen.xy);
-  float db = distToRect(rayPos.xz, dimen.xz);
-  float dc = distToRect(rayPos.yz, dimen.yz);
+float sdCross(vec3 rayPos, vec3 dimen) {
+  float da = sdRect(rayPos.xy, dimen.xy);
+  float db = sdRect(rayPos.xz, dimen.xz);
+  float dc = sdRect(rayPos.yz, dimen.yz);
   return min(da,min(db,dc));
 }
