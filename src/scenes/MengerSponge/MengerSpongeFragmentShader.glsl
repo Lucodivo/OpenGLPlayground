@@ -2,8 +2,8 @@
 
 out vec4 FragColor;
 
-#define MAX_STEPS 70
-#define MISS_DIST 50.0
+#define MAX_STEPS 120
+#define MISS_DIST 60.0
 #define HIT_DIST 0.01
 
 float distPosToScene(vec3 pos);
@@ -20,9 +20,6 @@ uniform float elapsedTime;
 uniform mat4 viewRotationMat;
 uniform vec3 lightPos;
 uniform vec3 lightColor;
-
-float sinElapsedTime;
-float cosElapsedTime;
 
 void main()
 {
@@ -92,42 +89,26 @@ vec2 distanceRayToScene(vec3 rayOrigin, vec3 rayDir) {
   return vec2(-1.0f, MAX_STEPS);
 }
 
-const float maxDistBox = 4.0;
+const float halfBoxDimen = 10.0;
+const float mengerDivision = 3.0;
 float distPosToScene(vec3 rayPos) {
-  float dist = sdBox(rayPos, vec3(1.0));
-  if(dist > maxDistBox) return dist; // Use the box as a bounding volume
-  //  float cross = sdCross(rayPos * 3.0, vec3(1.0)) / 3.0;
-  //  dist = min(cross, dist);
+  float dist = sdBox(rayPos, vec3(halfBoxDimen));
+  if(dist > HIT_DIST) return dist; // Use the full box as a bounding volume
 
-//  rayPos = mod(rayPos * 1.0, 2.0) - 1.0;
-//  float cross = sdCross(1.0 - 3.0*abs(rayPos), vec3(1.0)) / 9.0;
-//  dist = min(cross, dist);
-
-//  float scale = 1.0;
-//  for(int m = 0; m < 3; m++)
-//  {
-//    vec3 a = mod(rayPos * scale, 2.0 ) - 1.0;
-//    scale *= 3.0;
-//    vec3 r = 1.0 - 3.0*abs(a);
-//
-//    float c = sdCross(r, vec3(1.0)) / scale;
-//    dist = min(dist,c);
-//  }
-
-  // works!
-  // TODO: why? lol
-  float s = 1.0;
-  for( int m=0; m<3; m++ )
+  float scale = 1.0;
+  for( int iteration = 0; iteration < 4; iteration++ )
   {
-    vec3 a = mod(rayPos*s, 2.0 )-1.0;
-    s *= 3.0;
-    vec3 r = abs(1.0 - 3.0*abs(a));
-    float da = max(r.x,r.y);
-    float db = max(r.y,r.z);
-    float dc = max(r.z,r.x);
-    float c = (min(da,min(db,dc))-1.0)/s;
+    // multiplying by scale determines how many crosses in a single row/col will intersect the cube
+    // modulo of 2 * halfBoxDimen creates "stacked" cube worlds the size of the full box
+    // subtracting halfBoxDimen puts the box at the origin
+    // although modulo returns positive numbers, subtracting the halfBoxDimen requires us to get the absolute value
+    vec3 a = abs(mod(rayPos * scale, 2.0 * halfBoxDimen) - halfBoxDimen);
+    scale *= mengerDivision;
+    vec3 r = abs(halfBoxDimen - (mengerDivision * a));
+    // division by scale undistorts space
+    float c = sdCross(r, vec3(halfBoxDimen)) / scale;
 
-    dist = max(dist,c);
+    dist = max(dist, c);
   }
 
   return dist;
