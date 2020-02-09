@@ -9,6 +9,7 @@
 
 #include <string>
 #include <vector>
+#include <iostream>
 
 #include "Mesh.h"
 #include "LearnOpenGLPlatform.h"

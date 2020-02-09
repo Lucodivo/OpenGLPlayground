@@ -31,8 +31,6 @@ void MengerSpongeScene::renderLoop(uint32 quadVAO)
 
   mengerSpongeShader.use();
   mengerSpongeShader.setUniform("viewPortResolution", glm::vec2(viewportWidth, viewportHeight));
-  mengerSpongeShader.setUniform("lightColor", glm::vec3(1.0f, 0.0f, 1.0f));
-  mengerSpongeShader.setUniform("lightPos", glm::vec3(10.0f, 10.0f, 10.0f));
 
   glBindVertexArray(quadVAO);
 
@@ -47,6 +45,11 @@ void MengerSpongeScene::renderLoop(uint32 quadVAO)
     // check for input
     processKeyboardInput(window, this);
     processXInput(this);
+
+    if(mengerSpongeShader.updateFragmentShaderIfOutdated()) {
+      mengerSpongeShader.use();
+      mengerSpongeShader.setUniform("viewPortResolution", glm::vec2(viewportWidth, viewportHeight));
+    }
 
     float32 t = (float32)glfwGetTime() - startTime;
     deltaTime = t - lastFrame;
