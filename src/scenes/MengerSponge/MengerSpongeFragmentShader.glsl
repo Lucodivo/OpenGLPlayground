@@ -2,7 +2,7 @@
 
 out vec4 FragColor;
 
-#define MAX_STEPS 120.0
+#define MAX_STEPS 120
 #define MISS_DIST 60.0
 #define HIT_DIST 0.01
 
@@ -11,6 +11,10 @@ vec2 distanceRayToScene(vec3 rayOrigin, vec3 rayDir);
 float sdBox(vec3 rayPos, vec3 dimen);
 float sdCross(vec3 rayPos, vec3 dimen);
 float sdRect(vec2 rayPos, vec2 dimen);
+
+float sdCrossesUnbound(vec3 rayPos);
+float sdMengerSpongeFirstIteration(vec3 rayPos);
+float sdMengerSpongeSecondIteration(vec3 rayPos);
 
 float crush(vec3 rayPos, bool boxed);
 float multistagePrison(vec3 rayPos, bool boxed);
@@ -32,8 +36,6 @@ void main()
   // Scale y value to [-1.0, 1.0], scale x by same factor
   pixelCoord = pixelCoord / viewPortResolution.y;
 
-  sint = sin(elapsedTime);
-
   vec3 rayDir = vec3(pixelCoord.x, pixelCoord.y, 1.0);
   rayDir = vec3(vec4(rayDir, 0.0) * viewRotationMat);
   rayDir = normalize(rayDir);
@@ -41,7 +43,7 @@ void main()
   vec2 dist = distanceRayToScene(rayOrigin, rayDir);
 
   if(dist.x > 0.0) { // hit
-    vec3 col = vec3(1.0 - (dist.y/MAX_STEPS));
+    vec3 col = vec3(1.0 - (dist.y/float(MAX_STEPS)));
 
     FragColor = vec4(col, 1.0);
   } else { // miss
@@ -68,12 +70,12 @@ vec2 distanceRayToScene(vec3 rayOrigin, vec3 rayDir) {
 }
 
 float distPosToScene(vec3 rayPos) {
-  float boundingBox = sdBox(rayPos, vec3(boxDimen));
-  if(boundingBox > HIT_DIST) return boundingBox; // Use the full box as a bounding volume
   float dist = sdBox(rayPos, vec3(halfBoxDimen));
+  if(dist > HIT_DIST) return dist; // use the full box as a bounding volume
 
+  // WORKING MENGER SPONGE Algorithm
   float scale = 1.0;
-  for( int iteration = 0; iteration < 1; iteration++ )
+  for( int iteration = 0; iteration < 3; iteration++ )
   {
     // turn space into stacked box vectors that range from [0, boxDimen) for all axis
     // multiply ray by scale to create more boxes within [-boxDimen, boxDimen] world space
@@ -85,14 +87,14 @@ float distPosToScene(vec3 rayPos) {
     // this makes the center of each box have an origin coordinate of <0.0, 0.0, 0.0>
     // and will allow us to draw crosses in the center of each box, along the axes
     ray -= halfBoxDimen;
+
     // fold all quadrants into the positive quadrant for all three axes, back to [0,halfBoxDimen)
     ray = abs(ray);
-
     // multiply ray by 3.0 so value lies between [0,3 * halfBoxDimen) for all three axes
     ray = 3.0 * ray;
     // subtract ray from halfBoxDimen so values lie between [-boxDimen, halfBoxDimen) for all axes
     ray = halfBoxDimen - ray;
-    //ray = abs(ray);
+    ray = abs(ray);
 
     // get distance to cross from ray
     float c = sdCross(ray, vec3(halfBoxDimen));
@@ -100,9 +102,32 @@ float distPosToScene(vec3 rayPos) {
     scale *= 3.0;
     c /= scale;
 
-    dist = min(dist, c);
+    dist = max(dist, c);
   }
+  return dist;
+}
 
+float sdMengerSpongeSecondIteration(vec3 rayPos) {
+  float distFirstIter = sdMengerSpongeFirstIteration(rayPos);
+  float distCrossesUnbound = sdCrossesUnbound(rayPos);
+  return max(distFirstIter, -distCrossesUnbound);
+}
+
+float sdMengerSpongeFirstIteration(vec3 rayPos) {
+  float boundingBox = sdBox(rayPos, vec3(halfBoxDimen));
+  float crossDist = sdCross(rayPos * 3.0, vec3(halfBoxDimen)) / 3.0;
+  float spongeBox = sdBox(rayPos, vec3(halfBoxDimen));
+  return max(spongeBox, -crossDist);
+}
+
+float sdCrossesUnbound(vec3 rayPos) {
+  float boxedWorldDimen = boxDimen / 3.0;
+  float translation = boxedWorldDimen / 2.0;
+  vec3 ray = mod(rayPos + translation, boxedWorldDimen);
+  ray -= (boxDimen / 3.0) / 2.0;
+  ray *= 3.0;
+  float dist = sdCross(ray * 3.0, vec3(halfBoxDimen)) / 3.0;
+  dist /= 3.0;
   return dist;
 }
 
