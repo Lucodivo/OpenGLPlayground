@@ -11,10 +11,16 @@ vec2 distanceRayToScene(vec3 rayOrigin, vec3 rayDir);
 float sdBox(vec3 rayPos, vec3 dimen);
 float sdCross(vec3 rayPos, vec3 dimen);
 float sdRect(vec2 rayPos, vec2 dimen);
+float sdMengerSponge(vec3 rayPos, int numIterations);
 
-float sdCrossesUnbound(vec3 rayPos);
+float sdTwentySevenCrossesBound(vec3 rayPos);
+float sdTwentySevenCrossesUnbound(vec3 rayPos);
+float sdOneCrossOvercomplicatedBound(vec3 rayPos);
+float sdOneCrossOvercomplicatedUnbound(vec3 rayPos);
 float sdMengerSpongeFirstIteration(vec3 rayPos);
 float sdMengerSpongeSecondIteration(vec3 rayPos);
+float sdMengerSpongeFirstIterationOvercomplicated(vec3 rayPos);
+float sdInigoQuilezMengerSponge(vec3 rayPos);
 
 float crush(vec3 rayPos, bool boxed);
 float multistagePrison(vec3 rayPos, bool boxed);
@@ -70,65 +76,79 @@ vec2 distanceRayToScene(vec3 rayOrigin, vec3 rayDir) {
 }
 
 float distPosToScene(vec3 rayPos) {
-  float dist = sdBox(rayPos, vec3(halfBoxDimen));
-  if(dist > HIT_DIST) return dist; // use the full box as a bounding volume
+  return sdMengerSponge(rayPos, 5);
+}
 
-  // WORKING MENGER SPONGE Algorithm
+float sdMengerSponge(vec3 rayPos, int numIterations) {
+  float mengerSpongeDist = sdBox(rayPos, vec3(halfBoxDimen));
+  if(mengerSpongeDist > HIT_DIST) return mengerSpongeDist; // use dist of sponge box as bounding box
+
   float scale = 1.0;
-  for( int iteration = 0; iteration < 3; iteration++ )
-  {
-    // turn space into stacked box vectors that range from [0, boxDimen) for all axis
-    // multiply ray by scale to create more boxes within [-boxDimen, boxDimen] world space
-    // We use the scale before it gets multiplied as a convenience, we usually want n cross 1/3n the size of the whole box
-    // ex:  iter 1: 1 cross, 1/3rd the width of the box
-    //      iter 2: 3 crosses, 1/9th the width of the box
-    vec3 ray = mod(rayPos * scale, boxDimen);
-    // subtract half box dimension to create ranges from [-halfBoxDimen, halfBoxDimen)
-    // this makes the center of each box have an origin coordinate of <0.0, 0.0, 0.0>
-    // and will allow us to draw crosses in the center of each box, along the axes
-    ray -= halfBoxDimen;
-
-    // fold all quadrants into the positive quadrant for all three axes, back to [0,halfBoxDimen)
-    ray = abs(ray);
-    // multiply ray by 3.0 so value lies between [0,3 * halfBoxDimen) for all three axes
-    ray = 3.0 * ray;
-    // subtract ray from halfBoxDimen so values lie between [-boxDimen, halfBoxDimen) for all axes
-    ray = halfBoxDimen - ray;
-    ray = abs(ray);
-
-    // get distance to cross from ray
-    float c = sdCross(ray, vec3(halfBoxDimen));
-    // we must divide by same number that we have used to multiply the ray to undistort space
+  for(int i = 0; i < numIterations; ++i) {
+    float boxedWorldDimen = boxDimen / scale;
+    float translation = boxedWorldDimen / 2.0;
+    vec3 ray = mod(rayPos + translation, boxedWorldDimen);
+    ray -= (boxedWorldDimen) / 2.0;
+    ray *= scale;
+    float crossesDist = sdCross(ray * 3.0, vec3(halfBoxDimen)) / 3.0;
+    crossesDist /= scale;
+    mengerSpongeDist = max(mengerSpongeDist, -crossesDist);
     scale *= 3.0;
-    c /= scale;
-
-    dist = max(dist, c);
   }
-  return dist;
+
+  return mengerSpongeDist;
 }
 
 float sdMengerSpongeSecondIteration(vec3 rayPos) {
   float distFirstIter = sdMengerSpongeFirstIteration(rayPos);
-  float distCrossesUnbound = sdCrossesUnbound(rayPos);
+  float distCrossesUnbound = sdTwentySevenCrossesUnbound(rayPos);
   return max(distFirstIter, -distCrossesUnbound);
 }
 
-float sdMengerSpongeFirstIteration(vec3 rayPos) {
+float sdTwentySevenCrossesBound(vec3 rayPos) {
   float boundingBox = sdBox(rayPos, vec3(halfBoxDimen));
-  float crossDist = sdCross(rayPos * 3.0, vec3(halfBoxDimen)) / 3.0;
-  float spongeBox = sdBox(rayPos, vec3(halfBoxDimen));
-  return max(spongeBox, -crossDist);
+  float crossDist = sdTwentySevenCrossesUnbound(rayPos);
+  return max(boundingBox, crossDist);
 }
 
-float sdCrossesUnbound(vec3 rayPos) {
+float sdTwentySevenCrossesUnbound(vec3 rayPos) {
   float boxedWorldDimen = boxDimen / 3.0;
   float translation = boxedWorldDimen / 2.0;
   vec3 ray = mod(rayPos + translation, boxedWorldDimen);
   ray -= (boxDimen / 3.0) / 2.0;
   ray *= 3.0;
-  float dist = sdCross(ray * 3.0, vec3(halfBoxDimen)) / 3.0;
-  dist /= 3.0;
-  return dist;
+  float crossesDist = sdCross(ray * 3.0, vec3(halfBoxDimen)) / 3.0;
+  crossesDist /= 3.0;
+  return crossesDist;
+}
+
+float sdOneCrossOvercomplicatedBound(vec3 rayPos) {
+  float boundingBox = sdBox(rayPos, vec3(halfBoxDimen));
+  float crossDist = sdOneCrossOvercomplicatedUnbound(rayPos);
+  return max(boundingBox, crossDist);
+}
+
+float sdOneCrossOvercomplicatedUnbound(vec3 rayPos) {
+  float boxedWorldDimen = boxDimen / 1.0;
+  float translation = boxedWorldDimen / 2.0;
+  vec3 ray = mod(rayPos + translation, boxedWorldDimen);
+  ray -= (boxDimen / 1.0) / 2.0;
+  ray *= 1.0;
+  float crossDist = sdCross(ray * 3.0, vec3(halfBoxDimen)) / 3.0;
+  crossDist /= 1.0;
+  return crossDist;
+}
+
+float sdMengerSpongeFirstIterationOvercomplicated(vec3 rayPos) {
+  float crossDist = sdOneCrossOvercomplicatedUnbound(rayPos);
+  float spongeBox = sdBox(rayPos, vec3(halfBoxDimen));
+  return max(spongeBox, -crossDist);
+}
+
+float sdMengerSpongeFirstIteration(vec3 rayPos) {
+  float crossDist = sdCross(rayPos * 3.0, vec3(halfBoxDimen)) / 3.0;
+  float spongeBox = sdBox(rayPos, vec3(halfBoxDimen));
+  return max(spongeBox, -crossDist);
 }
 
 float multistagePrison(vec3 rayPos, bool boxed) {
@@ -186,9 +206,30 @@ float crushBox(vec3 rayPos, bool boxed) {
     scale *= 3.0;
     c /= scale;
 
-    dist = c;// = min(dist, c);
+    dist = c;
   }
 
+  return dist;
+}
+
+float sdInigoQuilezMengerSponge(vec3 rayPos) {
+  float dist = sdBox(rayPos, vec3(halfBoxDimen));
+  if(dist > HIT_DIST) return dist; // use the full box as a bounding volume
+
+  float scale = 1.0;
+  for( int iteration = 0; iteration < 3; iteration++ )
+  {
+    vec3 ray = mod(rayPos * scale, boxDimen);
+    ray -= halfBoxDimen;
+    ray = abs(ray);
+    ray = 3.0 * ray;
+    ray = halfBoxDimen - ray;
+    ray = abs(ray);
+    float crossDist = sdCross(ray, vec3(halfBoxDimen));
+    scale *= 3.0;
+    crossDist /= scale;
+    dist = max(dist, crossDist);
+  }
   return dist;
 }
 
