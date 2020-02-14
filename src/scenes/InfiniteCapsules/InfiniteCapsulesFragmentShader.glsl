@@ -103,8 +103,7 @@ float distanceRayToScene(vec3 rayOrigin, vec3 rayDir) {
 }
 
 float distPosToScene(vec3 rayPos) {
-  return distToTorus(rayPos, vec3(0.0, 0.0, 0.0), 1.0, 3.0);
-//  return distToInfiniteCapsules(rayPos);
+  return distToInfiniteCapsules(rayPos);
 }
 
 float distToBox(vec3 rayPos, float width, float height, float depth) {

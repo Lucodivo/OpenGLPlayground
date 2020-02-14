@@ -9,6 +9,8 @@ Samples:
 ![alt tag](https://raw.githubusercontent.com/Lucodivo/LearnOpenGL/master/samples/ReflectExplode.png)
 ![alt tag](https://raw.githubusercontent.com/Lucodivo/LearnOpenGL/master/samples/Space.png)
 ![alt tag](https://raw.githubusercontent.com/Lucodivo/LearnOpenGL/master/samples/NormalParallaxFloorScene.png)
+![alt tag](https://raw.githubusercontent.com/Lucodivo/LearnOpenGL/master/samples/InfiniteCapsulesScene.png)
+![alt tag](https://raw.githubusercontent.com/Lucodivo/LearnOpenGL/master/samples/MengerSpongeScene.png)
 
 ## Special Thanks
 
