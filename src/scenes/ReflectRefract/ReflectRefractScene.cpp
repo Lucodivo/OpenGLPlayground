@@ -85,8 +85,8 @@ void ReflectRefractScene::renderLoop(GLFWwindow* window, uint32& cubeVAO, uint32
   loadCubeMapTexture(skyboxInterstellarFaceLocations, skyboxTextureId);
 
   // load models
-  //Model nanoSuitModel((char*)nanoSuitModelLoc);
-  Model nanoSuitModel((char*)superMario64LogoModelLoc);
+  Model nanoSuitModel((char*)nanoSuitModelLoc);
+  //Model nanoSuitModel((char*)superMario64LogoModelLoc);
 
   const glm::mat4 projectionMat = glm::perspective(glm::radians(camera.Zoom), (float32)viewportWidth / (float32)viewportHeight, 0.1f, 100.0f);
 
@@ -199,11 +199,11 @@ void ReflectRefractScene::renderLoop(GLFWwindow* window, uint32& cubeVAO, uint32
       }
     }
 
-//    glDrawElementsInstanced(GL_TRIANGLES, // drawing mode
-//                            cubePosTexNormNumElements * 3, // number of elements to be rendered
-//                            GL_UNSIGNED_INT, // type of values in the indices
-//                            0, // offset in the EB
-//                            8); // instance count
+    glDrawElementsInstanced(GL_TRIANGLES, // drawing mode
+                            cubePosTexNormNumElements * 3, // number of elements to be rendered
+                            GL_UNSIGNED_INT, // type of values in the indices
+                            0, // offset in the EB
+                            8); // instance count
 
     if (currMode == NormalVisualization)
     {
@@ -243,9 +243,9 @@ void ReflectRefractScene::renderLoop(GLFWwindow* window, uint32& cubeVAO, uint32
     glm::mat4 model;
     model = glm::scale(model, glm::vec3(modelScale));  // it's a bit too big for our scene, so scale it down
     model = glm::translate(model, glm::vec3(0.0f, -1.75f, 0.0f)); // translate it down so it's at the center of the scene
-    model = glm::rotate(model, glm::radians(5.0f * sin(currTime)), glm::vec3(1.0f, 0.0f, 0.0f));
-    model = glm::rotate(model, glm::radians(5.0f * cos(currTime)), glm::vec3(0.0f, 1.0f, 0.0f));
-    model = glm::rotate(model, glm::radians(5.0f * -sin(currTime)), glm::vec3(0.0f, 0.0f, 1.0f));
+//    model = glm::rotate(model, glm::radians(5.0f * sin(currTime)), glm::vec3(1.0f, 0.0f, 0.0f));
+//    model = glm::rotate(model, glm::radians(5.0f * cos(currTime)), glm::vec3(0.0f, 1.0f, 0.0f));
+//    model = glm::rotate(model, glm::radians(5.0f * -sin(currTime)), glm::vec3(0.0f, 0.0f, 1.0f));
 
     modelShader->use();
     modelShader->setUniform("cameraPos", camera.Position);

@@ -2,15 +2,15 @@
 // Created by Connor on 11/21/2019.
 //
 
-#include "FragmentShaderPlaygroundScene.h"
+#include "MandelbrotScene.h"
 #include "../../common/FileLocations.h"
 #include "../../common/ObjectData.h"
 
-FragmentShaderPlaygroundScene::FragmentShaderPlaygroundScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth)
+MandelbrotScene::MandelbrotScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth)
         : FirstPersonScene(window, initScreenHeight, initScreenWidth),
-          playgroundShader(UVCoordVertexShaderFileLoc, MandelbrotFragmentShaderFileLoc) {}
+          mandelbrotShader(UVCoordVertexShaderFileLoc, MandelbrotFragmentShaderFileLoc) {}
 
-void FragmentShaderPlaygroundScene::runScene()
+void MandelbrotScene::runScene()
 {
   glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 
@@ -24,15 +24,15 @@ void FragmentShaderPlaygroundScene::runScene()
   glDeleteBuffers(1, &quadEBO);
 }
 
-void FragmentShaderPlaygroundScene::renderLoop(uint32 quadVAO)
+void MandelbrotScene::renderLoop(uint32 quadVAO)
 {
   initializeFrameBuffer(frameBuffer, rbo, frameBufferTexture, viewportWidth, viewportHeight);
 
   // background clear color
   glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 
-  playgroundShader.use();
-  playgroundShader.setUniform("viewPortResolution", glm::vec2(viewportWidth, viewportHeight));
+  mandelbrotShader.use();
+  mandelbrotShader.setUniform("viewPortResolution", glm::vec2(viewportWidth, viewportHeight));
 
   glBindVertexArray(quadVAO);
 
@@ -57,11 +57,10 @@ void FragmentShaderPlaygroundScene::renderLoop(uint32 quadVAO)
 
     camera.changePositioning(deltaTime);
     glm::mat4 cameraRotationMatrix = camera.lookAtRotationMat();
-    playgroundShader.setUniform("rayOrigin", camera.Position);
-    playgroundShader.setUniform("elapsedTime", t);
-    playgroundShader.setUniform("zoom", zoom);
-    playgroundShader.setUniform("centerOffset", centerOffset);
-    playgroundShader.setUniform("colorFavor", colorFavors[currentColorFavorIndex]);
+    mandelbrotShader.setUniform("elapsedTime", t);
+    mandelbrotShader.setUniform("zoom", zoom);
+    mandelbrotShader.setUniform("centerOffset", centerOffset);
+    mandelbrotShader.setUniform("colorFavor", colorFavors[currentColorFavorIndex]);
     glDrawElements(GL_TRIANGLES, // drawing mode
                    6, // number of elements to draw (3 vertices per triangle * 2 triangles per quad)
                    GL_UNSIGNED_INT, // type of the indices
@@ -72,15 +71,15 @@ void FragmentShaderPlaygroundScene::renderLoop(uint32 quadVAO)
   }
 }
 
-void FragmentShaderPlaygroundScene::frameBufferSize(uint32 width, uint32 height)
+void MandelbrotScene::frameBufferSize(uint32 width, uint32 height)
 {
   float32 oldWidth = (float32)viewportWidth;
   float32 oldHeight = (float32)viewportHeight;
 
   FirstPersonScene::frameBufferSize(width, height);
   initializeFrameBuffer(frameBuffer, rbo, frameBufferTexture, width, height);
-  playgroundShader.use();
-  playgroundShader.setUniform("viewPortResolution", glm::vec2(width, height));
+  mandelbrotShader.use();
+  mandelbrotShader.setUniform("viewPortResolution", glm::vec2(width, height));
 
   // The center needs to be adjusted when the viewport size changes in order to maintain the same position
   float32 widthRatio = viewportWidth / oldWidth;
@@ -88,7 +87,7 @@ void FragmentShaderPlaygroundScene::frameBufferSize(uint32 width, uint32 height)
   centerOffset *= glm::vec2(widthRatio, heightRatio);
 }
 
-void FragmentShaderPlaygroundScene::mouseScroll(float32 yOffset)
+void MandelbrotScene::mouseScroll(float32 yOffset)
 {
   float zoomDelta = zoom * 0.03f * zoomSpeed;
   if(yOffset < 0) {
@@ -98,13 +97,13 @@ void FragmentShaderPlaygroundScene::mouseScroll(float32 yOffset)
   }
 }
 
-void FragmentShaderPlaygroundScene::key_LeftMouseButton_pressed(float32 xPos, float32 yPos)
+void MandelbrotScene::key_LeftMouseButton_pressed(float32 xPos, float32 yPos)
 {
   mouseDownTime = (float32)glfwGetTime();
   mouseDown = true;
 }
 
-void FragmentShaderPlaygroundScene::key_LeftMouseButton_released(float32 xPos, float32 yPos)
+void MandelbrotScene::key_LeftMouseButton_released(float32 xPos, float32 yPos)
 {
   if((float32)glfwGetTime() - mouseDownTime < MOUSE_ACTION_TIME_SECONDS) {
     currentColorFavorIndex++;
@@ -113,19 +112,19 @@ void FragmentShaderPlaygroundScene::key_LeftMouseButton_released(float32 xPos, f
   mouseDown = false;
 }
 
-void FragmentShaderPlaygroundScene::mouseMovement(float32 xOffset, float32 yOffset)
+void MandelbrotScene::mouseMovement(float32 xOffset, float32 yOffset)
 {
   if(mouseDown) {
     centerOffset -= glm::vec2(xOffset / zoom, yOffset / zoom);
   }
 }
 
-void FragmentShaderPlaygroundScene::key_LeftShift_pressed()
+void MandelbrotScene::key_LeftShift_pressed()
 {
   zoomSpeed = ZOOM_SPEED_FAST;
 }
 
-void FragmentShaderPlaygroundScene::key_LeftShift_released()
+void MandelbrotScene::key_LeftShift_released()
 {
   zoomSpeed = ZOOM_SPEED_NORMAL;
 }

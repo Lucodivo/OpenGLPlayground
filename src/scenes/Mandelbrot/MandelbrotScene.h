@@ -2,8 +2,8 @@
 // Created by Connor on 11/21/2019.
 //
 
-#ifndef LEARNOPENGL_FRAGMENTSHADERPLAYGROUNDSCENE_H
-#define LEARNOPENGL_FRAGMENTSHADERPLAYGROUNDSCENE_H
+#ifndef LEARNOPENGL_MANDELBROTSCENE_H
+#define LEARNOPENGL_MANDELBROTSCENE_H
 
 #include "../FirstPersonScene.h"
 
@@ -11,9 +11,9 @@
 #define ZOOM_SPEED_FAST 3.0f
 #define MOUSE_ACTION_TIME_SECONDS 0.15f
 
-class FragmentShaderPlaygroundScene final : public FirstPersonScene {
+class MandelbrotScene final : public FirstPersonScene {
 public:
-  FragmentShaderPlaygroundScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth);
+  MandelbrotScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth);
 
   // FrameBufferSizeConsumer override
   void frameBufferSize(uint32 width, uint32 height) override;
@@ -33,7 +33,7 @@ public:
 
 private:
 
-  Shader playgroundShader;
+  Shader mandelbrotShader;
 
   float zoomSpeed = ZOOM_SPEED_NORMAL;
 
@@ -58,4 +58,4 @@ private:
 };
 
 
-#endif //LEARNOPENGL_FRAGMENTSHADERPLAYGROUNDSCENE_H
+#endif //LEARNOPENGL_MANDELBROTSCENE_H

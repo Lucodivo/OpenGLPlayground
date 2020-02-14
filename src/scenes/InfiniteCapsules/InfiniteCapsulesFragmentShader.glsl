@@ -52,7 +52,7 @@ void main()
     //dist = dist / 7.0;
     //vec3 col = vec3(dist);
 
-    FragColor = vec4(col * (lightColor * 0.75), 1.0);
+    FragColor = vec4(col * lightColor, 1.0);
   } else { // miss
     vec3 missColor = vec3(0.2, 0.2, 0.2);
     FragColor = vec4(missColor, 1.0);
@@ -60,13 +60,12 @@ void main()
 }
 
 vec3 getNormal(vec3 surfacePos) {
+  vec2 epsilon = vec2(0.001, 0);
   float dist = distPosToScene(surfacePos);
-  vec2 epsilon = vec2(0.1, 0);
-  vec3 normal = vec3(dist) - vec3(
-    distPosToScene(surfacePos - epsilon.xyy),
-    distPosToScene(surfacePos - epsilon.yxy),
-    distPosToScene(surfacePos - epsilon.yyx)
-  );
+  float xDist = distPosToScene(surfacePos + epsilon.xyy);
+  float yDist = distPosToScene(surfacePos + epsilon.yxy);
+  float zDist = distPosToScene(surfacePos + epsilon.yyx);
+  vec3 normal = (vec3(xDist, yDist, zDist) - dist) / epsilon.x;
   return normalize(normal);
 }
 
@@ -104,9 +103,8 @@ float distanceRayToScene(vec3 rayOrigin, vec3 rayDir) {
 }
 
 float distPosToScene(vec3 rayPos) {
-  //return distToBox(rayPos, 3.0, 3.0, 3.0);
-  //return distToCylinder(rayPos, vec3(-1.5, 1.5, -6.0), vec3(1.5, 1.5, -6.0), 1.0);
-  return distToInfiniteCapsules(rayPos);
+  return distToTorus(rayPos, vec3(0.0, 0.0, 0.0), 1.0, 3.0);
+//  return distToInfiniteCapsules(rayPos);
 }
 
 float distToBox(vec3 rayPos, float width, float height, float depth) {
@@ -115,11 +113,8 @@ float distToBox(vec3 rayPos, float width, float height, float depth) {
 }
 
 float distToTorus(vec3 rayPos, vec3 torusPos, float radiusOuter, float radiusInner) {
-  float distXZRayToCenter = length(length(rayPos.xz - torusPos.xz));
-  float a = distXZRayToCenter - radiusInner;
-  float b = rayPos.y - torusPos.y;
-  float c = length(vec2(a, b));
-  return c - radiusOuter;
+  float x = length(rayPos.xz) - radiusInner;
+  return length(vec2(x, rayPos.y)) - radiusOuter;
 }
 
 const vec3 offset = vec3(3.0, 3.0, 3.0);
@@ -135,27 +130,12 @@ float distToInfiniteCapsules(vec3 rayPos) {
 
 float distToCapsule(vec3 rayPos, vec3 posA, vec3 posB, float radius) {
   vec3 aToB = posB - posA;
-  vec3 aToRayPos = rayPos - posA;
-  float abCosTheta = dot(aToB, aToRayPos);
-  float magnitudeAToB = length(aToB);
-  float projectionAToRayOnAToB = abCosTheta / magnitudeAToB;
-  vec3 closestPoint = posA + (clamp(projectionAToRayOnAToB / magnitudeAToB, 0.0, 1.0) * aToB);
+  float aBLength = length(aToB);
+  vec3 aToRay = rayPos - posA;
+  float dotRayAB = dot(aToRay, aToB);
+  float lenProjARayOntoAB = dotRayAB / aBLength;
+  vec3 closestPoint = posA + (clamp(lenProjARayOntoAB / aBLength, 0, 1) * aToB);
   return length(rayPos - closestPoint) - radius;
-}
-
-float distToCylinder(vec3 rayPos, vec3 posA, vec3 posB, float radius) {
-  vec3 aToB = posB - posA;
-  vec3 aToRayPos = rayPos - posA;
-  float abCosTheta = dot(aToB, aToRayPos);
-  float magnitudeAToB = length(aToB);
-  float projectionAToRayOnAToB = abCosTheta / magnitudeAToB; // projection of ray onto vector from A to B
-  projectionAToRayOnAToB = projectionAToRayOnAToB / magnitudeAToB; // projection scaled (A = 0, B = 1)
-  vec3 closestPointToInfiniteCylinder = posA + (projectionAToRayOnAToB * aToB);
-  float distanceToInfiniteCylinder = length(rayPos - closestPointToInfiniteCylinder) - radius;
-  float yDist = (abs(projectionAToRayOnAToB - 0.5) - 0.5) * magnitudeAToB;
-  float exteriorDistance = length(max(vec2(distanceToInfiniteCylinder, yDist), 0.0));
-  float interiorDistance = min(max(distanceToInfiniteCylinder, yDist), 0.0);
-  return exteriorDistance + interiorDistance;
 }
 
 float distToSphere(vec3 rayPos, vec3 spherePos, float radius) {
