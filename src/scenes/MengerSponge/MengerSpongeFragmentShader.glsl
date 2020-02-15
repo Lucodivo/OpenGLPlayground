@@ -24,6 +24,8 @@ float sdInigoQuilezMengerSponge(vec3 rayPos);
 
 float crush(vec3 rayPos, bool boxed);
 float multistagePrison(vec3 rayPos, bool boxed);
+float sdMengerJank(vec3 rayPos, int numIterations);
+float sdMengerPrison(vec3 rayPos, int numIterations);
 
 uniform vec2 viewPortResolution;
 uniform vec3 rayOrigin;
@@ -76,7 +78,50 @@ vec2 distanceRayToScene(vec3 rayOrigin, vec3 rayDir) {
 }
 
 float distPosToScene(vec3 rayPos) {
-  return sdMengerSponge(rayPos, 5);
+  return sdMengerPrison(rayPos, 5);
+}
+
+float sdMengerPrison(vec3 rayPos, int numIterations) {
+  vec3 prisonRay = rayPos + boxDimen;
+  prisonRay = mod(prisonRay, boxDimen * 2.0);
+  prisonRay -= boxDimen;
+  float mengerPrisonDist = sdCross(prisonRay, vec3(halfBoxDimen));
+
+  float scale = 1.0;
+  for(int i = 0; i < numIterations; ++i) {
+    float boxedWorldDimen = boxDimen / scale;
+    float translation = boxedWorldDimen / 2.0;
+    vec3 ray = mod(rayPos + translation, boxedWorldDimen);
+    ray -= (boxedWorldDimen) / 2.0;
+    ray *= scale;
+    float crossesDist = sdCross(ray * 3.0, vec3(halfBoxDimen)) / 3.0;
+    crossesDist /= scale;
+    mengerPrisonDist = max(mengerPrisonDist, -crossesDist);
+    scale *= 3.0;
+  }
+
+  return mengerPrisonDist;
+}
+
+float sdMengerJank(vec3 rayPos, int numIterations) {
+  vec3 prisonRay = rayPos + (boxDimen * 1.5);
+  prisonRay = mod(prisonRay, boxDimen * 3.0);
+  float mengerPrisonDist = sdCross(prisonRay, vec3(halfBoxDimen));
+
+  float scale = 1.0;
+  for(int i = 0; i < numIterations; ++i) {
+    float boxedWorldDimen = boxDimen / scale;
+    float translation = boxedWorldDimen / 2.0;
+    vec3 ray = mod(rayPos + translation, boxedWorldDimen);
+    ray -= (boxedWorldDimen) / 2.0;
+    ray *= scale;
+    float crossesDist = sdCross(ray * 3.0, vec3(halfBoxDimen)) / 3.0;
+    crossesDist /= scale;
+    mengerPrisonDist = max(mengerPrisonDist, -crossesDist);
+    scale *= 3.0;
+  }
+
+  return mengerPrisonDist;
 }
 
 float sdMengerSponge(vec3 rayPos, int numIterations) {
@@ -92,7 +137,7 @@ float sdMengerSponge(vec3 rayPos, int numIterations) {
     ray *= scale;
     float crossesDist = sdCross(ray * 3.0, vec3(halfBoxDimen)) / 3.0;
     crossesDist /= scale;
-    mengerSpongeDist = max(mengerSpongeDist, -crossesDist);
+    mengerSpongeDist = min(mengerSpongeDist, -crossesDist);
     scale *= 3.0;
   }
 
