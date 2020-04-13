@@ -9,6 +9,10 @@ uniform vec2 centerOffset;
 uniform float zoom;
 uniform vec3 colorFavor;
 
+vec2 complexMul(vec2 a, vec2 b);
+vec2 complexSquare(vec2 a, vec2 b);
+vec2 mandelbrotIter(vec2 coord, vec2 constant);
+
 void main() {
   // Move (0,0) from bottom left to center
   vec2 pixelCoord = gl_FragCoord.xy-0.5*viewPortResolution.xy;
@@ -19,13 +23,10 @@ void main() {
   pixelCoord += centerOffset / (viewPortResolution.y);
 
   float iterations = 0.0;
-  vec2 c = pixelCoord;
+  vec2 constant = pixelCoord;
   pixelCoord = vec2(0.0, 0.0);
   while(iterations < MAX_ITERATIONS && length(pixelCoord) < 2.0) {
-    // complex number squared
-    pixelCoord = vec2((pixelCoord.x * pixelCoord.x) - (pixelCoord.y * pixelCoord.y), 2 * (pixelCoord.x * pixelCoord.y));
-    // adding constant
-    pixelCoord += c;
+    pixelCoord = mandelbrotIter(pixelCoord, constant);
     iterations += 1.0;
   }
 
@@ -35,4 +36,16 @@ void main() {
   color -= colorSub;
 
   FragColor = vec4(color, 0.0);
+}
+
+vec2 complexMul(vec2 a, vec2 b) {
+  return vec2((a.x * b.x) - (a.y * b.y), (a.x * b.y) + (a.y * b.x));
+}
+
+vec2 complexSquare(vec2 a) {
+  return vec2((a.x * a.x) - (a.y * a.y), 2.0 * (a.x * b.y));
+}
+
+vec2 mandelbrotIter(vec2 coord, vec2 constant) {
+  return complexSquare(coord) + constant;
 }
