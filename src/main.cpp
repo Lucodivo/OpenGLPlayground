@@ -15,6 +15,7 @@
 #include "scenes/InfiniteCapsules/InfiniteCapsulesScene.h"
 #include "scenes/Mandelbrot/MandelbrotScene.h"
 #include "scenes/MengerSponge/MengerSpongeScene.h"
+#include "scenes/RayTracingSphere/RayTracingSphereScene.h"
 
 #include <iostream>
 
@@ -27,7 +28,7 @@ int main()
   initializeGLAD();
   loadXInput();
 
-  Scene* scene = new MengerSpongeScene(window, VIEWPORT_INIT_HEIGHT, VIEWPORT_INIT_WIDTH);
+  Scene* scene = new RayTracingSphereScene(window, VIEWPORT_INIT_HEIGHT, VIEWPORT_INIT_WIDTH);
   scene->runScene();
 
   glfwTerminate(); // clean up gl resources

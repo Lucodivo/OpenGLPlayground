@@ -79,6 +79,10 @@ const char* const MandelbrotFragmentShaderFileLoc = MANDELBROT_BASE"MandelbrotFr
 #define MENGER_SPONGE_BASE "src/scenes/MengerSponge/"
 const char* const MengerSpongeFragmentShaderFileLoc = MENGER_SPONGE_BASE"MengerSpongeFragmentShader.glsl";
 
+// Menger Sponge Shaders
+#define RAY_TRACING_SPHERE_BASE "src/scenes/RayTracingSphere/"
+const char* const RayTracingSphereFragmentShaderFileLoc = RAY_TRACING_SPHERE_BASE"RayTracingSphereFragmentShader.glsl";
+
 // 2D textures
 const char* const diffuseTextureLoc = "src/data/diffuse_map_alpha_channel.png";
 const char* const specularTextureLoc = "src/data/specular_map.png";
