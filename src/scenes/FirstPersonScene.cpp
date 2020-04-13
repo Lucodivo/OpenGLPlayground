@@ -107,6 +107,10 @@ void FirstPersonScene::key_AltEnter_pressed()
 // +++ MOUSE MOVEMENT CONSUMER IMPLEMENTATION - START +++
 void FirstPersonScene::mouseMovement(float32 xOffset, float32 yOffset)
 {
+  if(screenSizeChangedSkipNextTrashMouseMove) {
+    screenSizeChangedSkipNextTrashMouseMove = false;
+    return;
+  }
   camera.ProcessMouseMovement(xOffset, yOffset);
 }
 // +++ MOUSE MOVEMENT IMPLEMENTATION - END +++
@@ -117,3 +121,9 @@ void FirstPersonScene::mouseScroll(float32 yOffset)
   camera.ProcessMouseScroll(yOffset);
 }
 // +++ MOUSE SCROLL CONSUMER IMPLEMENTATION - END +++
+
+
+void FirstPersonScene::frameBufferSize(uint32 width, uint32 height) {
+  Scene::frameBufferSize(width, height);
+  screenSizeChangedSkipNextTrashMouseMove = true;
+}

@@ -59,6 +59,11 @@ public:
   // MouseScrollConsumer implementation
   void mouseScroll(float32 yOffset);
 
+  void frameBufferSize(uint32 width, uint32 height);
+
+private:
+  bool screenSizeChangedSkipNextTrashMouseMove;
+
 protected:
   Camera camera = Camera();
 };

@@ -25,7 +25,7 @@ float sdInigoQuilezMengerSponge(vec3 rayPos);
 float crush(vec3 rayPos, bool boxed);
 float multistagePrison(vec3 rayPos, bool boxed);
 float sdMengerJank(vec3 rayPos, int numIterations);
-float sdMengerPrison(vec3 rayPos, int numIterations);
+float sdMengerPrison(vec3 rayPos);
 
 uniform vec2 viewPortResolution;
 uniform vec3 rayOrigin;
@@ -44,6 +44,8 @@ void main()
   // Scale y value to [-1.0, 1.0], scale x by same factor
   pixelCoord = pixelCoord / viewPortResolution.y;
 
+  sint = sin(elapsedTime);
+
   vec3 rayDir = vec3(pixelCoord.x, pixelCoord.y, 1.0);
   rayDir = vec3(vec4(rayDir, 0.0) * viewRotationMat);
   rayDir = normalize(rayDir);
@@ -52,7 +54,6 @@ void main()
 
   if(dist.x > 0.0) { // hit
     vec3 col = vec3(1.0 - (dist.y/float(MAX_STEPS)));
-
     FragColor = vec4(col, 1.0);
   } else { // miss
     vec3 missColor = vec3(0.2, 0.2, 0.2);
@@ -78,26 +79,24 @@ vec2 distanceRayToScene(vec3 rayOrigin, vec3 rayDir) {
 }
 
 float distPosToScene(vec3 rayPos) {
-  return sdMengerPrison(rayPos, 5);
+  return sdMengerSponge(rayPos, 5);
 }
 
-float sdMengerPrison(vec3 rayPos, int numIterations) {
-  vec3 prisonRay = rayPos + boxDimen;
-  prisonRay = mod(prisonRay, boxDimen * 2.0);
+float sdMengerPrison(vec3 rayPos) {
+  vec3 prisonRay = mod(rayPos, boxDimen * 2.0);
   prisonRay -= boxDimen;
   float mengerPrisonDist = sdCross(prisonRay, vec3(halfBoxDimen));
 
   float scale = 1.0;
-  for(int i = 0; i < numIterations; ++i) {
+  for(int i = 0; i < 5; ++i) {
     float boxedWorldDimen = boxDimen / scale;
-    float translation = boxedWorldDimen / 2.0;
-    vec3 ray = mod(rayPos + translation, boxedWorldDimen);
-    ray -= (boxedWorldDimen) / 2.0;
+    vec3 ray = mod(rayPos + boxedWorldDimen / 2.0, boxedWorldDimen);
+    ray -= boxedWorldDimen / 2.0;
     ray *= scale;
-    float crossesDist = sdCross(ray * 3.0, vec3(halfBoxDimen)) / 3.0;
+    float crossesDist = sdCross(ray * 3.0, vec3(halfBoxDimen));
+    scale *= 3.0;
     crossesDist /= scale;
     mengerPrisonDist = max(mengerPrisonDist, -crossesDist);
-    scale *= 3.0;
   }
 
   return mengerPrisonDist;
@@ -131,14 +130,13 @@ float sdMengerSponge(vec3 rayPos, int numIterations) {
   float scale = 1.0;
   for(int i = 0; i < numIterations; ++i) {
     float boxedWorldDimen = boxDimen / scale;
-    float translation = boxedWorldDimen / 2.0;
-    vec3 ray = mod(rayPos + translation, boxedWorldDimen);
-    ray -= (boxedWorldDimen) / 2.0;
+    vec3 ray = mod(rayPos + boxedWorldDimen / 2.0, boxedWorldDimen);
+    ray -= boxedWorldDimen / 2.0;
     ray *= scale;
-    float crossesDist = sdCross(ray * 3.0, vec3(halfBoxDimen)) / 3.0;
-    crossesDist /= scale;
-    mengerSpongeDist = min(mengerSpongeDist, -crossesDist);
+    float crossesDist = sdCross(ray * 3.0, vec3(halfBoxDimen));
     scale *= 3.0;
+    crossesDist /= scale;
+    mengerSpongeDist = max(mengerSpongeDist, -crossesDist);
   }
 
   return mengerSpongeDist;
@@ -286,6 +284,7 @@ float sdBox(vec3 rayPos, vec3 dimen) {
 
 float sdRect(vec2 rayPos, vec2 dimen) {
   vec2 rayToCorner = abs(rayPos) - dimen;
+  // maxDelta is the maximum negative value if the point exists inside of the box, otherwise 0.0
   float maxDelta = min(max(rayToCorner.x, rayToCorner.y), 0.0);
   return length(max(rayToCorner, 0.0)) + maxDelta;
 }
@@ -296,3 +295,19 @@ float sdCross(vec3 rayPos, vec3 dimen) {
   float dc = sdRect(rayPos.yz, dimen.yz);
   return min(da,min(db,dc));
 }
+
+//float sdCross(vec3 rayPos, vec3 dimen) {
+//  vec3 ray = abs(rayPos); // fold ray into positive quadrant
+//  vec3 cornerToRay = ray - dimen;
+//
+//  float smallestComp = min(min(cornerToRay.x, cornerToRay.y), cornerToRay.z);
+//  float largestComp = max(max(cornerToRay.x, cornerToRay.y), cornerToRay.z);
+//  float middleComp = cornerToRay.x - largestComp + cornerToRay.y - smallestComp + cornerToRay.z;
+//
+//  vec2 closestOutsidePoint = max(vec2(smallestComp, middleComp), 0.0);
+//  vec2 closestInsidePoint = min(vec2(middleComp, largestComp), 0.0);
+//
+//  // if at least two components are larger than the dimen
+//  // we are outside of the cross
+//  return (middleComp > 0.0) ? length(closestOutsidePoint) : -length(closestInsidePoint);
+//}
