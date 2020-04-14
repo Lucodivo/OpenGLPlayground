@@ -15,6 +15,10 @@ public:
   virtual void key_S() = 0;
   virtual void key_A() = 0;
   virtual void key_D() = 0;
+  virtual void key_Q_pressed() {};
+  virtual void key_Q_released() {};
+  virtual void key_E_pressed() {};
+  virtual void key_E_released() {};
   virtual void key_Space() = 0;
   virtual void key_LeftMouseButton_pressed(float32 xPos, float32 yPos) = 0;
   virtual void key_LeftMouseButton_released(float32 xPos, float32 yPos) = 0;

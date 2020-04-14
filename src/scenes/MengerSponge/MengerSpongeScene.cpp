@@ -24,13 +24,13 @@ void MengerSpongeScene::runScene()
 
 void MengerSpongeScene::renderLoop(uint32 quadVAO)
 {
-  initializeFrameBuffer(frameBuffer, rbo, frameBufferTexture, viewportWidth, viewportHeight);
+  initializeFrameBuffer(frameBuffer, rbo, frameBufferTexture, currentResolution.width, currentResolution.height);
 
   // background clear color
   glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 
   mengerSpongeShader.use();
-  mengerSpongeShader.setUniform("viewPortResolution", glm::vec2(viewportWidth, viewportHeight));
+  mengerSpongeShader.setUniform("viewPortResolution", glm::vec2(currentResolution.width, currentResolution.height));
 
   glBindVertexArray(quadVAO);
 
@@ -46,9 +46,13 @@ void MengerSpongeScene::renderLoop(uint32 quadVAO)
     processKeyboardInput(window, this);
     processXInput(this);
 
+    // bind our frame buffer
+    glViewport(0, 0, currentResolution.width, currentResolution.height);
+    glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
+
     if(mengerSpongeShader.updateFragmentShaderIfOutdated()) {
       mengerSpongeShader.use();
-      mengerSpongeShader.setUniform("viewPortResolution", glm::vec2(viewportWidth, viewportHeight));
+      mengerSpongeShader.setUniform("viewPortResolution", glm::vec2(currentResolution.width, currentResolution.height));
     }
 
     float32 t = (float32)glfwGetTime() - startTime;
@@ -67,6 +71,13 @@ void MengerSpongeScene::renderLoop(uint32 quadVAO)
                    GL_UNSIGNED_INT, // type of the indices
                    0); // offset in the EBO
 
+    glViewport(0, 0, viewportWidth, viewportHeight);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    // bind our frame buffer
+    glBindFramebuffer(GL_READ_FRAMEBUFFER, frameBuffer);
+    glBlitFramebuffer(0, 0, currentResolution.width, currentResolution.height, 0, 0, viewportWidth, viewportHeight, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+
     glfwSwapBuffers(window); // swaps double buffers (call after all render commands are completed)
     glfwPollEvents(); // checks for events (ex: keyboard/mouse input)
   }
@@ -75,7 +86,31 @@ void MengerSpongeScene::renderLoop(uint32 quadVAO)
 void MengerSpongeScene::frameBufferSize(uint32 width, uint32 height)
 {
   FirstPersonScene::frameBufferSize(width, height);
-  initializeFrameBuffer(frameBuffer, rbo, frameBufferTexture, width, height);
   mengerSpongeShader.use();
-  mengerSpongeShader.setUniform("viewPortResolution", glm::vec2(width, height));
+}
+
+void MengerSpongeScene::key_E_pressed() {
+  if(++currentResolutionIndex >= ArrayCount(screenResolutions)) {
+    currentResolutionIndex = 0;
+  }
+
+  currentResolution = screenResolutions[currentResolutionIndex];
+  initializeFrameBuffer(frameBuffer, rbo, frameBufferTexture, currentResolution.width, currentResolution.height);
+
+  mengerSpongeShader.use();
+  mengerSpongeShader.setUniform("viewPortResolution", glm::vec2(currentResolution.width, currentResolution.height));
+}
+
+void MengerSpongeScene::key_Q_pressed() {
+  if(currentResolutionIndex == 0) {
+    currentResolutionIndex = ArrayCount(screenResolutions) - 1;
+  } else {
+    --currentResolutionIndex;
+  }
+
+  currentResolution = screenResolutions[currentResolutionIndex];
+  initializeFrameBuffer(frameBuffer, rbo, frameBufferTexture, currentResolution.width, currentResolution.height);
+
+  mengerSpongeShader.use();
+  mengerSpongeShader.setUniform("viewPortResolution", glm::vec2(currentResolution.width, currentResolution.height));
 }

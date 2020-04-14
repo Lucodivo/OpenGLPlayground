@@ -243,6 +243,34 @@ void processKeyboardInput(GLFWwindow* window, KeyboardConsumer* consumer)
     consumer->key_LeftShift_released();
   }
 
+  local_persist bool EWasDown = false;
+  if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
+  {
+    if (!EWasDown)
+    {
+      EWasDown = true;
+      consumer->key_E_pressed();
+    }
+  } else if (EWasDown)
+  {
+    EWasDown = false;
+    consumer->key_E_released();
+  }
+
+  local_persist bool QWasDown = false;
+  if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
+  {
+    if (!QWasDown)
+    {
+      QWasDown = true;
+      consumer->key_Q_pressed();
+    }
+  } else if (QWasDown)
+  {
+    QWasDown = false;
+    consumer->key_Q_released();
+  }
+
   if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
     consumer->key_W();
   if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)

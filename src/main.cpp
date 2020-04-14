@@ -28,7 +28,7 @@ int main()
   initializeGLAD();
   loadXInput();
 
-  Scene* scene = new RayTracingSphereScene(window, VIEWPORT_INIT_HEIGHT, VIEWPORT_INIT_WIDTH);
+  Scene* scene = new MengerSpongeScene(window, VIEWPORT_INIT_HEIGHT, VIEWPORT_INIT_WIDTH);
   scene->runScene();
 
   glfwTerminate(); // clean up gl resources
