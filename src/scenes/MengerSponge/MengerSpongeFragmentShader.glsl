@@ -79,7 +79,7 @@ vec2 distanceRayToScene(vec3 rayOrigin, vec3 rayDir) {
 }
 
 float distPosToScene(vec3 rayPos) {
-  return sdMengerSponge(rayPos, 5);
+  return sdMengerPrison(rayPos);
 }
 
 float sdMengerPrison(vec3 rayPos) {

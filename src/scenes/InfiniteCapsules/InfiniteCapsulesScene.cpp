@@ -24,13 +24,13 @@ void InfiniteCapsulesScene::runScene()
 
 void InfiniteCapsulesScene::renderLoop(uint32 quadVAO)
 {
-  initializeFrameBuffer(frameBuffer, rbo, frameBufferTexture, viewportWidth, viewportHeight);
+  initializeFrameBuffer(frameBuffer, rbo, frameBufferTexture, windowWidth, windowHeight);
 
   // background clear color
   glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 
   rayMarchingShader.use();
-  rayMarchingShader.setUniform("viewPortResolution", glm::vec2(viewportWidth, viewportHeight));
+  rayMarchingShader.setUniform("viewPortResolution", glm::vec2(windowWidth, windowHeight));
   rayMarchingShader.setUniform("lightColor", glm::vec3(0.5f, 0.5f, 0.5f));
   rayMarchingShader.setUniform("lightPos", glm::vec3(0.0f, 0.0f, 0.0f));
 

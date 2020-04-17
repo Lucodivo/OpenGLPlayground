@@ -88,7 +88,7 @@ void ReflectRefractScene::renderLoop(GLFWwindow* window, uint32& cubeVAO, uint32
   Model nanoSuitModel((char*)nanoSuitModelLoc);
   //Model nanoSuitModel((char*)superMario64LogoModelLoc);
 
-  const glm::mat4 projectionMat = glm::perspective(glm::radians(camera.Zoom), (float32)viewportWidth / (float32)viewportHeight, 0.1f, 100.0f);
+  const glm::mat4 projectionMat = glm::perspective(glm::radians(camera.Zoom), (float32)windowWidth / (float32)windowHeight, 0.1f, 100.0f);
 
   const float32 cubRotAngle = 7.3f;
 

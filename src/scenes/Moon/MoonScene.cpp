@@ -84,7 +84,7 @@ void MoonScene::renderLoop(uint32 quadVAO, uint32 cubeVAO)
   glBindTexture(GL_TEXTURE_2D, lightTextureId);
   const uint32 shadowMap2DSamplerIndex = 13;
 
-  const glm::mat4 cameraProjMat = glm::perspective(glm::radians(camera.Zoom), (float32)viewportWidth / (float32)viewportHeight, 0.1f, 120.0f);
+  const glm::mat4 cameraProjMat = glm::perspective(glm::radians(camera.Zoom), (float32)windowWidth / (float32)windowHeight, 0.1f, 120.0f);
 
   const float32 nearPlane = 1.0f, farPlane = 70.0f, projectionDimens = 12.0f;
   // Note: orthographic projection is used for directional lighting, as all light rays are parallel
@@ -255,7 +255,7 @@ void MoonScene::renderLoop(uint32 quadVAO, uint32 cubeVAO)
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     // render scene using the depth map for shadows (using depth map)
-    glViewport(0, 0, viewportWidth, viewportHeight);
+    glViewport(0, 0, windowWidth, windowHeight);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glActiveTexture(GL_TEXTURE0 + shadowMap2DSamplerIndex);

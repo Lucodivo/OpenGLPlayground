@@ -17,8 +17,8 @@ void InfiniteCubeScene::runScene()
   uint32 quadVAO, quadVBO, quadEBO;
   initializeFrameBufferQuadVertexAttBuffers(quadVAO, quadVBO, quadEBO);
 
-  initializeFrameBuffer(frameBuffers[0].frameBuffer, frameBuffers[0].rbo, frameBuffers[0].frameBufferTexture, viewportWidth, viewportHeight);
-  initializeFrameBuffer(frameBuffers[1].frameBuffer, frameBuffers[1].rbo, frameBuffers[1].frameBufferTexture, viewportWidth, viewportHeight);
+  initializeFrameBuffer(frameBuffers[0].frameBuffer, frameBuffers[0].rbo, frameBuffers[0].frameBufferTexture, windowWidth, windowHeight);
+  initializeFrameBuffer(frameBuffers[1].frameBuffer, frameBuffers[1].rbo, frameBuffers[1].frameBufferTexture, windowWidth, windowHeight);
 
   renderLoop(window, cubeVAO, quadVAO);
 
@@ -55,8 +55,8 @@ void InfiniteCubeScene::frameBufferSize(uint32 width, uint32 height)
   glActiveTexture(GL_TEXTURE0);
 
   cubeShader.use();
-  cubeShader.setUniform("texWidth", (float32)viewportWidth);
-  cubeShader.setUniform("texHeight", (float32)viewportHeight);
+  cubeShader.setUniform("texWidth", (float32)windowWidth);
+  cubeShader.setUniform("texHeight", (float32)windowHeight);
 }
 
 void InfiniteCubeScene::renderLoop(GLFWwindow* window, uint32& cubeVAO, uint32& quadVAO)
@@ -83,7 +83,7 @@ void InfiniteCubeScene::renderLoop(GLFWwindow* window, uint32& cubeVAO, uint32& 
   glBindFramebuffer(GL_FRAMEBUFFER, frameBuffers[1].frameBuffer);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-  const glm::mat4 projectionMat = glm::perspective(glm::radians(camera.Zoom), (float32)viewportWidth / (float32)viewportHeight, 0.1f, 100.0f);
+  const glm::mat4 projectionMat = glm::perspective(glm::radians(camera.Zoom), (float32)windowWidth / (float32)windowHeight, 0.1f, 100.0f);
 
   const float32 cubeRotationAngle = 2.5f;
 
@@ -109,8 +109,8 @@ void InfiniteCubeScene::renderLoop(GLFWwindow* window, uint32& cubeVAO, uint32& 
   // set constant uniforms
   cubeShader.use();
   cubeShader.setUniform("projection", projectionMat);
-  cubeShader.setUniform("texWidth", (float32)viewportWidth);
-  cubeShader.setUniform("texHeight", (float32)viewportHeight);
+  cubeShader.setUniform("texWidth", (float32)windowWidth);
+  cubeShader.setUniform("texHeight", (float32)windowHeight);
 
   cubeOutlineShader.use();
   cubeOutlineShader.setUniform("projection", projectionMat);

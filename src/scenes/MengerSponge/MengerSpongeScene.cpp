@@ -71,12 +71,12 @@ void MengerSpongeScene::renderLoop(uint32 quadVAO)
                    GL_UNSIGNED_INT, // type of the indices
                    0); // offset in the EBO
 
-    glViewport(0, 0, viewportWidth, viewportHeight);
+    glViewport(0, 0, windowWidth, windowHeight);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     // bind our frame buffer
     glBindFramebuffer(GL_READ_FRAMEBUFFER, frameBuffer);
-    glBlitFramebuffer(0, 0, currentResolution.width, currentResolution.height, 0, 0, viewportWidth, viewportHeight, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+    glBlitFramebuffer(0, 0, currentResolution.width, currentResolution.height, 0, 0, windowWidth, windowHeight, GL_COLOR_BUFFER_BIT, GL_NEAREST);
 
     glfwSwapBuffers(window); // swaps double buffers (call after all render commands are completed)
     glfwPollEvents(); // checks for events (ex: keyboard/mouse input)

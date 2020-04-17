@@ -24,13 +24,13 @@ void RayTracingSphereScene::runScene()
 
 void RayTracingSphereScene::renderLoop(uint32 quadVAO)
 {
-  initializeFrameBuffer(frameBuffer, rbo, frameBufferTexture, viewportWidth, viewportHeight);
+  initializeFrameBuffer(frameBuffer, rbo, frameBufferTexture, windowWidth, windowHeight);
 
   // background clear color
   glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 
   rayTracingSphereShader.use();
-  rayTracingSphereShader.setUniform("viewPortResolution", glm::vec2(viewportWidth, viewportHeight));
+  rayTracingSphereShader.setUniform("viewPortResolution", glm::vec2(windowWidth, windowHeight));
 
   glBindVertexArray(quadVAO);
 
@@ -48,7 +48,7 @@ void RayTracingSphereScene::renderLoop(uint32 quadVAO)
 
     if(rayTracingSphereShader.updateFragmentShaderIfOutdated()) {
       rayTracingSphereShader.use();
-      rayTracingSphereShader.setUniform("viewPortResolution", glm::vec2(viewportWidth, viewportHeight));
+      rayTracingSphereShader.setUniform("viewPortResolution", glm::vec2(windowWidth, windowHeight));
     }
 
     float32 t = (float32)glfwGetTime() - startTime;

@@ -26,13 +26,13 @@ void MandelbrotScene::runScene()
 
 void MandelbrotScene::renderLoop(uint32 quadVAO)
 {
-  initializeFrameBuffer(frameBuffer, rbo, frameBufferTexture, viewportWidth, viewportHeight);
+  initializeFrameBuffer(frameBuffer, rbo, frameBufferTexture, windowWidth, windowHeight);
 
   // background clear color
   glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 
   mandelbrotShader.use();
-  mandelbrotShader.setUniform("viewPortResolution", glm::vec2(viewportWidth, viewportHeight));
+  mandelbrotShader.setUniform("viewPortResolution", glm::vec2(windowWidth, windowHeight));
 
   glBindVertexArray(quadVAO);
 
@@ -73,8 +73,8 @@ void MandelbrotScene::renderLoop(uint32 quadVAO)
 
 void MandelbrotScene::frameBufferSize(uint32 width, uint32 height)
 {
-  float32 oldWidth = (float32)viewportWidth;
-  float32 oldHeight = (float32)viewportHeight;
+  float32 oldWidth = (float32)windowWidth;
+  float32 oldHeight = (float32)windowHeight;
 
   FirstPersonScene::frameBufferSize(width, height);
   initializeFrameBuffer(frameBuffer, rbo, frameBufferTexture, width, height);
@@ -82,8 +82,8 @@ void MandelbrotScene::frameBufferSize(uint32 width, uint32 height)
   mandelbrotShader.setUniform("viewPortResolution", glm::vec2(width, height));
 
   // The center needs to be adjusted when the viewport size changes in order to maintain the same position
-  float32 widthRatio = viewportWidth / oldWidth;
-  float32 heightRatio = viewportHeight / oldHeight;
+  float32 widthRatio = windowWidth / oldWidth;
+  float32 heightRatio = windowHeight / oldHeight;
   centerOffset *= glm::vec2(widthRatio, heightRatio);
 }
 

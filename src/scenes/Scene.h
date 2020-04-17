@@ -23,8 +23,8 @@ public:
 
 protected:
   GLFWwindow* window;
-  uint32 viewportWidth;
-  uint32 viewportHeight;
+  uint32 windowWidth;
+  uint32 windowHeight;
 
   void adjustWindowSize();
   void closeWindow();

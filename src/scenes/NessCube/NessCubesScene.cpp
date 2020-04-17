@@ -84,12 +84,12 @@ void NessCubesScene::renderLoop(uint32& shapesVAO, uint32& lightVAO, uint32& qua
   uint32 specTextureId;
   uint32 skyboxTextureId;
   initializeTextures(diffTextureId, specTextureId, skyboxTextureId);
-  initializeFrameBuffer(frameBuffer, rbo, frameBufferTexture, viewportWidth, viewportHeight);
+  initializeFrameBuffer(frameBuffer, rbo, frameBufferTexture, windowWidth, windowHeight);
 
   // load models
   Model nanoSuitModel((char*)nanoSuitModelLoc);
 
-  const glm::mat4 projectionMat = glm::perspective(glm::radians(camera.Zoom), (float32)viewportWidth / (float32)viewportHeight, 0.1f, 100.0f);
+  const glm::mat4 projectionMat = glm::perspective(glm::radians(camera.Zoom), (float32)windowWidth / (float32)windowHeight, 0.1f, 100.0f);
 
   const float32 lightOrbitSpeed = 20.0f;
   const glm::vec3 lightAxisRot(0.0f, 1.0f, 0.0f);
@@ -185,8 +185,8 @@ void NessCubesScene::renderLoop(uint32& shapesVAO, uint32& lightVAO, uint32& qua
   skyboxShader.setUniform("projection", projectionMat);
 
   frameBufferShader.use();
-  frameBufferShader.setUniform("textureWidth", (float32)viewportWidth);
-  frameBufferShader.setUniform("textureHeight", (float32)viewportHeight);
+  frameBufferShader.setUniform("textureWidth", (float32)windowWidth);
+  frameBufferShader.setUniform("textureHeight", (float32)windowHeight);
 
   const char* vendor = (char*)glGetString(GL_VENDOR); // Returns the vendor
   const char* renderer = (char*)glGetString(GL_RENDERER); // Returns a hint to the model

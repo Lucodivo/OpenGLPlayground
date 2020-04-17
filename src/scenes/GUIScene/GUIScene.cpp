@@ -29,7 +29,7 @@ void GUIScene::runScene()
 
 void GUIScene::renderLoop(uint32 cubeVAO)
 {
-  projectionMat = glm::perspective(glm::radians(camera.Zoom), (float32)viewportWidth / (float32)viewportHeight, 0.1f, 100.0f);
+  projectionMat = glm::perspective(glm::radians(camera.Zoom), (float32)windowWidth / (float32)windowHeight, 0.1f, 100.0f);
   const glm::vec3 cubeColor = glm::vec3(0.8f, 0.0f, 0.0f);
   const glm::vec3 wireFrameColor = glm::vec3(0.0f, 0.0f, 0.0f);
 
@@ -150,8 +150,8 @@ void GUIScene::mouseMovement(float32 xOffset, float32 yOffset)
 void GUIScene::checkMouseClickCollision(float32 mouseX, float32 mouseY)
 {
   // to 3D Normal Device Coordinates
-  float32 ndcX = ((2.0f * mouseX) / viewportWidth) - 1.0f;
-  float32 ndcY = 1.0f - ((2.0f * mouseY) / viewportHeight);
+  float32 ndcX = ((2.0f * mouseX) / windowWidth) - 1.0f;
+  float32 ndcY = 1.0f - ((2.0f * mouseY) / windowHeight);
   const float32 ndcZ = 1.0f;
   glm::vec3 rayNormalDeviceCoords = glm::vec3(ndcX, ndcY, ndcZ);
 

@@ -46,7 +46,7 @@ void RoomScene::renderLoop(uint32 cubeVAO, uint32 invertedNormCubeVAO)
   glActiveTexture(GL_TEXTURE2);
   glBindTexture(GL_TEXTURE_CUBE_MAP, depthCubeMapTextureId);
 
-  float32 cameraAspectRatio = (float32)viewportWidth / (float32)viewportHeight;
+  float32 cameraAspectRatio = (float32)windowWidth / (float32)windowHeight;
   const float32 cameraNearPlane = 0.1f;
   const float32 cameraFarPlane = 120.f;
   const glm::mat4 cameraProjMat = glm::perspective(glm::radians(camera.Zoom), cameraAspectRatio, cameraNearPlane, cameraFarPlane);
@@ -211,7 +211,7 @@ void RoomScene::renderLoop(uint32 cubeVAO, uint32 invertedNormCubeVAO)
     // bind default frame buffer
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     // render scene using the depth cube map for shadows
-    glViewport(0, 0, viewportWidth, viewportHeight);
+    glViewport(0, 0, windowWidth, windowHeight);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // draw positional light

@@ -8,14 +8,14 @@
 
 Scene::Scene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth)
         : window(window),
-          viewportHeight(initScreenHeight),
-          viewportWidth(initScreenWidth),
+          windowHeight(initScreenHeight),
+          windowWidth(initScreenWidth),
           textDebugShader(textVertexShaderFileLoc, textFragmentShaderFileLoc)
 {
   subscribeFrameBufferSize(window, this);
   initDebugTextCharacters();
   initDebugTextBuffers();
-  textDebugProjectionMat = glm::ortho(0.0f, (float)viewportWidth, 0.0f, (float)viewportWidth);
+  textDebugProjectionMat = glm::ortho(0.0f, (float)windowWidth, 0.0f, (float)windowWidth);
   textDebugShader.use();
   textDebugShader.setUniform("projection", textDebugProjectionMat);
 }
@@ -24,9 +24,9 @@ Scene::Scene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth
 void Scene::frameBufferSize(uint32 width, uint32 height)
 {
   glViewport(0, 0, width, height);
-  viewportHeight = height;
-  viewportWidth = width;
-  textDebugProjectionMat = glm::ortho(0.0f, (float)viewportWidth, 0.0f, (float)viewportWidth);
+  windowHeight = height;
+  windowWidth = width;
+  textDebugProjectionMat = glm::ortho(0.0f, (float)windowWidth, 0.0f, (float)windowWidth);
   textDebugShader.use();
   textDebugShader.setUniform("projection", textDebugProjectionMat);
 }
