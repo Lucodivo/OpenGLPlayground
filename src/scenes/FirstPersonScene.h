@@ -3,7 +3,7 @@
 #include "Scene.h"
 #include "../Camera.h"
 
-class FirstPersonScene : public Scene, public KeyboardConsumer, public ControllerConsumer, public MouseMovementConsumer, public MouseScrollConsumer
+class FirstPersonScene : public Scene, public ControllerConsumer, public MouseMovementConsumer, public MouseScrollConsumer
 {
 public:
   FirstPersonScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth);

@@ -9,29 +9,29 @@
 class KeyboardConsumer
 {
 public:
-  virtual void key_LeftShift_pressed() = 0;
-  virtual void key_LeftShift_released() = 0;
-  virtual void key_W() = 0;
-  virtual void key_S() = 0;
-  virtual void key_A() = 0;
-  virtual void key_D() = 0;
+  virtual void key_LeftShift_pressed() {};
+  virtual void key_LeftShift_released() {};
+  virtual void key_W() {};
+  virtual void key_S() {};
+  virtual void key_A() {};
+  virtual void key_D() {};
   virtual void key_Q_pressed() {};
   virtual void key_Q_released() {};
   virtual void key_E_pressed() {};
   virtual void key_E_released() {};
-  virtual void key_Space() = 0;
-  virtual void key_LeftMouseButton_pressed(float32 xPos, float32 yPos) = 0;
-  virtual void key_LeftMouseButton_released(float32 xPos, float32 yPos) = 0;
-  virtual void key_RightMouseButton_pressed(float32 xPos, float32 yPos) = 0;
-  virtual void key_RightMouseButton_released(float32 xPos, float32 yPos) = 0;
-  virtual void key_Up() = 0;
-  virtual void key_Down() = 0;
-  virtual void key_Left() = 0;
-  virtual void key_Right() = 0;
-  virtual void key_AltEnter_pressed() = 0;
-  virtual void key_AltEnter_released() = 0;
-  virtual void key_Tab_pressed() = 0;
-  virtual void key_Tab_released() = 0;
+  virtual void key_Space() {};
+  virtual void key_LeftMouseButton_pressed(float32 xPos, float32 yPos) {};
+  virtual void key_LeftMouseButton_released(float32 xPos, float32 yPos) {};
+  virtual void key_RightMouseButton_pressed(float32 xPos, float32 yPos) {};
+  virtual void key_RightMouseButton_released(float32 xPos, float32 yPos) {};
+  virtual void key_Up() {};
+  virtual void key_Down() {};
+  virtual void key_Left() {};
+  virtual void key_Right() {};
+  virtual void key_AltEnter_pressed() {};
+  virtual void key_AltEnter_released() {};
+  virtual void key_Tab_pressed() {};
+  virtual void key_Tab_released() {};
 };
 
 class MouseMovementConsumer
@@ -49,25 +49,25 @@ public:
 class ControllerConsumer
 {
 public:
-  virtual void leftAnalog(int16 stickX, int16 stickY) = 0;
-  virtual void rightAnalog(int16 stickX, int16 stickY) = 0;
-  virtual void button_A_pressed() = 0;
-  virtual void button_A_released() = 0;
-  virtual void button_B_pressed() = 0;
-  virtual void button_B_released() = 0;
-  virtual void button_X_pressed() = 0;
-  virtual void button_X_released() = 0;
-  virtual void button_Y_pressed() = 0;
-  virtual void button_Y_released() = 0;
-  virtual void button_dPadUp_pressed() = 0;
-  virtual void button_dPadDown_pressed() = 0;
-  virtual void button_dPadLeft_pressed() = 0;
-  virtual void button_dPadRight_pressed() = 0;
-  virtual void button_leftShoulder_pressed() = 0;
-  virtual void button_rightShoulder_pressed() = 0;
-  virtual void button_start_pressed() = 0;
-  virtual void button_select_pressed() = 0;
-  virtual void button_select_released() = 0;
+  virtual void leftAnalog(int16 stickX, int16 stickY) {};
+  virtual void rightAnalog(int16 stickX, int16 stickY) {};
+  virtual void button_A_pressed() {};
+  virtual void button_A_released() {};
+  virtual void button_B_pressed() {};
+  virtual void button_B_released() {};
+  virtual void button_X_pressed() {};
+  virtual void button_X_released() {};
+  virtual void button_Y_pressed() {};
+  virtual void button_Y_released() {};
+  virtual void button_dPadUp_pressed() {};
+  virtual void button_dPadDown_pressed() {};
+  virtual void button_dPadLeft_pressed() {};
+  virtual void button_dPadRight_pressed() {};
+  virtual void button_leftShoulder_pressed() {};
+  virtual void button_rightShoulder_pressed() {};
+  virtual void button_start_pressed() {};
+  virtual void button_select_pressed() {};
+  virtual void button_select_released() {};
 };
 
 class FrameBufferSizeConsumer

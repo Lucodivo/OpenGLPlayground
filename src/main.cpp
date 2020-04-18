@@ -16,6 +16,7 @@
 #include "scenes/Mandelbrot/MandelbrotScene.h"
 #include "scenes/MengerSponge/MengerSpongeScene.h"
 #include "scenes/RayTracingSphere/RayTracingSphereScene.h"
+#include "scenes/Pixel2D/Pixel2DScene.h"
 
 #include <iostream>
 
