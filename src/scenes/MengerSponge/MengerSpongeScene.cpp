@@ -26,7 +26,8 @@ void MengerSpongeScene::runScene()
 
 void MengerSpongeScene::renderLoop(uint32 quadVAO)
 {
-  initializeFrameBuffer(frameBuffer, rbo, frameBufferTexture, currentResolution.width, currentResolution.height);
+  resolution largestResolution = screenResolutions[ArrayCount(screenResolutions) - 1];
+  initializeFrameBuffer(frameBuffer, rbo, frameBufferTexture, largestResolution.width, largestResolution.height);
 
   // background clear color
   glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
@@ -116,7 +117,6 @@ void MengerSpongeScene::key_E_pressed() {
   }
 
   currentResolution = screenResolutions[currentResolutionIndex];
-  initializeFrameBuffer(frameBuffer, rbo, frameBufferTexture, currentResolution.width, currentResolution.height);
 
   mengerSpongeShader.use();
   mengerSpongeShader.setUniform("viewPortResolution", glm::vec2(currentResolution.width, currentResolution.height));
@@ -124,8 +124,6 @@ void MengerSpongeScene::key_E_pressed() {
   pixel2DShader.use();
   pixel2DShader.setUniform("windowDimens", glm::vec2(currentResolution.width, currentResolution.height));
   pixel2DShader.setUniform("lowerLeftOffset", glm::vec2((currentResolution.width / 2) - 16.0, (currentResolution.height / 2) - 16.0));
-  glActiveTexture(GL_TEXTURE0);
-  glBindTexture(GL_TEXTURE_2D, textureId);
 }
 
 void MengerSpongeScene::key_Q_pressed() {
@@ -136,7 +134,6 @@ void MengerSpongeScene::key_Q_pressed() {
   }
 
   currentResolution = screenResolutions[currentResolutionIndex];
-  initializeFrameBuffer(frameBuffer, rbo, frameBufferTexture, currentResolution.width, currentResolution.height);
 
   mengerSpongeShader.use();
   mengerSpongeShader.setUniform("viewPortResolution", glm::vec2(currentResolution.width, currentResolution.height));
@@ -144,6 +141,4 @@ void MengerSpongeScene::key_Q_pressed() {
   pixel2DShader.use();
   pixel2DShader.setUniform("windowDimens", glm::vec2(currentResolution.width, currentResolution.height));
   pixel2DShader.setUniform("lowerLeftOffset", glm::vec2((currentResolution.width / 2) - 16.0, (currentResolution.height / 2) - 16.0));
-  glActiveTexture(GL_TEXTURE0);
-  glBindTexture(GL_TEXTURE_2D, textureId);
 }
