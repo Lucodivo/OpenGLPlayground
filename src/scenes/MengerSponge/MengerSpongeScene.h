@@ -35,6 +35,8 @@ public:
 private:
 
   Shader mengerSpongeShader;
+  Shader pixel2DShader;
+  uint32 textureId;
 
   float32 deltaTime = 0;
   float32 lastFrame = 0;
