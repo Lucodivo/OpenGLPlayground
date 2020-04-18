@@ -46,6 +46,10 @@ void MengerSpongeScene::renderLoop(uint32 quadVAO)
     processKeyboardInput(window, this);
     processXInput(this);
 
+    glm::vec3 deltaCameraPos = camera.Front;
+    deltaCameraPos *= 0.1;
+    camera.Position += deltaCameraPos;
+
     // bind our frame buffer
     glViewport(0, 0, currentResolution.width, currentResolution.height);
     glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);

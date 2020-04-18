@@ -6,6 +6,7 @@ out vec4 FragColor;
 #define MISS_DIST 60.0
 #define HIT_DIST 0.01
 
+vec3 hitColor(float numSteps);
 float distPosToScene(vec3 pos);
 vec2 distanceRayToScene(vec3 rayOrigin, vec3 rayDir);
 float sdBox(vec3 rayPos, vec3 dimen);
@@ -53,12 +54,21 @@ void main()
   vec2 dist = distanceRayToScene(rayOrigin, rayDir);
 
   if(dist.x > 0.0) { // hit
-    vec3 col = vec3(1.0 - (dist.y/float(MAX_STEPS)));
+    vec3 col = hitColor(dist.y);
     FragColor = vec4(col, 1.0);
   } else { // miss
-    vec3 missColor = vec3(0.2, 0.2, 0.2);
+    vec3 missColor = hitColor(MAX_STEPS);
     FragColor = vec4(missColor, 1.0);
   }
+}
+
+vec3 hitColor(float numSteps) {
+  float brightness = 1.0 - (numSteps/float(MAX_STEPS));
+  brightness = clamp(brightness, 0.4, 0.9);
+  brightness = brightness - mod(brightness, 0.1);
+
+  vec3 color = vec3(brightness, 0.0, 0.0);
+  return color;
 }
 
 // returns vec2(dist, iterations)
