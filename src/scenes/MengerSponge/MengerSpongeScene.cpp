@@ -38,11 +38,13 @@ void MengerSpongeScene::renderLoop(uint32 quadVAO)
 
   pixel2DShader.use();
   pixel2DShader.setUniform("windowDimens", glm::vec2(currentResolution.width, currentResolution.height));
+  // TODO: get width/height of image from load2DTexture()
   pixel2DShader.setUniform("lowerLeftOffset", glm::vec2((currentResolution.width / 2) - 16.0, (currentResolution.height / 2) - 16.0));
   pixel2DShader.setUniform("spriteDimens", glm::vec2(32.0, 32.0));
 
   mengerSpongeShader.use();
   mengerSpongeShader.setUniform("viewPortResolution", glm::vec2(currentResolution.width, currentResolution.height));
+  mengerSpongeShader.setUniform("rayOrigin", camera.Position);
 
   glBindVertexArray(quadVAO);
 
@@ -62,8 +64,9 @@ void MengerSpongeScene::renderLoop(uint32 quadVAO)
     deltaTime = t - lastFrame;
     lastFrame = t;
 
+    // Autoscroll
     glm::vec3 deltaCameraPos = camera.Front;
-    deltaCameraPos *= 0.07;
+    deltaCameraPos *= 0.04;
     camera.Position += deltaCameraPos;
     camera.changePositioning(deltaTime);
     glm::mat4 cameraRotationMatrix = camera.lookAtRotationMat();
@@ -85,13 +88,19 @@ void MengerSpongeScene::renderLoop(uint32 quadVAO)
     glDrawElements(GL_TRIANGLES, // drawing mode
                    6, // number of elements to draw (3 vertices per triangle * 2 triangles per quad)
                    GL_UNSIGNED_INT, // type of the indices
-                   0); // offset in the EBO
+                   0 /* offset in the EBO */);
 
-    pixel2DShader.use();
-    glDrawElements(GL_TRIANGLES, // drawing mode
-                   6, // number of elements to draw (3 vertices per triangle * 2 triangles per quad)
-                   GL_UNSIGNED_INT, // type of the indices
-                   0); // offset in the EBO
+    static uint32 numSnapshots = 0;
+    if(numSnapshots < 1) {
+      snapshot(currentResolution.width, currentResolution.height, "C:\\Users\\Connor\\Desktop\\tmp\\snapshot.bmp", frameBuffer);
+      ++numSnapshots;
+    }
+
+//    pixel2DShader.use();
+//    glDrawElements(GL_TRIANGLES, // drawing mode
+//                   6, // number of elements to draw (3 vertices per triangle * 2 triangles per quad)
+//                   GL_UNSIGNED_INT, // type of the indices
+//                   0); // offset in the EBO
 
     glViewport(0, 0, windowWidth, windowHeight);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);

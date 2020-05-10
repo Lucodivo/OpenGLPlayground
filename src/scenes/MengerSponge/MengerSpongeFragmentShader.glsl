@@ -35,23 +35,37 @@ uniform mat4 viewRotationMat;
 
 const float boxDimen = 20.0;
 const float halfBoxDimen = boxDimen / 2.0;
+const int numSamples = 5;
+
 
 float sint;
 
+// TODO: Multiple samples per pixel?
 void main()
 {
   // Move (0,0) from bottom left to center
+  // Coordinate system goes from [-viewPortResolution / 2, viewPortResolution / 2]
   vec2 pixelCoord = gl_FragCoord.xy-0.5*viewPortResolution.xy;
-  // Scale y value to [-1.0, 1.0], scale x by same factor
-  pixelCoord = pixelCoord / viewPortResolution.y;
+  float pixelWidth = 1.0 / viewPortResolution.y;
+  // Scale y value to [-0.5, 0.5], scale x by same factor
+  pixelCoord = pixelCoord * pixelWidth;
 
-  sint = sin(elapsedTime);
+  float samplePixelOffset = pixelWidth / 3.0; // 1.0 / 4.0; <- for a tripy things
+  vec3 rayDirSamples[numSamples] = vec3[](
+    normalize(vec3(pixelCoord.x, pixelCoord.y, 1.0)),
+    normalize(vec3(pixelCoord.x - samplePixelOffset, pixelCoord.y - samplePixelOffset, 1.0)),
+    normalize(vec3(pixelCoord.x - samplePixelOffset, pixelCoord.y + samplePixelOffset, 1.0)),
+    normalize(vec3(pixelCoord.x + samplePixelOffset, pixelCoord.y - samplePixelOffset, 1.0)),
+    normalize(vec3(pixelCoord.x + samplePixelOffset, pixelCoord.y + samplePixelOffset, 1.0))
+  );
 
-  vec3 rayDir = vec3(pixelCoord.x, pixelCoord.y, 1.0);
-  rayDir = vec3(vec4(rayDir, 0.0) * viewRotationMat);
-  rayDir = normalize(rayDir);
+  vec2 dist = vec2(0.0, 0.0);
+  for(int sampleIndex = 0; sampleIndex < numSamples; ++sampleIndex) {
+    rayDirSamples[sampleIndex] = vec3(vec4(rayDirSamples[sampleIndex], 0.0) * viewRotationMat);
+    dist += distanceRayToScene(rayOrigin, rayDirSamples[sampleIndex]);
+  }
+  dist /= numSamples;
 
-  vec2 dist = distanceRayToScene(rayOrigin, rayDir);
 
   if(dist.x > 0.0) { // hit
     vec3 col = hitColor(dist.y);
@@ -64,8 +78,8 @@ void main()
 
 vec3 hitColor(float numSteps) {
   float brightness = 1.0 - (numSteps/float(MAX_STEPS));
-  brightness = clamp(brightness, 0.4, 0.9);
-  brightness = brightness - mod(brightness, 0.1);
+//  brightness = clamp(brightness, 0.4, 0.9);
+//  brightness = brightness - mod(brightness, 0.1);
 
   vec3 color = vec3(brightness, 0.0, 0.0);
   return color;
@@ -93,9 +107,14 @@ float distPosToScene(vec3 rayPos) {
 }
 
 float sdMengerPrison(vec3 rayPos) {
+  float sintime = sin((rayPos.y * 6.28) / 8 + (elapsedTime)) * 1.5 ;
+  rayPos.x += sintime;
+
   vec3 prisonRay = mod(rayPos, boxDimen * 2.0);
   prisonRay -= boxDimen;
+
   float mengerPrisonDist = sdCross(prisonRay, vec3(halfBoxDimen));
+  if(mengerPrisonDist > HIT_DIST) return mengerPrisonDist;
 
   float scale = 1.0;
   for(int i = 0; i < 5; ++i) {

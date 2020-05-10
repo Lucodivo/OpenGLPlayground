@@ -3,6 +3,7 @@
 #include <stb/stb_image.h>
 #include <glad/glad.h>
 #include <iostream>
+#include <windows.h>
 
 void load2DTexture(const char* imgLocation, uint32& textureId, bool flipImageVert, bool sRGB)
 {
@@ -88,6 +89,48 @@ void loadCubeMapTexture(const char* const imgLocations[6], uint32& textureId, bo
     }
     stbi_image_free(data);
   }
+}
+
+void snapshot(int windowWidth, int windowHeight, char* filename, uint32 frameBuffer)
+{
+  char* bmpBuffer = (char*)malloc(windowWidth*windowHeight*3);
+  if (!bmpBuffer) return;
+
+  glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
+  glReadPixels((GLint)0, (GLint)0,
+               (GLint)windowWidth, (GLint)windowHeight,
+               GL_BGR, GL_UNSIGNED_BYTE, bmpBuffer);
+
+  FILE *filePtr = fopen(filename, "wb");
+  if (!filePtr)
+    return;
+
+  BITMAPFILEHEADER bitmapFileHeader = {0};
+  bitmapFileHeader.bfType = 0x4D42; //"BM"
+  bitmapFileHeader.bfSize = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER) + windowWidth * windowHeight * 3;
+  bitmapFileHeader.bfReserved1 = 0;
+  bitmapFileHeader.bfReserved2 = 0;
+  bitmapFileHeader.bfOffBits = (DWORD)sizeof(BITMAPFILEHEADER) + (DWORD)sizeof(BITMAPINFOHEADER);
+
+  BITMAPINFOHEADER bitmapInfoHeader = {0};
+  bitmapInfoHeader.biSize = sizeof(BITMAPINFOHEADER);
+  bitmapInfoHeader.biWidth = windowWidth;
+  bitmapInfoHeader.biHeight = windowHeight;
+  bitmapInfoHeader.biPlanes = 1;
+  bitmapInfoHeader.biBitCount = 24;
+  bitmapInfoHeader.biCompression = BI_RGB;
+  bitmapInfoHeader.biSizeImage = 0;
+  bitmapInfoHeader.biXPelsPerMeter = 0;
+  bitmapInfoHeader.biYPelsPerMeter = 0;
+  bitmapInfoHeader.biClrUsed = 0;
+  bitmapInfoHeader.biClrImportant = 0;
+
+  fwrite(&bitmapFileHeader, sizeof(BITMAPFILEHEADER), 1, filePtr);
+  fwrite(&bitmapInfoHeader, sizeof(BITMAPINFOHEADER), 1, filePtr);
+  fwrite(bmpBuffer, windowWidth*windowHeight*3, 1, filePtr);
+  fclose(filePtr);
+
+  free(bmpBuffer);
 }
 
 void swap(float32* a, float32* b)
