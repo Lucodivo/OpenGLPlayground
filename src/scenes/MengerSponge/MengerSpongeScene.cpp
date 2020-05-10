@@ -66,7 +66,7 @@ void MengerSpongeScene::renderLoop(uint32 quadVAO)
 
     // Autoscroll
     glm::vec3 deltaCameraPos = camera.Front;
-    deltaCameraPos *= 0.04;
+    deltaCameraPos *= 0.07;
     camera.Position += deltaCameraPos;
     camera.changePositioning(deltaTime);
     glm::mat4 cameraRotationMatrix = camera.lookAtRotationMat();

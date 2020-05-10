@@ -107,7 +107,7 @@ float distPosToScene(vec3 rayPos) {
 }
 
 float sdMengerPrison(vec3 rayPos) {
-  float sintime = sin((rayPos.y * 6.28) / 8 + (elapsedTime)) * 1.5 ;
+  float sintime = sin((rayPos.y * 6.28) / 8 + (elapsedTime));
   rayPos.x += sintime;
 
   vec3 prisonRay = mod(rayPos, boxDimen * 2.0);
