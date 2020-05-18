@@ -5,6 +5,7 @@
 #include "RayTracingSphereScene.h"
 #include "../../common/FileLocations.h"
 #include "../../common/ObjectData.h"
+#include "../../common/Util.h"
 
 RayTracingSphereScene::RayTracingSphereScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth)
         : GodModeScene(window, initScreenHeight, initScreenWidth),
@@ -57,11 +58,10 @@ void RayTracingSphereScene::renderLoop(uint32 quadVAO)
 
     glClear(GL_COLOR_BUFFER_BIT);
 
-    camera.changePositioning(deltaTime);
-    glm::mat4 cameraRotationMatrix = camera.lookAtRotationMat();
+    glm::mat4 cameraRotationMatrix = camera.GetViewMatrix(deltaTime);
     rayTracingSphereShader.setUniform("rayOrigin", camera.Position);
     rayTracingSphereShader.setUniform("elapsedTime", t);
-    rayTracingSphereShader.setUniform("viewRotationMat", cameraRotationMatrix);
+    rayTracingSphereShader.setUniform("viewRotationMat", reverseZMat4 * cameraRotationMatrix);
     glDrawElements(GL_TRIANGLES, // drawing mode
                    6, // number of elements to draw (3 vertices per triangle * 2 triangles per quad)
                    GL_UNSIGNED_INT, // type of the indices

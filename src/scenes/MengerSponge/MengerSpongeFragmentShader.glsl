@@ -3,12 +3,12 @@
 out vec4 FragColor;
 
 #define MAX_STEPS 120
-#define MISS_DIST 60.0
+#define MISS_DIST 200.0
 #define HIT_DIST 0.01
 
 vec3 hitColor(float numSteps);
 float distPosToScene(vec3 pos);
-vec2 distanceRayToScene(vec3 rayOrigin, vec3 rayDir);
+vec4 distanceRayToScene(vec3 rayOrigin, vec3 rayDir);
 float sdBox(vec3 rayPos, vec3 dimen);
 float sdCross(vec3 rayPos, vec3 dimen);
 float sdRect(vec2 rayPos, vec2 dimen);
@@ -32,11 +32,14 @@ uniform vec2 viewPortResolution;
 uniform vec3 rayOrigin;
 uniform float elapsedTime;
 uniform mat4 viewRotationMat;
+uniform mat4 projection;
+uniform mat4 view;
 
 const float boxDimen = 20.0;
 const float halfBoxDimen = boxDimen / 2.0;
 const int numSamples = 5;
 
+vec3 mengerColor = vec3(1.0, 1.0, 1.0);
 
 float sint;
 
@@ -59,47 +62,51 @@ void main()
     normalize(vec3(pixelCoord.x + samplePixelOffset, pixelCoord.y + samplePixelOffset, 1.0))
   );
 
-  vec2 dist = vec2(0.0, 0.0);
+  vec4 dist = vec4(0.0, 0.0, 0.0, 0.0);
   for(int sampleIndex = 0; sampleIndex < numSamples; ++sampleIndex) {
     rayDirSamples[sampleIndex] = vec3(vec4(rayDirSamples[sampleIndex], 0.0) * viewRotationMat);
     dist += distanceRayToScene(rayOrigin, rayDirSamples[sampleIndex]);
   }
   dist /= numSamples;
 
-
-  if(dist.x > 0.0) { // hit
-    vec3 col = hitColor(dist.y);
+  if(dist.w < MAX_STEPS) { // hit
+    vec3 col = hitColor(dist.w);
     FragColor = vec4(col, 1.0);
+    vec4 clipPos = projection * view * vec4(dist.xyz, 1.0);
+    float ndcDepth = clipPos.z / clipPos.w;
+    float far = gl_DepthRange.far;
+    float near = gl_DepthRange.near;
+    gl_FragDepth = (far - near) * 0.5 * ndcDepth + (near + far) * 0.5;
   } else { // miss
     vec3 missColor = hitColor(MAX_STEPS);
     FragColor = vec4(missColor, 1.0);
+    gl_FragDepth = 0.99999;
   }
 }
 
 vec3 hitColor(float numSteps) {
   float brightness = 1.0 - (numSteps/float(MAX_STEPS));
-//  brightness = clamp(brightness, 0.4, 0.9);
-//  brightness = brightness - mod(brightness, 0.1);
+  brightness = clamp(brightness, 0.4, 0.9);
+  brightness = brightness - mod(brightness, 0.1);
 
-  vec3 color = vec3(brightness, 0.0, 0.0);
-  return color;
+  return mengerColor * brightness;
 }
 
-// returns vec2(dist, iterations)
+// returns vec4(worldSpacePos, iterations)
 // NOTE: ray dir is assumed to be normalized
-vec2 distanceRayToScene(vec3 rayOrigin, vec3 rayDir) {
+vec4 distanceRayToScene(vec3 rayOrigin, vec3 rayDir) {
 
-  float dist = 0.0;
+  float distTraveled = 0.0;
 
   for(int i = 0; i < MAX_STEPS; i++) {
-    vec3 pos = rayOrigin + (dist * rayDir);
+    vec3 pos = rayOrigin + (distTraveled * rayDir);
     float posToScene = distPosToScene(pos);
-    dist += posToScene;
-    if(abs(posToScene) < HIT_DIST) return vec2(dist, i); // absolute value for posToScene incase the ray makes its way inside an object
-    if(posToScene > MISS_DIST) break;
+    distTraveled += posToScene;
+    if(abs(posToScene) < HIT_DIST) return vec4(pos, i); // absolute value for posToScene incase the ray makes its way inside an object
+    if(distTraveled > MISS_DIST) break;
   }
 
-  return vec2(-1.0f, MAX_STEPS);
+  return vec4(vec3(-1.0f), MAX_STEPS);
 }
 
 float distPosToScene(vec3 rayPos) {
@@ -117,7 +124,7 @@ float sdMengerPrison(vec3 rayPos) {
   if(mengerPrisonDist > HIT_DIST) return mengerPrisonDist;
 
   float scale = 1.0;
-  for(int i = 0; i < 5; ++i) {
+  for(int i = 0; i < 3; ++i) {
     float boxedWorldDimen = boxDimen / scale;
     vec3 ray = mod(rayPos + boxedWorldDimen / 2.0, boxedWorldDimen);
     ray -= boxedWorldDimen / 2.0;

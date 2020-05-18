@@ -5,6 +5,7 @@
 #include "InfiniteCapsulesScene.h"
 #include "../../common/FileLocations.h"
 #include "../../common/ObjectData.h"
+#include "../../common/Util.h"
 
 InfiniteCapsulesScene::InfiniteCapsulesScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth)
         : GodModeScene(window, initScreenHeight, initScreenWidth),
@@ -55,11 +56,10 @@ void InfiniteCapsulesScene::renderLoop(uint32 quadVAO)
 
     glClear(GL_COLOR_BUFFER_BIT);
 
-    camera.changePositioning(deltaTime);
-    glm::mat4 cameraRotationMatrix = camera.lookAtRotationMat();
+    glm::mat4 cameraRotationMatrix = camera.GetViewMatrix(deltaTime);
     rayMarchingShader.setUniform("rayOrigin", camera.Position);
     rayMarchingShader.setUniform("elapsedTime", t);
-    rayMarchingShader.setUniform("viewRotationMat", cameraRotationMatrix);
+    rayMarchingShader.setUniform("viewRotationMat", reverseZMat4 * cameraRotationMatrix);
     if(lightAlive) {
       rayMarchingShader.setUniform("lightPos", lightPosition);
       glm::vec3 lightDelta = lightMoveDir * deltaTime * 25.0f;

@@ -61,8 +61,6 @@ public:
   // Returns the view matrix calculated using Eular Angles and the LookAt Matrix
   glm::mat4 GetViewMatrix(float32 deltaTime);
   glm::mat4 lookAt();
-  glm::mat4 lookAtRotationMat();
-  void changePositioning(float32 deltaTime);
   // Processes input received from any keyboard-like input system. Accepts input parameter in the form of camera defined ENUM (to abstract it from windowing systems)
   void ProcessInput(Camera_Movement direction);
   void ProcessLeftAnalog(int16 stickX, int16 stickY, GLboolean constrainPitch = true);
@@ -75,4 +73,5 @@ public:
 private:
   // Calculates the front vector from the Camera's (updated) Eular Angles
   void updateCameraVectors();
+  void changePositioning(float32 deltaTime);
 };

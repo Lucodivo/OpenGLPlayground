@@ -312,7 +312,7 @@ void initializeFrameBuffer(uint32& frameBuffer, uint32& rbo, uint32& frameBuffer
   glGenFramebuffers(1, &frameBuffer);
   glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
 
-  // creating frame buffer texture
+  // creating frame buffer color texture
   glGenTextures(1, &frameBufferTexture);
   glBindTexture(GL_TEXTURE_2D, frameBufferTexture);
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
@@ -326,6 +326,23 @@ void initializeFrameBuffer(uint32& frameBuffer, uint32& rbo, uint32& frameBuffer
                          GL_TEXTURE_2D, // type of texture
                          frameBufferTexture, // texture
                          0); // mipmap level
+
+  // creating frame buffer depth texture
+  uint32 depthTexture;
+  glGenTextures(1, &depthTexture);
+  glBindTexture(GL_TEXTURE_2D, depthTexture);glTexImage2D(
+          GL_TEXTURE_2D, 0, GL_DEPTH24_STENCIL8, width, height, 0,
+          GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, NULL
+  );
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glBindTexture(GL_TEXTURE_2D, 0); // unbind
+
+  glFramebufferTexture2D(GL_FRAMEBUFFER,
+          GL_DEPTH_STENCIL_ATTACHMENT,
+          GL_TEXTURE_2D,
+          depthTexture,
+          0);
 
   // creating render buffer to be depth/stencil buffer
   glGenRenderbuffers(1, &rbo);

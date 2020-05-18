@@ -55,8 +55,6 @@ void MandelbrotScene::renderLoop(uint32 quadVAO)
 
     glClear(GL_COLOR_BUFFER_BIT);
 
-    camera.changePositioning(deltaTime);
-    glm::mat4 cameraRotationMatrix = camera.lookAtRotationMat();
     mandelbrotShader.setUniform("elapsedTime", t);
     mandelbrotShader.setUniform("zoom", zoom);
     mandelbrotShader.setUniform("centerOffset", centerOffset);

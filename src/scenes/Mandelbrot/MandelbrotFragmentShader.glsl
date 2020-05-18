@@ -43,7 +43,7 @@ vec2 complexMul(vec2 a, vec2 b) {
 }
 
 vec2 complexSquare(vec2 a) {
-  return vec2((a.x * a.x) - (a.y * a.y), 2.0 * (a.x * b.y));
+  return vec2((a.x * a.x) - (a.y * a.y), 2.0 * (a.x * a.y));
 }
 
 vec2 mandelbrotIter(vec2 coord, vec2 constant) {

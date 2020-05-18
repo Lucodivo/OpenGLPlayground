@@ -62,27 +62,6 @@ glm::mat4 Camera::lookAt()
   return rotation * translation; // Remember to read from right to left (first translation then rotation)
 }
 
-glm::mat4 Camera::lookAtRotationMat()
-{
-  glm::vec3 target = Position + Front;
-
-  // Calculate cameraDirection
-  glm::vec3 zaxis = glm::normalize(Position - target);
-  // Get positive right axis vector
-  glm::vec3 xaxis = glm::normalize(glm::cross(glm::normalize(Up), zaxis));
-  // Calculate camera up vector
-  glm::vec3 yaxis = glm::cross(zaxis, xaxis);
-
-  glm::mat4 rotation = glm::mat4(
-          xaxis.x, yaxis.x, -zaxis.x, 0.0f,
-          xaxis.y, yaxis.y, -zaxis.y, 0.0f,
-          xaxis.z, yaxis.z, -zaxis.z, 0.0f,
-          0.0f, 0.0f, 0.0f, 1.0f);
-
-  // Return lookAt matrix as combination of translation and rotation matrix
-  return rotation; // Remember to read from right to left (first translation then rotation)
-}
-
 void Camera::changePositioning(float32 deltaTime)
 {
   if (jumping)
