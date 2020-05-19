@@ -35,7 +35,7 @@ void MengerSpongeScene::renderLoop(uint32 quadVAO, uint32 cubeVAO)
   initializeFrameBuffer(frameBuffer, rbo, frameBufferTexture, largestResolution.width, largestResolution.height);
 
 
-  const float cubeScale = 1.0f;
+  const float cubeScale = 10.0f;
   const glm::vec3 cubePos = glm::vec3(0.0, 0.0, 0.0);
   const glm::vec3 cubeColor = glm::vec3(0.5, 0.0, 0.0);
   glm::mat4 cubeModel;
@@ -71,7 +71,10 @@ void MengerSpongeScene::renderLoop(uint32 quadVAO, uint32 cubeVAO)
   float32 startTime = lastFrame;
   glEnable(GL_DEPTH_TEST);
 
-  const glm::mat4 projectionMat = glm::perspective(glm::radians(camera.Zoom), (float32)currentResolution.width / (float32)currentResolution.height, 0.1f, 200.0f);
+  // NOTE: This is helps maintain same projection for both the ray marching and rasterization
+  // If how we shoot rays change, this must change. If this changes, how we shoot rays must change.
+  const float rayMarchFovVertical = glm::radians(53.14f);
+  const glm::mat4 projectionMat = glm::perspective(rayMarchFovVertical, (float32)currentResolution.width / (float32)currentResolution.height, 0.1f, 200.0f);
 
   // NOTE: render/game loop
   while (glfwWindowShouldClose(window) == GL_FALSE)
