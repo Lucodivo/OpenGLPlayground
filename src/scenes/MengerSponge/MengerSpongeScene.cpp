@@ -107,7 +107,6 @@ void MengerSpongeScene::renderLoop(uint32 quadVAO, uint32 cubeVAO)
 
     mengerSpongeShader.setUniform("rayOrigin", camera.Position);
     mengerSpongeShader.setUniform("elapsedTime", t);
-    mengerSpongeShader.setUniform("viewRotationMat", reverseZMat4 * cameraMat);
     mengerSpongeShader.setUniform("view", cameraMat);
     mengerSpongeShader.setUniform("projection", projectionMat);
     glDrawElements(GL_TRIANGLES, // drawing mode

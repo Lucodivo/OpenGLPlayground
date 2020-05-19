@@ -31,7 +31,6 @@ float sdMengerPrison(vec3 rayPos);
 uniform vec2 viewPortResolution;
 uniform vec3 rayOrigin;
 uniform float elapsedTime;
-uniform mat4 viewRotationMat;
 uniform mat4 projection;
 uniform mat4 view;
 
@@ -55,16 +54,16 @@ void main()
 
   float samplePixelOffset = pixelWidth / 3.0; // 1.0 / 4.0; <- for a tripy things
   vec3 rayDirSamples[numSamples] = vec3[](
-    normalize(vec3(pixelCoord.x, pixelCoord.y, 1.0)),
-    normalize(vec3(pixelCoord.x - samplePixelOffset, pixelCoord.y - samplePixelOffset, 1.0)),
-    normalize(vec3(pixelCoord.x - samplePixelOffset, pixelCoord.y + samplePixelOffset, 1.0)),
-    normalize(vec3(pixelCoord.x + samplePixelOffset, pixelCoord.y - samplePixelOffset, 1.0)),
-    normalize(vec3(pixelCoord.x + samplePixelOffset, pixelCoord.y + samplePixelOffset, 1.0))
+    normalize(vec3(pixelCoord.x, pixelCoord.y, -1.0)),
+    normalize(vec3(pixelCoord.x - samplePixelOffset, pixelCoord.y - samplePixelOffset, -1.0)),
+    normalize(vec3(pixelCoord.x - samplePixelOffset, pixelCoord.y + samplePixelOffset, -1.0)),
+    normalize(vec3(pixelCoord.x + samplePixelOffset, pixelCoord.y - samplePixelOffset, -1.0)),
+    normalize(vec3(pixelCoord.x + samplePixelOffset, pixelCoord.y + samplePixelOffset, -1.0))
   );
 
   vec4 dist = vec4(0.0, 0.0, 0.0, 0.0);
   for(int sampleIndex = 0; sampleIndex < numSamples; ++sampleIndex) {
-    rayDirSamples[sampleIndex] = vec3(vec4(rayDirSamples[sampleIndex], 0.0) * viewRotationMat);
+    rayDirSamples[sampleIndex] = vec3(vec4(rayDirSamples[sampleIndex], 0.0) * view);
     dist += distanceRayToScene(rayOrigin, rayDirSamples[sampleIndex]);
   }
   dist /= numSamples;
