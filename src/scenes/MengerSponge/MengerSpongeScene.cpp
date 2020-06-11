@@ -11,7 +11,7 @@ MengerSpongeScene::MengerSpongeScene(GLFWwindow* window, uint32 initScreenHeight
         : GodModeScene(window, initScreenHeight, initScreenWidth),
           mengerSpongeShader(UVCoordVertexShaderFileLoc, MengerSpongeFragmentShaderFileLoc),
           pixel2DShader(pixel2DVertexShaderFileLoc, textureFragmentShaderFileLoc),
-          cubeShader(posNormalVertexShaderFileLoc, singleColorFragmentShaderFileLoc) {}
+          cubeShader(CubePosNormTexVertexShaderFileLoc, CubeTextureFragmentShaderFileLoc) {}
 
 void MengerSpongeScene::runScene()
 {
@@ -20,7 +20,7 @@ void MengerSpongeScene::runScene()
 
   // TODO: delete
   uint32 cubeVAO, cubeVBO, cubeEBO;
-  initializeCubePosTexNormVertexAttBuffers(cubeVAO, cubeVBO, cubeEBO);
+  initializeCubePosNormTexVertexAttBuffers(cubeVAO, cubeVBO, cubeEBO);
 
   renderLoop(quadVAO, cubeVAO);
 
@@ -34,47 +34,70 @@ void MengerSpongeScene::renderLoop(uint32 quadVAO, uint32 cubeVAO)
   resolution largestResolution = screenResolutions[ArrayCount(screenResolutions) - 1];
   initializeFrameBuffer(frameBuffer, rbo, frameBufferTexture, largestResolution.width, largestResolution.height);
 
-
   const float cubeScale = 10.0f;
   const glm::vec3 cubePos = glm::vec3(0.0, 0.0, 0.0);
   const glm::vec3 cubeColor = glm::vec3(0.5, 0.0, 0.0);
-  glm::mat4 cubeModel;
-  cubeModel = glm::scale(cubeModel, glm::vec3(cubeScale));
-  cubeModel = glm::translate(cubeModel, cubePos);
-
-  // background clear color
-  glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-
-  load2DTexture("C:\\developer\\repos\\Assets\\Sprites\\plant-002.png", textureId, true);
-  glActiveTexture(GL_TEXTURE0);
-  glBindTexture(GL_TEXTURE_2D, textureId);
-
-  pixel2DShader.use();
-  pixel2DShader.setUniform("windowDimens", glm::vec2(currentResolution.width, currentResolution.height));
-  // TODO: get width/height of image from load2DTexture()
-  pixel2DShader.setUniform("lowerLeftOffset", glm::vec2((currentResolution.width / 2) - 16.0, (currentResolution.height / 2) - 16.0));
-  pixel2DShader.setUniform("spriteDimens", glm::vec2(32.0, 32.0));
-
-  mengerSpongeShader.use();
-  mengerSpongeShader.setUniform("viewPortResolution", glm::vec2(currentResolution.width, currentResolution.height));
-  mengerSpongeShader.setUniform("rayOrigin", camera.Position);
-
-  cubeShader.use();
-  cubeShader.setUniform("model", cubeModel);
-  cubeShader.setUniform("color", glm::vec3(0.5, 0.0, 0.0));
-
-  glBindVertexArray(quadVAO);
-
-  camera.Position = glm::vec3(0.0f, 1.0f, 10.0f);
-
-  lastFrame = (float32)glfwGetTime();
-  float32 startTime = lastFrame;
-  glEnable(GL_DEPTH_TEST);
+  const glm::vec3 cubeRotAxis = glm::vec3(1.0, 1.0, -1.0);
 
   // NOTE: This is helps maintain same projection for both the ray marching and rasterization
   // If how we shoot rays change, this must change. If this changes, how we shoot rays must change.
   const float rayMarchFovVertical = glm::radians(53.14f);
   const glm::mat4 projectionMat = glm::perspective(rayMarchFovVertical, (float32)currentResolution.width / (float32)currentResolution.height, 0.1f, 200.0f);
+
+  load2DTexture(scarabWingsTextureLoc, textureDiff1Id, true, false, &textureWidth, &textureHeight);
+  load2DTexture(scarabWingsSpecTextureLoc, textureSpec1Id, true, false);
+  load2DTexture(scarabTextureLoc, textureDiff2Id, true, false, &textureWidth, &textureHeight);
+  load2DTexture(scarabSpecTextureLoc, textureSpec2Id, true, false);
+  glActiveTexture(GL_TEXTURE0);
+  glBindTexture(GL_TEXTURE_2D, textureDiff1Id);
+  glActiveTexture(GL_TEXTURE1);
+  glBindTexture(GL_TEXTURE_2D, textureSpec1Id);
+  glActiveTexture(GL_TEXTURE2);
+  glBindTexture(GL_TEXTURE_2D, textureDiff2Id);
+  glActiveTexture(GL_TEXTURE3);
+  glBindTexture(GL_TEXTURE_2D, textureSpec2Id);
+
+  const glm::vec3 directionalLightAmb = glm::vec3(0.3, 0.3, 0.3);
+  const glm::vec3 directionalLightDiff = glm::vec3(0.5, 0.5, 0.5);
+  const glm::vec3 directionalLightSpec = glm::vec3(0.5, 0.5, 0.5);
+  const glm::vec3 directionalLightDir = glm::vec3(1.0, -1.0, -1.0);
+
+  mengerSpongeShader.use();
+  mengerSpongeShader.setUniform("viewPortResolution", glm::vec2(currentResolution.width, currentResolution.height));
+  mengerSpongeShader.setUniform("directionalLight.color.ambient", directionalLightAmb);
+  mengerSpongeShader.setUniform("directionalLight.color.diffuse", directionalLightDiff);
+  mengerSpongeShader.setUniform("directionalLight.color.specular", directionalLightSpec);
+  mengerSpongeShader.setUniform("directionalLight.direction", directionalLightDir);
+
+  cubeShader.use();
+  cubeShader.setUniform("projection", projectionMat);
+  cubeShader.setUniform("material.diffTexture", 0);
+  cubeShader.setUniform("material.specTexture", 1);
+  cubeShader.setUniform("material.shininess", 16.0f);
+  cubeShader.setUniform("directionalLight.color.ambient", directionalLightAmb);
+  cubeShader.setUniform("directionalLight.color.diffuse", directionalLightDiff);
+  cubeShader.setUniform("directionalLight.color.specular", directionalLightSpec);
+  cubeShader.setUniform("directionalLight.direction", directionalLightDir);
+
+//  pixel2DShader.use();
+//  pixel2DShader.setUniform("windowDimens", glm::vec2(currentResolution.width, currentResolution.height));
+//  pixel2DShader.setUniform("lowerLeftOffset", glm::vec2((currentResolution.width / 2) - 16.0, (currentResolution.height / 2) - 16.0));
+//  pixel2DShader.setUniform("spriteDimens", glm::vec2(textureWidth, textureHeight));
+
+  glBindVertexArray(quadVAO);
+
+  camera.Position = glm::vec3(0.0f, 1.0f, 30.0f);
+
+  lastFrame = (float32)glfwGetTime();
+  float32 startTime = lastFrame;
+
+  // background clear color
+  glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+  glEnable(GL_DEPTH_TEST);
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+  const float32 frameTime = 0.2f;
 
   // NOTE: render/game loop
   while (glfwWindowShouldClose(window) == GL_FALSE)
@@ -87,6 +110,14 @@ void MengerSpongeScene::renderLoop(uint32 quadVAO, uint32 cubeVAO)
     float32 t = (float32)glfwGetTime() - startTime;
     deltaTime = t - lastFrame;
     lastFrame = t;
+
+    if(((uint32)(t / frameTime) % 2) == 0) {
+      cubeShader.setUniform("material.diffTexture", 0);
+      cubeShader.setUniform("material.specTexture", 1);
+    } else {
+      cubeShader.setUniform("material.diffTexture", 2);
+      cubeShader.setUniform("material.specTexture", 3);
+    }
 
     // Auto run forward
 //    glm::vec3 deltaCameraPos = camera.Front;
@@ -105,13 +136,19 @@ void MengerSpongeScene::renderLoop(uint32 quadVAO, uint32 cubeVAO)
     glBindVertexArray(quadVAO);
 
     if(mengerSpongeShader.updateFragmentShaderIfOutdated()) {
+      mengerSpongeShader.use();
       mengerSpongeShader.setUniform("viewPortResolution", glm::vec2(currentResolution.width, currentResolution.height));
+      mengerSpongeShader.setUniform("directionalLight.color.ambient", directionalLightAmb);
+      mengerSpongeShader.setUniform("directionalLight.color.diffuse", directionalLightDiff);
+      mengerSpongeShader.setUniform("directionalLight.color.specular", directionalLightSpec);
+      mengerSpongeShader.setUniform("directionalLight.direction", directionalLightDir);
     }
 
     mengerSpongeShader.setUniform("rayOrigin", camera.Position);
     mengerSpongeShader.setUniform("elapsedTime", t);
     mengerSpongeShader.setUniform("view", cameraMat);
     mengerSpongeShader.setUniform("projection", projectionMat);
+    mengerSpongeShader.setUniform("cameraPos", camera.Position);
     glDrawElements(GL_TRIANGLES, // drawing mode
                    6, // number of elements to draw (3 vertices per triangle * 2 triangles per quad)
                    GL_UNSIGNED_INT, // type of the indices
@@ -123,14 +160,19 @@ void MengerSpongeScene::renderLoop(uint32 quadVAO, uint32 cubeVAO)
 //      ++numSnapshots;
 //    }
 
-    cubeShader.use();
-    cubeShader.setUniform("view", cameraMat);
-    cubeShader.setUniform("projection", projectionMat);
+    glm::mat4 cubeModel;
+    cubeModel = glm::scale(cubeModel, glm::vec3(cubeScale));
+    cubeModel = glm::translate(cubeModel, cubePos);
+    cubeModel = glm::rotate(cubeModel, t * glm::radians(20.0f), cubeRotAxis);
 
-    // TODO: Fix so perspective created by ray marching and by perspective matrix match up
+    cubeShader.use();
+    cubeShader.setUniform("model", cubeModel);
+    cubeShader.setUniform("view", cameraMat);
+    cubeShader.setUniform("cameraPos", camera.Position);
+
     glBindVertexArray(cubeVAO);
     glDrawElements(GL_TRIANGLES, // drawing mode
-                   cubePosTexNormNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
+                   cubePosNormTexNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
                    GL_UNSIGNED_INT, // type of the indices
                    0); // offset in the EBO
     glBindVertexArray(0);

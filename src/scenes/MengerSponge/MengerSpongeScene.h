@@ -37,7 +37,12 @@ private:
   Shader mengerSpongeShader;
   Shader pixel2DShader;
   Shader cubeShader;
-  uint32 textureId;
+  uint32 textureDiff1Id;
+  uint32 textureSpec1Id;
+  uint32 textureDiff2Id;
+  uint32 textureSpec2Id;
+  uint32 textureWidth;
+  uint32 textureHeight;
 
   float32 deltaTime = 0;
   float32 lastFrame = 0;
@@ -48,7 +53,7 @@ private:
 
   void renderLoop(uint32 quadVAO, uint32 cubeVAO);
 
-  uint32 currentResolutionIndex = 0;
+  uint32 currentResolutionIndex = 2;
   resolution currentResolution = screenResolutions[currentResolutionIndex];
 };
 

@@ -5,15 +5,16 @@
 #include <iostream>
 #include <windows.h>
 
-void load2DTexture(const char* imgLocation, uint32& textureId, bool flipImageVert, bool sRGB)
+void
+load2DTexture(const char* imgLocation, uint32& textureId, bool flipImageVert, bool sRGB, uint32* width, uint32* height)
 {
   glGenTextures(1, &textureId);
   glBindTexture(GL_TEXTURE_2D, textureId);
 
   // load image data
-  int width, height, numChannels;
+  int w, h, numChannels;
   stbi_set_flip_vertically_on_load(flipImageVert);
-  unsigned char* data = stbi_load(imgLocation, &width, &height, &numChannels, 0);
+  unsigned char* data = stbi_load(imgLocation, &w, &h, &numChannels, 0);
   if (data)
   {
     uint32 internalFormat;
@@ -46,8 +47,8 @@ void load2DTexture(const char* imgLocation, uint32& textureId, bool flipImageVer
     glTexImage2D(GL_TEXTURE_2D, // target
                  0, // level of detail (level n is the nth mipmap reduction image)
                  internalFormat, // kind of format we want to store the texture
-                 width, // width of texture
-                 height, // height of texture
+                 w, // width of texture
+                 h, // height of texture
                  0, // border (legacy stuff, MUST BE 0)
                  externalFormat, // Specifies format of the pixel data
                  GL_UNSIGNED_BYTE, // specifies data type of pixel data
@@ -56,6 +57,9 @@ void load2DTexture(const char* imgLocation, uint32& textureId, bool flipImageVer
 
     // set texture options
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST); // disables bilinear filtering (creates sharp edges when magnifying texture)
+
+    if(width != nullptr) *width = w;
+    if(height != nullptr) *height = h;
   } else
   {
     std::cout << "Failed to load texture" << std::endl;

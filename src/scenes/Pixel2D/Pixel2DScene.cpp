@@ -36,7 +36,7 @@ void Pixel2DScene::renderLoop(uint32 quadVAO)
   pixel2DShader.setUniform("spriteDimens", glm::vec2(64.0, 64.0));
 
   uint32 textureId;
-  load2DTexture("C:\\developer\\repos\\Assets\\Sprites\\Arcadio_64bit_color.png", textureId, true);
+  load2DTexture("C:\\developer\\repos\\Assets\\Sprites\\Arcadio_64bit_color.png", textureId, true, false);
 
   glBindVertexArray(quadVAO);
 

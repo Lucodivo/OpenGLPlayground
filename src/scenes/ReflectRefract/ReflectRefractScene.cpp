@@ -200,7 +200,7 @@ void ReflectRefractScene::renderLoop(GLFWwindow* window, uint32& cubeVAO, uint32
     }
 
     glDrawElementsInstanced(GL_TRIANGLES, // drawing mode
-                            cubePosTexNormNumElements * 3, // number of elements to be rendered
+                            cubePosNormTexNumElements * 3, // number of elements to be rendered
                             GL_UNSIGNED_INT, // type of values in the indices
                             0, // offset in the EB
                             8); // instance count
@@ -211,7 +211,7 @@ void ReflectRefractScene::renderLoop(GLFWwindow* window, uint32& cubeVAO, uint32
       normalVisualization10InstanceShader.setUniform("view", viewMat);
 
       glDrawElementsInstanced(GL_TRIANGLES, // drawing mode
-                              cubePosTexNormNumElements * 3, // number of elements to be rendered
+                              cubePosNormTexNumElements * 3, // number of elements to be rendered
                               GL_UNSIGNED_INT, // type of values in the indices
                               0, // offset in the EB
                               8); // instance count

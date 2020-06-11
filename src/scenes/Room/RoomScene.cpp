@@ -16,10 +16,10 @@ RoomScene::RoomScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScr
 void RoomScene::runScene()
 {
   uint32 cubeVAO, cubeVBO, cubeEBO;
-  initializeCubePosTexNormVertexAttBuffers(cubeVAO, cubeVBO, cubeEBO);
+  initializeCubePosNormTexVertexAttBuffers(cubeVAO, cubeVBO, cubeEBO);
 
   uint32 invertedNormCubeVAO, invertedNormCubeVBO, invertedNormCubeEBO;
-  initializeCubePosTexNormVertexAttBuffers(invertedNormCubeVAO, invertedNormCubeVBO, invertedNormCubeEBO, true);
+  initializeCubePosNormTexVertexAttBuffers(invertedNormCubeVAO, invertedNormCubeVBO, invertedNormCubeEBO, true);
 
   renderLoop(cubeVAO, invertedNormCubeVAO);
 
@@ -182,7 +182,7 @@ void RoomScene::renderLoop(uint32 cubeVAO, uint32 invertedNormCubeVAO)
     glBindVertexArray(invertedNormCubeVAO);
     depthCubeMapShader.setUniform("model", roomModelMat);
     glDrawElements(GL_TRIANGLES, // drawing mode
-                   cubePosTexNormNumElements * 3, // number of elements to draw * 3 vertices per triangle
+                   cubePosNormTexNumElements * 3, // number of elements to draw * 3 vertices per triangle
                    GL_UNSIGNED_INT, // type of the indices
                    0); // offset in the EBO
 
@@ -191,19 +191,19 @@ void RoomScene::renderLoop(uint32 cubeVAO, uint32 invertedNormCubeVAO)
     glBindVertexArray(cubeVAO);
     depthCubeMapShader.setUniform("model", cubeModelMat1);
     glDrawElements(GL_TRIANGLES, // drawing mode
-                   cubePosTexNormNumElements * 3, // number of elements to draw * 3 vertices per triangle
+                   cubePosNormTexNumElements * 3, // number of elements to draw * 3 vertices per triangle
                    GL_UNSIGNED_INT, // type of the indices
                    0); // offset in the EBO
 
     depthCubeMapShader.setUniform("model", cubeModelMat2);
     glDrawElements(GL_TRIANGLES, // drawing mode
-                   cubePosTexNormNumElements * 3, // number of elements to draw * 3 vertices per triangle
+                   cubePosNormTexNumElements * 3, // number of elements to draw * 3 vertices per triangle
                    GL_UNSIGNED_INT, // type of the indices
                    0); // offset in the EBO
 
     depthCubeMapShader.setUniform("model", cubeModelMat3);
     glDrawElements(GL_TRIANGLES, // drawing mode
-                   cubePosTexNormNumElements * 3, // number of elements to draw * 3 vertices per triangle
+                   cubePosNormTexNumElements * 3, // number of elements to draw * 3 vertices per triangle
                    GL_UNSIGNED_INT, // type of the indices
                    0); // offset in the EBO
     glBindVertexArray(0);
@@ -220,7 +220,7 @@ void RoomScene::renderLoop(uint32 cubeVAO, uint32 invertedNormCubeVAO)
     singleColorShader.setUniform("model", lightModel);
     singleColorShader.setUniform("color", lightColor);
     glDrawElements(GL_TRIANGLES, // drawing mode
-                   cubePosTexNormNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
+                   cubePosNormTexNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
                    GL_UNSIGNED_INT, // type of the indices
                    0); // offset in the EBO
 
@@ -236,7 +236,7 @@ void RoomScene::renderLoop(uint32 cubeVAO, uint32 invertedNormCubeVAO)
     positionalLightShader.setUniform("material.diffTexture1", 0);
     positionalLightShader.setUniform("material.specTexture1", 0);
     glDrawElements(GL_TRIANGLES, // drawing mode
-                   cubePosTexNormNumElements * 3, // number of elements to draw * 3 vertices per triangle
+                   cubePosNormTexNumElements * 3, // number of elements to draw * 3 vertices per triangle
                    GL_UNSIGNED_INT, // type of the indices
                    0); // offset in the EBO
 
@@ -247,17 +247,17 @@ void RoomScene::renderLoop(uint32 cubeVAO, uint32 invertedNormCubeVAO)
     positionalLightShader.setUniform("material.diffTexture1", 1);
     positionalLightShader.setUniform("material.specTexture1", 1);
     glDrawElements(GL_TRIANGLES, // drawing mode
-                   cubePosTexNormNumElements * 3, // number of elements to draw * 3 vertices per triangle
+                   cubePosNormTexNumElements * 3, // number of elements to draw * 3 vertices per triangle
                    GL_UNSIGNED_INT, // type of the indices
                    0); // offset in the EBO
     positionalLightShader.setUniform("model", cubeModelMat2);
     glDrawElements(GL_TRIANGLES, // drawing mode
-                   cubePosTexNormNumElements * 3, // number of elements to draw * 3 vertices per triangle
+                   cubePosNormTexNumElements * 3, // number of elements to draw * 3 vertices per triangle
                    GL_UNSIGNED_INT, // type of the indices
                    0); // offset in the EBO
     positionalLightShader.setUniform("model", cubeModelMat3);
     glDrawElements(GL_TRIANGLES, // drawing mode
-                   cubePosTexNormNumElements * 3, // number of elements to draw * 3 vertices per triangle
+                   cubePosNormTexNumElements * 3, // number of elements to draw * 3 vertices per triangle
                    GL_UNSIGNED_INT, // type of the indices
                    0); // offset in the EBO
     glBindVertexArray(0);

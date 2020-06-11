@@ -2,7 +2,7 @@
 
 #include "../LearnOpenGLPlatform.h"
 
-void initializeCubePosTexNormVertexAttBuffers(uint32& VAO, uint32& VBO, uint32& EBO, bool invertNormals = false);
+void initializeCubePosNormTexVertexAttBuffers(uint32& VAO, uint32& VBO, uint32& EBO, bool invertNormals = false);
 void initializeCubePosNormVertexAttBuffers(uint32& VAO, uint32& VBO, uint32& EBO);
 void initializeCubePositionVertexAttBuffers(uint32& VAO, uint32& VBO, uint32& EBO);
 void initializeQuadPosNormTexVertexAttBuffers(uint32& VAO, uint32& VBO, uint32& EBO);
@@ -16,7 +16,7 @@ void initializeFrameBuffer(uint32& frameBuffer, uint32& rbo, uint32& frameBuffer
 #define TopLeftTexture 0.0f, 1.0f
 #define TopRightTexture 1.0f, 1.0f
 const uint32 cubePosTexNormAttSizeInBytes = 8 * sizeof(float32);
-const uint32 cubePosTexNormNumElements = 12; // 2 triangles per side * 6 sides per cube
+const uint32 cubePosNormTexNumElements = 12; // 2 triangles per side * 6 sides per cube
 const float32 cubePosTexNormAttributes[] = {
   // positions           // normals            // texture positions 
   // face #1

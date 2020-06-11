@@ -45,7 +45,7 @@ const char* const discardAlphaFragmentShaderFileLoc = INFINITE_CUBE_BASE"Discard
 
 // Ness Cubes Shaders
 #define NESS_BASE "src/scenes/NessCube/"
-const char* const cubeFragmentShaderFileLoc = NESS_BASE"CubeFragmentShader.glsl";
+const char* const cubeFragmentShaderFileLoc = NESS_BASE"NessCubeFragmentShader.glsl";
 const char* const dirPosSpotLightModelFragmentShaderFileLoc = NESS_BASE"DirPosSpotLightModelFragmentShader.glsl";
 const char* const kernel3x3TextureFragmentShaderFileLoc = NESS_BASE"Kernel3x3TextureFragmentShader.glsl";
 const char* const kernel5x5TextureFragmentShaderFileLoc = NESS_BASE"Kernel5x5TextureFragmentShader.glsl";
@@ -78,6 +78,8 @@ const char* const MandelbrotFragmentShaderFileLoc = MANDELBROT_BASE"MandelbrotFr
 // Menger Sponge Shaders
 #define MENGER_SPONGE_BASE "src/scenes/MengerSponge/"
 const char* const MengerSpongeFragmentShaderFileLoc = MENGER_SPONGE_BASE"MengerSpongeFragmentShader.glsl";
+const char* const CubePosNormTexVertexShaderFileLoc = MENGER_SPONGE_BASE"CubePosNormTexVertexShader.glsl";
+const char* const CubeTextureFragmentShaderFileLoc = MENGER_SPONGE_BASE"CubeTextureFragmentShader.glsl";
 
 // Ray Tracing Shaders
 #define RAY_TRACING_SPHERE_BASE "src/scenes/RayTracingSphere/"

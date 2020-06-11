@@ -3,13 +3,13 @@ Debug/
 *.gif
 *.pyxel
 *.user
-src/data/fun/
-src/data/skyboxes/
-src/data/models/
 src/fonts/
 build/
 cmake-build-debug/
-
+src/dependencies/
+src/data/fun/
+src/data/skyboxes/
+src/data/models/
 src/data/floor.jpg
 src/data/cement.png
 src/data/brick.jpg

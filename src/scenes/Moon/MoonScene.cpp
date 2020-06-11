@@ -18,7 +18,7 @@ void MoonScene::runScene()
   initializeQuadPosNormTexVertexAttBuffers(floorVAO, floorVBO, floorEBO);
 
   uint32 cubeVAO, cubeVBO, cubeEBO;
-  initializeCubePosTexNormVertexAttBuffers(cubeVAO, cubeVBO, cubeEBO);
+  initializeCubePosNormTexVertexAttBuffers(cubeVAO, cubeVBO, cubeEBO);
 
   renderLoop(floorVAO, cubeVAO);
 
@@ -36,22 +36,22 @@ void MoonScene::renderLoop(uint32 quadVAO, uint32 cubeVAO)
 {
   uint32 floorAlbedoTextureId, floorNormalTextureId, floorHeightTextureId;
   load2DTexture(dungeonStoneAlbedoTextureLoc, floorAlbedoTextureId, false, true);
-  load2DTexture(dungeonStoneNormalTextureLoc, floorNormalTextureId);
-  load2DTexture(dungeonStoneHeightTextureLoc, floorHeightTextureId);
+  load2DTexture(dungeonStoneNormalTextureLoc, floorNormalTextureId, false, false);
+  load2DTexture(dungeonStoneHeightTextureLoc, floorHeightTextureId, false, false);
   uint32 cube1AlbedoTextureId, cube1NormalTextureId, cube1HeightTextureId;
   load2DTexture(waterWornStoneAlbedoTextureLoc, cube1AlbedoTextureId, false, true);
-  load2DTexture(waterWornStoneNormalTextureLoc, cube1NormalTextureId);
-  load2DTexture(waterWornStoneHeightTextureLoc, cube1HeightTextureId);
+  load2DTexture(waterWornStoneNormalTextureLoc, cube1NormalTextureId, false, false);
+  load2DTexture(waterWornStoneHeightTextureLoc, cube1HeightTextureId, false, false);
   uint32 cube2AlbedoTextureId, cube2NormalTextureId, cube2HeightTextureId;
   load2DTexture(copperRockAlbedoTextureLoc, cube2AlbedoTextureId, false, true);
-  load2DTexture(copperRockNormalTextureLoc, cube2NormalTextureId);
-  load2DTexture(copperRockHeightTextureLoc, cube2HeightTextureId);
+  load2DTexture(copperRockNormalTextureLoc, cube2NormalTextureId, false, false);
+  load2DTexture(copperRockHeightTextureLoc, cube2HeightTextureId, false, false);
   uint32 cube3AlbedoTextureId, cube3NormalTextureId, cube3HeightTextureId;
   load2DTexture(whiteSpruceAlbedoTextureLoc, cube3AlbedoTextureId, false, true);
-  load2DTexture(whiteSpruceNormalTextureLoc, cube3NormalTextureId);
-  load2DTexture(whiteSpruceHeightTextureLoc, cube3HeightTextureId);
+  load2DTexture(whiteSpruceNormalTextureLoc, cube3NormalTextureId, false, false);
+  load2DTexture(whiteSpruceHeightTextureLoc, cube3HeightTextureId, false, false);
   uint32 lightTextureId;
-  load2DTexture(moonTextureAlbedoLoc, lightTextureId);
+  load2DTexture(moonTextureAlbedoLoc, lightTextureId, false, false);
 
   uint32 depthMapTextureId, depthMapFBO;
   generateDepthMap(depthMapTextureId, depthMapFBO);
@@ -231,7 +231,7 @@ void MoonScene::renderLoop(uint32 quadVAO, uint32 cubeVAO)
     depthMapShader.setUniform("model", cubeModelMat1);
     glBindVertexArray(cubeVAO);
     glDrawElements(GL_TRIANGLES, // drawing mode
-                   cubePosTexNormNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
+                   cubePosNormTexNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
                    GL_UNSIGNED_INT, // type of the indices
                    0); // offset in the EBO
     glBindVertexArray(0);
@@ -239,7 +239,7 @@ void MoonScene::renderLoop(uint32 quadVAO, uint32 cubeVAO)
     depthMapShader.setUniform("model", cubeModelMat2);
     glBindVertexArray(cubeVAO);
     glDrawElements(GL_TRIANGLES, // drawing mode
-                   cubePosTexNormNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
+                   cubePosNormTexNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
                    GL_UNSIGNED_INT, // type of the indices
                    0); // offset in the EBO
     glBindVertexArray(0);
@@ -247,7 +247,7 @@ void MoonScene::renderLoop(uint32 quadVAO, uint32 cubeVAO)
     depthMapShader.setUniform("model", cubeModelMat3);
     glBindVertexArray(cubeVAO);
     glDrawElements(GL_TRIANGLES, // drawing mode
-                   cubePosTexNormNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
+                   cubePosNormTexNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
                    GL_UNSIGNED_INT, // type of the indices
                    0); // offset in the EBO
     glBindVertexArray(0);
@@ -295,7 +295,7 @@ void MoonScene::renderLoop(uint32 quadVAO, uint32 cubeVAO)
     directionalLightShader.setUniform("material.normal", 5);
     directionalLightShader.setUniform("material.height", 9);
     glDrawElements(GL_TRIANGLES, // drawing mode
-                   cubePosTexNormNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
+                   cubePosNormTexNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
                    GL_UNSIGNED_INT, // type of the indices
                    0); // offset in the EBO
     directionalLightShader.setUniform("model", cubeModelMat2);
@@ -303,7 +303,7 @@ void MoonScene::renderLoop(uint32 quadVAO, uint32 cubeVAO)
     directionalLightShader.setUniform("material.normal", 6);
     directionalLightShader.setUniform("material.height", 10);
     glDrawElements(GL_TRIANGLES, // drawing mode
-                   cubePosTexNormNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
+                   cubePosNormTexNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
                    GL_UNSIGNED_INT, // type of the indices
                    0); // offset in the EBO
     directionalLightShader.setUniform("model", cubeModelMat3);
@@ -311,7 +311,7 @@ void MoonScene::renderLoop(uint32 quadVAO, uint32 cubeVAO)
     directionalLightShader.setUniform("material.normal", 7);
     directionalLightShader.setUniform("material.height", 11);
     glDrawElements(GL_TRIANGLES, // drawing mode
-                   cubePosTexNormNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
+                   cubePosNormTexNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
                    GL_UNSIGNED_INT, // type of the indices
                    0); // offset in the EBO
     glBindVertexArray(0);

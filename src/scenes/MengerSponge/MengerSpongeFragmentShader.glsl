@@ -6,9 +6,23 @@ out vec4 FragColor;
 #define MISS_DIST 200.0
 #define HIT_DIST 0.01
 
-vec3 hitColor(float numSteps);
+struct LightColor{
+  vec3 ambient;
+  vec3 diffuse;
+  vec3 specular;
+};
+
+struct DirectionalLight{
+  vec3 direction;
+  LightColor color;
+};
+
+vec3 distColor(float numSteps);
 float distPosToScene(vec3 pos);
 vec4 distanceRayToScene(vec3 rayOrigin, vec3 rayDir);
+void estimateNormal(vec3 pos);
+vec4 calcDirectionalLightColor();
+vec4 calcLightColor(vec3 lightDir, LightColor lightColor);
 float sdBox(vec3 rayPos, vec3 dimen);
 float sdCross(vec3 rayPos, vec3 dimen);
 float sdRect(vec2 rayPos, vec2 dimen);
@@ -33,16 +47,21 @@ uniform vec3 rayOrigin;
 uniform float elapsedTime;
 uniform mat4 projection;
 uniform mat4 view;
+uniform vec3 cameraPos;
+uniform DirectionalLight directionalLight;
 
 const float boxDimen = 20.0;
 const float halfBoxDimen = boxDimen / 2.0;
-const int numSamples = 5;
+const int numSamples = 4;
+const float normalEpsilon = 0.0001;
+const vec3 missColor = vec3(0.1, 0.1, 0.1);
 
-vec3 mengerColor = vec3(1.0, 1.0, 1.0);
+vec4 mengerColor = vec4(1.0, 1.0, 1.0, 1.0);
 
 float sint;
+vec3 surfaceNormal;
+vec3 fragPos;
 
-// TODO: Multiple samples per pixel?
 void main()
 {
   // Move (0,0) from bottom left to center
@@ -52,9 +71,8 @@ void main()
   // Scale y value to [-0.5, 0.5], scale x by same factor
   pixelCoord = pixelCoord * pixelWidth;
 
-  float samplePixelOffset = pixelWidth / 3.0; // 1.0 / 4.0; <- for a tripy things
+  float samplePixelOffset = pixelWidth / 4.0; // 1.0 / 4.0; <- for trippy quad vision
   vec3 rayDirSamples[numSamples] = vec3[](
-    normalize(vec3(pixelCoord.x, pixelCoord.y, -1.0)),
     normalize(vec3(pixelCoord.x - samplePixelOffset, pixelCoord.y - samplePixelOffset, -1.0)),
     normalize(vec3(pixelCoord.x - samplePixelOffset, pixelCoord.y + samplePixelOffset, -1.0)),
     normalize(vec3(pixelCoord.x + samplePixelOffset, pixelCoord.y - samplePixelOffset, -1.0)),
@@ -68,8 +86,11 @@ void main()
   }
   dist /= numSamples;
 
+  fragPos = dist.xyz;
+  estimateNormal(fragPos);
+
   if(dist.w < MAX_STEPS) { // hit
-    vec3 col = hitColor(dist.w);
+    vec3 col = distColor(dist.w);
     FragColor = vec4(col, 1.0);
     vec4 clipPos = projection * view * vec4(dist.xyz, 1.0);
     float ndcDepth = clipPos.z / clipPos.w;
@@ -77,18 +98,49 @@ void main()
     float near = gl_DepthRange.near;
     gl_FragDepth = (far - near) * 0.5 * ndcDepth + (near + far) * 0.5;
   } else { // miss
-    vec3 missColor = hitColor(MAX_STEPS);
-    FragColor = vec4(missColor, 1.0);
-    gl_FragDepth = 0.99999;
+//    FragColor = vec4(missColor, 1.0);
+    discard;
   }
 }
 
-vec3 hitColor(float numSteps) {
-  float brightness = 1.0 - (numSteps/float(MAX_STEPS));
-  brightness = clamp(brightness, 0.4, 0.9);
-  brightness = brightness - mod(brightness, 0.1);
+void estimateNormal(vec3 pos) {
+  surfaceNormal = normalize(vec3(
+    distPosToScene(vec3(pos.x + normalEpsilon, pos.y, pos.z)) - distPosToScene(vec3(pos.x - normalEpsilon, pos.y, pos.z)),
+    distPosToScene(vec3(pos.x, pos.y + normalEpsilon, pos.z)) - distPosToScene(vec3(pos.x, pos.y - normalEpsilon, pos.z)),
+    distPosToScene(vec3(pos.x, pos.y, pos.z  + normalEpsilon)) - distPosToScene(vec3(pos.x, pos.y, pos.z - normalEpsilon))
+  ));
+}
 
-  return mengerColor * brightness;
+vec4 calcDirectionalLightColor() {
+  vec3 lightDir = normalize(-directionalLight.direction);
+  return calcLightColor(lightDir, directionalLight.color);
+}
+
+vec4 calcLightColor(vec3 lightDir, LightColor lightColor) {
+  // ambient light
+  vec4 ambient = vec4(lightColor.ambient, 1.0) * mengerColor;
+
+  // diffuse light
+  float diffStrength = max(dot(surfaceNormal, lightDir), 0.0);
+  vec4 diffuse = vec4(lightColor.diffuse, 1.0) * diffStrength * mengerColor;
+
+  // specular light
+  vec3 viewDir = normalize(cameraPos - fragPos);
+  vec3 reflectDir = reflect(-lightDir, surfaceNormal);
+  float spec = pow(max(dot(viewDir, reflectDir), 0.0), 16.0);
+  vec4 specular = vec4(lightColor.specular, 1.0) * spec * mengerColor;
+
+  return ambient + diffuse + specular;
+}
+
+vec3 distColor(float numSteps) {
+  float brightness = 1.0 - (numSteps/float(MAX_STEPS));
+
+  // NOTE: reduced color paletted
+//  brightness = clamp(brightness, 0.4, 0.9);
+//  brightness = brightness - mod(brightness, 0.1);
+
+  return mengerColor.xyz * brightness;
 }
 
 // returns vec4(worldSpacePos, iterations)
@@ -113,16 +165,39 @@ float distPosToScene(vec3 rayPos) {
 }
 
 float sdMengerPrison(vec3 rayPos) {
-  float sintime = sin((rayPos.y * 6.28) / 8 + (elapsedTime));
-  rayPos.x += sintime;
+  float sintime = sin((rayPos.y * 6.28) * 0.125 + (elapsedTime)) * 2.0;
+  rayPos.xz += sintime;
 
   vec3 prisonRay = mod(rayPos, boxDimen * 2.0);
   prisonRay -= boxDimen;
 
-  float mengerPrisonDist = sdCross(prisonRay, vec3(halfBoxDimen));
-  if(mengerPrisonDist > HIT_DIST) return mengerPrisonDist;
+  float mengerPrisonDist = sdCross(prisonRay, vec3(halfBoxDimen)) ;
+//  if(mengerPrisonDist > HIT_DIST) return mengerPrisonDist;
 
   float scale = 1.0;
+  for(int i = 0; i < 3; ++i) {
+    float boxedWorldDimen = boxDimen / scale;
+    vec3 ray = mod(rayPos + boxedWorldDimen * 0.5, boxedWorldDimen);
+    ray -= boxedWorldDimen * 0.5;
+    ray *= scale;
+    float crossesDist = sdCross(ray * 3.0, vec3(halfBoxDimen));
+    scale *= 3.0;
+    crossesDist /= scale;
+    mengerPrisonDist = max(mengerPrisonDist, -crossesDist);
+  }
+
+  return mengerPrisonDist * 0.57;
+}
+
+float sdMengerNoisePrison(vec3 rayPos) {
+  float sintime = sin(20*rayPos.x)*sin(20*rayPos.y)*sin(20*rayPos.z);
+
+  vec3 prisonRay = mod(rayPos, boxDimen * 2.0);
+  prisonRay -= boxDimen;
+
+  float mengerPrisonDist = sdCross(prisonRay, vec3(halfBoxDimen)) + sintime;
+
+  float scale = 1.0;;
   for(int i = 0; i < 3; ++i) {
     float boxedWorldDimen = boxDimen / scale;
     vec3 ray = mod(rayPos + boxedWorldDimen / 2.0, boxedWorldDimen);
@@ -134,7 +209,7 @@ float sdMengerPrison(vec3 rayPos) {
     mengerPrisonDist = max(mengerPrisonDist, -crossesDist);
   }
 
-  return mengerPrisonDist;
+  return mengerPrisonDist + sintime;
 }
 
 float sdMengerJank(vec3 rayPos, int numIterations) {

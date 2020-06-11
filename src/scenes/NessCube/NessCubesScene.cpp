@@ -51,7 +51,7 @@ void NessCubesScene::runScene()
   initializeCubePositionVertexAttBuffers(lightVAO, lightVBO, lightEBO);
 
   uint32 cubeVAO, cubeVBO, cubeEBO;
-  initializeCubePosTexNormVertexAttBuffers(cubeVAO, cubeVBO, cubeEBO);
+  initializeCubePosNormTexVertexAttBuffers(cubeVAO, cubeVBO, cubeEBO);
 
   uint32 quadVAO, quadVBO, quadEBO;
   initializeFrameBufferQuadVertexAttBuffers(quadVAO, quadVBO, quadEBO);
@@ -257,7 +257,7 @@ void NessCubesScene::renderLoop(uint32& shapesVAO, uint32& lightVAO, uint32& qua
     lightShader.setUniform("model", lightModel);
     lightShader.setUniform("color", positionalLightColor);
     glDrawElements(GL_TRIANGLES, // drawing mode
-                   cubePosTexNormNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
+                   cubePosNormTexNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
                    GL_UNSIGNED_INT, // type of the indices
                    0); // offset in the EBO
     glBindVertexArray(0);
@@ -341,7 +341,7 @@ void NessCubesScene::renderLoop(uint32& shapesVAO, uint32& lightVAO, uint32& qua
       model = glm::scale(model, glm::vec3(cubeScales[i]));
       cubeShader.setUniform("model", model);
       glDrawElements(GL_TRIANGLES, // drawing mode
-                     cubePosTexNormNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
+                     cubePosNormTexNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
                      GL_UNSIGNED_INT, // type of the indices
                      0); // offset in the EBO
     }
@@ -368,7 +368,7 @@ void NessCubesScene::renderLoop(uint32& shapesVAO, uint32& lightVAO, uint32& qua
       glStencilMask(0x00);
       glDisable(GL_DEPTH_TEST);
       glDrawElements(GL_TRIANGLES, // drawing mode
-                     cubePosTexNormNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
+                     cubePosNormTexNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
                      GL_UNSIGNED_INT, // type of the indices
                      0); // offset in the EBO
       glEnable(GL_DEPTH_TEST);
@@ -440,8 +440,8 @@ void NessCubesScene::renderLoop(uint32& shapesVAO, uint32& lightVAO, uint32& qua
 
 void NessCubesScene::initializeTextures(uint32& diffTextureId, uint32& specTextureId, uint32& skyboxTextureId)
 {
-  load2DTexture(diffuseTextureLoc, diffTextureId, true);
-  load2DTexture(specularTextureLoc, specTextureId, true);
+  load2DTexture(diffuseTextureLoc, diffTextureId, true, false);
+  load2DTexture(specularTextureLoc, specTextureId, true, false);
   loadCubeMapTexture(skyboxWaterFaceLocations, skyboxTextureId);
 }
 

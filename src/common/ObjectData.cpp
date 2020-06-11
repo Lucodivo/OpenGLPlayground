@@ -5,7 +5,7 @@
 #include "ObjectData.h"
 
 
-void initializeCubePosTexNormVertexAttBuffers(uint32& VAO, uint32& VBO, uint32& EBO, bool invertNormals)
+void initializeCubePosNormTexVertexAttBuffers(uint32& VAO, uint32& VBO, uint32& EBO, bool invertNormals)
 {
   glGenVertexArrays(1, &VAO);
   glBindVertexArray(VAO);
