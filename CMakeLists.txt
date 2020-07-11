@@ -1,6 +1,8 @@
 cmake_minimum_required (VERSION 3.5)
 project (LearnOpenGL)
 
+set(LIB_DIR "C:/developer/dependencies/libs")
+
 if(MSVC)
     add_compile_options(/W3)
 else ()
@@ -8,7 +10,7 @@ else ()
 endif()
 
 # Add .lib files
-link_directories(C:/developer/dependencies/OpenGL/libs)
+link_directories(${LIB_DIR})
 
 # Add source files
 file(GLOB_RECURSE SOURCE_FILES
@@ -27,18 +29,17 @@ add_executable(${PROJECT_NAME} ${HEADER_FILES} ${SOURCE_FILES})
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 
 # STB_IMAGE
-add_library(STB_IMAGE "src/dependencies/stb_image.cpp")
+add_library(stb_image "${LIB_DIR}/stb_image.cpp")
 
 # GLAD
-add_library(GLAD "src/dependencies/glad.c")
+add_library(glad "${LIB_DIR}/glad.c")
 
 # Put all libraries into a variable
-set(LIBS glfw3 opengl32 assimpd freetype STB_IMAGE GLAD)
+set(LIBS glfw3 opengl32 assimpd freetype stb_image glad)
 
 # Define the include DIRs
 include_directories(
-        "${CMAKE_SOURCE_DIR}/src/dependencies"
-        C:/developer/dependencies/OpenGL/include
+        C:/developer/dependencies/include
 )
 
 # Define the link libraries

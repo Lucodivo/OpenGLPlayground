@@ -1,5 +1,3 @@
 TODOs:
 - Figure out how to properly order when drawing the transparent cubes (and their sides)
 	- Remember to turn off back culling when verifying
-- Investigate why debug mode makes application run ~20 times slower on laptop
-- change project to x64?
