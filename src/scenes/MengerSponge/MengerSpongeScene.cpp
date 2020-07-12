@@ -2,6 +2,9 @@
 // Created by Connor on 11/21/2019.
 //
 
+#include <imgui/imgui.h>
+#include <imgui/imgui_impl_glfw.h>
+#include <imgui/imgui_impl_opengl3.h>
 #include "MengerSpongeScene.h"
 #include "../../common/FileLocations.h"
 #include "../../common/ObjectData.h"
@@ -11,7 +14,11 @@ MengerSpongeScene::MengerSpongeScene(GLFWwindow* window, uint32 initScreenHeight
         : GodModeScene(window, initScreenHeight, initScreenWidth),
           mengerSpongeShader(UVCoordVertexShaderFileLoc, MengerSpongeFragmentShaderFileLoc),
           pixel2DShader(pixel2DVertexShaderFileLoc, textureFragmentShaderFileLoc),
-          cubeShader(CubePosNormTexVertexShaderFileLoc, CubeTextureFragmentShaderFileLoc) {}
+          cubeShader(CubePosNormTexVertexShaderFileLoc, CubeTextureFragmentShaderFileLoc) {
+  if(showDebugWindows) {
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+  }
+}
 
 void MengerSpongeScene::runScene()
 {
@@ -98,6 +105,7 @@ void MengerSpongeScene::renderLoop(uint32 quadVAO, uint32 cubeVAO)
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
   const float32 frameTime = 0.2f;
+  int32 numSamples = 1;
 
   // NOTE: render/game loop
   while (glfwWindowShouldClose(window) == GL_FALSE)
@@ -106,6 +114,19 @@ void MengerSpongeScene::renderLoop(uint32 quadVAO, uint32 cubeVAO)
     processKeyboardInput(window, this);
     processXInput(this);
 
+    // Start the Dear ImGui frame
+    ImGui_ImplOpenGL3_NewFrame();
+    ImGui_ImplGlfw_NewFrame();
+    ImGui::NewFrame();
+
+    if (showDebugWindows){
+      //ImGui::ShowDemoWindow(&showDebugWindows);
+
+      ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.50f);
+      // Simplified Settings (expose floating-pointer border sizes as boolean representing 0.0f or 1.0f)
+      if (ImGui::SliderInt("FrameRounding", &numSamples, 1, 8)) {}
+      ImGui::PopItemWidth();
+    }
 
     float32 t = (float32)glfwGetTime() - startTime;
     deltaTime = t - lastFrame;
@@ -149,6 +170,7 @@ void MengerSpongeScene::renderLoop(uint32 quadVAO, uint32 cubeVAO)
     mengerSpongeShader.setUniform("view", cameraMat);
     mengerSpongeShader.setUniform("projection", projectionMat);
     mengerSpongeShader.setUniform("cameraPos", camera.Position);
+    mengerSpongeShader.setUniform("numSamples", numSamples);
     glDrawElements(GL_TRIANGLES, // drawing mode
                    6, // number of elements to draw (3 vertices per triangle * 2 triangles per quad)
                    GL_UNSIGNED_INT, // type of the indices
@@ -191,6 +213,10 @@ void MengerSpongeScene::renderLoop(uint32 quadVAO, uint32 cubeVAO)
     glBindFramebuffer(GL_READ_FRAMEBUFFER, frameBuffer);
     glBlitFramebuffer(0, 0, currentResolution.width, currentResolution.height, 0, 0, windowWidth, windowHeight, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT, GL_NEAREST);
 
+    // Rendering ImGui
+    ImGui::Render();
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
     glfwSwapBuffers(window); // swaps double buffers (call after all render commands are completed)
     glfwPollEvents(); // checks for events (ex: keyboard/mouse input)
   }
@@ -232,4 +258,19 @@ void MengerSpongeScene::key_Q_pressed() {
   pixel2DShader.use();
   pixel2DShader.setUniform("windowDimens", glm::vec2(currentResolution.width, currentResolution.height));
   pixel2DShader.setUniform("lowerLeftOffset", glm::vec2((currentResolution.width / 2) - 16.0, (currentResolution.height / 2) - 16.0));
+}
+
+void MengerSpongeScene::key_Tab_pressed() {
+  showDebugWindows = !showDebugWindows;
+  if(showDebugWindows) {
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+  } else {
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+  }
+}
+
+void MengerSpongeScene::mouseMovement(float32 xOffset, float32 yOffset)
+{
+  if(showDebugWindows) return;
+  FirstPersonScene::mouseMovement(xOffset, yOffset);
 }
