@@ -31,6 +31,8 @@ public:
 
   void key_E_pressed() override;
   void key_Q_pressed() override;
+  void key_Tab_pressed() override;
+  void mouseMovement(float32 xOffset, float32 yOffset) override;
 
 private:
 
@@ -43,6 +45,7 @@ private:
   uint32 textureSpec2Id;
   uint32 textureWidth;
   uint32 textureHeight;
+  bool showDebugWindows = true;
 
   float32 deltaTime = 0;
   float32 lastFrame = 0;
@@ -53,7 +56,7 @@ private:
 
   void renderLoop(uint32 quadVAO, uint32 cubeVAO);
 
-  uint32 currentResolutionIndex = 2;
+  uint32 currentResolutionIndex = 0;
   resolution currentResolution = screenResolutions[currentResolutionIndex];
 };
 

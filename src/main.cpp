@@ -1,5 +1,10 @@
 #define GLFW_INCLUDE_NONE // ensure GLFW doesn't load OpenGL headers
 
+#include "imgui/imgui.h"
+#include "imgui/imgui_impl_glfw.h"
+#include "imgui/imgui_impl_opengl3.h"
+
+#include <iostream>
 #include <GLFW/glfw3.h>
 #include <glad/glad.h>
 
@@ -18,9 +23,9 @@
 #include "scenes/RayTracingSphere/RayTracingSphereScene.h"
 #include "scenes/Pixel2D/Pixel2DScene.h"
 
-#include <iostream>
-
 #define MULTI_SAMPLING_ON true
+
+void initImgui(GLFWwindow* window);
 
 int main()
 {
@@ -28,12 +33,30 @@ int main()
   GLFWwindow* window = createWindow();
   initializeGLAD();
   loadXInput();
+  initImgui(window);
 
   Scene* scene = new MengerSpongeScene(window, VIEWPORT_INIT_HEIGHT, VIEWPORT_INIT_WIDTH);
   scene->runScene();
 
   glfwTerminate(); // clean up gl resources
   return 0;
+}
+
+void initImgui(GLFWwindow* window)
+{
+  // Setup Dear ImGui context
+  IMGUI_CHECKVERSION();
+  ImGui::CreateContext();
+  ImGuiIO& io = ImGui::GetIO(); (void)io;
+  //io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+  //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+
+  // Setup Dear ImGui style
+  ImGui::StyleColorsDark();
+
+  // Setup Platform/Renderer bindings
+  ImGui_ImplGlfw_InitForOpenGL(window, true);
+  ImGui_ImplOpenGL3_Init(NULL);
 }
 
 void loadGLFW()

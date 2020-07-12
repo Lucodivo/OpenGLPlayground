@@ -49,12 +49,13 @@ uniform mat4 projection;
 uniform mat4 view;
 uniform vec3 cameraPos;
 uniform DirectionalLight directionalLight;
+uniform int numSamples;
 
 const float boxDimen = 20.0;
 const float halfBoxDimen = boxDimen / 2.0;
-const int numSamples = 4;
 const float normalEpsilon = 0.0001;
 const vec3 missColor = vec3(0.1, 0.1, 0.1);
+const int maxSamples = 8;
 
 vec4 mengerColor = vec4(1.0, 1.0, 1.0, 1.0);
 
@@ -71,12 +72,18 @@ void main()
   // Scale y value to [-0.5, 0.5], scale x by same factor
   pixelCoord = pixelCoord * pixelWidth;
 
-  float samplePixelOffset = pixelWidth / 4.0; // 1.0 / 4.0; <- for trippy quad vision
-  vec3 rayDirSamples[numSamples] = vec3[](
-    normalize(vec3(pixelCoord.x - samplePixelOffset, pixelCoord.y - samplePixelOffset, -1.0)),
-    normalize(vec3(pixelCoord.x - samplePixelOffset, pixelCoord.y + samplePixelOffset, -1.0)),
-    normalize(vec3(pixelCoord.x + samplePixelOffset, pixelCoord.y - samplePixelOffset, -1.0)),
-    normalize(vec3(pixelCoord.x + samplePixelOffset, pixelCoord.y + samplePixelOffset, -1.0))
+  // Checkerboard pattern sampling in center of each black square
+  float samplePixelOffsetStep = pixelWidth / 8.0; // 1.0 / 4.0; <- for trippy quad vision
+  float samplePixelOffsetStepTimes3 = samplePixelOffsetStep * 3;
+  vec3 rayDirSamples[maxSamples] = vec3[](
+    normalize(vec3(pixelCoord.x - samplePixelOffsetStep, pixelCoord.y + samplePixelOffsetStep, -1.0)),
+    normalize(vec3(pixelCoord.x + samplePixelOffsetStep, pixelCoord.y - samplePixelOffsetStep, -1.0)),
+    normalize(vec3(pixelCoord.x - samplePixelOffsetStep, pixelCoord.y - samplePixelOffsetStepTimes3, -1.0)),
+    normalize(vec3(pixelCoord.x + samplePixelOffsetStepTimes3, pixelCoord.y + samplePixelOffsetStep, -1.0)),
+    normalize(vec3(pixelCoord.x - samplePixelOffsetStepTimes3, pixelCoord.y - samplePixelOffsetStep, -1.0)),
+    normalize(vec3(pixelCoord.x + samplePixelOffsetStep, pixelCoord.y + samplePixelOffsetStepTimes3, -1.0)),
+    normalize(vec3(pixelCoord.x - samplePixelOffsetStepTimes3, pixelCoord.y + samplePixelOffsetStepTimes3, -1.0)),
+    normalize(vec3(pixelCoord.x + samplePixelOffsetStepTimes3, pixelCoord.y - samplePixelOffsetStepTimes3, -1.0))
   );
 
   vec4 dist = vec4(0.0, 0.0, 0.0, 0.0);
