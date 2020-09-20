@@ -51,9 +51,9 @@ void MengerSpongeScene::renderLoop(uint32 quadVAO, uint32 cubeVAO)
   const float rayMarchFovVertical = glm::radians(53.14f);
   const glm::mat4 projectionMat = glm::perspective(rayMarchFovVertical, (float32)currentResolution.width / (float32)currentResolution.height, 0.1f, 200.0f);
 
-  load2DTexture(scarabWingsTextureLoc, textureDiff1Id, true, false, &textureWidth, &textureHeight);
+  load2DTexture(scarabWingsTextureLoc, textureDiff1Id, true, true, &textureWidth, &textureHeight);
   load2DTexture(scarabWingsSpecTextureLoc, textureSpec1Id, true, false);
-  load2DTexture(scarabTextureLoc, textureDiff2Id, true, false, &textureWidth, &textureHeight);
+  load2DTexture(scarabTextureLoc, textureDiff2Id, true, true);
   load2DTexture(scarabSpecTextureLoc, textureSpec2Id, true, false);
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, textureDiff1Id);
@@ -64,9 +64,9 @@ void MengerSpongeScene::renderLoop(uint32 quadVAO, uint32 cubeVAO)
   glActiveTexture(GL_TEXTURE3);
   glBindTexture(GL_TEXTURE_2D, textureSpec2Id);
 
-  const glm::vec3 directionalLightAmb = glm::vec3(0.3, 0.3, 0.3);
-  const glm::vec3 directionalLightDiff = glm::vec3(0.5, 0.5, 0.5);
-  const glm::vec3 directionalLightSpec = glm::vec3(0.5, 0.5, 0.5);
+  const glm::vec3 directionalLightAmb = glm::vec3(0.15, 0.15, 0.15);
+  const glm::vec3 directionalLightDiff = glm::vec3(0.6, 0.6, 0.6);
+  const glm::vec3 directionalLightSpec = glm::vec3(0.8, 0.8, 0.8);
   const glm::vec3 directionalLightDir = glm::vec3(1.0, -1.0, -1.0);
 
   mengerSpongeShader.use();
@@ -124,7 +124,7 @@ void MengerSpongeScene::renderLoop(uint32 quadVAO, uint32 cubeVAO)
 
       ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.50f);
       // Simplified Settings (expose floating-pointer border sizes as boolean representing 0.0f or 1.0f)
-      if (ImGui::SliderInt("FrameRounding", &numSamples, 1, 8)) {}
+      if (ImGui::SliderInt("Supersamples", &numSamples, 1, 8)) {}
       ImGui::PopItemWidth();
     }
 

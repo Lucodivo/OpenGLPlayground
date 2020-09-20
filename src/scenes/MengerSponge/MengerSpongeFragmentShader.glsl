@@ -42,6 +42,8 @@ float multistagePrison(vec3 rayPos, bool boxed);
 float sdMengerJank(vec3 rayPos, int numIterations);
 float sdMengerPrison(vec3 rayPos);
 
+vec3 gammaCorrectionToSRGB(vec3 color);
+
 uniform vec2 viewPortResolution;
 uniform vec3 rayOrigin;
 uniform float elapsedTime;
@@ -56,6 +58,8 @@ const float halfBoxDimen = boxDimen / 2.0;
 const float normalEpsilon = 0.0001;
 const vec3 missColor = vec3(0.1, 0.1, 0.1);
 const int maxSamples = 8;
+const float gammaToLinear = 2.2;
+const float gammaToSRBG = 1.0 / gammaToLinear;
 
 vec4 mengerColor = vec4(1.0, 1.0, 1.0, 1.0);
 
@@ -98,7 +102,7 @@ void main()
 
   if(dist.w < MAX_STEPS) { // hit
     vec3 col = distColor(dist.w);
-    FragColor = vec4(col, 1.0);
+    FragColor = vec4(gammaCorrectionToSRGB(col), 1.0);
     vec4 clipPos = projection * view * vec4(dist.xyz, 1.0);
     float ndcDepth = clipPos.z / clipPos.w;
     float far = gl_DepthRange.far;
@@ -411,6 +415,10 @@ float sdCross(vec3 rayPos, vec3 dimen) {
   float db = sdRect(rayPos.xz, dimen.xz);
   float dc = sdRect(rayPos.yz, dimen.yz);
   return min(da,min(db,dc));
+}
+
+vec3 gammaCorrectionToSRGB(vec3 color) {
+  return pow(color, vec3(gammaToSRBG));
 }
 
 //float sdCross(vec3 rayPos, vec3 dimen) {

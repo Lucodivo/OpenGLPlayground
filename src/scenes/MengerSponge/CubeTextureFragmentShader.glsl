@@ -30,9 +30,13 @@ out vec4 FragColor;
 
 vec4 calcDirectionalLightColor();
 vec4 calcLightColor(vec3 lightDir, LightColor lightColor);
+vec4 gammaCorrectionToSRGB(vec4 color);
 
 vec4 diffColor;
 vec4 specColor;
+
+const float gammaToLinear = 2.2;
+const float gammaToSRBG = 1.0 / gammaToLinear;
 
 void main()
 {
@@ -41,7 +45,8 @@ void main()
 
   vec4 directionalResult = calcDirectionalLightColor();
 
-  FragColor = directionalResult;// + spotResult + positionalResult;
+  vec4 color = directionalResult;// + spotResult + positionalResult;
+  FragColor = gammaCorrectionToSRGB(color);
 }
 
 vec4 calcDirectionalLightColor() {
@@ -65,4 +70,8 @@ vec4 calcLightColor(vec3 lightDir, LightColor lightColor) {
   vec4 specular = vec4(lightColor.specular, 1.0) * spec * specColor;
 
   return ambient + diffuse + specular;
+}
+
+vec4 gammaCorrectionToSRGB(vec4 color) {
+  return vec4(pow(color.xyz, vec3(gammaToSRBG)), color.w);
 }
