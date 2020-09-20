@@ -41,6 +41,7 @@ float crush(vec3 rayPos, bool boxed);
 float multistagePrison(vec3 rayPos, bool boxed);
 float sdMengerJank(vec3 rayPos, int numIterations);
 float sdMengerPrison(vec3 rayPos);
+float sdMengerNoisePrison(vec3 rayPos);
 
 vec3 gammaCorrectionToSRGB(vec3 color);
 
@@ -200,7 +201,11 @@ float sdMengerPrison(vec3 rayPos) {
   return mengerPrisonDist * 0.57;
 }
 
+// NOTE: AKA one of the coolest things I ever accidentally created.
+// An absolute disaster for the poor GPU tho...
 float sdMengerNoisePrison(vec3 rayPos) {
+  // removing one creates a weird "light source" and "tubes" effect in the direction of the light
+  // removing two creates a plane of light
   float sintime = sin(20*rayPos.x)*sin(20*rayPos.y)*sin(20*rayPos.z);
 
   vec3 prisonRay = mod(rayPos, boxDimen * 2.0);
