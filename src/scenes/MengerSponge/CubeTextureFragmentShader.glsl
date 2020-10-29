@@ -73,5 +73,21 @@ vec4 calcLightColor(vec3 lightDir, LightColor lightColor) {
 }
 
 vec4 gammaCorrectionToSRGB(vec4 color) {
-  return vec4(pow(color.xyz, vec3(gammaToSRBG)), color.w);
+  const float gammaPiecewiseEpsilon = 0.0031308;
+  const float gammaMultiplierBelowEspilon = 12.92;
+  const float gammaMultiplierOtherwise = 1.055;
+  const float gammaPowOtherwise = 1 / 2.4;
+  const float gammaOffsetOtherwise = -0.055;
+  vec4 sRGB;
+
+  // This formula was pulled from Real-Time Rendering 4th Edition pg 162
+  sRGB.x = color.x < gammaPiecewiseEpsilon ? (gammaMultiplierBelowEspilon * color.x) :
+  ((gammaMultiplierOtherwise * pow(color.x, gammaPowOtherwise)) + gammaOffsetOtherwise);
+  sRGB.y = color.y < gammaPiecewiseEpsilon ? (gammaMultiplierBelowEspilon * color.y) :
+  ((gammaMultiplierOtherwise * pow(color.y, gammaPowOtherwise)) + gammaOffsetOtherwise);
+  sRGB.z = color.z < gammaPiecewiseEpsilon ? (gammaMultiplierBelowEspilon * color.z) :
+  ((gammaMultiplierOtherwise * pow(color.z, gammaPowOtherwise)) + gammaOffsetOtherwise);
+  sRGB.w = color.w; // no gamma correction for alpha values
+
+  return sRGB;
 }

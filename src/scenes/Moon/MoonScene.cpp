@@ -159,9 +159,6 @@ void MoonScene::renderLoop(uint32 quadVAO, uint32 cubeVAO)
   glFrontFace(GL_CCW);
   glCullFace(GL_BACK);
 
-  // Turn on gamma correction for entire scene
-  //glEnable(GL_FRAMEBUFFER_SRGB);
-
   // NOTE: render/game loop
   float32 startTime = (float32)glfwGetTime();
   while (glfwWindowShouldClose(window) == GL_FALSE)

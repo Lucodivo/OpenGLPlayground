@@ -32,6 +32,7 @@ float calcShadow(vec4 posLightSpace, float normalLightDirDot);
 vec2 parallaxMapping(vec2 texCoords, vec3 viewDir);
 vec2 steepParallaxMapping(vec2 texCoords, vec3 viewDir);
 vec2 parallaxOcculusMapping(vec2 texCoords, vec3 viewDir);
+vec3 gammaCorrectionToSRGB(vec3 color);
 
 vec3 diffColor;
 vec3 specColor;
@@ -44,10 +45,7 @@ const float heightScale = 0.1;
 void main()
 {
   vec3 finalColor = calcDirectionalLightColor();
-
-  // apply gamma correction
-  float gamma = 2.2;
-  FragColor = vec4(pow(finalColor, vec3(1.0 / gamma)), 1.0);
+  FragColor = vec4(gammaCorrectionToSRGB(finalColor), 1.0);
 }
 
 vec3 calcDirectionalLightColor() {
@@ -174,4 +172,23 @@ float calcShadow(vec4 posLightSpace, float normalLightDirDot)
   shadow /= 9.0f;
 
   return shadow;
+}
+
+vec3 gammaCorrectionToSRGB(vec3 color) {
+  const float gammaPiecewiseEpsilon = 0.0031308;
+  const float gammaMultiplierBelowEspilon = 12.92;
+  const float gammaMultiplierOtherwise = 1.055;
+  const float gammaPowOtherwise = 1 / 2.4;
+  const float gammaOffsetOtherwise = -0.055;
+  vec3 sRGB;
+
+  // This formula was pulled from Real-Time Rendering 4th Edition pg 162
+  sRGB.x = color.x < gammaPiecewiseEpsilon ? (gammaMultiplierBelowEspilon * color.x) :
+  ((gammaMultiplierOtherwise * pow(color.x, gammaPowOtherwise)) + gammaOffsetOtherwise);
+  sRGB.y = color.y < gammaPiecewiseEpsilon ? (gammaMultiplierBelowEspilon * color.y) :
+  ((gammaMultiplierOtherwise * pow(color.y, gammaPowOtherwise)) + gammaOffsetOtherwise);
+  sRGB.z = color.z < gammaPiecewiseEpsilon ? (gammaMultiplierBelowEspilon * color.z) :
+  ((gammaMultiplierOtherwise * pow(color.z, gammaPowOtherwise)) + gammaOffsetOtherwise);
+
+  return sRGB;
 }

@@ -79,8 +79,8 @@ void RoomScene::renderLoop(uint32 cubeVAO, uint32 invertedNormCubeVAO)
   const float32 cubeScale3 = 1.7f;
   const glm::vec3 cubePosition3 = glm::vec3(2.0f, roomPosition.y + (cubeScale3 / 2.0f) + 4.0f, 3.0f);
 
-  // Turn on gamma correction for entire scene
-  //glEnable(GL_FRAMEBUFFER_SRGB);
+  // Turn on free gamma correction for entire scene, only affects color attachments
+  glEnable(GL_FRAMEBUFFER_SRGB);
 
   // set constant uniforms
   positionalLightShader.use();

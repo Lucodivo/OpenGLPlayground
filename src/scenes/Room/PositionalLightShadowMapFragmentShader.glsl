@@ -53,11 +53,8 @@ void main()
   diffColor = texture(material.diffTexture1, TexCoords).rgb;
   specColor = texture(material.specTexture1, TexCoords).rgb;
 
-  vec3 finalColor = calcPositionalLight(positionalLight);
-
-  // apply gamma correction
-  float gamma = 2.2;
-  FragColor = vec4(pow(finalColor, vec3(1.0 / gamma)), 1.0);
+  // NOTE: gamma correction will need to be handled outside of fragment shader
+  FragColor = vec4(calcPositionalLight(positionalLight), 1.0);
 }
 
 vec3 calcPositionalLight(PositionalLight positionalLight)

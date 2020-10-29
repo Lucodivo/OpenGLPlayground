@@ -15,6 +15,7 @@ Scene::Scene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth
   subscribeFrameBufferSize(window, this);
   initDebugTextCharacters();
   initDebugTextBuffers();
+  glDisable(GL_FRAMEBUFFER_SRGB);
   textDebugProjectionMat = glm::ortho(0.0f, (float)windowWidth, 0.0f, (float)windowWidth);
   textDebugShader.use();
   textDebugShader.setUniform("projection", textDebugProjectionMat);
