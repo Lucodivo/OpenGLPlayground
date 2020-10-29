@@ -51,7 +51,7 @@ void MoonScene::renderLoop(uint32 quadVAO, uint32 cubeVAO)
   load2DTexture(whiteSpruceNormalTextureLoc, cube3NormalTextureId, false, false);
   load2DTexture(whiteSpruceHeightTextureLoc, cube3HeightTextureId, false, false);
   uint32 lightTextureId;
-  load2DTexture(moonTextureAlbedoLoc, lightTextureId, false, false);
+  load2DTexture(moonTextureAlbedoLoc, lightTextureId, false, true);
 
   uint32 depthMapTextureId, depthMapFBO;
   generateDepthMap(depthMapTextureId, depthMapFBO);

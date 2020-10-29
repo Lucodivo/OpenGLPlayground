@@ -5,8 +5,7 @@
 #include <iostream>
 #include <windows.h>
 
-void
-load2DTexture(const char* imgLocation, uint32& textureId, bool flipImageVert, bool sRGB, uint32* width, uint32* height)
+void load2DTexture(const char* imgLocation, uint32& textureId, bool flipImageVert, bool inputSRGB, uint32* width, uint32* height)
 {
   glGenTextures(1, &textureId);
   glBindTexture(GL_TEXTURE_2D, textureId);
@@ -14,43 +13,32 @@ load2DTexture(const char* imgLocation, uint32& textureId, bool flipImageVert, bo
   // load image data
   int w, h, numChannels;
   stbi_set_flip_vertically_on_load(flipImageVert);
-  unsigned char* data = stbi_load(imgLocation, &w, &h, &numChannels, 0);
-  if (data)
+  unsigned char* data = stbi_load(imgLocation, &w, &h, &numChannels, 0 /*desired channels*/);
+  if (data && numChannels <= 4)
   {
-    uint32 internalFormat;
-    uint32 externalFormat;
-    if (sRGB)
+    uint32 dataColorSpace;
+    uint32 dataComponentComposition;
+    if (numChannels == 3)
     {
-      if (numChannels == 3)
-      {
-        internalFormat = GL_SRGB;
-        externalFormat = GL_RGB;
-      } else
-      {
-        internalFormat = GL_SRGB_ALPHA;
-        externalFormat = GL_RGBA;
-      }
-    } else
+      dataColorSpace = inputSRGB ? GL_SRGB : GL_RGB;
+      dataComponentComposition = GL_RGB;
+    } else if(numChannels == 4)
     {
-      if (numChannels == 3)
-      {
-        internalFormat = externalFormat = GL_RGB;
-      } else if (numChannels == 4)
-      {
-        internalFormat = externalFormat = GL_RGBA;
-      } else if (numChannels == 1)
-      {
-        internalFormat = externalFormat = GL_RED;
-      }
+      dataColorSpace = inputSRGB ? GL_SRGB_ALPHA : GL_RGBA;
+      dataComponentComposition = GL_RGBA;
+    } else if(numChannels == 1) {
+      dataColorSpace = dataComponentComposition = GL_RED;
+    } else if(numChannels == 2) {
+      dataColorSpace = dataComponentComposition = GL_RG;
     }
 
     glTexImage2D(GL_TEXTURE_2D, // target
                  0, // level of detail (level n is the nth mipmap reduction image)
-                 internalFormat, // kind of format we want to store the texture
+                 dataColorSpace, // What is the color space of the data
                  w, // width of texture
                  h, // height of texture
                  0, // border (legacy stuff, MUST BE 0)
-                 externalFormat, // Specifies format of the pixel data
+                 dataComponentComposition, // How are the components of the data composed
                  GL_UNSIGNED_BYTE, // specifies data type of pixel data
                  data); // pointer to the image data
     glGenerateMipmap(GL_TEXTURE_2D);
@@ -58,8 +46,8 @@ load2DTexture(const char* imgLocation, uint32& textureId, bool flipImageVert, bo
     // set texture options
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST); // disables bilinear filtering (creates sharp edges when magnifying texture)
 
-    if(width != nullptr) *width = w;
-    if(height != nullptr) *height = h;
+    if(width != NULL) *width = w;
+    if(height != NULL) *height = h;
   } else
   {
     std::cout << "Failed to load texture" << std::endl;

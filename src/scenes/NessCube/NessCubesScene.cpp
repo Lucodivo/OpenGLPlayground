@@ -440,7 +440,7 @@ void NessCubesScene::renderLoop(uint32& shapesVAO, uint32& lightVAO, uint32& qua
 
 void NessCubesScene::initializeTextures(uint32& diffTextureId, uint32& specTextureId, uint32& skyboxTextureId)
 {
-  load2DTexture(diffuseTextureLoc, diffTextureId, true, false);
+  load2DTexture(diffuseTextureLoc, diffTextureId, true, true);
   load2DTexture(specularTextureLoc, specTextureId, true, false);
   loadCubeMapTexture(skyboxWaterFaceLocations, skyboxTextureId);
 }
