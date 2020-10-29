@@ -59,8 +59,6 @@ const float halfBoxDimen = boxDimen / 2.0;
 const float normalEpsilon = 0.0001;
 const vec3 missColor = vec3(0.1, 0.1, 0.1);
 const int maxSamples = 8;
-const float gammaToLinear = 2.2;
-const float gammaToSRBG = 1.0 / gammaToLinear;
 
 vec4 mengerColor = vec4(1.0, 1.0, 1.0, 1.0);
 
