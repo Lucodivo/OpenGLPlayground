@@ -4,25 +4,88 @@
 #include <Xinput.h>
 #include <iostream>
 
-MouseMovementConsumer* movementConsumer;
-MouseScrollConsumer* scrollConsumer;
-FrameBufferSizeConsumer* frameBufferConsumer;
+template<typename T>
+struct Node
+{
+  T* data;
+  Node<T>* next;
+};
 
-float32 lastX = VIEWPORT_INIT_WIDTH / 2;
-float32 lastY = VIEWPORT_INIT_HEIGHT / 2;
+template<typename T>
+void addNode(Node<T>** headptr, T* newData)
+{
+  // add to front of linked list
+  Node<T>* newNode = new Node<T>{newData, *headptr};
+  *headptr = newNode;
+}
 
+// removes all nodes with specified data
+template<typename T>
+bool removeNode(Node<T>** headptr, T* removeData)
+{
+  bool nodeRemoved = false;
+  if (*headptr != NULL)
+  {
+    if (*headptr->data == removeData)
+    { // head node special case
+      Node<T>* removeHeadNode = *headptr;
+      Node<T>* removeTailNode = removeHeadNode;
+      while (removeTailNode->next != NULL && removeTailNode->next->data == removeData)
+      {
+        removeTailNode = removeTailNode->next; // move it to the last instance of a series of removeData nodes
+      }
 
-#define X_INPUT_GET_STATE(name) DWORD WINAPI name(DWORD dwUserIndex, XINPUT_STATE *pState)
+      *headptr = removeTailNode->next; // disconnect link
 
-typedef X_INPUT_GET_STATE(x_input_get_state);
+      while (removeHeadNode != removeTailNode->next)
+      {
+        delete removeHeadNode; // deallocate
+        removeHeadNode = removeHeadNode->next;
+      }
 
-X_INPUT_GET_STATE(XInputGetStateStub)
+      nodeRemoved = true;
+    }
+
+    if (*headptr != NULL)
+    {
+      Node<T>* traversalNode = *headptr;
+      while (traversalNode->next != NULL)
+      {
+        if (traversalNode->next->data == removeData)
+        {
+          Node<T>* removeNode = traversalNode->next;
+          traversalNode->next = removeNode->next; // disconnect link
+          delete removeNode; // deallocate
+          nodeRemoved = true;
+        } else
+        {
+          traversalNode = traversalNode->next;
+        }
+      }
+    }
+  }
+  return nodeRemoved;
+}
+
+// NOTE: This file does not support multiple windows
+struct GLFWwindowUser
+{
+  Node<MouseMovementConsumer>* mouseMovementConsumer;
+  Node<MouseScrollConsumer>* mouseScrollConsumer;
+  Node<FrameBufferSizeConsumer>* framebufferSizeConsumer;
+};
+
+// NOTE: Casey Muratori's efficient way of handling function pointers, Handmade Hero episode 6 @ 22:06 & 1:00:21
+// NOTE: Allows us to quickly change the function parameters & return type in one place and cascade throughout the rest
+// NOTE: of the code if need be.
+#define X_INPUT_GET_STATE(name) DWORD WINAPI name(DWORD dwUserIndex, XINPUT_STATE *pState) // succinct way to define function of this type in future
+typedef X_INPUT_GET_STATE(x_input_get_state); // succinct way to define function pointer of type above in the future
+X_INPUT_GET_STATE(XInputGetStateStub) // create stub function of type above
 {
   return (ERROR_DEVICE_NOT_CONNECTED);
 }
-
-global_variable x_input_get_state* XInputGetState_ = XInputGetStateStub;
-#define XInputGetState XInputGetState_
+file_accessible x_input_get_state* XInputGetState_ = XInputGetStateStub; // Create a function pointer of type above to point to stub
+#define XInputGetState XInputGetState_ // Allow us to use XInputGetState method name without conflicting with definition in Xinput.h
 
 void loadXInput()
 {
@@ -37,7 +100,7 @@ void loadXInput()
   }
   if (XInputLibrary)
   {
-    XInputGetState = (x_input_get_state*)GetProcAddress(XInputLibrary, "XInputGetState");
+    XInputGetState = (x_input_get_state*) GetProcAddress(XInputLibrary, "XInputGetState");
     if (!XInputGetState)
     {
       XInputGetState = XInputGetStateStub;
@@ -222,8 +285,6 @@ void processXInput(ControllerConsumer* consumer)
 
 void processKeyboardInput(GLFWwindow* window, KeyboardConsumer* consumer)
 {
-  double currentTime = glfwGetTime();
-
   if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
   {
     glfwSetWindowShouldClose(window, true);
@@ -288,12 +349,16 @@ void processKeyboardInput(GLFWwindow* window, KeyboardConsumer* consumer)
     if (!leftMouseButtonWasDown)
     {
       leftMouseButtonWasDown = true;
-      consumer->key_LeftMouseButton_pressed(lastX, lastY);
+      float64 cursorPosX, cursorPosY;
+      glfwGetCursorPos(window, &cursorPosX, &cursorPosY);
+      consumer->key_LeftMouseButton_pressed((float32)cursorPosX, (float32)cursorPosY);
     }
   } else if (leftMouseButtonWasDown)
   {
     leftMouseButtonWasDown = false;
-    consumer->key_LeftMouseButton_released(lastX, lastY);
+    float64 cursorPosX, cursorPosY;
+    glfwGetCursorPos(window, &cursorPosX, &cursorPosY);
+    consumer->key_LeftMouseButton_released((float32)cursorPosX, (float32)cursorPosY);
   }
 
   local_persist bool rightMouseButtonWasDown = false;
@@ -302,12 +367,16 @@ void processKeyboardInput(GLFWwindow* window, KeyboardConsumer* consumer)
     if (!rightMouseButtonWasDown)
     {
       rightMouseButtonWasDown = true;
-      consumer->key_RightMouseButton_pressed(lastX, lastY);
+      float64 cursorPosX, cursorPosY;
+      glfwGetCursorPos(window, &cursorPosX, &cursorPosY);
+      consumer->key_RightMouseButton_pressed((float32)cursorPosX, (float32)cursorPosY);
     }
   } else if (rightMouseButtonWasDown)
   {
     rightMouseButtonWasDown = false;
-    consumer->key_RightMouseButton_released(lastX, lastY);
+    float64 cursorPosX, cursorPosY;
+    glfwGetCursorPos(window, &cursorPosX, &cursorPosY);
+    consumer->key_RightMouseButton_released((float32)cursorPosX, (float32)cursorPosY);
   }
 
   local_persist bool altEnterWasDown = false;
@@ -360,52 +429,80 @@ void processKeyboardInput(GLFWwindow* window, KeyboardConsumer* consumer)
   }
 }
 
+void setupWindowUser(GLFWwindow* window)
+{
+  local_persist bool windowUserSet = false;
+  local_persist GLFWwindowUser windowUser = {NULL, NULL, NULL};
+  if (!windowUserSet)
+  {
+    glfwSetWindowUserPointer(window, &windowUser);
+    windowUserSet = true;
+  }
+}
+
 void subscribeMouseMovement(GLFWwindow* window, MouseMovementConsumer* consumer)
 {
-  movementConsumer = consumer;
+  setupWindowUser(window);
+  GLFWwindowUser* windowUser = (GLFWwindowUser*) glfwGetWindowUserPointer(window);
+  addNode(&windowUser->mouseMovementConsumer, consumer);
   glfwSetCursorPosCallback(window, mouse_callback);
 }
 
 void subscribeMouseScroll(GLFWwindow* window, MouseScrollConsumer* consumer)
 {
-  scrollConsumer = consumer;
+  setupWindowUser(window);
+  GLFWwindowUser* windowUser = (GLFWwindowUser*) glfwGetWindowUserPointer(window);
+  addNode(&windowUser->mouseScrollConsumer, consumer);
   glfwSetScrollCallback(window, scroll_callback);
 }
 
 void subscribeFrameBufferSize(GLFWwindow* window, FrameBufferSizeConsumer* consumer)
 {
-  frameBufferConsumer = consumer;
+  setupWindowUser(window);
+  GLFWwindowUser* windowUser = (GLFWwindowUser*) glfwGetWindowUserPointer(window);
+  addNode(&windowUser->framebufferSizeConsumer, consumer);
   glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 }
 
 // Callback function for when user moves mouse
-void mouse_callback(GLFWwindow* window, double xpos, double ypos)
+void mouse_callback(GLFWwindow* window, double xPos, double yPos)
 {
+  local_persist float32 lastXPos = (float32) xPos;
+  local_persist float32 lastYPos = (float32) yPos;
   local_persist bool firstMouse = true;
-  if (firstMouse)
+
+  float32 xOffset = (float32) xPos - lastXPos;
+  float32 yOffset = lastYPos - (float32) yPos; // reversed since y-coordinates go from bottom to top
+
+  lastXPos = (float32) xPos;
+  lastYPos = (float32) yPos;
+
+  GLFWwindowUser* windowUser = (GLFWwindowUser*) glfwGetWindowUserPointer(window);
+  for (Node<MouseMovementConsumer>* movementConsumerNode = windowUser->mouseMovementConsumer;
+       movementConsumerNode != NULL; movementConsumerNode = movementConsumerNode->next)
   {
-    lastX = (float32)xpos;
-    lastY = (float32)ypos;
-    firstMouse = false;
+    movementConsumerNode->data->mouseMovement(xOffset, yOffset);
   }
-
-  float32 xOffset = (float32)xpos - lastX;
-  float32 yOffset = lastY - (float32)ypos; // reversed since y-coordinates go from bottom to top
-
-  lastX = (float32)xpos;
-  lastY = (float32)ypos;
-
-  movementConsumer->mouseMovement(xOffset, yOffset);
 }
 
 // Callback function for when user scrolls with mouse wheel
 void scroll_callback(GLFWwindow* window, double xOffset, double yOffset)
 {
-  scrollConsumer->mouseScroll((float32)yOffset);
+  GLFWwindowUser* windowUser = (GLFWwindowUser*) glfwGetWindowUserPointer(window);
+  for (Node<MouseScrollConsumer>* mouseScrollConsumer = windowUser->mouseScrollConsumer;
+       mouseScrollConsumer != NULL; mouseScrollConsumer = mouseScrollConsumer->next)
+  {
+    mouseScrollConsumer->data->mouseScroll((float32) yOffset);
+  }
 }
 
 // Callback for when screen changes size
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
-  frameBufferConsumer->frameBufferSize((uint32)width, (uint32)height);
+  GLFWwindowUser* windowUser = (GLFWwindowUser*) glfwGetWindowUserPointer(window);
+  for (Node<FrameBufferSizeConsumer>* framebufferSizeConsumer = windowUser->framebufferSizeConsumer;
+       framebufferSizeConsumer != NULL; framebufferSizeConsumer = framebufferSizeConsumer->next)
+  {
+    framebufferSizeConsumer->data->frameBufferSize((uint32) width, (uint32) height);
+  }
 }
