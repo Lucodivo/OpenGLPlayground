@@ -45,7 +45,7 @@ void main()
 
   vec4 directionalResult = calcDirectionalLightColor();
 
-  vec4 color = directionalResult;// + spotResult + positionalResult;
+  vec4 color = directionalResult;
   FragColor = gammaCorrectionToSRGB(color);
 }
 

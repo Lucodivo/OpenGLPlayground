@@ -31,7 +31,7 @@ struct SpotLight{
 struct Material {
   sampler2D diffTexture1;
   sampler2D specTexture1;
-  float shininess;// TODO: Currently set manually, set in Mesh.h?
+  float shininess;
 };
 
 layout (std140) uniform globalBlockFS {

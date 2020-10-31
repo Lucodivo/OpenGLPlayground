@@ -8,7 +8,7 @@ void initializeCubePositionVertexAttBuffers(uint32& VAO, uint32& VBO, uint32& EB
 void initializeQuadPosNormTexVertexAttBuffers(uint32& VAO, uint32& VBO, uint32& EBO);
 void initializeQuadPosNormTexTanBiVertexAttBuffers(uint32& VAO, uint32& VBO, uint32& EBO);
 void initializeFrameBufferQuadVertexAttBuffers(uint32& VAO, uint32& VBO, uint32& EBO);
-void initializeFrameBuffer(uint32& frameBuffer, uint32& rbo, uint32& frameBufferTexture, uint32 width, uint32 height);
+void initializeFrameBuffer(uint32& frameBufferObject, uint32& depthStencilRenderBufferAttachment, uint32& colorAttachment, uint32 width, uint32 height);
 
 // ===== cube values =====
 #define BottomLeftTexture 0.0f, 0.0f

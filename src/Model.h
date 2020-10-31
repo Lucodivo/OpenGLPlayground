@@ -19,7 +19,7 @@ class Model
 public:
   std::vector<Mesh> meshes;
 
-  Model(char* path)
+  Model(const char* path)
   {
     loadModel(path);
   }
@@ -68,31 +68,11 @@ private:
     for (uint32 i = 0; i < mesh->mNumVertices; i++)
     {
       Vertex vertex;
-
-      // process vertex positions
-      glm::vec3 vector;
-      vector.x = mesh->mVertices[i].x;
-      vector.y = mesh->mVertices[i].y;
-      vector.z = mesh->mVertices[i].z;
-      vertex.Position = vector;
-
-      // process vertex normals
-      vector.x = mesh->mNormals[i].x;
-      vector.y = mesh->mNormals[i].y;
-      vector.z = mesh->mNormals[i].z;
-      vertex.Normal = vector;
-
-      // process texture coordinates
-      if (mesh->mTextureCoords[0]) // does the mesh contain texture coordinates?
-      {
-        glm::vec2 vector;
-        vector.x = mesh->mTextureCoords[0][i].x;
-        vector.y = mesh->mTextureCoords[0][i].y;
-        vertex.TexCoords = vector;
-      } else
-      {
-        vertex.TexCoords = glm::vec2(0.0f, 0.0f);
-      }
+      vertex.Position = glm::vec3(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z);
+      vertex.Normal = glm::vec3(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z);
+      vertex.TexCoords = mesh->HasTextureCoords(0) ?
+              glm::vec2(mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y) :
+              glm::vec2(0.0f, 0.0f);
 
       vertices.push_back(vertex);
     }
@@ -102,10 +82,7 @@ private:
     for (uint32 i = 0; i < mesh->mNumFaces; i++)
     {
       aiFace face = mesh->mFaces[i];
-      for (uint32 j = 0; j < face.mNumIndices; j++)
-      {
-        indices.push_back(face.mIndices[j]);
-      }
+      indices.insert(indices.end(), face.mIndices, face.mIndices + face.mNumIndices);
     }
 
     // process material

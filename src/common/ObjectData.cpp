@@ -302,58 +302,44 @@ void initializeFrameBufferQuadVertexAttBuffers(uint32& VAO, uint32& VBO, uint32&
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
-void initializeFrameBuffer(uint32& frameBuffer, uint32& rbo, uint32& frameBufferTexture, uint32 width, uint32 height)
+void initializeFrameBuffer(uint32& frameBufferObject, uint32& depthStencilRenderBufferAttachment, uint32& colorAttachment, uint32 width, uint32 height)
 {
-  glDeleteFramebuffers(1, &frameBuffer);
-  glDeleteRenderbuffers(1, &rbo);
-  glDeleteTextures(1, &frameBufferTexture);
+  glDeleteFramebuffers(1, &frameBufferObject);
+  glDeleteRenderbuffers(1, &depthStencilRenderBufferAttachment);
+  glDeleteTextures(1, &colorAttachment);
 
   // creating frame buffer
-  glGenFramebuffers(1, &frameBuffer);
-  glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
+  glGenFramebuffers(1, &frameBufferObject);
+  glBindFramebuffer(GL_FRAMEBUFFER, frameBufferObject);
 
   // creating frame buffer color texture
-  glGenTextures(1, &frameBufferTexture);
-  glBindTexture(GL_TEXTURE_2D, frameBufferTexture);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+  glGenTextures(1, &colorAttachment);
+  // NOTE: Binding the texture to the GL_TEXTURE_2D target, means that
+  // NOTE: gl operations on the GL_TEXTURE_2D target will affect our texture
+  // NOTE: while it is remains bound to that target
+  glBindTexture(GL_TEXTURE_2D, colorAttachment);
+  glTexImage2D(GL_TEXTURE_2D, 0/*LoD*/, GL_RGB, width, height, 0/*border*/, GL_RGB, GL_UNSIGNED_BYTE, NULL);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   glBindTexture(GL_TEXTURE_2D, 0); // unbind
 
   // attach texture w/ color to frame buffer
-  glFramebufferTexture2D(GL_FRAMEBUFFER, // frame buffer we're tageting (draw, read, or both)
+  glFramebufferTexture2D(GL_FRAMEBUFFER, // frame buffer we're targeting (draw, read, or both)
                          GL_COLOR_ATTACHMENT0, // type of attachment
                          GL_TEXTURE_2D, // type of texture
-                         frameBufferTexture, // texture
+                         colorAttachment, // texture
                          0); // mipmap level
 
-  // creating frame buffer depth texture
-  uint32 depthTexture;
-  glGenTextures(1, &depthTexture);
-  glBindTexture(GL_TEXTURE_2D, depthTexture);glTexImage2D(
-          GL_TEXTURE_2D, 0, GL_DEPTH24_STENCIL8, width, height, 0,
-          GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, NULL
-  );
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  glBindTexture(GL_TEXTURE_2D, 0); // unbind
-
-  glFramebufferTexture2D(GL_FRAMEBUFFER,
-          GL_DEPTH_STENCIL_ATTACHMENT,
-          GL_TEXTURE_2D,
-          depthTexture,
-          0);
-
   // creating render buffer to be depth/stencil buffer
-  glGenRenderbuffers(1, &rbo);
-  glBindRenderbuffer(GL_RENDERBUFFER, rbo);
+  glGenRenderbuffers(1, &depthStencilRenderBufferAttachment);
+  glBindRenderbuffer(GL_RENDERBUFFER, depthStencilRenderBufferAttachment);
   glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
   glBindRenderbuffer(GL_RENDERBUFFER, 0); // unbind
   // attach render buffer w/ depth & stencil to frame buffer
   glFramebufferRenderbuffer(GL_FRAMEBUFFER, // frame buffer target
                             GL_DEPTH_STENCIL_ATTACHMENT, // attachment point of frame buffer
                             GL_RENDERBUFFER, // render buffer target
-                            rbo);  // render buffer
+                            depthStencilRenderBufferAttachment);  // render buffer
 
   if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
   {
