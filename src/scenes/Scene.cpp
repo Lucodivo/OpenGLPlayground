@@ -10,12 +10,13 @@ Scene::Scene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth
         : window(window),
           windowHeight(initScreenHeight),
           windowWidth(initScreenWidth),
+          initialWindowHeight(initScreenHeight),
+          initialWindowWidth(initScreenWidth),
           textDebugShader(textVertexShaderFileLoc, textFragmentShaderFileLoc)
 {
   subscribeFrameBufferSize(window, this);
   initDebugTextCharacters();
   initDebugTextBuffers();
-  glDisable(GL_FRAMEBUFFER_SRGB);
   textDebugProjectionMat = glm::ortho(0.0f, (float)windowWidth, 0.0f, (float)windowWidth);
   textDebugShader.use();
   textDebugShader.setUniform("projection", textDebugProjectionMat);
@@ -37,12 +38,14 @@ void Scene::adjustWindowSize()
   local_persist bool windowMode = true;
   GLFWmonitor* monitor = glfwGetPrimaryMonitor();
   const GLFWvidmode* mode = glfwGetVideoMode(monitor);
-  if (windowMode)
+  if (windowMode) // if currently in window mode, transition to full screen
   {
     glfwSetWindowMonitor(window, monitor, 0, 0, mode->width, mode->height, GLFW_DONT_CARE);
   } else
   {
-    glfwSetWindowMonitor(window, NULL, (mode->width / 4), (mode->height / 4), VIEWPORT_INIT_WIDTH, VIEWPORT_INIT_HEIGHT, GLFW_DONT_CARE);
+    uint32 centeringUpperLeftX = (mode->width / 2) - (initialWindowWidth / 2);
+    uint32 centeringUpperLeftY = (mode->height / 2) - (initialWindowHeight / 2);
+    glfwSetWindowMonitor(window, NULL/*Null for windowed mode*/, centeringUpperLeftX, centeringUpperLeftY, initialWindowWidth, initialWindowHeight, GLFW_DONT_CARE);
   }
   windowMode = !windowMode;
 }

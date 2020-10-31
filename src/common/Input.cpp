@@ -26,7 +26,7 @@ bool removeNode(Node<T>** headptr, T* removeData)
   bool nodeRemoved = false;
   if (*headptr != NULL)
   {
-    if (*headptr->data == removeData)
+    if ((*headptr)->data == removeData)
     { // head node special case
       Node<T>* removeHeadNode = *headptr;
       Node<T>* removeTailNode = removeHeadNode;
@@ -462,6 +462,30 @@ void subscribeFrameBufferSize(GLFWwindow* window, FrameBufferSizeConsumer* consu
   GLFWwindowUser* windowUser = (GLFWwindowUser*) glfwGetWindowUserPointer(window);
   addNode(&windowUser->framebufferSizeConsumer, consumer);
   glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+}
+
+bool unsubscribeMouseMovement(GLFWwindow* window, MouseMovementConsumer* consumer)
+{
+  void* windowUserPtr = glfwGetWindowUserPointer(window);
+  if(windowUserPtr == NULL) return false;
+  GLFWwindowUser* windowUser = (GLFWwindowUser*) windowUserPtr;
+  return removeNode(&windowUser->mouseMovementConsumer, consumer);
+}
+
+bool unsubscribeMouseScroll(GLFWwindow* window, MouseScrollConsumer* consumer)
+{
+  void* windowUserPtr = glfwGetWindowUserPointer(window);
+  if(windowUserPtr == NULL) return false;
+  GLFWwindowUser* windowUser = (GLFWwindowUser*) glfwGetWindowUserPointer(window);
+  return removeNode(&windowUser->mouseScrollConsumer, consumer);
+}
+
+bool unsubscribeFrameBufferSize(GLFWwindow* window, FrameBufferSizeConsumer* consumer)
+{
+  void* windowUserPtr = glfwGetWindowUserPointer(window);
+  if(windowUserPtr == NULL) return false;
+  GLFWwindowUser* windowUser = (GLFWwindowUser*) glfwGetWindowUserPointer(window);
+  return removeNode(&windowUser->framebufferSizeConsumer, consumer);
 }
 
 // Callback function for when user moves mouse

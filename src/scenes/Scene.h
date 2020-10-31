@@ -36,6 +36,8 @@ private:
   uint32 textDebugVAO;
   uint32 textDebugVBO;
   glm::mat4 textDebugProjectionMat;
+  uint32 initialWindowWidth;
+  uint32 initialWindowHeight;
 
   void initDebugTextCharacters();
   void initDebugTextBuffers();

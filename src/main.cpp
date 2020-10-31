@@ -27,6 +27,9 @@
 
 void initImgui(GLFWwindow* window);
 
+#define VIEWPORT_INIT_WIDTH 1920
+#define VIEWPORT_INIT_HEIGHT 1080
+
 int main()
 {
   loadGLFW();
@@ -35,7 +38,7 @@ int main()
   loadXInput();
   initImgui(window);
 
-  Scene* scene = new MengerSpongeScene(window, VIEWPORT_INIT_HEIGHT, VIEWPORT_INIT_WIDTH);
+  Scene* scene = new NessCubesScene(window, VIEWPORT_INIT_HEIGHT, VIEWPORT_INIT_WIDTH);
   scene->runScene();
 
   glfwTerminate(); // clean up gl resources
