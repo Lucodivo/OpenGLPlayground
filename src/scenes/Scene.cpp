@@ -124,17 +124,39 @@ void Scene::initDebugTextBuffers()
   glBindVertexArray(0);
 }
 
-// TODO: The following special blending function must be enabled for renderText to work. Make more flexible.
-//      glEnable(GL_BLEND);
-//      glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 void Scene::renderText(std::string text, GLfloat x, GLfloat y, GLfloat scale, glm::vec3 color)
 {
+  // store original blend values
+  bool blendWasEnabled = glIsEnabled(GL_BLEND) == GL_TRUE;
+  bool depthTestWasEnabled = glIsEnabled(GL_DEPTH_TEST) == GL_TRUE;
+  GLint originalSrcRGB, originalSrcAlpha, originalDstRGB, originalDstAlpha;
+  glGetIntegerv(GL_BLEND_SRC_RGB, &originalSrcRGB);
+  glGetIntegerv(GL_BLEND_SRC_ALPHA, &originalSrcAlpha);
+  glGetIntegerv(GL_BLEND_DST_RGB, &originalDstRGB);
+  glGetIntegerv(GL_BLEND_DST_ALPHA, &originalDstAlpha);
+
+  // turn on blend values to render text
+  glEnable(GL_BLEND);
+  glDisable(GL_DEPTH_TEST);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+  GLint originalProgramID;
+  glGetIntegerv(GL_CURRENT_PROGRAM, &originalProgramID);
   textDebugShader.use();
 
   // Activate corresponding render state	
   textDebugShader.setUniform("textColor", color);
-  glActiveTexture(GL_TEXTURE0);
+  GLint originalBoundVertexArray;
+  glGetIntegerv(GL_VERTEX_ARRAY_BINDING, &originalBoundVertexArray);
   glBindVertexArray(textDebugVAO);
+
+  GLint originalActiveTexture;
+  glGetIntegerv(GL_ACTIVE_TEXTURE, &originalActiveTexture);
+  glActiveTexture(GL_TEXTURE0);
+  GLint originalTexture0;
+  glGetIntegerv(GL_TEXTURE_BINDING_2D, &originalTexture0);
+  GLint originalBuffer;
+  glGetIntegerv(GL_ARRAY_BUFFER_BINDING, &originalBuffer);
 
   // Iterate through all characters
   std::string::const_iterator c;
@@ -162,12 +184,20 @@ void Scene::renderText(std::string text, GLfloat x, GLfloat y, GLfloat scale, gl
     // Update content of VBO memory
     glBindBuffer(GL_ARRAY_BUFFER, textDebugVBO);
     glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
     // Render quad
     glDrawArrays(GL_TRIANGLES, 0, 6);
     // Now advance cursors for next glyph (note that advance is number of 1/64 pixels)
     x += (ch.advance >> 6) * scale; // Bitshift by 6 to get value in pixels (2^6 = 64)
   }
-  glBindVertexArray(0);
-  glBindTexture(GL_TEXTURE_2D, 0);
+  glBindBuffer(GL_ARRAY_BUFFER, originalBuffer);
+  glBindTexture(GL_TEXTURE_2D, originalTexture0);
+  glActiveTexture(originalActiveTexture);
+  glBindVertexArray(originalBoundVertexArray);
+
+  glUseProgram(originalProgramID);
+
+  // return blend values to original state
+  if(!blendWasEnabled) { glDisable(GL_BLEND); }
+  if(depthTestWasEnabled) { glEnable(GL_DEPTH_TEST); }
+  glBlendFuncSeparate(originalSrcRGB, originalDstRGB, originalSrcAlpha, originalDstAlpha);
 }

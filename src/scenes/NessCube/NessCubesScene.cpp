@@ -426,12 +426,10 @@ void NessCubesScene::renderLoop(uint32& shapesVAO, uint32& lightVAO, uint32& qua
                    GL_UNSIGNED_INT, // type of the indices
                    0); // offset in the EBO
 
-    glDisable(GL_DEPTH_TEST);
     uint32 numFrames = (uint32)(1 / deltaTime);
     renderText(std::to_string(numFrames) + " FPS", 25.0f, 25.0f, 1.0f, glm::vec3(1.0f, 0.0f, 0.0f));
     renderText(vendor, 25.0f, 100.0f, 1.0f, glm::vec3(1.0f, 0.0f, 0.0f));
     renderText(renderer, 25.0f, 150.0f, 1.0f, glm::vec3(1.0f, 0.0f, 0.0f));
-    glEnable(GL_DEPTH_TEST);
 
     glfwSwapBuffers(window); // swaps double buffers (call after all render commands are completed)
     glfwPollEvents(); // checks for events (ex: keyboard/mouse input)

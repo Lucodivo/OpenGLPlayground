@@ -58,6 +58,7 @@ void GUIScene::renderLoop(uint32 cubeVAO)
   glEnable(GL_DEPTH_TEST);
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  glLineWidth(3.0f);
 
   camera.Position += glm::vec3(0.0f, 0.0f, 4.0f);
 
@@ -73,11 +74,6 @@ void GUIScene::renderLoop(uint32 cubeVAO)
 
     // check for input
     processKeyboardInput(window, this);
-
-    if(displayMouseClick)
-    {
-      renderText(text, 25.0f, 25.0f, 1.0f, glm::vec3(1.0f, 0.0f, 0.0f));
-    }
 
     viewMat = camera.GetViewMatrix(deltaTime);
 
@@ -114,6 +110,11 @@ void GUIScene::renderLoop(uint32 cubeVAO)
     }
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glEnable(GL_DEPTH_TEST);
+
+    if(displayMouseClick)
+    {
+      renderText(text, 25.0f, 25.0f, 1.0f, glm::vec3(1.0f, 0.0f, 0.0f));
+    }
 
     glfwSwapBuffers(window); // swaps double buffers
     glfwPollEvents(); // checks for events (ex: keyboard/mouse input)

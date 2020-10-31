@@ -186,10 +186,8 @@ void AsteroidBeltScene::renderLoop(uint32 skyboxVAO)
                    0); // offset in the EBO
     glBindVertexArray(0);
 
-    glDisable(GL_DEPTH_TEST);
-    uint32 numFrames = (uint32)(1 / deltaTime);
+    uint32 numFrames = (uint32)(1.0f / deltaTime);
     renderText(std::to_string(numFrames) + " FPS", 25.0f, 25.0f, 1.0f, glm::vec3(1.0f, 0.0f, 0.0f));
-    glEnable(GL_DEPTH_TEST);
 
     glfwSwapBuffers(window); // swaps double buffers
     glfwPollEvents(); // checks for events (ex: keyboard/mouse input)
