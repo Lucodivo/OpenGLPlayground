@@ -44,7 +44,6 @@ private:
   void renderLoop(uint32 cubeVAO);
 
   void checkMouseClickCollision(float32 mouseX, float32 mouseY);
-
   bool checkCubeCollision(glm::vec3* worldRay, glm::vec3* rayOrigin, Cube* cube);
 };
 

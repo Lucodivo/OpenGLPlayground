@@ -7,8 +7,8 @@ uniform mat4 model;
 
 layout (std140) uniform globalBlockVS {
                     // base alignment			aligned offset
-  mat4 projection;  // 64						      64
-  mat4 view;        // 64						      0
+  mat4 projection;  // 64						      0
+  mat4 view;        // 64						      64
 };
 
 out vec3 Normal;

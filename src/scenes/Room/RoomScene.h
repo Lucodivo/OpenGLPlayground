@@ -6,7 +6,7 @@ class RoomScene : public GodModeScene
 {
 public:
   RoomScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth);
-  void runScene();
+  void runScene() override;
 
 private:
 

@@ -84,7 +84,7 @@ void NessCubesScene::renderLoop(uint32& shapesVAO, uint32& lightVAO, uint32& qua
   uint32 cubeSpecTextureId;
   uint32 skyboxTextureId;
   initializeTextures(cubeDiffTextureId, cubeSpecTextureId, skyboxTextureId);
-  initializeFrameBuffer(frameBuffer, rbo, frameBufferTexture, windowWidth, windowHeight);
+  framebuffer = initializeFrameBuffer(windowWidth, windowHeight);
 
   // load models
   Model nanoSuitModel(nanoSuitModelLoc);
@@ -198,7 +198,7 @@ void NessCubesScene::renderLoop(uint32& shapesVAO, uint32& lightVAO, uint32& qua
     processXInput(this);
 
     // bind our frame buffer
-    glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
+    glBindFramebuffer(GL_FRAMEBUFFER, framebuffer.id);
 
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LEQUAL);
@@ -411,7 +411,7 @@ void NessCubesScene::renderLoop(uint32& shapesVAO, uint32& lightVAO, uint32& qua
     frameBufferShader.use();
     glBindVertexArray(quadVAO);
     glActiveTexture(GL_TEXTURE2);
-    glBindTexture(GL_TEXTURE_2D, frameBufferTexture);
+    glBindTexture(GL_TEXTURE_2D, framebuffer.colorAttachment);
     frameBufferShader.setUniform("tex", 2);
     frameBufferShader.setUniform("kernel", kernels5x5[selectedKernelIndex], ArrayCount(kernels5x5[selectedKernelIndex]));
     glDisable(GL_DEPTH_TEST);
@@ -440,7 +440,8 @@ void NessCubesScene::initializeTextures(uint32& diffTextureId, uint32& specTextu
 void NessCubesScene::frameBufferSize(uint32 width, uint32 height)
 {
   FirstPersonScene::frameBufferSize(width, height);
-  initializeFrameBuffer(frameBuffer, rbo, frameBufferTexture, width, height);
+  deleteFrameBuffer(framebuffer);
+  framebuffer = initializeFrameBuffer(width, height);
   frameBufferShader.setUniform("textureWidth", (float32)width);
   frameBufferShader.setUniform("textureHeight", (float32)height);
 }

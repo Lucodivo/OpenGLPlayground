@@ -25,8 +25,6 @@ void InfiniteCapsulesScene::runScene()
 
 void InfiniteCapsulesScene::renderLoop(uint32 quadVAO)
 {
-  initializeFrameBuffer(frameBuffer, rbo, frameBufferTexture, windowWidth, windowHeight);
-
   // background clear color
   glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 
@@ -80,7 +78,6 @@ void InfiniteCapsulesScene::renderLoop(uint32 quadVAO)
 void InfiniteCapsulesScene::frameBufferSize(uint32 width, uint32 height)
 {
   FirstPersonScene::frameBufferSize(width, height);
-  initializeFrameBuffer(frameBuffer, rbo, frameBufferTexture, width, height);
   rayMarchingShader.use();
   rayMarchingShader.setUniform("viewPortResolution", glm::vec2(width, height));
 }

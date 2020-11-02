@@ -26,8 +26,6 @@ void MandelbrotScene::runScene()
 
 void MandelbrotScene::renderLoop(uint32 quadVAO)
 {
-  initializeFrameBuffer(frameBuffer, rbo, frameBufferTexture, windowWidth, windowHeight);
-
   // background clear color
   glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 
@@ -73,9 +71,8 @@ void MandelbrotScene::frameBufferSize(uint32 width, uint32 height)
 {
   float32 oldWidth = (float32)windowWidth;
   float32 oldHeight = (float32)windowHeight;
-
   FirstPersonScene::frameBufferSize(width, height);
-  initializeFrameBuffer(frameBuffer, rbo, frameBufferTexture, width, height);
+
   mandelbrotShader.use();
   mandelbrotShader.setUniform("viewPortResolution", glm::vec2(width, height));
 

@@ -12,7 +12,7 @@ class ReflectRefractScene final : public FirstPersonScene
 {
 public:
   ReflectRefractScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth);
-  void runScene();
+  void runScene() override;
 
 private:
   Shader explodingReflectionShader;
@@ -34,14 +34,14 @@ private:
 
   void renderLoop(GLFWwindow* window, uint32& cubeVAO, uint32& skyboxVAO);
 
-  void key_Up();
-  void key_Down();
-  void key_Left();
-  void key_Right();
-  void button_dPadUp_pressed();
-  void button_dPadDown_pressed();
-  void button_dPadLeft_pressed();
-  void button_dPadRight_pressed();
+  void key_Up() override;
+  void key_Down() override;
+  void key_Left() override;
+  void key_Right() override;
+  void button_dPadUp_pressed() override;
+  void button_dPadDown_pressed() override;
+  void button_dPadLeft_pressed() override;
+  void button_dPadRight_pressed() override;
 
   void nextModelReflaction();
   void prevModelReflaction();

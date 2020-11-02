@@ -22,10 +22,6 @@ private:
   float32 deltaTime = 0;
   float32 lastFrame = 0;
 
-  uint32 frameBuffer = 0;
-  uint32 frameBufferTexture = 0;
-  uint32 rbo = 0;
-
   void renderLoop(uint32 quadVAO);
 };
 

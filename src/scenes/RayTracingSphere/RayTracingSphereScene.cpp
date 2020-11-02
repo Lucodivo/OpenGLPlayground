@@ -25,8 +25,6 @@ void RayTracingSphereScene::runScene()
 
 void RayTracingSphereScene::renderLoop(uint32 quadVAO)
 {
-  initializeFrameBuffer(frameBuffer, rbo, frameBufferTexture, windowWidth, windowHeight);
-
   // background clear color
   glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 
@@ -75,7 +73,6 @@ void RayTracingSphereScene::renderLoop(uint32 quadVAO)
 void RayTracingSphereScene::frameBufferSize(uint32 width, uint32 height)
 {
   FirstPersonScene::frameBufferSize(width, height);
-  initializeFrameBuffer(frameBuffer, rbo, frameBufferTexture, width, height);
   rayTracingSphereShader.use();
   rayTracingSphereShader.setUniform("viewPortResolution", glm::vec2(width, height));
 }

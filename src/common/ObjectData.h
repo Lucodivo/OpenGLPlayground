@@ -2,13 +2,20 @@
 
 #include "../LearnOpenGLPlatform.h"
 
+struct Framebuffer {
+  uint32 id;
+  uint32 colorAttachment;
+  uint32 depthStencilAttachment;
+};
+
 void initializeCubePosNormTexVertexAttBuffers(uint32& VAO, uint32& VBO, uint32& EBO, bool invertNormals = false);
 void initializeCubePosNormVertexAttBuffers(uint32& VAO, uint32& VBO, uint32& EBO);
 void initializeCubePositionVertexAttBuffers(uint32& VAO, uint32& VBO, uint32& EBO);
 void initializeQuadPosNormTexVertexAttBuffers(uint32& VAO, uint32& VBO, uint32& EBO);
 void initializeQuadPosNormTexTanBiVertexAttBuffers(uint32& VAO, uint32& VBO, uint32& EBO);
 void initializeFrameBufferQuadVertexAttBuffers(uint32& VAO, uint32& VBO, uint32& EBO);
-void initializeFrameBuffer(uint32& frameBufferObject, uint32& depthStencilRenderBufferAttachment, uint32& colorAttachment, uint32 width, uint32 height);
+Framebuffer initializeFrameBuffer(uint32 width, uint32 height);
+void deleteFrameBuffer(Framebuffer framebuffer);
 
 // ===== cube values =====
 #define BottomLeftTexture 0.0f, 0.0f

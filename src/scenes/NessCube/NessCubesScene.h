@@ -41,9 +41,7 @@ private:
 
   bool flashLightOn = false;
 
-  uint32 frameBuffer = 0;
-  uint32 frameBufferTexture = 0;
-  uint32 rbo = 0;
+  Framebuffer framebuffer = {};
 
   uint32 selectedKernelIndex = 0;
 

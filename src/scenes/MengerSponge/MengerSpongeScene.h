@@ -25,7 +25,6 @@ class MengerSpongeScene final : public GodModeScene {
 public:
   MengerSpongeScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth);
 
-  // FrameBufferSizeConsumer override
   void frameBufferSize(uint32 width, uint32 height) override;
   void runScene() override;
 
@@ -39,20 +38,19 @@ private:
   Shader mengerSpongeShader;
   Shader pixel2DShader;
   Shader cubeShader;
+
   uint32 textureDiff1Id;
   uint32 textureSpec1Id;
   uint32 textureDiff2Id;
   uint32 textureSpec2Id;
+
   uint32 textureWidth;
   uint32 textureHeight;
+
   bool showDebugWindows = true;
 
   float32 deltaTime = 0;
   float32 lastFrame = 0;
-
-  uint32 frameBuffer = 0;
-  uint32 frameBufferTexture = 0;
-  uint32 rbo = 0;
 
   void renderLoop(uint32 quadVAO, uint32 cubeVAO);
 

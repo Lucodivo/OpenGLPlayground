@@ -39,7 +39,7 @@ void MengerSpongeScene::runScene()
 void MengerSpongeScene::renderLoop(uint32 quadVAO, uint32 cubeVAO)
 {
   resolution largestResolution = screenResolutions[ArrayCount(screenResolutions) - 1];
-  initializeFrameBuffer(frameBuffer, rbo, frameBufferTexture, largestResolution.width, largestResolution.height);
+  Framebuffer dynamicResolutionFBO = initializeFrameBuffer(largestResolution.width, largestResolution.height);
 
   const float cubeScale = 10.0f;
   const glm::vec3 cubePos = glm::vec3(0.0, 0.0, 0.0);
@@ -107,6 +107,9 @@ void MengerSpongeScene::renderLoop(uint32 quadVAO, uint32 cubeVAO)
   const float32 frameTime = 0.2f;
   int32 numSamples = 1;
 
+  // NOTE: the viewport dictates the area of the bound
+  glViewport(0, 0, currentResolution.width, currentResolution.height);
+
   // NOTE: render/game loop
   while (glfwWindowShouldClose(window) == GL_FALSE)
   {
@@ -146,12 +149,9 @@ void MengerSpongeScene::renderLoop(uint32 quadVAO, uint32 cubeVAO)
 //    camera.Position += deltaCameraPos;
     glm::mat4 cameraMat = camera.GetViewMatrix(deltaTime);
 
-
     // bind our frame buffer
-    glViewport(0, 0, currentResolution.width, currentResolution.height);
-    glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
+    glBindFramebuffer(GL_FRAMEBUFFER, dynamicResolutionFBO.id);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 
     mengerSpongeShader.use();
     glBindVertexArray(quadVAO);
@@ -178,7 +178,7 @@ void MengerSpongeScene::renderLoop(uint32 quadVAO, uint32 cubeVAO)
 
 //    static uint32 numSnapshots = 0;
 //    if(numSnapshots < 1) {
-//      snapshot(currentResolution.width, currentResolution.height, "C:\\Users\\Connor\\Desktop\\tmp\\snapshot.bmp", frameBuffer);
+//      snapshot(currentResolution.width, currentResolution.height, "C:\\Users\\Connor\\Desktop\\tmp\\snapshot.bmp", dynamicResolutionFBO);
 //      ++numSnapshots;
 //    }
 
@@ -205,13 +205,10 @@ void MengerSpongeScene::renderLoop(uint32 quadVAO, uint32 cubeVAO)
 //                   GL_UNSIGNED_INT, // type of the indices
 //                   0); // offset in the EBO
 
-    glViewport(0, 0, windowWidth, windowHeight);
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
     // bind our frame buffer
-    glBindFramebuffer(GL_READ_FRAMEBUFFER, frameBuffer);
-    glBlitFramebuffer(0, 0, currentResolution.width, currentResolution.height, 0, 0, windowWidth, windowHeight, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+    //NOTE: dynamicResolutionFBO is already bound to GL_READ_FRAMEBUFFER
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+    glBlitFramebuffer(0, 0, currentResolution.width, currentResolution.height, 0, 0, windowWidth, windowHeight, GL_COLOR_BUFFER_BIT, GL_NEAREST);
 
     // Rendering ImGui
     ImGui::Render();
@@ -225,7 +222,8 @@ void MengerSpongeScene::renderLoop(uint32 quadVAO, uint32 cubeVAO)
 void MengerSpongeScene::frameBufferSize(uint32 width, uint32 height)
 {
   FirstPersonScene::frameBufferSize(width, height);
-  mengerSpongeShader.use();
+  // NOTE: We need our viewport extent to match specified resolution instead of matching out window extent
+  glViewport(0, 0, currentResolution.width, currentResolution.height);
 }
 
 void MengerSpongeScene::key_E_pressed() {
@@ -234,6 +232,8 @@ void MengerSpongeScene::key_E_pressed() {
   }
 
   currentResolution = screenResolutions[currentResolutionIndex];
+
+  glViewport(0, 0, currentResolution.width, currentResolution.height);
 
   mengerSpongeShader.use();
   mengerSpongeShader.setUniform("viewPortResolution", glm::vec2(currentResolution.width, currentResolution.height));
@@ -244,13 +244,13 @@ void MengerSpongeScene::key_E_pressed() {
 }
 
 void MengerSpongeScene::key_Q_pressed() {
-  if(currentResolutionIndex == 0) {
+  if(--currentResolutionIndex == -1) {
     currentResolutionIndex = ArrayCount(screenResolutions) - 1;
-  } else {
-    --currentResolutionIndex;
   }
 
   currentResolution = screenResolutions[currentResolutionIndex];
+
+  glViewport(0, 0, currentResolution.width, currentResolution.height);
 
   mengerSpongeShader.use();
   mengerSpongeShader.setUniform("viewPortResolution", glm::vec2(currentResolution.width, currentResolution.height));
