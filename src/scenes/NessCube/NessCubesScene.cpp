@@ -38,7 +38,7 @@ const float32 cubeScales[] = {
 
 NessCubesScene::NessCubesScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth)
         : FirstPersonScene(window, initScreenHeight, initScreenWidth),
-          cubeShader(posNormTexVertexShaderFileLoc, cubeFragmentShaderFileLoc),
+          cubeShader(posNormTexVertexShaderFileLoc, nessCubeFragmentShaderFileLoc),
           lightShader(posGlobalBlockVertexShaderFileLoc, singleColorFragmentShaderFileLoc),
           modelShader(posNormTexVertexShaderFileLoc, dirPosSpotLightModelFragmentShaderFileLoc),
           stencilShader(posNormTexVertexShaderFileLoc, singleColorFragmentShaderFileLoc),
@@ -80,18 +80,19 @@ void NessCubesScene::runScene()
 
 void NessCubesScene::renderLoop(uint32& shapesVAO, uint32& lightVAO, uint32& quadVAO, uint32& skyboxVAO)
 {
-  uint32 diffTextureId;
-  uint32 specTextureId;
+  uint32 cubeDiffTextureId;
+  uint32 cubeSpecTextureId;
   uint32 skyboxTextureId;
-  initializeTextures(diffTextureId, specTextureId, skyboxTextureId);
+  initializeTextures(cubeDiffTextureId, cubeSpecTextureId, skyboxTextureId);
   initializeFrameBuffer(frameBuffer, rbo, frameBufferTexture, windowWidth, windowHeight);
 
   // load models
-  Model nanoSuitModel((char*)nanoSuitModelLoc);
+  Model nanoSuitModel(nanoSuitModelLoc);
 
   const glm::mat4 projectionMat = glm::perspective(glm::radians(camera.Zoom), (float32)windowWidth / (float32)windowHeight, 0.1f, 100.0f);
 
-  const float32 lightOrbitSpeed = 20.0f;
+  const float32 lightOrbitSpeed = 1.0f;
+  const float32 lightOrbitRadius = 2.5f;
   const glm::vec3 lightAxisRot(0.0f, 1.0f, 0.0f);
   const float32 lightScale = 0.2f;
 
@@ -105,11 +106,6 @@ void NessCubesScene::renderLoop(uint32& shapesVAO, uint32& lightVAO, uint32& qua
 
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-#if 0
-  // draw in wireframe
-  glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-#endif
 
   auto setConstantLightUniforms = [&](Shader shader)
   {
@@ -141,9 +137,9 @@ void NessCubesScene::renderLoop(uint32& shapesVAO, uint32& lightVAO, uint32& qua
                       4 * 16);          // size: 4 vec3's, 16 bits alignments
 
     glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::vec3), glm::value_ptr(directionalLightDir));
-    glBufferSubData(GL_UNIFORM_BUFFER, 16, sizeof(glm::vec3), glm::value_ptr(directionalLightColor * glm::vec3(0.3f)));
-    glBufferSubData(GL_UNIFORM_BUFFER, 32, sizeof(glm::vec3), glm::value_ptr(directionalLightColor * glm::vec3(0.5f)));
-    glBufferSubData(GL_UNIFORM_BUFFER, 48, sizeof(glm::vec3), glm::value_ptr(directionalLightColor * glm::vec3(0.6f)));
+    glBufferSubData(GL_UNIFORM_BUFFER, 16, sizeof(glm::vec3), glm::value_ptr(directionalLightColor * 0.1f)); // ambient
+    glBufferSubData(GL_UNIFORM_BUFFER, 32, sizeof(glm::vec3), glm::value_ptr(directionalLightColor * 0.3f)); // diffuse
+    glBufferSubData(GL_UNIFORM_BUFFER, 48, sizeof(glm::vec3), glm::value_ptr(directionalLightColor * 0.6f)); // specular
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
     cubeShader.bindBlockIndex("globalBlockFS", globalFSBufferBindIndex);
@@ -224,7 +220,7 @@ void NessCubesScene::renderLoop(uint32& shapesVAO, uint32& lightVAO, uint32& qua
 #endif
 
     // if flashlight is off, simply remove all color from light
-    glm::vec3 flashLightColor = flashLightOn ? glm::vec3(0.93f, 0.84f, 0.72f) : glm::vec3(0.0f);
+    glm::vec3 flashLightColor = flashLightOn ? glm::vec3(1.0f, 1.0f, 1.0f) : glm::vec3(0.0f);
 
     float32 t = (float32)glfwGetTime();
     deltaTime = t - lastFrame;
@@ -243,10 +239,9 @@ void NessCubesScene::renderLoop(uint32& shapesVAO, uint32& lightVAO, uint32& qua
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
     // oscillate with time
-    const glm::vec3 lightPosition = glm::vec3(2.0f, 0.0f + sineVal, 2.0f);
+    const glm::vec3 lightPosition = glm::vec3(lightOrbitRadius * sinf(t * lightOrbitSpeed), sineVal, lightOrbitRadius * cosf(t * lightOrbitSpeed));
     // orbit with time
     glm::mat4 lightModel; // default constructor is identity matrix
-    lightModel = glm::rotate(lightModel, t * glm::radians(lightOrbitSpeed), lightAxisRot);
     lightModel = glm::translate(lightModel, lightPosition);
     lightModel = glm::scale(lightModel, glm::vec3(lightScale));
 
@@ -262,8 +257,6 @@ void NessCubesScene::renderLoop(uint32& shapesVAO, uint32& lightVAO, uint32& qua
                    0); // offset in the EBO
     glBindVertexArray(0);
 
-    // User fragment shaders to draw a triangle
-    glm::vec4 worldLightPos = lightModel * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
     // rotate with time
     glm::mat4 cubeModel = glm::rotate(glm::mat4(), t * glm::radians(cubRotAngle), glm::vec3(1.0f, 0.3f, 0.5f));
     // switch between two images over time
@@ -274,17 +267,17 @@ void NessCubesScene::renderLoop(uint32& shapesVAO, uint32& lightVAO, uint32& qua
     auto setDynamicLightUniforms = [&](Shader shader)
     {
       // positional light (orbiting light)
-      shader.setUniform("positionalLight.position", worldLightPos.x, worldLightPos.y, worldLightPos.z);
-      shader.setUniform("positionalLight.color.ambient", positionalLightColor * glm::vec3(0.05f));
-      shader.setUniform("positionalLight.color.diffuse", positionalLightColor * glm::vec3(0.5f));
-      shader.setUniform("positionalLight.color.specular", positionalLightColor * glm::vec3(1.0f));
+      shader.setUniform("positionalLight.position", lightPosition);
+      shader.setUniform("positionalLight.color.ambient", positionalLightColor * 0.05f);
+      shader.setUniform("positionalLight.color.diffuse", positionalLightColor * 0.3f);
+      shader.setUniform("positionalLight.color.specular", positionalLightColor * 1.0f);
 
       // flash light
       shader.setUniform("spotLight.position", camera.Position);
       shader.setUniform("spotLight.direction", camera.Front);
-      shader.setUniform("spotLight.color.ambient", flashLightColor * glm::vec3(0.05f));
-      shader.setUniform("spotLight.color.diffuse", flashLightColor * glm::vec3(0.3f));
-      shader.setUniform("spotLight.color.specular", flashLightColor * glm::vec3(0.5f));
+      shader.setUniform("spotLight.color.ambient", flashLightColor * 0.05f);
+      shader.setUniform("spotLight.color.diffuse", flashLightColor * 0.3f);
+      shader.setUniform("spotLight.color.specular", flashLightColor * 0.5f);
     };
 
     // draw skybox
@@ -315,9 +308,9 @@ void NessCubesScene::renderLoop(uint32& shapesVAO, uint32& lightVAO, uint32& qua
     setDynamicLightUniforms(cubeShader);
 
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, diffTextureId);
+    glBindTexture(GL_TEXTURE_2D, cubeDiffTextureId);
     glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, specTextureId);
+    glBindTexture(GL_TEXTURE_2D, cubeSpecTextureId);
     cubeShader.setUniform("material.diffTexture1", 0);
     cubeShader.setUniform("material.specTexture1", 1);
 
@@ -382,8 +375,9 @@ void NessCubesScene::renderLoop(uint32& shapesVAO, uint32& lightVAO, uint32& qua
     glClear(GL_STENCIL_BUFFER_BIT); // NOTE: glClear(GL_STENCIL_BUFFER_BIT) counts as writing to the stencil buffer and will be directly ANDed with the stencil mask
 
     // draw models
-    float32 modelScale = 0.2f;
     {
+      const float32 modelScale = 0.2f;
+
       // Drawing the model
       modelShader.use();
       setDynamicLightUniforms(modelShader);
@@ -451,12 +445,12 @@ void NessCubesScene::frameBufferSize(uint32 width, uint32 height)
   frameBufferShader.setUniform("textureHeight", (float32)height);
 }
 
-void NessCubesScene::key_Up()
+void NessCubesScene::key_E_released()
 {
   nextImageKernel();
 }
 
-void NessCubesScene::key_Down()
+void NessCubesScene::key_Q_released()
 {
   prevImageKernel();
 }

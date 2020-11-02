@@ -45,7 +45,7 @@ const char* const discardAlphaFragmentShaderFileLoc = INFINITE_CUBE_BASE"Discard
 
 // Ness Cubes Shaders
 #define NESS_BASE "src/scenes/NessCube/"
-const char* const cubeFragmentShaderFileLoc = NESS_BASE"NessCubeFragmentShader.glsl";
+const char* const nessCubeFragmentShaderFileLoc = NESS_BASE"NessCubeFragmentShader.glsl";
 const char* const dirPosSpotLightModelFragmentShaderFileLoc = NESS_BASE"DirPosSpotLightModelFragmentShader.glsl";
 const char* const kernel3x3TextureFragmentShaderFileLoc = NESS_BASE"Kernel3x3TextureFragmentShader.glsl";
 const char* const kernel5x5TextureFragmentShaderFileLoc = NESS_BASE"Kernel5x5TextureFragmentShader.glsl";

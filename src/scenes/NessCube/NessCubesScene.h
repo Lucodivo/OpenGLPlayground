@@ -19,8 +19,8 @@ public:
 
   // KeyboardConsumer overrides
   void key_LeftMouseButton_pressed(float32 xPos, float32 yPos) override;
-  void key_Up() override;
-  void key_Down() override;
+  void key_E_released() override;
+  void key_Q_released() override;
 
   // ControllerConsumer overrides
   void button_X_pressed() override;
@@ -39,7 +39,7 @@ private:
   float32 deltaTime = 0.0f;  // Time between current frame and last frame
   float32 lastFrame = 0.0f; // Time of last frame
 
-  bool flashLightOn = true;
+  bool flashLightOn = false;
 
   uint32 frameBuffer = 0;
   uint32 frameBufferTexture = 0;
