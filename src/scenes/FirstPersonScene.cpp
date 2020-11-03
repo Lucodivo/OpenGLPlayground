@@ -54,7 +54,7 @@ void FirstPersonScene::button_dPadRight_pressed()
 
 void FirstPersonScene::button_start_pressed()
 {
-  closeWindow();
+  // close window
 }
 
 void FirstPersonScene::button_select_pressed()

@@ -9,6 +9,9 @@ public:
   FirstPersonScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth);
 
   // Scene implementation required
+  virtual void init(){}
+  virtual void deinit(){}
+  virtual void drawFrame(){}
   virtual void runScene() = 0;
 
   // ControllerConsumer implementation

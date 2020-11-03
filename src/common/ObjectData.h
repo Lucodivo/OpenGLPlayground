@@ -8,12 +8,28 @@ struct Framebuffer {
   uint32 depthStencilAttachment;
 };
 
+struct VertexAtt {
+  uint32 arrayObject;
+  uint32 bufferObject;
+  uint32 indexObject;
+};
+
+VertexAtt initializeCubePosNormTexVertexAttBuffers(bool invertNormals = false);
+VertexAtt initializeCubePosNormVertexAttBuffers();
+VertexAtt initializeCubePositionVertexAttBuffers();
+VertexAtt initializeQuadPosNormTexVertexAttBuffers();
+VertexAtt initializeQuadPosNormTexTanBiVertexAttBuffers();
+VertexAtt initializeFrameBufferQuadVertexAttBuffers();
+void deleteVertexAtt(VertexAtt vertexAtt);
+
+// TODO: merge with function above
 void initializeCubePosNormTexVertexAttBuffers(uint32& VAO, uint32& VBO, uint32& EBO, bool invertNormals = false);
 void initializeCubePosNormVertexAttBuffers(uint32& VAO, uint32& VBO, uint32& EBO);
 void initializeCubePositionVertexAttBuffers(uint32& VAO, uint32& VBO, uint32& EBO);
 void initializeQuadPosNormTexVertexAttBuffers(uint32& VAO, uint32& VBO, uint32& EBO);
 void initializeQuadPosNormTexTanBiVertexAttBuffers(uint32& VAO, uint32& VBO, uint32& EBO);
 void initializeFrameBufferQuadVertexAttBuffers(uint32& VAO, uint32& VBO, uint32& EBO);
+
 Framebuffer initializeFrameBuffer(uint32 width, uint32 height);
 void deleteFrameBuffer(Framebuffer framebuffer);
 

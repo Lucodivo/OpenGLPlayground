@@ -24,18 +24,22 @@ struct Texture
 class Mesh
 {
 public:
-  std::vector<Vertex> vertices;
-  std::vector<uint32> indices;
+  uint32 indicesCount;
   std::vector<Texture> textures;
   uint32 VAO;
 
   Mesh(std::vector<Vertex> vertices, std::vector<uint32> indices, std::vector<Texture> textures)
   {
-    this->vertices = vertices;
-    this->indices = indices;
+    this->indicesCount = indices.size();
     this->textures = textures;
 
-    setupMesh();
+    setupMesh(vertices, indices);
+  }
+
+  ~Mesh() {
+    glDeleteBuffers(1, &EBO);
+    glDeleteBuffers(1, &VBO);
+    glDeleteVertexArrays(1, &VAO);
   }
 
   void Draw(Shader shader)
@@ -54,7 +58,7 @@ public:
       else if (name == "specTexture")
         number = std::to_string(specularNr++);
 
-      const std::string uniformName = "material." + name + number;
+      const std::string uniformName = "material." + name + number; // ex: "material.diffTexture2", "material.specTexture6"
       shader.setUniform(uniformName, i);
       glBindTexture(GL_TEXTURE_2D, texture.id);
     }
@@ -62,27 +66,26 @@ public:
 
     // draw mesh
     glBindVertexArray(VAO);
-    glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+    glDrawElements(GL_TRIANGLES, indicesCount, GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
   }
 
 private:
   uint32 VBO, EBO;
 
-  void setupMesh()
+  void setupMesh(std::vector<Vertex> vertices, std::vector<uint32> indices)
   {
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
     glGenBuffers(1, &EBO);
 
     glBindVertexArray(VAO);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), &vertices[0], GL_STATIC_DRAW);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(uint32),
-                 &indices[0], GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indicesCount * sizeof(uint32), &indices[0], GL_STATIC_DRAW);
 
     // vertex positions
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);

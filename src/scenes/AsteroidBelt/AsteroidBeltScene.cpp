@@ -97,7 +97,7 @@ void AsteroidBeltScene::renderLoop(uint32 skyboxVAO)
 
   for (uint32 i = 0; i < asteroidModel.meshes.size(); i++)
   {
-    uint32 VAO = asteroidModel.meshes[i].VAO;
+    uint32 VAO = asteroidModel.meshes[i]->VAO;
     glBindVertexArray(VAO);
     // vertex Attributes
     GLsizei vec4Size = sizeof(glm::vec4);
@@ -168,8 +168,8 @@ void AsteroidBeltScene::renderLoop(uint32 skyboxVAO)
     reflectModelInstanceShader.setUniform("orbit", glm::rotate(glm::mat4(), t * glm::radians(-planetRotationSpeed), glm::vec3(0.0f, 1.0f, 0.0f)));
     for (uint32 i = 0; i < asteroidModel.meshes.size(); i++)
     {
-      glBindVertexArray(asteroidModel.meshes[i].VAO);
-      glDrawElementsInstanced(GL_TRIANGLES, asteroidModel.meshes[i].indices.size(), GL_UNSIGNED_INT, 0, numAsteroids);
+      glBindVertexArray(asteroidModel.meshes[i]->VAO);
+      glDrawElementsInstanced(GL_TRIANGLES, asteroidModel.meshes[i]->indicesCount, GL_UNSIGNED_INT, 0, numAsteroids);
     }
 
     // draw skybox

@@ -4,6 +4,11 @@
 
 #include "ObjectData.h"
 
+VertexAtt initializeCubePosNormTexVertexAttBuffers(bool invertNormals) {
+  VertexAtt vertexAtt;
+  initializeCubePosNormTexVertexAttBuffers(vertexAtt.arrayObject, vertexAtt.bufferObject, vertexAtt.indexObject, invertNormals);
+  return vertexAtt;
+}
 
 void initializeCubePosNormTexVertexAttBuffers(uint32& VAO, uint32& VBO, uint32& EBO, bool invertNormals)
 {
@@ -58,6 +63,12 @@ void initializeCubePosNormTexVertexAttBuffers(uint32& VAO, uint32& VBO, uint32& 
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
+VertexAtt initializeCubePosNormVertexAttBuffers() {
+  VertexAtt vertexAtt;
+  initializeCubePosNormVertexAttBuffers(vertexAtt.arrayObject, vertexAtt.bufferObject, vertexAtt.indexObject);
+  return vertexAtt;
+}
+
 void initializeCubePosNormVertexAttBuffers(uint32& VAO, uint32& VBO, uint32& EBO)
 {
   glGenVertexArrays(1, &VAO);
@@ -100,20 +111,31 @@ void initializeCubePosNormVertexAttBuffers(uint32& VAO, uint32& VBO, uint32& EBO
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
+void deleteVertexAtt(VertexAtt vertexAtt) {
+  glDeleteBuffers(1, &vertexAtt.indexObject);
+  glDeleteVertexArrays(1, &vertexAtt.arrayObject);
+  glDeleteBuffers(1, &vertexAtt.bufferObject);
+}
+
+VertexAtt initializeCubePositionVertexAttBuffers() {
+  VertexAtt vertexAtt;
+  initializeCubePositionVertexAttBuffers(vertexAtt.arrayObject, vertexAtt.bufferObject, vertexAtt.indexObject);
+  return vertexAtt;
+}
+
 void initializeCubePositionVertexAttBuffers(uint32& VAO, uint32& VBO, uint32& EBO)
 {
-  glGenVertexArrays(1, &VAO);
-  glGenBuffers(1, &VBO);
+  glGenVertexArrays(1, &VAO); // vertex array object
+  glGenBuffers(1, &VBO); // vertex buffer object backing the VAO
   glGenBuffers(1, &EBO);
 
   glBindVertexArray(VAO);
-
   glBindBuffer(GL_ARRAY_BUFFER, VBO);
   glBufferData(GL_ARRAY_BUFFER, sizeof(cubePositionAttributes), cubePositionAttributes, GL_STATIC_DRAW);
 
   // set the vertex attributes
   // position attribute
-  glVertexAttribPointer(0,
+  glVertexAttribPointer(0, // index
                         3, // size
                         GL_FLOAT, // type of data
                         GL_FALSE, // whether the data needs to be normalized
@@ -130,6 +152,12 @@ void initializeCubePositionVertexAttBuffers(uint32& VAO, uint32& VBO, uint32& EB
   glBindVertexArray(0);
   // Must unbind EBO AFTER unbinding VAO
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+}
+
+VertexAtt initializeQuadPosNormTexVertexAttBuffers() {
+  VertexAtt vertexAtt;
+  initializeQuadPosNormTexVertexAttBuffers(vertexAtt.arrayObject, vertexAtt.bufferObject, vertexAtt.indexObject);
+  return vertexAtt;
 }
 
 void initializeQuadPosNormTexVertexAttBuffers(uint32& VAO, uint32& VBO, uint32& EBO)
@@ -184,6 +212,12 @@ void initializeQuadPosNormTexVertexAttBuffers(uint32& VAO, uint32& VBO, uint32& 
   glBindVertexArray(0);
   // Must unbind EBO AFTER unbinding VAO, since VAO stores all glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _) calls
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+}
+
+VertexAtt initializeQuadPosNormTexTanBiVertexAttBuffers() {
+  VertexAtt vertexAtt;
+  initializeQuadPosNormTexTanBiVertexAttBuffers(vertexAtt.arrayObject, vertexAtt.bufferObject, vertexAtt.indexObject);
+  return vertexAtt;
 }
 
 void initializeQuadPosNormTexTanBiVertexAttBuffers(uint32& VAO, uint32& VBO, uint32& EBO)
@@ -257,11 +291,16 @@ void initializeQuadPosNormTexTanBiVertexAttBuffers(uint32& VAO, uint32& VBO, uin
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
+VertexAtt initializeFrameBufferQuadVertexAttBuffers() {
+  VertexAtt vertexAtt;
+  initializeFrameBufferQuadVertexAttBuffers(vertexAtt.arrayObject, vertexAtt.bufferObject, vertexAtt.indexObject);
+  return vertexAtt;
+}
+
 void initializeFrameBufferQuadVertexAttBuffers(uint32& VAO, uint32& VBO, uint32& EBO)
 {
   glGenVertexArrays(1, &VAO);
-  glGenBuffers(1,
-               &VBO);
+  glGenBuffers(1, &VBO);
   glGenBuffers(1, &EBO);
 
   glBindVertexArray(VAO);

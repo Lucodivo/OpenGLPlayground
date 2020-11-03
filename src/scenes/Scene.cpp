@@ -3,7 +3,7 @@
 #include "../common/FileLocations.h"
 
 #include <ft2build.h>
-#include FT_FREETYPE_H "freetype/freetype.h"
+#include FT_FREETYPE_H
 #include <iostream>
 
 Scene::Scene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth)
@@ -14,7 +14,9 @@ Scene::Scene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth
           initialWindowWidth(initScreenWidth),
           textDebugShader(textVertexShaderFileLoc, textFragmentShaderFileLoc)
 {
-  subscribeFrameBufferSize(window, this);
+  // TODO: subscribe outside of Scene, inform scene through Scene->frameBufferSize
+  //subscribeFrameBufferSize(window, this);
+  // TODO: Handle rending text separate of scenes?
   initDebugTextCharacters();
   initDebugTextBuffers();
   textDebugProjectionMat = glm::ortho(0.0f, (float)windowWidth, 0.0f, (float)windowWidth);
@@ -48,11 +50,6 @@ void Scene::adjustWindowSize()
     glfwSetWindowMonitor(window, NULL/*Null for windowed mode*/, centeringUpperLeftX, centeringUpperLeftY, initialWindowWidth, initialWindowHeight, GLFW_DONT_CARE);
   }
   windowMode = !windowMode;
-}
-
-void Scene::closeWindow()
-{
-  glfwSetWindowShouldClose(window, GL_TRUE);
 }
 
 void Scene::initDebugTextCharacters()
@@ -109,7 +106,6 @@ void Scene::initDebugTextCharacters()
   FT_Done_Face(face);
   FT_Done_FreeType(ft);
 }
-
 
 void Scene::initDebugTextBuffers()
 {

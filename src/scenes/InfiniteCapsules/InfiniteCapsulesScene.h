@@ -7,6 +7,7 @@
 
 #include "../FirstPersonScene.h"
 #include "../GodModeScene.h"
+#include "../../common/ObjectData.h"
 
 class InfiniteCapsulesScene final : public GodModeScene {
 public:
@@ -19,12 +20,18 @@ public:
 
 private:
 
-  Shader rayMarchingShader;
+  Shader* rayMarchingShader = NULL;
 
+  float32 startTime = 0;
   float32 deltaTime = 0;
   float32 lastFrame = 0;
 
-  void renderLoop(uint32 quadVAO);
+  VertexAtt quadVertexAtt;
+
+  void renderLoop();
+  void init();
+  void drawFrame();
+  void deinit();
 
   glm::vec3 lightPosition;
   bool lightAlive = false;

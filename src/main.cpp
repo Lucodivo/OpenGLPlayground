@@ -38,8 +38,29 @@ int main()
   loadXInput();
   initImgui(window);
 
-  Scene* scene = new NessCubesScene(window, VIEWPORT_INIT_HEIGHT, VIEWPORT_INIT_WIDTH);
-  scene->runScene();
+  uint32 sceneIndex = 0;
+
+  NessCubesScene nessCubeScene = NessCubesScene(window, VIEWPORT_INIT_HEIGHT, VIEWPORT_INIT_WIDTH);
+  InfiniteCapsulesScene infiniteCapsulesScene = InfiniteCapsulesScene(window, VIEWPORT_INIT_HEIGHT, VIEWPORT_INIT_WIDTH);
+  Scene* scene[] = { &nessCubeScene, &infiniteCapsulesScene };
+
+  scene[sceneIndex]->init();
+  float32 deltaTime = 1.0;
+  float32 lastFrame = (float32)glfwGetTime();
+  while (glfwWindowShouldClose(window) == GL_FALSE)
+  {
+    scene[sceneIndex]->drawFrame();
+
+    uint32 numFrames = (uint32)(1 / deltaTime);
+    scene[sceneIndex]->renderText(std::to_string(numFrames) + " FPS", 25.0f, 25.0f, 1.0f, glm::vec3(1.0f, 0.0f, 0.0f));
+    float32 t = (float32)glfwGetTime();
+    deltaTime = t - lastFrame;
+    lastFrame = t;
+
+    glfwSwapBuffers(window); // swaps double buffers (call after all render commands are completed)
+    glfwPollEvents(); // checks for events (ex: keyboard/mouse input)
+  }
+  scene[sceneIndex]->deinit();
 
   glfwTerminate(); // clean up gl resources
   return 0;
