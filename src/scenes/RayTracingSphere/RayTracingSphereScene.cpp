@@ -13,14 +13,11 @@ RayTracingSphereScene::RayTracingSphereScene(GLFWwindow* window, uint32 initScre
 
 void RayTracingSphereScene::runScene()
 {
-  uint32 quadVAO, quadVBO, quadEBO;
-  initializeFrameBufferQuadVertexAttBuffers(quadVAO, quadVBO, quadEBO);
+  VertexAtt quadVertexAtt = initializeFrameBufferQuadVertexAttBuffers();
 
-  renderLoop(quadVAO);
+  renderLoop(quadVertexAtt.arrayObject);
 
-  glDeleteVertexArrays(1, &quadVAO);
-  glDeleteBuffers(1, &quadVBO);
-  glDeleteBuffers(1, &quadEBO);
+  deleteVertexAtt(quadVertexAtt);
 }
 
 void RayTracingSphereScene::renderLoop(uint32 quadVAO)

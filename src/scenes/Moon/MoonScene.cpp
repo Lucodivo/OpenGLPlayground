@@ -14,21 +14,13 @@ MoonScene::MoonScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScr
 
 void MoonScene::runScene()
 {
-  uint32 floorVAO, floorVBO, floorEBO;
-  initializeQuadPosNormTexVertexAttBuffers(floorVAO, floorVBO, floorEBO);
+  VertexAtt floorVertexAtt = initializeQuadPosNormTexVertexAttBuffers();
+  VertexAtt cubeVertexAtt = initializeCubePosNormTexVertexAttBuffers();
 
-  uint32 cubeVAO, cubeVBO, cubeEBO;
-  initializeCubePosNormTexVertexAttBuffers(cubeVAO, cubeVBO, cubeEBO);
+  renderLoop(floorVertexAtt.arrayObject, cubeVertexAtt.arrayObject);
 
-  renderLoop(floorVAO, cubeVAO);
-
-  glDeleteVertexArrays(1, &floorVAO);
-  glDeleteBuffers(1, &floorVBO);
-  glDeleteBuffers(1, &floorEBO);
-
-  glDeleteVertexArrays(1, &cubeVAO);
-  glDeleteBuffers(1, &cubeVBO);
-  glDeleteBuffers(1, &cubeEBO);
+  deleteVertexAtt(floorVertexAtt);
+  deleteVertexAtt(cubeVertexAtt);
 }
 
 

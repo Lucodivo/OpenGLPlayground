@@ -13,14 +13,11 @@ AsteroidBeltScene::AsteroidBeltScene(GLFWwindow* window, uint32 initScreenHeight
 
 void AsteroidBeltScene::runScene()
 {
-  uint32 skyboxVAO, skyboxVBO, skyboxEBO;
-  initializeCubePositionVertexAttBuffers(skyboxVAO, skyboxVBO, skyboxEBO);
+  VertexAtt skyboxVertexAtt = initializeCubePositionVertexAttBuffers();
 
-  renderLoop(skyboxVAO);
+  renderLoop(skyboxVertexAtt.arrayObject);
 
-  glDeleteVertexArrays(1, &skyboxVAO);
-  glDeleteBuffers(1, &skyboxVBO);
-  glDeleteBuffers(1, &skyboxEBO);
+  deleteVertexAtt(skyboxVertexAtt);
 }
 
 void AsteroidBeltScene::renderLoop(uint32 skyboxVAO)

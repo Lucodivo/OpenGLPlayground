@@ -12,16 +12,14 @@ MandelbrotScene::MandelbrotScene(GLFWwindow* window, uint32 initScreenHeight, ui
 
 void MandelbrotScene::runScene()
 {
+  // TODO: how to solve this when running multiple scenes?
   glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 
-  uint32 quadVAO, quadVBO, quadEBO;
-  initializeFrameBufferQuadVertexAttBuffers(quadVAO, quadVBO, quadEBO);
+  VertexAtt quadVertexAtt = initializeFrameBufferQuadVertexAttBuffers();
 
-  renderLoop(quadVAO);
+  renderLoop(quadVertexAtt.arrayObject);
 
-  glDeleteVertexArrays(1, &quadVAO);
-  glDeleteBuffers(1, &quadVBO);
-  glDeleteBuffers(1, &quadEBO);
+  deleteVertexAtt(quadVertexAtt);
 }
 
 void MandelbrotScene::renderLoop(uint32 quadVAO)

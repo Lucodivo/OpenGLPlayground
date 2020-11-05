@@ -12,14 +12,11 @@ Pixel2DScene::Pixel2DScene(GLFWwindow* window, uint32 initScreenHeight, uint32 i
     pixel2DShader(pixel2DVertexShaderFileLoc, textureFragmentShaderFileLoc){}
 
 void Pixel2DScene::runScene() {
-    uint32 quadVAO, quadVBO, quadEBO;
-    initializeFrameBufferQuadVertexAttBuffers(quadVAO, quadVBO, quadEBO);
+    VertexAtt quadVertexAtt = initializeFrameBufferQuadVertexAttBuffers();
 
-    renderLoop(quadVAO);
+    renderLoop(quadVertexAtt.arrayObject);
 
-    glDeleteVertexArrays(1, &quadVAO);
-    glDeleteBuffers(1, &quadVBO);
-    glDeleteBuffers(1, &quadEBO);
+    deleteVertexAtt(quadVertexAtt);
 }
 
 void Pixel2DScene::renderLoop(uint32 quadVAO)

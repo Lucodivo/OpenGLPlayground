@@ -17,14 +17,11 @@ GUIScene::GUIScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScree
 
 void GUIScene::runScene()
 {
-  uint32 cubeVAO, cubeVBO, cubeEBO;
-  initializeCubePositionVertexAttBuffers(cubeVAO, cubeVBO, cubeEBO);
+  VertexAtt cubeVertexAtt = initializeCubePositionVertexAttBuffers();
 
-  renderLoop(cubeVAO);
+  renderLoop(cubeVertexAtt.arrayObject);
 
-  glDeleteVertexArrays(1, &cubeVAO);
-  glDeleteBuffers(1, &cubeVBO);
-  glDeleteBuffers(1, &cubeEBO);
+  deleteVertexAtt(cubeVertexAtt);
 }
 
 void GUIScene::renderLoop(uint32 cubeVAO)

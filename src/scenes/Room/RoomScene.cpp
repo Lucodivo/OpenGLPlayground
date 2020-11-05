@@ -15,21 +15,13 @@ RoomScene::RoomScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScr
 
 void RoomScene::runScene()
 {
-  uint32 cubeVAO, cubeVBO, cubeEBO;
-  initializeCubePosNormTexVertexAttBuffers(cubeVAO, cubeVBO, cubeEBO);
+  VertexAtt cubeVertexAtt = initializeCubePosNormTexVertexAttBuffers();
+  VertexAtt invertedNormCubeVertexAtt = initializeCubePosNormTexVertexAttBuffers(true);
 
-  uint32 invertedNormCubeVAO, invertedNormCubeVBO, invertedNormCubeEBO;
-  initializeCubePosNormTexVertexAttBuffers(invertedNormCubeVAO, invertedNormCubeVBO, invertedNormCubeEBO, true);
+  renderLoop(cubeVertexAtt.arrayObject, invertedNormCubeVertexAtt.arrayObject);
 
-  renderLoop(cubeVAO, invertedNormCubeVAO);
-
-  glDeleteVertexArrays(1, &cubeVAO);
-  glDeleteBuffers(1, &cubeVBO);
-  glDeleteBuffers(1, &cubeEBO);
-
-  glDeleteVertexArrays(1, &invertedNormCubeVAO);
-  glDeleteBuffers(1, &invertedNormCubeVBO);
-  glDeleteBuffers(1, &invertedNormCubeEBO);
+  deleteVertexAtt(cubeVertexAtt);
+  deleteVertexAtt(invertedNormCubeVertexAtt);
 }
 
 void RoomScene::renderLoop(uint32 cubeVAO, uint32 invertedNormCubeVAO)

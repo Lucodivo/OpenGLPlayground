@@ -60,22 +60,13 @@ ReflectRefractScene::ReflectRefractScene(GLFWwindow* window, uint32 initScreenHe
 
 void ReflectRefractScene::runScene()
 {
+  VertexAtt cubeVertexAtt = initializeCubePosNormVertexAttBuffers();
+  VertexAtt skyboxVertexAtt = initializeCubePositionVertexAttBuffers();
 
-  uint32 cubeVAO, cubeVBO, cubeEBO;
-  initializeCubePosNormVertexAttBuffers(cubeVAO, cubeVBO, cubeEBO);
+  renderLoop(window, cubeVertexAtt.arrayObject, skyboxVertexAtt.arrayObject);
 
-  uint32 skyboxVAO, skyboxVBO, skyboxEBO;
-  initializeCubePositionVertexAttBuffers(skyboxVAO, skyboxVBO, skyboxEBO);
-
-  renderLoop(window, cubeVAO, skyboxVAO);
-
-  glDeleteVertexArrays(1, &cubeVAO);
-  glDeleteBuffers(1, &cubeVBO);
-  glDeleteBuffers(1, &cubeEBO);
-
-  glDeleteVertexArrays(1, &skyboxVAO);
-  glDeleteBuffers(1, &skyboxVBO);
-  glDeleteBuffers(1, &skyboxEBO);
+  deleteVertexAtt(cubeVertexAtt);
+  deleteVertexAtt(skyboxVertexAtt);
 }
 
 void ReflectRefractScene::renderLoop(GLFWwindow* window, uint32& cubeVAO, uint32& skyboxVAO)

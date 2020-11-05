@@ -22,18 +22,13 @@ MengerSpongeScene::MengerSpongeScene(GLFWwindow* window, uint32 initScreenHeight
 
 void MengerSpongeScene::runScene()
 {
-  uint32 quadVAO, quadVBO, quadEBO;
-  initializeFrameBufferQuadVertexAttBuffers(quadVAO, quadVBO, quadEBO);
+  VertexAtt quadVertexAtt = initializeFrameBufferQuadVertexAttBuffers();
+  VertexAtt cubeVertexAtt = initializeCubePosNormTexVertexAttBuffers();
 
-  // TODO: delete
-  uint32 cubeVAO, cubeVBO, cubeEBO;
-  initializeCubePosNormTexVertexAttBuffers(cubeVAO, cubeVBO, cubeEBO);
+  renderLoop(quadVertexAtt.arrayObject, cubeVertexAtt.arrayObject);
 
-  renderLoop(quadVAO, cubeVAO);
-
-  glDeleteVertexArrays(1, &quadVAO);
-  glDeleteBuffers(1, &quadVBO);
-  glDeleteBuffers(1, &quadEBO);
+  deleteVertexAtt(quadVertexAtt);
+  deleteVertexAtt(cubeVertexAtt);
 }
 
 void MengerSpongeScene::renderLoop(uint32 quadVAO, uint32 cubeVAO)

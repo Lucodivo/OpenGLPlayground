@@ -13,17 +13,13 @@ InfiniteCubeScene::InfiniteCubeScene(GLFWwindow* window, uint32 initScreenHeight
 
 void InfiniteCubeScene::runScene()
 {
-  uint32 cubeVAO, cubeVBO, cubeEBO;
-  initializeCubePosNormTexVertexAttBuffers(cubeVAO, cubeVBO, cubeEBO);
+  VertexAtt cubeVertexAtt = initializeCubePosNormTexVertexAttBuffers();
+  VertexAtt quadVertexAtt = initializeFrameBufferQuadVertexAttBuffers();
 
-  uint32 quadVAO, quadVBO, quadEBO;
-  initializeFrameBufferQuadVertexAttBuffers(quadVAO, quadVBO, quadEBO);
+  renderLoop(window, cubeVertexAtt.arrayObject);
 
-  renderLoop(window, cubeVAO);
-
-  glDeleteVertexArrays(1, &cubeVAO);
-  glDeleteBuffers(1, &cubeVBO);
-  glDeleteBuffers(1, &cubeEBO);
+  deleteVertexAtt(cubeVertexAtt);
+  deleteVertexAtt(quadVertexAtt);
 }
 
 void InfiniteCubeScene::frameBufferSize(uint32 width, uint32 height)
