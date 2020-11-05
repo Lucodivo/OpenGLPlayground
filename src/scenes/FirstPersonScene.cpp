@@ -1,10 +1,18 @@
 #include "FirstPersonScene.h"
 
 FirstPersonScene::FirstPersonScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth)
-        : Scene(window, initScreenHeight, initScreenWidth)
-{
-  subscribeMouseMovement(window, this);
-  subscribeMouseScroll(window, this);
+        : Scene(window, initScreenHeight, initScreenWidth){}
+
+void FirstPersonScene::init() {
+  subscribeMouseMovement(this);
+  subscribeKeyboardInput(this);
+  subscribeXInput(this);
+}
+
+void FirstPersonScene::deinit() {
+  unsubscribeMouseMovement(this);
+  unsubscribeKeyboardInput(this);
+  unsubscribeXInput(this);
 }
 
 // +++ CONTROLLER CONSUMER IMPLEMETNATION - START +++

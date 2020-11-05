@@ -35,24 +35,57 @@ int main()
   loadGLFW();
   GLFWwindow* window = createWindow();
   initializeGLAD();
-  loadXInput();
+  initializeInput(window);
   initImgui(window);
 
   uint32 sceneIndex = 0;
-
   NessCubesScene nessCubeScene = NessCubesScene(window, VIEWPORT_INIT_HEIGHT, VIEWPORT_INIT_WIDTH);
   InfiniteCapsulesScene infiniteCapsulesScene = InfiniteCapsulesScene(window, VIEWPORT_INIT_HEIGHT, VIEWPORT_INIT_WIDTH);
-  Scene* scene[] = { &nessCubeScene, &infiniteCapsulesScene };
+  Scene* scenes[] = { &nessCubeScene, &infiniteCapsulesScene };
 
-  scene[sceneIndex]->init();
+  class KeyboardConsumer_ : public KeyboardConsumer {
+  public:
+    KeyboardConsumer_(GLFWwindow* window, Scene** scenes, uint32* sceneIndex, uint32 sceneCount){
+      this->window = window;
+      this->scenes = scenes;
+      this->sceneIndex = sceneIndex;
+      this->sceneCount = sceneCount;
+    }
+    GLFWwindow* window;
+    Scene** scenes;
+    uint32* sceneIndex;
+    uint32 sceneCount;
+    void key_O_pressed() {
+      scenes[*sceneIndex]->deinit();
+      if(++(*sceneIndex) == sceneCount) {
+        *sceneIndex = 0;
+      }
+      scenes[*sceneIndex]->init();
+    }
+    void key_P_pressed() {
+      scenes[*sceneIndex]->deinit();
+      if(*sceneIndex == 0) {
+        *sceneIndex = sceneCount -1;
+      } else { --(*sceneIndex); }
+      scenes[*sceneIndex]->init();
+    }
+    void key_Esc(){
+      glfwSetWindowShouldClose(window, GL_TRUE);
+    };
+  } keyboardConsumer(window, scenes, &sceneIndex, ArrayCount(scenes));
+  subscribeKeyboardInput(&keyboardConsumer);
+
+  scenes[sceneIndex]->init();
   float32 deltaTime = 1.0;
   float32 lastFrame = (float32)glfwGetTime();
   while (glfwWindowShouldClose(window) == GL_FALSE)
   {
-    scene[sceneIndex]->drawFrame();
+    processInput(window);
+
+    scenes[sceneIndex]->drawFrame();
 
     uint32 numFrames = (uint32)(1 / deltaTime);
-    scene[sceneIndex]->renderText(std::to_string(numFrames) + " FPS", 25.0f, 25.0f, 1.0f, glm::vec3(1.0f, 0.0f, 0.0f));
+    scenes[sceneIndex]->renderText(std::to_string(numFrames) + " FPS", 25.0f, 25.0f, 1.0f, glm::vec3(1.0f, 0.0f, 0.0f));
     float32 t = (float32)glfwGetTime();
     deltaTime = t - lastFrame;
     lastFrame = t;
@@ -60,7 +93,7 @@ int main()
     glfwSwapBuffers(window); // swaps double buffers (call after all render commands are completed)
     glfwPollEvents(); // checks for events (ex: keyboard/mouse input)
   }
-  scene[sceneIndex]->deinit();
+  scenes[sceneIndex]->deinit();
 
   glfwTerminate(); // clean up gl resources
   return 0;
@@ -134,6 +167,13 @@ GLFWwindow* createWindow()
 
   glfwMakeContextCurrent(window);
   glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+  glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
   return window;
+}
+
+// Callback for when screen changes size
+void framebuffer_size_callback(GLFWwindow* window, int width, int height)
+{
+  // TODO: Do something
 }

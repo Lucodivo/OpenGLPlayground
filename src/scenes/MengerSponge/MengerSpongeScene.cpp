@@ -113,10 +113,6 @@ void MengerSpongeScene::renderLoop(uint32 quadVAO, uint32 cubeVAO)
   // NOTE: render/game loop
   while (glfwWindowShouldClose(window) == GL_FALSE)
   {
-    // check for input
-    processKeyboardInput(window, this);
-    processXInput(this);
-
     // Start the Dear ImGui frame
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();

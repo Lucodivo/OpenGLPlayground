@@ -23,6 +23,8 @@ void InfiniteCapsulesScene::runScene()
 }
 
 void InfiniteCapsulesScene::init() {
+  GodModeScene::init();
+
   rayMarchingShader = new Shader(UVCoordVertexShaderFileLoc, InfiniteCapsulesFragmentShaderFileLoc);
 
   quadVertexAtt = initializeFrameBufferQuadVertexAttBuffers();
@@ -42,9 +44,7 @@ void InfiniteCapsulesScene::init() {
 }
 
 void InfiniteCapsulesScene::drawFrame() {
-  // check for input
-  processKeyboardInput(window, this);
-  processXInput(this);
+  GodModeScene::drawFrame();
 
   float32 t = (float32)glfwGetTime() - startTime;
   deltaTime = t - lastFrame;
@@ -70,7 +70,10 @@ void InfiniteCapsulesScene::drawFrame() {
 }
 
 void InfiniteCapsulesScene::deinit() {
+  GodModeScene::deinit();
+
   delete rayMarchingShader;
+
   deleteVertexAtt(quadVertexAtt);
 }
 

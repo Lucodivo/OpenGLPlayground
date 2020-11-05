@@ -19,3 +19,11 @@ typedef double float64;
 
 #define local_persist static
 #define file_accessible static
+
+#ifdef NOT_DEBUG
+#define Assert(Expression)
+#else
+#define Assert(Expression) if(!(Expression)) {*(int *)0 = 0;}
+#endif
+
+#define InvalidCodePath Assert(!"InvalidCodePath");

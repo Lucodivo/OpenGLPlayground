@@ -155,11 +155,6 @@ void ReflectRefractScene::renderLoop(GLFWwindow* window, uint32& cubeVAO, uint32
   float32 initTime = (float32)glfwGetTime();
   while (glfwWindowShouldClose(window) == GL_FALSE)
   {
-
-    // check for input
-    processKeyboardInput(window, this);
-    processXInput(this);
-
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     float32 currTime = (float32)glfwGetTime() - initTime;

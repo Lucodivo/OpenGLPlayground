@@ -6,11 +6,13 @@
 
 #include "../LearnOpenGLPlatform.h"
 
+// TODO: Do I need multiple types of input consumers or should I merge into one InputConsumer?
 class KeyboardConsumer
 {
 public:
   virtual void key_LeftShift_pressed() {};
   virtual void key_LeftShift_released() {};
+  virtual void key_Esc(){};
   virtual void key_W() {};
   virtual void key_S() {};
   virtual void key_A() {};
@@ -19,11 +21,11 @@ public:
   virtual void key_Q_released() {};
   virtual void key_E_pressed() {};
   virtual void key_E_released() {};
+  virtual void key_O_pressed() {};
+  virtual void key_O_released() {};
+  virtual void key_P_pressed() {};
+  virtual void key_P_released() {};
   virtual void key_Space() {};
-  virtual void key_LeftMouseButton_pressed(float32 xPos, float32 yPos) {};
-  virtual void key_LeftMouseButton_released(float32 xPos, float32 yPos) {};
-  virtual void key_RightMouseButton_pressed(float32 xPos, float32 yPos) {};
-  virtual void key_RightMouseButton_released(float32 xPos, float32 yPos) {};
   virtual void key_Up() {};
   virtual void key_Down() {};
   virtual void key_Left() {};
@@ -34,16 +36,15 @@ public:
   virtual void key_Tab_released() {};
 };
 
-class MouseMovementConsumer
+class MouseConsumer
 {
 public:
   virtual void mouseMovement(float32 xOffset, float32 yOffset) = 0;
-};
-
-class MouseScrollConsumer
-{
-public:
   virtual void mouseScroll(float32 yOffset) = 0;
+  virtual void key_LeftMouseButton_pressed(float32 xPos, float32 yPos) {};
+  virtual void key_LeftMouseButton_released(float32 xPos, float32 yPos) {};
+  virtual void key_RightMouseButton_pressed(float32 xPos, float32 yPos) {};
+  virtual void key_RightMouseButton_released(float32 xPos, float32 yPos) {};
 };
 
 class ControllerConsumer
@@ -70,22 +71,17 @@ public:
   virtual void button_select_released() {};
 };
 
-class FrameBufferSizeConsumer
-{
-public:
-  virtual void frameBufferSize(uint32 width, uint32 height) = 0;
-};
-
-void loadXInput();
-
-void processKeyboardInput(GLFWwindow* window, KeyboardConsumer* consumer);
-void processXInput(ControllerConsumer* consumer);
-void subscribeMouseMovement(GLFWwindow* window, MouseMovementConsumer* consumer);
-void subscribeMouseScroll(GLFWwindow* window, MouseScrollConsumer* consumer);
-void subscribeFrameBufferSize(GLFWwindow* window, FrameBufferSizeConsumer* consumer);
-bool unsubscribeMouseMovement(GLFWwindow* window, MouseMovementConsumer* consumer);
-bool unsubscribeMouseScroll(GLFWwindow* window, MouseScrollConsumer* consumer);
-bool unsubscribeFrameBufferSize(GLFWwindow* window, FrameBufferSizeConsumer* consumer);
-void mouse_callback(GLFWwindow* window, float64 xPos, float64 yPos);
-void scroll_callback(GLFWwindow* window, float64 xOffset, float64 yOffset);
+void initializeInput(GLFWwindow* window);
+void processInput(GLFWwindow* window);
+void processKeyboardInput(GLFWwindow* window);
+void processMouseInput(GLFWwindow* window);
+void processXInput();
+void subscribeKeyboardInput(KeyboardConsumer* consumer);
+void subscribeXInput(ControllerConsumer* consumer);
+void subscribeMouseMovement(MouseConsumer* consumer);
+bool unsubscribeKeyboardInput(KeyboardConsumer* consumer);
+bool unsubscribeXInput(ControllerConsumer* consumer);
+bool unsubscribeMouseMovement(MouseConsumer* consumer);
+void mouse_movement_callback(GLFWwindow* window, float64 xPos, float64 yPos);
+void mouse_scroll_callback(GLFWwindow* window, float64 xOffset, float64 yOffset);
 void framebuffer_size_callback(GLFWwindow* window, int32 width, int32 height);

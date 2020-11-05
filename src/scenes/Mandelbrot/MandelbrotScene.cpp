@@ -43,10 +43,6 @@ void MandelbrotScene::renderLoop(uint32 quadVAO)
   // NOTE: render/game loop
   while (glfwWindowShouldClose(window) == GL_FALSE)
   {
-    // check for input
-    processKeyboardInput(window, this);
-    processXInput(this);
-
     float32 t = (float32)glfwGetTime() - startTime;
     deltaTime = t - lastFrame;
     lastFrame = t;

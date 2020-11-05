@@ -14,8 +14,8 @@ public:
   InfiniteCapsulesScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth);
 
   // FrameBufferSizeConsumer override
-  void frameBufferSize(uint32 width, uint32 height) override;
-  void key_LeftMouseButton_pressed(float32 xPos, float32 yPos) override;
+  void frameBufferSize(uint32 width, uint32 height);
+  void key_LeftMouseButton_pressed(float32 xPos, float32 yPos);
   void runScene() override;
 
 private:
@@ -28,7 +28,6 @@ private:
 
   VertexAtt quadVertexAtt;
 
-  void renderLoop();
   void init();
   void drawFrame();
   void deinit();

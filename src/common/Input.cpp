@@ -3,77 +3,18 @@
 #include <Windows.h>
 #include <Xinput.h>
 #include <iostream>
-
-template<typename T>
-struct Node
-{
-  T* data;
-  Node<T>* next;
-};
-
-template<typename T>
-void addNode(Node<T>** headptr, T* newData)
-{
-  // add to front of linked list
-  Node<T>* newNode = new Node<T>{newData, *headptr};
-  *headptr = newNode;
-}
-
-// removes all nodes with specified data
-template<typename T>
-bool removeNode(Node<T>** headptr, T* removeData)
-{
-  bool nodeRemoved = false;
-  if (*headptr != NULL)
-  {
-    if ((*headptr)->data == removeData)
-    { // head node special case
-      Node<T>* removeHeadNode = *headptr;
-      Node<T>* removeTailNode = removeHeadNode;
-      while (removeTailNode->next != NULL && removeTailNode->next->data == removeData)
-      {
-        removeTailNode = removeTailNode->next; // move it to the last instance of a series of removeData nodes
-      }
-
-      *headptr = removeTailNode->next; // disconnect link
-
-      while (removeHeadNode != removeTailNode->next)
-      {
-        delete removeHeadNode; // deallocate
-        removeHeadNode = removeHeadNode->next;
-      }
-
-      nodeRemoved = true;
-    }
-
-    if (*headptr != NULL)
-    {
-      Node<T>* traversalNode = *headptr;
-      while (traversalNode->next != NULL)
-      {
-        if (traversalNode->next->data == removeData)
-        {
-          Node<T>* removeNode = traversalNode->next;
-          traversalNode->next = removeNode->next; // disconnect link
-          delete removeNode; // deallocate
-          nodeRemoved = true;
-        } else
-        {
-          traversalNode = traversalNode->next;
-        }
-      }
-    }
-  }
-  return nodeRemoved;
-}
+#include <vector>
 
 // NOTE: This file does not support multiple windows
-struct GLFWwindowUser
-{
-  Node<MouseMovementConsumer>* mouseMovementConsumer;
-  Node<MouseScrollConsumer>* mouseScrollConsumer;
-  Node<FrameBufferSizeConsumer>* framebufferSizeConsumer;
-};
+#define MAX_NUMBER_OF_SUBSCRIBERS 10
+file_accessible struct {
+  uint32 keyboardCount = 0;
+  KeyboardConsumer* keyboard[MAX_NUMBER_OF_SUBSCRIBERS]{};
+  uint32 controllerCount = 0;
+  ControllerConsumer* controller[MAX_NUMBER_OF_SUBSCRIBERS]{};
+  uint32 mouseMovementCount = 0;
+  MouseConsumer* mouseMovement[MAX_NUMBER_OF_SUBSCRIBERS]{};
+} inputConsumers;
 
 // NOTE: Casey Muratori's efficient way of handling function pointers, Handmade Hero episode 6 @ 22:06 & 1:00:21
 // NOTE: Allows us to quickly change the function parameters & return type in one place and cascade throughout the rest
@@ -87,7 +28,7 @@ X_INPUT_GET_STATE(XInputGetStateStub) // create stub function of type above
 file_accessible x_input_get_state* XInputGetState_ = XInputGetStateStub; // Create a function pointer of type above to point to stub
 #define XInputGetState XInputGetState_ // Allow us to use XInputGetState method name without conflicting with definition in Xinput.h
 
-void loadXInput()
+file_accessible void loadXInput()
 {
   HMODULE XInputLibrary = LoadLibraryA("xinput1_4.dll");
   if (!XInputLibrary)
@@ -112,8 +53,25 @@ void loadXInput()
   }
 }
 
-void processXInput(ControllerConsumer* consumer)
+void initializeInput(GLFWwindow* window)
 {
+  loadXInput();
+  glfwSetCursorPosCallback(window, mouse_movement_callback);
+  glfwSetScrollCallback(window, mouse_scroll_callback);
+}
+
+void processInput(GLFWwindow* window) {
+  processXInput();
+  processKeyboardInput(window);
+  processMouseInput(window);
+}
+
+void processXInput()
+{
+  if(inputConsumers.controllerCount == 0) return;
+  ControllerConsumer** consumers = inputConsumers.controller;
+  uint32 consumerCount = inputConsumers.controllerCount;
+
   for (DWORD controllerIndex = 0; controllerIndex < XUSER_MAX_COUNT; ++controllerIndex)
   {
     XINPUT_STATE controllerState;
@@ -137,37 +95,51 @@ void processXInput(ControllerConsumer* consumer)
 
       if (dPadUp)
       {
-        consumer->button_dPadUp_pressed();
+        for(uint32 i = 0; i < consumerCount; ++i) {
+          consumers[i]->button_dPadUp_pressed();;
+        }
       }
 
       if (dPadDown)
       {
-        consumer->button_dPadDown_pressed();
+        for(uint32 i = 0; i < consumerCount; ++i) {
+          consumers[i]->button_dPadDown_pressed();;
+        }
       }
 
       if (dPadLeft)
       {
-        consumer->button_dPadLeft_pressed();
+        for(uint32 i = 0; i < consumerCount; ++i) {
+          consumers[i]->button_dPadLeft_pressed();;
+        }
       }
 
       if (dPadRight)
       {
-        consumer->button_dPadRight_pressed();
+        for(uint32 i = 0; i < consumerCount; ++i) {
+          consumers[i]->button_dPadRight_pressed();;
+        }
       }
 
       if (leftShoulder)
       {
-        consumer->button_leftShoulder_pressed();
+        for(uint32 i = 0; i < consumerCount; ++i) {
+          consumers[i]->button_leftShoulder_pressed();;
+        }
       }
 
       if (rightShoulder)
       {
-        consumer->button_rightShoulder_pressed();
+        for(uint32 i = 0; i < consumerCount; ++i) {
+          consumers[i]->button_rightShoulder_pressed();;
+        }
       }
 
       if (start)
       {
-        consumer->button_start_pressed();
+        for(uint32 i = 0; i < consumerCount; ++i) {
+          consumers[i]->button_start_pressed();;
+        }
       }
 
 
@@ -177,12 +149,16 @@ void processXInput(ControllerConsumer* consumer)
         if (!selectWasDown)
         {
           selectWasDown = true;
-          consumer->button_select_pressed();
+          for(uint32 i = 0; i < consumerCount; ++i) {
+            consumers[i]->button_select_pressed();;
+          }
         }
       } else if (selectWasDown)
       {
         selectWasDown = false;
-        consumer->button_select_released();
+        for(uint32 i = 0; i < consumerCount; ++i) {
+          consumers[i]->button_select_released();;
+        }
       }
 
       local_persist bool aWasDown = false;
@@ -191,12 +167,16 @@ void processXInput(ControllerConsumer* consumer)
         if (!aWasDown)
         {
           aWasDown = true;
-          consumer->button_A_pressed();
+          for(uint32 i = 0; i < consumerCount; ++i) {
+            consumers[i]->button_A_pressed();;
+          }
         }
       } else if (aWasDown)
       {
         aWasDown = false;
-        consumer->button_A_released();
+        for(uint32 i = 0; i < consumerCount; ++i) {
+          consumers[i]->button_A_released();;
+        }
       }
 
       local_persist bool bWasDown = false;
@@ -205,12 +185,16 @@ void processXInput(ControllerConsumer* consumer)
         if (!bWasDown)
         {
           bWasDown = true;
-          consumer->button_B_pressed();
+          for(uint32 i = 0; i < consumerCount; ++i) {
+            consumers[i]->button_B_pressed();;
+          }
         }
       } else if (bWasDown)
       {
         bWasDown = false;
-        consumer->button_B_released();
+        for(uint32 i = 0; i < consumerCount; ++i) {
+          consumers[i]->button_B_released();;
+        }
       }
 
       local_persist bool xWasDown = false;
@@ -219,12 +203,16 @@ void processXInput(ControllerConsumer* consumer)
         if (!xWasDown)
         {
           xWasDown = true;
-          consumer->button_X_pressed();
+          for(uint32 i = 0; i < consumerCount; ++i) {
+            consumers[i]->button_X_pressed();;
+          }
         }
       } else if (xWasDown)
       {
         xWasDown = false;
-        consumer->button_X_released();
+        for(uint32 i = 0; i < consumerCount; ++i) {
+          consumers[i]->button_X_released();;
+        }
       }
 
       local_persist bool yWasDown = false;
@@ -233,12 +221,16 @@ void processXInput(ControllerConsumer* consumer)
         if (!yWasDown)
         {
           yWasDown = true;
-          consumer->button_Y_pressed();
+          for(uint32 i = 0; i < consumerCount; ++i) {
+            consumers[i]->button_Y_pressed();;
+          }
         }
       } else if (yWasDown)
       {
         yWasDown = false;
-        consumer->button_Y_released();
+        for(uint32 i = 0; i < consumerCount; ++i) {
+          consumers[i]->button_Y_released();;
+        }
       }
 
       int16 leftStickX = pad->sThumbLX;
@@ -254,9 +246,11 @@ void processXInput(ControllerConsumer* consumer)
       {
         leftStickY = 0;
       }
-      if (leftStickX + leftStickY != 0)
+      if (leftStickX != 0 && leftStickY != 0)
       {
-        consumer->leftAnalog(leftStickX, leftStickY);
+        for(uint32 i = 0; i < consumerCount; ++i) {
+          consumers[i]->leftAnalog(leftStickX, leftStickY);
+        }
       }
 
       int16 rightStickX = pad->sThumbRX;
@@ -272,9 +266,11 @@ void processXInput(ControllerConsumer* consumer)
       {
         rightStickY = 0;
       }
-      if ((rightStickX + rightStickY) != 0)
+      if (rightStickX != 0 && rightStickY != 0)
       {
-        consumer->rightAnalog(rightStickX, rightStickY);
+        for(uint32 i = 0; i < consumerCount; ++i) {
+          consumers[i]->rightAnalog(rightStickX, rightStickY);
+        }
       }
     } else
     {
@@ -283,11 +279,17 @@ void processXInput(ControllerConsumer* consumer)
   }
 }
 
-void processKeyboardInput(GLFWwindow* window, KeyboardConsumer* consumer)
+void processKeyboardInput(GLFWwindow* window)
 {
+  if(inputConsumers.keyboardCount == 0) return;
+  KeyboardConsumer** consumers = inputConsumers.keyboard;
+  uint32 consumerCount = inputConsumers.keyboardCount;
+
   if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
   {
-    glfwSetWindowShouldClose(window, true);
+    for(uint32 i = 0; i < consumerCount; ++i) {
+      consumers[i]->key_Esc();
+    }
   }
 
   local_persist bool leftShiftWasDown = false;
@@ -296,12 +298,16 @@ void processKeyboardInput(GLFWwindow* window, KeyboardConsumer* consumer)
     if (!leftShiftWasDown)
     {
       leftShiftWasDown = true;
-      consumer->key_LeftShift_pressed();
+      for(uint32 i = 0; i < consumerCount; ++i) {
+        consumers[i]->key_LeftShift_pressed();
+      }
     }
   } else if (leftShiftWasDown)
   {
     leftShiftWasDown = false;
-    consumer->key_LeftShift_released();
+    for(uint32 i = 0; i < consumerCount; ++i) {
+      consumers[i]->key_LeftShift_released();
+    }
   }
 
   local_persist bool EWasDown = false;
@@ -310,12 +316,16 @@ void processKeyboardInput(GLFWwindow* window, KeyboardConsumer* consumer)
     if (!EWasDown)
     {
       EWasDown = true;
-      consumer->key_E_pressed();
+      for(uint32 i = 0; i < consumerCount; ++i) {
+        consumers[i]->key_E_pressed();
+      }
     }
   } else if (EWasDown)
   {
     EWasDown = false;
-    consumer->key_E_released();
+    for(uint32 i = 0; i < consumerCount; ++i) {
+      consumers[i]->key_E_released();
+    }
   }
 
   local_persist bool QWasDown = false;
@@ -324,24 +334,155 @@ void processKeyboardInput(GLFWwindow* window, KeyboardConsumer* consumer)
     if (!QWasDown)
     {
       QWasDown = true;
-      consumer->key_Q_pressed();
+      for(uint32 i = 0; i < consumerCount; ++i) {
+        consumers[i]->key_Q_pressed();
+      }
     }
   } else if (QWasDown)
   {
     QWasDown = false;
-    consumer->key_Q_released();
+    for(uint32 i = 0; i < consumerCount; ++i) {
+      consumers[i]->key_Q_released();
+    }
+  }
+
+  local_persist bool OWasDown = false;
+  if (glfwGetKey(window, GLFW_KEY_O) == GLFW_PRESS)
+  {
+    if (!OWasDown)
+    {
+      OWasDown = true;
+      for(uint32 i = 0; i < consumerCount; ++i) {
+        consumers[i]->key_O_pressed();
+      }
+    }
+  } else if (QWasDown)
+  {
+    OWasDown = false;
+    for(uint32 i = 0; i < consumerCount; ++i) {
+      consumers[i]->key_O_released();
+    }
+  }
+
+  local_persist bool PWasDown = false;
+  if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS)
+  {
+    if (!PWasDown)
+    {
+      PWasDown = true;
+      for(uint32 i = 0; i < consumerCount; ++i) {
+        consumers[i]->key_P_pressed();
+      }
+    }
+  } else if (PWasDown)
+  {
+    PWasDown = false;
+    for(uint32 i = 0; i < consumerCount; ++i) {
+      consumers[i]->key_P_released();
+    }
   }
 
   if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-    consumer->key_W();
+  {
+    for(uint32 i = 0; i < consumerCount; ++i) {
+      consumers[i]->key_W();
+    }
+  }
   if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-    consumer->key_S();
+  {
+    for(uint32 i = 0; i < consumerCount; ++i) {
+      consumers[i]->key_S();
+    }
+  }
   if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-    consumer->key_A();
+  {
+    for(uint32 i = 0; i < consumerCount; ++i) {
+      consumers[i]->key_A();
+    }
+  }
   if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-    consumer->key_D();
+  {
+    for(uint32 i = 0; i < consumerCount; ++i) {
+      consumers[i]->key_D();
+    }
+  }
   if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
-    consumer->key_Space();
+  {
+    for(uint32 i = 0; i < consumerCount; ++i) {
+      consumers[i]->key_Space();
+    }
+  }
+
+  local_persist bool altEnterWasDown = false;
+  if (glfwGetKey(window, GLFW_KEY_RIGHT_ALT) == GLFW_PRESS &&
+      glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS)
+  {
+    if (!altEnterWasDown)
+    {
+      altEnterWasDown = true;
+      for(uint32 i = 0; i < consumerCount; ++i) {
+        consumers[i]->key_AltEnter_pressed();
+      }
+    }
+  } else if (altEnterWasDown)
+  {
+    altEnterWasDown = false;
+    for(uint32 i = 0; i < consumerCount; ++i) {
+      consumers[i]->key_AltEnter_released();
+    }
+  }
+
+  if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+  {
+    for(uint32 i = 0; i < consumerCount; ++i) {
+      consumers[i]->key_Up();
+    }
+  }
+
+  if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+  {
+    for(uint32 i = 0; i < consumerCount; ++i) {
+      consumers[i]->key_Down();
+    }
+  }
+
+  if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
+  {
+    for(uint32 i = 0; i < consumerCount; ++i) {
+      consumers[i]->key_Left();
+    }
+  }
+
+  if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+  {
+    for(uint32 i = 0; i < consumerCount; ++i) {
+      consumers[i]->key_Right();
+    }
+  }
+
+  local_persist bool tabWasDown = false;
+  if (glfwGetKey(window, GLFW_KEY_TAB) == GLFW_PRESS)
+  {
+    if (!tabWasDown)
+    {
+      tabWasDown = true;
+      for(uint32 i = 0; i < consumerCount; ++i) {
+        consumers[i]->key_Tab_pressed();
+      }
+    }
+  } else if (tabWasDown)
+  {
+    tabWasDown = false;
+    for(uint32 i = 0; i < consumerCount; ++i) {
+      consumers[i]->key_Tab_released();
+    }
+  }
+}
+
+void processMouseInput(GLFWwindow* window) {
+  if(inputConsumers.mouseMovementCount == 0) return;
+  MouseConsumer** consumers = inputConsumers.mouseMovement;
+  uint32 consumerCount = inputConsumers.mouseMovementCount;
 
   local_persist bool leftMouseButtonWasDown = false;
   if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
@@ -351,14 +492,18 @@ void processKeyboardInput(GLFWwindow* window, KeyboardConsumer* consumer)
       leftMouseButtonWasDown = true;
       float64 cursorPosX, cursorPosY;
       glfwGetCursorPos(window, &cursorPosX, &cursorPosY);
-      consumer->key_LeftMouseButton_pressed((float32)cursorPosX, (float32)cursorPosY);
+      for(uint32 i = 0; i < consumerCount; ++i) {
+        consumers[i]->key_LeftMouseButton_pressed((float32)cursorPosX, (float32)cursorPosY);
+      }
     }
   } else if (leftMouseButtonWasDown)
   {
     leftMouseButtonWasDown = false;
     float64 cursorPosX, cursorPosY;
     glfwGetCursorPos(window, &cursorPosX, &cursorPosY);
-    consumer->key_LeftMouseButton_released((float32)cursorPosX, (float32)cursorPosY);
+    for(uint32 i = 0; i < consumerCount; ++i) {
+      consumers[i]->key_LeftMouseButton_released((float32)cursorPosX, (float32)cursorPosY);
+    }
   }
 
   local_persist bool rightMouseButtonWasDown = false;
@@ -369,127 +514,80 @@ void processKeyboardInput(GLFWwindow* window, KeyboardConsumer* consumer)
       rightMouseButtonWasDown = true;
       float64 cursorPosX, cursorPosY;
       glfwGetCursorPos(window, &cursorPosX, &cursorPosY);
-      consumer->key_RightMouseButton_pressed((float32)cursorPosX, (float32)cursorPosY);
+      for(uint32 i = 0; i < consumerCount; ++i) {
+        consumers[i]->key_RightMouseButton_pressed((float32)cursorPosX, (float32)cursorPosY);
+      }
     }
   } else if (rightMouseButtonWasDown)
   {
     rightMouseButtonWasDown = false;
     float64 cursorPosX, cursorPosY;
     glfwGetCursorPos(window, &cursorPosX, &cursorPosY);
-    consumer->key_RightMouseButton_released((float32)cursorPosX, (float32)cursorPosY);
-  }
-
-  local_persist bool altEnterWasDown = false;
-  if (glfwGetKey(window, GLFW_KEY_RIGHT_ALT) == GLFW_PRESS &&
-      glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS)
-  {
-    if (!altEnterWasDown)
-    {
-      altEnterWasDown = true;
-      consumer->key_AltEnter_pressed();
+    for(uint32 i = 0; i < consumerCount; ++i) {
+      consumers[i]->key_RightMouseButton_released((float32)cursorPosX, (float32)cursorPosY);
     }
-  } else if (altEnterWasDown)
-  {
-    altEnterWasDown = false;
-    consumer->key_AltEnter_released();
-  }
-
-  if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
-  {
-    consumer->key_Up();
-  }
-
-  if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
-  {
-    consumer->key_Down();
-  }
-
-  if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
-  {
-    consumer->key_Left();
-  }
-
-  if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
-  {
-    consumer->key_Right();
-  }
-
-  local_persist bool tabWasDown = false;
-  if (glfwGetKey(window, GLFW_KEY_TAB) == GLFW_PRESS)
-  {
-    if (!tabWasDown)
-    {
-      tabWasDown = true;
-      consumer->key_Tab_pressed();
-    }
-  } else if (tabWasDown)
-  {
-    tabWasDown = false;
-    consumer->key_Tab_released();
   }
 }
 
-void setupWindowUser(GLFWwindow* window)
+void subscribeKeyboardInput(KeyboardConsumer* consumer)
 {
-  local_persist bool windowUserSet = false;
-  local_persist GLFWwindowUser windowUser = {NULL, NULL, NULL};
-  if (!windowUserSet)
+  Assert(inputConsumers.keyboardCount < MAX_NUMBER_OF_SUBSCRIBERS);
+  inputConsumers.keyboard[inputConsumers.keyboardCount++] = consumer;
+}
+
+void subscribeXInput(ControllerConsumer* consumer)
+{
+  Assert(inputConsumers.controllerCount < MAX_NUMBER_OF_SUBSCRIBERS);
+  inputConsumers.controller[inputConsumers.controllerCount++] = consumer;
+}
+
+void subscribeMouseMovement(MouseConsumer* consumer)
+{
+  Assert(inputConsumers.mouseMovementCount < MAX_NUMBER_OF_SUBSCRIBERS);
+  inputConsumers.mouseMovement[inputConsumers.mouseMovementCount++] = consumer;
+}
+
+bool unsubscribeMouseMovement(MouseConsumer* consumer)
+{
+  bool unsubscribed = false;
+  for(uint32 i = 0; i < inputConsumers.mouseMovementCount;)
   {
-    glfwSetWindowUserPointer(window, &windowUser);
-    windowUserSet = true;
+    if((inputConsumers.mouseMovement[i]) == consumer) {
+      inputConsumers.mouseMovement[i] = inputConsumers.mouseMovement[--inputConsumers.mouseMovementCount];
+      unsubscribed = true;
+    } else { ++i; }
   }
+  return unsubscribed;
 }
 
-void subscribeMouseMovement(GLFWwindow* window, MouseMovementConsumer* consumer)
+bool unsubscribeKeyboardInput(KeyboardConsumer* consumer)
 {
-  setupWindowUser(window);
-  GLFWwindowUser* windowUser = (GLFWwindowUser*) glfwGetWindowUserPointer(window);
-  addNode(&windowUser->mouseMovementConsumer, consumer);
-  glfwSetCursorPosCallback(window, mouse_callback);
+  bool unsubscribed = false;
+  for(uint32 i = 0; i < inputConsumers.keyboardCount;)
+  {
+    if((inputConsumers.keyboard[i]) == consumer) {
+      inputConsumers.keyboard[i] = inputConsumers.keyboard[--inputConsumers.keyboardCount];
+      unsubscribed = true;
+    } else { ++i; }
+  }
+  return unsubscribed;
 }
 
-void subscribeMouseScroll(GLFWwindow* window, MouseScrollConsumer* consumer)
+bool unsubscribeXInput(ControllerConsumer* consumer)
 {
-  setupWindowUser(window);
-  GLFWwindowUser* windowUser = (GLFWwindowUser*) glfwGetWindowUserPointer(window);
-  addNode(&windowUser->mouseScrollConsumer, consumer);
-  glfwSetScrollCallback(window, scroll_callback);
-}
-
-void subscribeFrameBufferSize(GLFWwindow* window, FrameBufferSizeConsumer* consumer)
-{
-  setupWindowUser(window);
-  GLFWwindowUser* windowUser = (GLFWwindowUser*) glfwGetWindowUserPointer(window);
-  addNode(&windowUser->framebufferSizeConsumer, consumer);
-  glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-}
-
-bool unsubscribeMouseMovement(GLFWwindow* window, MouseMovementConsumer* consumer)
-{
-  void* windowUserPtr = glfwGetWindowUserPointer(window);
-  if(windowUserPtr == NULL) return false;
-  GLFWwindowUser* windowUser = (GLFWwindowUser*) windowUserPtr;
-  return removeNode(&windowUser->mouseMovementConsumer, consumer);
-}
-
-bool unsubscribeMouseScroll(GLFWwindow* window, MouseScrollConsumer* consumer)
-{
-  void* windowUserPtr = glfwGetWindowUserPointer(window);
-  if(windowUserPtr == NULL) return false;
-  GLFWwindowUser* windowUser = (GLFWwindowUser*) glfwGetWindowUserPointer(window);
-  return removeNode(&windowUser->mouseScrollConsumer, consumer);
-}
-
-bool unsubscribeFrameBufferSize(GLFWwindow* window, FrameBufferSizeConsumer* consumer)
-{
-  void* windowUserPtr = glfwGetWindowUserPointer(window);
-  if(windowUserPtr == NULL) return false;
-  GLFWwindowUser* windowUser = (GLFWwindowUser*) glfwGetWindowUserPointer(window);
-  return removeNode(&windowUser->framebufferSizeConsumer, consumer);
+  bool unsubscribed = false;
+  for(uint32 i = 0; i < inputConsumers.controllerCount;)
+  {
+    if((inputConsumers.controller[i]) == consumer) {
+      inputConsumers.controller[i] = inputConsumers.controller[--inputConsumers.controllerCount];
+      unsubscribed = true;
+    } else { ++i; }
+  }
+  return unsubscribed;
 }
 
 // Callback function for when user moves mouse
-void mouse_callback(GLFWwindow* window, double xPos, double yPos)
+void mouse_movement_callback(GLFWwindow* window, float64 xPos, float64 yPos)
 {
   local_persist float32 lastXPos = (float32) xPos;
   local_persist float32 lastYPos = (float32) yPos;
@@ -501,32 +599,21 @@ void mouse_callback(GLFWwindow* window, double xPos, double yPos)
   lastXPos = (float32) xPos;
   lastYPos = (float32) yPos;
 
-  GLFWwindowUser* windowUser = (GLFWwindowUser*) glfwGetWindowUserPointer(window);
-  for (Node<MouseMovementConsumer>* movementConsumerNode = windowUser->mouseMovementConsumer;
-       movementConsumerNode != NULL; movementConsumerNode = movementConsumerNode->next)
-  {
-    movementConsumerNode->data->mouseMovement(xOffset, yOffset);
+  if(inputConsumers.mouseMovementCount == 0) return;
+  MouseConsumer** consumers = inputConsumers.mouseMovement;
+  const uint32 consumerCount = inputConsumers.mouseMovementCount;
+  for(uint32 i = 0; i < consumerCount; ++i) {
+    consumers[i]->mouseMovement(xOffset, yOffset);
   }
 }
 
 // Callback function for when user scrolls with mouse wheel
-void scroll_callback(GLFWwindow* window, double xOffset, double yOffset)
+void mouse_scroll_callback(GLFWwindow* window, float64 xOffset, float64 yOffset)
 {
-  GLFWwindowUser* windowUser = (GLFWwindowUser*) glfwGetWindowUserPointer(window);
-  for (Node<MouseScrollConsumer>* mouseScrollConsumer = windowUser->mouseScrollConsumer;
-       mouseScrollConsumer != NULL; mouseScrollConsumer = mouseScrollConsumer->next)
-  {
-    mouseScrollConsumer->data->mouseScroll((float32) yOffset);
-  }
-}
-
-// Callback for when screen changes size
-void framebuffer_size_callback(GLFWwindow* window, int width, int height)
-{
-  GLFWwindowUser* windowUser = (GLFWwindowUser*) glfwGetWindowUserPointer(window);
-  for (Node<FrameBufferSizeConsumer>* framebufferSizeConsumer = windowUser->framebufferSizeConsumer;
-       framebufferSizeConsumer != NULL; framebufferSizeConsumer = framebufferSizeConsumer->next)
-  {
-    framebufferSizeConsumer->data->frameBufferSize((uint32) width, (uint32) height);
+  if(inputConsumers.mouseMovementCount == 0) return;
+  MouseConsumer** consumers = inputConsumers.mouseMovement;
+  const uint32 consumerCount = inputConsumers.mouseMovementCount;
+  for(uint32 i = 0; i < consumerCount; ++i) {
+    consumers[i]->mouseScroll((float32)yOffset);
   }
 }

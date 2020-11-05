@@ -163,10 +163,6 @@ void MoonScene::renderLoop(uint32 quadVAO, uint32 cubeVAO)
   float32 startTime = (float32)glfwGetTime();
   while (glfwWindowShouldClose(window) == GL_FALSE)
   {
-    // check for input
-    processKeyboardInput(window, this);
-    processXInput(this);
-
     float32 t = (float32)glfwGetTime() - startTime;
     deltaTime = t - lastFrame;
     lastFrame = t;

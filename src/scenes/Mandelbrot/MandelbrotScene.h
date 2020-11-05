@@ -22,14 +22,12 @@ public:
   // KeyboardConsumer override
   void key_LeftShift_pressed() override;
   void key_LeftShift_released() override;
+
+  // MouseConsumer override
+  void mouseMovement(float32 xOffset, float32 yOffset);
+  void mouseScroll(float32 yOffset) override;
   void key_LeftMouseButton_pressed(float32 xPos, float32 yPos) override;
   void key_LeftMouseButton_released(float32 xPos, float32 yPos) override;
-
-  // MouseMovementConsumer override
-  void mouseMovement(float32 xOffset, float32 yOffset);
-
-  // MouseScrollConsumer override
-  void mouseScroll(float32 yOffset) override;
 
 private:
 

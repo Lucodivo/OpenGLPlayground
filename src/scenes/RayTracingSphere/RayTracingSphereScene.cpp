@@ -41,10 +41,6 @@ void RayTracingSphereScene::renderLoop(uint32 quadVAO)
   // NOTE: render/game loop
   while (glfwWindowShouldClose(window) == GL_FALSE)
   {
-    // check for input
-    processKeyboardInput(window, this);
-    processXInput(this);
-
     if(rayTracingSphereShader.updateFragmentShaderIfOutdated()) {
       rayTracingSphereShader.use();
       rayTracingSphereShader.setUniform("viewPortResolution", glm::vec2(windowWidth, windowHeight));

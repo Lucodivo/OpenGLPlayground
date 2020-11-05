@@ -3,15 +3,15 @@
 #include "Scene.h"
 #include "../Camera.h"
 
-class FirstPersonScene : public Scene, public ControllerConsumer, public MouseMovementConsumer, public MouseScrollConsumer
+class FirstPersonScene : public Scene, public ControllerConsumer, public MouseConsumer
 {
 public:
   FirstPersonScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth);
 
   // Scene implementation required
-  virtual void init(){}
-  virtual void deinit(){}
-  virtual void drawFrame(){}
+  virtual void init();
+  virtual void deinit();
+  virtual void drawFrame(){};
   virtual void runScene() = 0;
 
   // ControllerConsumer implementation
@@ -45,10 +45,6 @@ public:
   void key_A();
   void key_D();
   void key_Space();
-  void key_LeftMouseButton_pressed(float32 xPos, float32 yPos) {}
-  void key_LeftMouseButton_released(float32 xPos, float32 yPos) {}
-  void key_RightMouseButton_pressed(float32 xPos, float32 yPos) {}
-  void key_RightMouseButton_released(float32 xPos, float32 yPos) {}
   void key_Up() {}
   void key_Down() {}
   void key_Left() {}
@@ -56,11 +52,13 @@ public:
   void key_AltEnter_pressed();
   void key_AltEnter_released() {}
 
-  // MouseMovementConsumer implementation
+  // MouseConsumer implementation
   void mouseMovement(float32 xOffset, float32 yOffset);
-
-  // MouseScrollConsumer implementation
   void mouseScroll(float32 yOffset);
+  void key_LeftMouseButton_pressed(float32 xPos, float32 yPos) {}
+  void key_LeftMouseButton_released(float32 xPos, float32 yPos) {}
+  void key_RightMouseButton_pressed(float32 xPos, float32 yPos) {}
+  void key_RightMouseButton_released(float32 xPos, float32 yPos) {}
 
   void frameBufferSize(uint32 width, uint32 height);
 

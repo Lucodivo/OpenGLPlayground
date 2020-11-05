@@ -36,9 +36,13 @@ const float32 cubeScales[] = {
 // ===== cube values =====
 
 NessCubesScene::NessCubesScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth)
-        : FirstPersonScene(window, initScreenHeight, initScreenWidth) {}
+        : FirstPersonScene(window, initScreenHeight, initScreenWidth) {
+              camera.Position = glm::vec3(0.0f, 0.0f, 6.0f);
+}
 
 void NessCubesScene::init(){
+  FirstPersonScene::init();
+
   cubeShader = new Shader(posNormTexVertexShaderFileLoc, nessCubeFragmentShaderFileLoc);
   lightShader = new Shader(posGlobalBlockVertexShaderFileLoc, singleColorFragmentShaderFileLoc);
   modelShader = new Shader(posNormTexVertexShaderFileLoc, dirPosSpotLightModelFragmentShaderFileLoc);
@@ -127,8 +131,6 @@ void NessCubesScene::init(){
   frameBufferShader->use();
   frameBufferShader->setUniform("textureWidth", (float32)windowWidth);
   frameBufferShader->setUniform("textureHeight", (float32)windowHeight);
-
-  camera.Position += glm::vec3(0.0f, 0.0f, 6.0f);
 }
 
 void NessCubesScene::initializeTextures(uint32& diffTextureId, uint32& specTextureId, uint32& skyboxTextureId)
@@ -139,6 +141,8 @@ void NessCubesScene::initializeTextures(uint32& diffTextureId, uint32& specTextu
 }
 
 void NessCubesScene::deinit(){
+  FirstPersonScene::deinit();
+
   delete cubeShader;
   delete lightShader;
   delete modelShader;
@@ -164,9 +168,7 @@ void NessCubesScene::deinit(){
 }
 
 void NessCubesScene::drawFrame(){
-  // check for input
-  processKeyboardInput(window, this);
-  processXInput(this);
+  FirstPersonScene::drawFrame();
 
   // bind our frame buffer
   glBindFramebuffer(GL_FRAMEBUFFER, framebuffer.id);

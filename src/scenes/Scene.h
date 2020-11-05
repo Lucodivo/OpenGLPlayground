@@ -14,11 +14,11 @@ struct Character
   GLuint advance;    // Offset to advance to next glyph
 };
 
-class Scene : public FrameBufferSizeConsumer, public KeyboardConsumer
+class Scene : public KeyboardConsumer
 {
 public:
   Scene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth);
-  void frameBufferSize(uint32 width, uint32 height);
+  virtual void frameBufferSize(uint32 width, uint32 height);
   virtual void init(){} // initializes scene
   virtual void deinit(){} // de-initializes scene
   virtual void drawFrame(){} // draws scene to back buffer

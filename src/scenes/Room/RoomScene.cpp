@@ -140,10 +140,6 @@ void RoomScene::renderLoop(uint32 cubeVAO, uint32 invertedNormCubeVAO)
   // NOTE: render/game loop
   while (glfwWindowShouldClose(window) == GL_FALSE)
   {
-    // check for input
-    processKeyboardInput(window, this);
-    processXInput(this);
-
     float32 t = (float32)glfwGetTime();
     deltaTime = t - lastFrame;
     lastFrame = t;

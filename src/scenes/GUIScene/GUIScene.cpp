@@ -72,9 +72,6 @@ void GUIScene::renderLoop(uint32 cubeVAO)
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    // check for input
-    processKeyboardInput(window, this);
-
     viewMat = camera.GetViewMatrix(deltaTime);
 
     // draw cubes

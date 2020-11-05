@@ -91,10 +91,6 @@ void InfiniteCubeScene::renderLoop(GLFWwindow* window, uint32& cubeVAO)
 
   while (glfwWindowShouldClose(window) == GL_FALSE)
   {
-    // check for input
-    processKeyboardInput(window, this);
-    processXInput(this);
-
     float32 t = (float32)glfwGetTime();
     deltaTime = t - lastFrame;
     lastFrame = t;
