@@ -6,8 +6,8 @@
 const uint32 framebufferTextureIndex = 0;
 const uint32 outlineTextureIndex = 1;
 
-InfiniteCubeScene::InfiniteCubeScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth)
-        : FirstPersonScene(window, initScreenHeight, initScreenWidth),
+InfiniteCubeScene::InfiniteCubeScene(GLFWwindow* window)
+        : FirstPersonScene(window),
           cubeShader(posNormTexVertexShaderFileLoc, discardAlphaFragmentShaderFileLoc),
           cubeOutlineShader(posNormTexVertexShaderFileLoc, discardAlphaFragmentShaderFileLoc) {}
 
@@ -22,9 +22,9 @@ void InfiniteCubeScene::runScene()
   deleteVertexAtt(quadVertexAtt);
 }
 
-void InfiniteCubeScene::frameBufferSize(uint32 width, uint32 height)
+void InfiniteCubeScene::framebufferSizeChange(uint32 width, uint32 height)
 {
-  FirstPersonScene::frameBufferSize(width, height);
+  FirstPersonScene::framebufferSizeChange(width, height);
   framebufferDimen = width > height ? height : width;
 
   deleteFrameBuffer(framebuffer);

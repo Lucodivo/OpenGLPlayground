@@ -9,10 +9,10 @@
 
 class RayTracingSphereScene final : public GodModeScene {
 public:
-  RayTracingSphereScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth);
+  RayTracingSphereScene(GLFWwindow* window);
 
   // FrameBufferSizeConsumer override
-  void frameBufferSize(uint32 width, uint32 height) override;
+  void framebufferSizeChange(uint32 width, uint32 height) override;
   void runScene() override;
 
 private:

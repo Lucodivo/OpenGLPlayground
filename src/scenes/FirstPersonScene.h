@@ -6,10 +6,10 @@
 class FirstPersonScene : public Scene, public ControllerConsumer, public MouseConsumer
 {
 public:
-  FirstPersonScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth);
+  FirstPersonScene(GLFWwindow* window);
 
   // Scene implementation required
-  virtual void init();
+  virtual void init(uint32 windowWidth, uint32 windowHeight);
   virtual void deinit();
   virtual void drawFrame(){};
   virtual void runScene() = 0;
@@ -31,8 +31,8 @@ public:
   void button_dPadRight_pressed();
   void button_leftShoulder_pressed() {}
   void button_rightShoulder_pressed() {}
-  void button_start_pressed();
-  void button_select_pressed();
+  void button_start_pressed() {};
+  void button_select_pressed() {};
   void button_select_released() {}
   void key_Tab_pressed() {}
   void key_Tab_released() {}
@@ -49,7 +49,7 @@ public:
   void key_Down() {}
   void key_Left() {}
   void key_Right() {}
-  void key_AltEnter_pressed();
+  void key_AltEnter_pressed() {};
   void key_AltEnter_released() {}
 
   // MouseConsumer implementation
@@ -60,7 +60,7 @@ public:
   void key_RightMouseButton_pressed(float32 xPos, float32 yPos) {}
   void key_RightMouseButton_released(float32 xPos, float32 yPos) {}
 
-  void frameBufferSize(uint32 width, uint32 height);
+  void framebufferSizeChange(uint32 width, uint32 height);
 
 private:
   bool screenSizeChangedSkipNextTrashMouseMove;

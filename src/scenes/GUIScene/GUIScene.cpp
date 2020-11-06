@@ -10,8 +10,8 @@
 const glm::vec3 startingBoundingBoxMin = glm::vec3(-1.0f, -1.0f, -1.0f);
 const glm::vec3 startingBoundingBoxMax = glm::vec3(1.0f, 1.0f, 1.0f);
 
-GUIScene::GUIScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth)
-      : FirstPersonScene(window, initScreenHeight, initScreenWidth),
+GUIScene::GUIScene(GLFWwindow* window)
+      : FirstPersonScene(window),
         cubeShader(posVertexShaderFileLoc, singleColorFragmentShaderFileLoc),
         cursorMode(glfwGetInputMode(window, GLFW_CURSOR) == GLFW_CURSOR_NORMAL) {}
 
@@ -137,8 +137,6 @@ void GUIScene::mouseMovement(float32 xOffset, float32 yOffset)
 {
   if(!cursorMode) {
     FirstPersonScene::mouseMovement(xOffset, yOffset);
-  } else {
-    // TODO
   }
 }
 

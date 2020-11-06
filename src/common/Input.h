@@ -39,8 +39,8 @@ public:
 class MouseConsumer
 {
 public:
-  virtual void mouseMovement(float32 xOffset, float32 yOffset) = 0;
-  virtual void mouseScroll(float32 yOffset) = 0;
+  virtual void mouseMovement(float32 xOffset, float32 yOffset) {};
+  virtual void mouseScroll(float32 yOffset) {};
   virtual void key_LeftMouseButton_pressed(float32 xPos, float32 yPos) {};
   virtual void key_LeftMouseButton_released(float32 xPos, float32 yPos) {};
   virtual void key_RightMouseButton_pressed(float32 xPos, float32 yPos) {};
@@ -71,6 +71,12 @@ public:
   virtual void button_select_released() {};
 };
 
+class WindowSizeConsumer
+{
+public:
+  virtual void windowSizeChanged(uint32 width, uint32 height) {};
+};
+
 void initializeInput(GLFWwindow* window);
 void processInput(GLFWwindow* window);
 void processKeyboardInput(GLFWwindow* window);
@@ -78,10 +84,12 @@ void processMouseInput(GLFWwindow* window);
 void processXInput();
 void subscribeKeyboardInput(KeyboardConsumer* consumer);
 void subscribeXInput(ControllerConsumer* consumer);
-void subscribeMouseMovement(MouseConsumer* consumer);
+void subscribeMouseInput(MouseConsumer* consumer);
+void subscribeWindowSize(WindowSizeConsumer* consumer);
 bool unsubscribeKeyboardInput(KeyboardConsumer* consumer);
 bool unsubscribeXInput(ControllerConsumer* consumer);
-bool unsubscribeMouseMovement(MouseConsumer* consumer);
+bool unsubscribeMouseInput(MouseConsumer* consumer);
+void unsubscribeWindowSize();
 void mouse_movement_callback(GLFWwindow* window, float64 xPos, float64 yPos);
 void mouse_scroll_callback(GLFWwindow* window, float64 xOffset, float64 yOffset);
-void framebuffer_size_callback(GLFWwindow* window, int32 width, int32 height);
+void window_size_callback(GLFWwindow* window, int32 width, int32 height);

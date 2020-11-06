@@ -6,8 +6,7 @@
 #include "../../common/FileLocations.h"
 #include "../../common/Util.h"
 
-InfiniteCapsulesScene::InfiniteCapsulesScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth)
-        : GodModeScene(window, initScreenHeight, initScreenWidth) {}
+InfiniteCapsulesScene::InfiniteCapsulesScene(GLFWwindow* window): GodModeScene(window) {}
 
 void InfiniteCapsulesScene::runScene()
 {
@@ -22,8 +21,9 @@ void InfiniteCapsulesScene::runScene()
 //  deinit();
 }
 
-void InfiniteCapsulesScene::init() {
-  GodModeScene::init();
+void InfiniteCapsulesScene::init(uint32 windowWidth, uint32 windowHeight)
+{
+  GodModeScene::init(windowWidth, windowHeight);
 
   rayMarchingShader = new Shader(UVCoordVertexShaderFileLoc, InfiniteCapsulesFragmentShaderFileLoc);
 
@@ -77,9 +77,9 @@ void InfiniteCapsulesScene::deinit() {
   deleteVertexAtt(quadVertexAtt);
 }
 
-void InfiniteCapsulesScene::frameBufferSize(uint32 width, uint32 height)
+void InfiniteCapsulesScene::framebufferSizeChange(uint32 width, uint32 height)
 {
-  FirstPersonScene::frameBufferSize(width, height);
+  FirstPersonScene::framebufferSizeChange(width, height);
   rayMarchingShader->use();
   rayMarchingShader->setUniform("viewPortResolution", glm::vec2(width, height));
 }

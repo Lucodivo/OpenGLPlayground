@@ -11,7 +11,7 @@
 class ReflectRefractScene final : public FirstPersonScene
 {
 public:
-  ReflectRefractScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth);
+  ReflectRefractScene(GLFWwindow* window);
   void runScene() override;
 
 private:

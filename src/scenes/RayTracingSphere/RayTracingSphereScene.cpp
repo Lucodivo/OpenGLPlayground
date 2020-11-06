@@ -7,8 +7,8 @@
 #include "../../common/ObjectData.h"
 #include "../../common/Util.h"
 
-RayTracingSphereScene::RayTracingSphereScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth)
-        : GodModeScene(window, initScreenHeight, initScreenWidth),
+RayTracingSphereScene::RayTracingSphereScene(GLFWwindow* window)
+        : GodModeScene(window),
           rayTracingSphereShader(UVCoordVertexShaderFileLoc, RayTracingSphereFragmentShaderFileLoc) {}
 
 void RayTracingSphereScene::runScene()
@@ -63,9 +63,9 @@ void RayTracingSphereScene::renderLoop(uint32 quadVAO)
   }
 }
 
-void RayTracingSphereScene::frameBufferSize(uint32 width, uint32 height)
+void RayTracingSphereScene::framebufferSizeChange(uint32 width, uint32 height)
 {
-  FirstPersonScene::frameBufferSize(width, height);
+  FirstPersonScene::framebufferSizeChange(width, height);
   rayTracingSphereShader.use();
   rayTracingSphereShader.setUniform("viewPortResolution", glm::vec2(width, height));
 }

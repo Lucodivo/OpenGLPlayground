@@ -5,7 +5,7 @@
 class MoonScene : public GodModeScene
 {
 public:
-  MoonScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth);
+  MoonScene(GLFWwindow* window);
   void runScene();
 
 private:

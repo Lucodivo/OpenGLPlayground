@@ -7,8 +7,8 @@
 #include "../../common/ObjectData.h"
 #include "../../common/Util.h"
 
-Pixel2DScene::Pixel2DScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth)
-  : Scene(window, initScreenHeight, initScreenWidth),
+Pixel2DScene::Pixel2DScene(GLFWwindow* window)
+  : Scene(window),
     pixel2DShader(pixel2DVertexShaderFileLoc, textureFragmentShaderFileLoc){}
 
 void Pixel2DScene::runScene() {

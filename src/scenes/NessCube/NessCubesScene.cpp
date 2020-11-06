@@ -35,13 +35,16 @@ const float32 cubeScales[] = {
 };
 // ===== cube values =====
 
-NessCubesScene::NessCubesScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth)
-        : FirstPersonScene(window, initScreenHeight, initScreenWidth) {
-              camera.Position = glm::vec3(0.0f, 0.0f, 6.0f);
+NessCubesScene::NessCubesScene(GLFWwindow* window): FirstPersonScene(window)
+{
+  camera.Position = glm::vec3(0.0f, 0.0f, 6.0f);
 }
 
-void NessCubesScene::init(){
-  FirstPersonScene::init();
+void NessCubesScene::init(uint32 windowWidth, uint32 windowHeight)
+{
+  FirstPersonScene::init(windowWidth, windowHeight);
+
+  projectionMat = glm::perspective(glm::radians(camera.Zoom), (float32)windowWidth / (float32)windowHeight, 0.1f, 100.0f);
 
   cubeShader = new Shader(posNormTexVertexShaderFileLoc, nessCubeFragmentShaderFileLoc);
   lightShader = new Shader(posGlobalBlockVertexShaderFileLoc, singleColorFragmentShaderFileLoc);
@@ -405,9 +408,9 @@ void NessCubesScene::runScene()
 //  deinit();
 }
 
-void NessCubesScene::frameBufferSize(uint32 width, uint32 height)
+void NessCubesScene::framebufferSizeChange(uint32 width, uint32 height)
 {
-  FirstPersonScene::frameBufferSize(width, height);
+  FirstPersonScene::framebufferSizeChange(width, height);
   deleteFrameBuffer(framebuffer);
   framebuffer = initializeFrameBuffer(width, height);
   frameBufferShader->setUniform("textureWidth", (float32)width);

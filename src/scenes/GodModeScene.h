@@ -6,7 +6,7 @@
 class GodModeScene : public FirstPersonScene
 {
 public:
-  GodModeScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth);
+  GodModeScene(GLFWwindow* window);
 
   // Scene implementation required
   virtual void runScene() = 0;

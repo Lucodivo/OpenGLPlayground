@@ -18,7 +18,7 @@ struct Cube {
 
 class GUIScene final : public FirstPersonScene {
 public:
-  GUIScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth);
+  GUIScene(GLFWwindow* window);
 
   void runScene() override;
   void key_Tab_pressed() override;

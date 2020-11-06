@@ -10,8 +10,8 @@
 #include "../../common/ObjectData.h"
 #include "../../common/Util.h"
 
-MengerSpongeScene::MengerSpongeScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth)
-        : GodModeScene(window, initScreenHeight, initScreenWidth),
+MengerSpongeScene::MengerSpongeScene(GLFWwindow* window)
+        : GodModeScene(window),
           mengerSpongeShader(UVCoordVertexShaderFileLoc, MengerSpongeFragmentShaderFileLoc),
           pixel2DShader(pixel2DVertexShaderFileLoc, textureFragmentShaderFileLoc),
           cubeShader(CubePosNormTexVertexShaderFileLoc, CubeTextureFragmentShaderFileLoc) {
@@ -210,9 +210,9 @@ void MengerSpongeScene::renderLoop(uint32 quadVAO, uint32 cubeVAO)
   }
 }
 
-void MengerSpongeScene::frameBufferSize(uint32 width, uint32 height)
+void MengerSpongeScene::framebufferSizeChange(uint32 width, uint32 height)
 {
-  FirstPersonScene::frameBufferSize(width, height);
+  FirstPersonScene::framebufferSizeChange(width, height);
   // NOTE: We need our viewport extent to match specified resolution instead of matching out window extent
   glViewport(0, 0, currentResolution.width, currentResolution.height);
 }

@@ -13,10 +13,10 @@
 
 class MandelbrotScene final : public FirstPersonScene {
 public:
-  MandelbrotScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth);
+  MandelbrotScene(GLFWwindow* window);
 
   // FrameBufferSizeConsumer override
-  void frameBufferSize(uint32 width, uint32 height) override;
+  void framebufferSizeChange(uint32 width, uint32 height) override;
   void runScene() override;
 
   // KeyboardConsumer override

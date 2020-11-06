@@ -5,7 +5,7 @@
 class AsteroidBeltScene : public FirstPersonScene
 {
 public:
-  AsteroidBeltScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth);
+  AsteroidBeltScene(GLFWwindow* window);
   void runScene() override;
 
 private:

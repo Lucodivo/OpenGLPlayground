@@ -6,8 +6,8 @@
 #include "../../common/FileLocations.h"
 #include "../../common/ObjectData.h"
 
-MandelbrotScene::MandelbrotScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth)
-        : FirstPersonScene(window, initScreenHeight, initScreenWidth),
+MandelbrotScene::MandelbrotScene(GLFWwindow* window)
+        : FirstPersonScene(window),
           mandelbrotShader(UVCoordVertexShaderFileLoc, MandelbrotFragmentShaderFileLoc) {}
 
 void MandelbrotScene::runScene()
@@ -61,11 +61,11 @@ void MandelbrotScene::renderLoop(uint32 quadVAO)
   }
 }
 
-void MandelbrotScene::frameBufferSize(uint32 width, uint32 height)
+void MandelbrotScene::framebufferSizeChange(uint32 width, uint32 height)
 {
   float32 oldWidth = (float32)windowWidth;
   float32 oldHeight = (float32)windowHeight;
-  FirstPersonScene::frameBufferSize(width, height);
+  FirstPersonScene::framebufferSizeChange(width, height);
 
   mandelbrotShader.use();
   mandelbrotShader.setUniform("viewPortResolution", glm::vec2(width, height));

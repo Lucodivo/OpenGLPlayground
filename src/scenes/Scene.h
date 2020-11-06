@@ -17,9 +17,9 @@ struct Character
 class Scene : public KeyboardConsumer
 {
 public:
-  Scene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth);
-  virtual void frameBufferSize(uint32 width, uint32 height);
-  virtual void init(){} // initializes scene
+  Scene(GLFWwindow* window);
+  virtual void framebufferSizeChange(uint32 width, uint32 height);
+  virtual void init(uint32 windowWidth, uint32 windowHeight);
   virtual void deinit(){} // de-initializes scene
   virtual void drawFrame(){} // draws scene to back buffer
   virtual void runScene() = 0;
@@ -28,20 +28,17 @@ public:
 protected:
   // TODO: Remove GLFWwindow from Scene?
   GLFWwindow* window;
-  uint32 windowWidth;
-  uint32 windowHeight;
-
-  void adjustWindowSize();
+  uint32 windowWidth = 0;
+  uint32 windowHeight = 0;
 
 private:
   std::map<GLchar, Character> Characters;
   Shader textDebugShader;
   uint32 textDebugVAO;
   uint32 textDebugVBO;
-  glm::mat4 textDebugProjectionMat;
-  uint32 initialWindowWidth;
-  uint32 initialWindowHeight;
+  glm::mat4 textDebugProjectionMat = glm::mat4( 1.0 );
 
   void initDebugTextCharacters();
   void initDebugTextBuffers();
+  void updateTextDebugProjectionMat();
 };

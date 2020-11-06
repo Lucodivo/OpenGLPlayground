@@ -12,9 +12,12 @@ file_accessible struct {
   KeyboardConsumer* keyboard[MAX_NUMBER_OF_SUBSCRIBERS]{};
   uint32 controllerCount = 0;
   ControllerConsumer* controller[MAX_NUMBER_OF_SUBSCRIBERS]{};
-  uint32 mouseMovementCount = 0;
-  MouseConsumer* mouseMovement[MAX_NUMBER_OF_SUBSCRIBERS]{};
+  uint32 mouseCount = 0;
+  MouseConsumer* mouse[MAX_NUMBER_OF_SUBSCRIBERS]{};
+  WindowSizeConsumer* windowSize = NULL;
 } inputConsumers;
+
+file_accessible bool skipMouseMovementFromWindowSizeChange = false;
 
 // NOTE: Casey Muratori's efficient way of handling function pointers, Handmade Hero episode 6 @ 22:06 & 1:00:21
 // NOTE: Allows us to quickly change the function parameters & return type in one place and cascade throughout the rest
@@ -58,6 +61,7 @@ void initializeInput(GLFWwindow* window)
   loadXInput();
   glfwSetCursorPosCallback(window, mouse_movement_callback);
   glfwSetScrollCallback(window, mouse_scroll_callback);
+  glfwSetFramebufferSizeCallback(window, window_size_callback);
 }
 
 void processInput(GLFWwindow* window) {
@@ -480,9 +484,9 @@ void processKeyboardInput(GLFWwindow* window)
 }
 
 void processMouseInput(GLFWwindow* window) {
-  if(inputConsumers.mouseMovementCount == 0) return;
-  MouseConsumer** consumers = inputConsumers.mouseMovement;
-  uint32 consumerCount = inputConsumers.mouseMovementCount;
+  if(inputConsumers.mouseCount == 0) return;
+  MouseConsumer** consumers = inputConsumers.mouse;
+  uint32 consumerCount = inputConsumers.mouseCount;
 
   local_persist bool leftMouseButtonWasDown = false;
   if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
@@ -541,19 +545,24 @@ void subscribeXInput(ControllerConsumer* consumer)
   inputConsumers.controller[inputConsumers.controllerCount++] = consumer;
 }
 
-void subscribeMouseMovement(MouseConsumer* consumer)
+void subscribeMouseInput(MouseConsumer* consumer)
 {
-  Assert(inputConsumers.mouseMovementCount < MAX_NUMBER_OF_SUBSCRIBERS);
-  inputConsumers.mouseMovement[inputConsumers.mouseMovementCount++] = consumer;
+  Assert(inputConsumers.mouseCount < MAX_NUMBER_OF_SUBSCRIBERS);
+  inputConsumers.mouse[inputConsumers.mouseCount++] = consumer;
 }
 
-bool unsubscribeMouseMovement(MouseConsumer* consumer)
+void subscribeWindowSize(WindowSizeConsumer* consumer)
+{
+  inputConsumers.windowSize = consumer;
+}
+
+bool unsubscribeMouseInput(MouseConsumer* consumer)
 {
   bool unsubscribed = false;
-  for(uint32 i = 0; i < inputConsumers.mouseMovementCount;)
+  for(uint32 i = 0; i < inputConsumers.mouseCount;)
   {
-    if((inputConsumers.mouseMovement[i]) == consumer) {
-      inputConsumers.mouseMovement[i] = inputConsumers.mouseMovement[--inputConsumers.mouseMovementCount];
+    if((inputConsumers.mouse[i]) == consumer) {
+      inputConsumers.mouse[i] = inputConsumers.mouse[--inputConsumers.mouseCount];
       unsubscribed = true;
     } else { ++i; }
   }
@@ -586,6 +595,11 @@ bool unsubscribeXInput(ControllerConsumer* consumer)
   return unsubscribed;
 }
 
+void unsubscribeWindowSize()
+{
+  inputConsumers.windowSize = NULL;
+}
+
 // Callback function for when user moves mouse
 void mouse_movement_callback(GLFWwindow* window, float64 xPos, float64 yPos)
 {
@@ -593,15 +607,21 @@ void mouse_movement_callback(GLFWwindow* window, float64 xPos, float64 yPos)
   local_persist float32 lastYPos = (float32) yPos;
   local_persist bool firstMouse = true;
 
+  if(skipMouseMovementFromWindowSizeChange)
+  {
+    skipMouseMovementFromWindowSizeChange = false;
+    return;
+  }
+
   float32 xOffset = (float32) xPos - lastXPos;
   float32 yOffset = lastYPos - (float32) yPos; // reversed since y-coordinates go from bottom to top
 
   lastXPos = (float32) xPos;
   lastYPos = (float32) yPos;
 
-  if(inputConsumers.mouseMovementCount == 0) return;
-  MouseConsumer** consumers = inputConsumers.mouseMovement;
-  const uint32 consumerCount = inputConsumers.mouseMovementCount;
+  if(inputConsumers.mouseCount == 0) return;
+  MouseConsumer** consumers = inputConsumers.mouse;
+  const uint32 consumerCount = inputConsumers.mouseCount;
   for(uint32 i = 0; i < consumerCount; ++i) {
     consumers[i]->mouseMovement(xOffset, yOffset);
   }
@@ -610,10 +630,19 @@ void mouse_movement_callback(GLFWwindow* window, float64 xPos, float64 yPos)
 // Callback function for when user scrolls with mouse wheel
 void mouse_scroll_callback(GLFWwindow* window, float64 xOffset, float64 yOffset)
 {
-  if(inputConsumers.mouseMovementCount == 0) return;
-  MouseConsumer** consumers = inputConsumers.mouseMovement;
-  const uint32 consumerCount = inputConsumers.mouseMovementCount;
+  if(inputConsumers.mouseCount == 0) return;
+  MouseConsumer** consumers = inputConsumers.mouse;
+  const uint32 consumerCount = inputConsumers.mouseCount;
   for(uint32 i = 0; i < consumerCount; ++i) {
     consumers[i]->mouseScroll((float32)yOffset);
   }
+}
+
+// NOTE: returns (0,0) when no longer on screen
+void window_size_callback(GLFWwindow* window, int width, int height) {
+  skipMouseMovementFromWindowSizeChange = true; // TODO: find better way to skip next mouse movement callback?
+
+  if(inputConsumers.windowSize == NULL) { return; }
+
+  inputConsumers.windowSize->windowSizeChanged((uint32)width, (uint32)height);
 }

@@ -25,8 +25,6 @@
 
 #define MULTI_SAMPLING_ON true
 
-void initImgui(GLFWwindow* window);
-
 #define VIEWPORT_INIT_WIDTH 1920
 #define VIEWPORT_INIT_HEIGHT 1080
 
@@ -38,44 +36,60 @@ int main()
   initializeInput(window);
   initImgui(window);
 
+  uint32 windowWidth = VIEWPORT_INIT_WIDTH;
+  uint32 windowHeight = VIEWPORT_INIT_HEIGHT;
+
   uint32 sceneIndex = 0;
-  NessCubesScene nessCubeScene = NessCubesScene(window, VIEWPORT_INIT_HEIGHT, VIEWPORT_INIT_WIDTH);
-  InfiniteCapsulesScene infiniteCapsulesScene = InfiniteCapsulesScene(window, VIEWPORT_INIT_HEIGHT, VIEWPORT_INIT_WIDTH);
+  NessCubesScene nessCubeScene = NessCubesScene(window);
+  InfiniteCapsulesScene infiniteCapsulesScene = InfiniteCapsulesScene(window);
   Scene* scenes[] = { &nessCubeScene, &infiniteCapsulesScene };
 
-  class KeyboardConsumer_ : public KeyboardConsumer {
+  class InputConsumer_ : public KeyboardConsumer, public WindowSizeConsumer {
   public:
-    KeyboardConsumer_(GLFWwindow* window, Scene** scenes, uint32* sceneIndex, uint32 sceneCount){
+    InputConsumer_(GLFWwindow* window, Scene** scenes, uint32* sceneIndex, uint32 sceneCount, uint32* windowWidth, uint32* windowHeight){
       this->window = window;
       this->scenes = scenes;
       this->sceneIndex = sceneIndex;
       this->sceneCount = sceneCount;
+      this->windowWidth = windowWidth;
+      this->windowHeight = windowHeight;
     }
     GLFWwindow* window;
     Scene** scenes;
     uint32* sceneIndex;
     uint32 sceneCount;
+    uint32* windowWidth;
+    uint32* windowHeight;
     void key_O_pressed() {
       scenes[*sceneIndex]->deinit();
       if(++(*sceneIndex) == sceneCount) {
         *sceneIndex = 0;
       }
-      scenes[*sceneIndex]->init();
+      scenes[*sceneIndex]->init(*windowWidth, *windowHeight);
     }
     void key_P_pressed() {
       scenes[*sceneIndex]->deinit();
       if(*sceneIndex == 0) {
         *sceneIndex = sceneCount -1;
       } else { --(*sceneIndex); }
-      scenes[*sceneIndex]->init();
+      scenes[*sceneIndex]->init(*windowWidth, *windowHeight);
     }
     void key_Esc(){
       glfwSetWindowShouldClose(window, GL_TRUE);
-    };
-  } keyboardConsumer(window, scenes, &sceneIndex, ArrayCount(scenes));
-  subscribeKeyboardInput(&keyboardConsumer);
+    }
+    void key_AltEnter_pressed() {
+      toggleWindowSize(window, VIEWPORT_INIT_WIDTH, VIEWPORT_INIT_HEIGHT);
+    }
+    void windowSizeChanged(uint32 width, uint32 height) {
+      *windowWidth = width;
+      *windowHeight = height;
+      scenes[*sceneIndex]->framebufferSizeChange(*windowWidth, *windowHeight);
+    }
+  } inputConsumer(window, scenes, &sceneIndex, ArrayCount(scenes), &windowWidth, &windowHeight);
+  subscribeKeyboardInput(&inputConsumer);
+  subscribeWindowSize(&inputConsumer);
 
-  scenes[sceneIndex]->init();
+  scenes[sceneIndex]->init(windowWidth, windowHeight);
   float32 deltaTime = 1.0;
   float32 lastFrame = (float32)glfwGetTime();
   while (glfwWindowShouldClose(window) == GL_FALSE)
@@ -167,13 +181,17 @@ GLFWwindow* createWindow()
 
   glfwMakeContextCurrent(window);
   glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-  glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
   return window;
 }
 
-// Callback for when screen changes size
-void framebuffer_size_callback(GLFWwindow* window, int width, int height)
+void toggleWindowSize(GLFWwindow* window, const uint32 width, const uint32 height)
 {
-  // TODO: Do something
+  local_persist bool windowMode = true;
+  if (windowMode) {
+    toFullScreenMode(window);
+  } else{
+    toWindowedMode(window, width, height);
+  }
+  windowMode = !windowMode;
 }

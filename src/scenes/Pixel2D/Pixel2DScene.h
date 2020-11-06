@@ -6,7 +6,7 @@
 class Pixel2DScene : public Scene
 {
 public:
-  Pixel2DScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth);
+  Pixel2DScene(GLFWwindow* window);
 
   void runScene();
 

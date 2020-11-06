@@ -6,8 +6,8 @@
 const uint32 SHADOW_MAP_WIDTH = 2048;
 const uint32 SHADOW_MAP_HEIGHT = 2048;
 
-MoonScene::MoonScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth)
-        : GodModeScene(window, initScreenHeight, initScreenWidth),
+MoonScene::MoonScene(GLFWwindow* window)
+        : GodModeScene(window),
           directionalLightShader(lightSpaceVertexShaderFileLoc, directionalLightShadowMapFragmentShaderFileLoc, tbnGeometryShaderFileLoc),
           quadTextureShader(billboardPosTexVertexShaderFileLoc, textureFragmentShaderFileLoc),
           depthMapShader(simpleDepthVertexShaderFileLoc, emptyFragmentShaderFileLoc) {}

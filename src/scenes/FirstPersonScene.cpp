@@ -1,16 +1,16 @@
 #include "FirstPersonScene.h"
 
-FirstPersonScene::FirstPersonScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth)
-        : Scene(window, initScreenHeight, initScreenWidth){}
+FirstPersonScene::FirstPersonScene(GLFWwindow* window): Scene(window) {}
 
-void FirstPersonScene::init() {
-  subscribeMouseMovement(this);
+void FirstPersonScene::init(uint32 windowWidth, uint32 windowHeight)
+{
+  subscribeMouseInput(this);
   subscribeKeyboardInput(this);
   subscribeXInput(this);
 }
 
 void FirstPersonScene::deinit() {
-  unsubscribeMouseMovement(this);
+  unsubscribeMouseInput(this);
   unsubscribeKeyboardInput(this);
   unsubscribeXInput(this);
 }
@@ -60,16 +60,6 @@ void FirstPersonScene::button_dPadRight_pressed()
   camera.ProcessInput(RIGHT);
 }
 
-void FirstPersonScene::button_start_pressed()
-{
-  // close window
-}
-
-void FirstPersonScene::button_select_pressed()
-{
-  adjustWindowSize();
-}
-
 // +++ KEYBOARD CONSUMER IMPLEMENTATION - START +++
 void FirstPersonScene::key_LeftShift_pressed()
 {
@@ -105,11 +95,6 @@ void FirstPersonScene::key_Space()
 {
   camera.ProcessInput(JUMP);
 }
-
-void FirstPersonScene::key_AltEnter_pressed()
-{
-  adjustWindowSize();
-}
 // +++ INPUT CONSUMER IMPLEMENTATION - END +++
 
 // +++ MOUSE MOVEMENT CONSUMER IMPLEMENTATION - START +++
@@ -131,7 +116,7 @@ void FirstPersonScene::mouseScroll(float32 yOffset)
 // +++ MOUSE SCROLL CONSUMER IMPLEMENTATION - END +++
 
 
-void FirstPersonScene::frameBufferSize(uint32 width, uint32 height) {
-  Scene::frameBufferSize(width, height);
+void FirstPersonScene::framebufferSizeChange(uint32 width, uint32 height) {
+  Scene::framebufferSizeChange(width, height);
   screenSizeChangedSkipNextTrashMouseMove = true;
 }

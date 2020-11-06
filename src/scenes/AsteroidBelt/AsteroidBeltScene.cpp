@@ -4,8 +4,8 @@
 #include "../../common/Util.h"
 #include "../../common/ObjectData.h"
 
-AsteroidBeltScene::AsteroidBeltScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth)
-        : FirstPersonScene(window, initScreenHeight, initScreenWidth),
+AsteroidBeltScene::AsteroidBeltScene(GLFWwindow* window)
+        : FirstPersonScene(window),
           modelShader(posNormalVertexShaderFileLoc, skyboxReflectionFragmentShaderFileLoc),
           modelInstanceShader(AsteroidVertexShaderFileLoc, textureModelFragmentShaderFileLoc),
           reflectModelInstanceShader(AsteroidVertexShaderFileLoc, skyboxReflectionFragmentShaderFileLoc),

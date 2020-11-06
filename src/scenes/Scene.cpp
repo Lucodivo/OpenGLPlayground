@@ -6,50 +6,27 @@
 #include FT_FREETYPE_H
 #include <iostream>
 
-Scene::Scene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth)
-        : window(window),
-          windowHeight(initScreenHeight),
-          windowWidth(initScreenWidth),
-          initialWindowHeight(initScreenHeight),
-          initialWindowWidth(initScreenWidth),
-          textDebugShader(textVertexShaderFileLoc, textFragmentShaderFileLoc)
+Scene::Scene(GLFWwindow* window): window(window), textDebugShader(textVertexShaderFileLoc, textFragmentShaderFileLoc)
 {
-  // TODO: subscribe outside of Scene, inform scene through Scene->frameBufferSize
-  //subscribeFrameBufferSize(window, this);
   // TODO: Handle rending text separate of scenes?
   initDebugTextCharacters();
   initDebugTextBuffers();
-  textDebugProjectionMat = glm::ortho(0.0f, (float)windowWidth, 0.0f, (float)windowWidth);
-  textDebugShader.use();
-  textDebugShader.setUniform("projection", textDebugProjectionMat);
+}
+
+void Scene::init(uint32 windowWidth, uint32 windowHeight) {
+  glViewport(0, 0, windowWidth, windowHeight);
+  this->windowWidth = windowWidth;
+  this->windowHeight = windowHeight;
+  updateTextDebugProjectionMat();
 }
 
 // Callback function for when user resizes our window
-void Scene::frameBufferSize(uint32 width, uint32 height)
+void Scene::framebufferSizeChange(uint32 width, uint32 height)
 {
   glViewport(0, 0, width, height);
   windowHeight = height;
   windowWidth = width;
-  textDebugProjectionMat = glm::ortho(0.0f, (float)windowWidth, 0.0f, (float)windowWidth);
-  textDebugShader.use();
-  textDebugShader.setUniform("projection", textDebugProjectionMat);
-}
-
-void Scene::adjustWindowSize()
-{
-  local_persist bool windowMode = true;
-  GLFWmonitor* monitor = glfwGetPrimaryMonitor();
-  const GLFWvidmode* mode = glfwGetVideoMode(monitor);
-  if (windowMode) // if currently in window mode, transition to full screen
-  {
-    glfwSetWindowMonitor(window, monitor, 0, 0, mode->width, mode->height, GLFW_DONT_CARE);
-  } else
-  {
-    uint32 centeringUpperLeftX = (mode->width / 2) - (initialWindowWidth / 2);
-    uint32 centeringUpperLeftY = (mode->height / 2) - (initialWindowHeight / 2);
-    glfwSetWindowMonitor(window, NULL/*Null for windowed mode*/, centeringUpperLeftX, centeringUpperLeftY, initialWindowWidth, initialWindowHeight, GLFW_DONT_CARE);
-  }
-  windowMode = !windowMode;
+  updateTextDebugProjectionMat();
 }
 
 void Scene::initDebugTextCharacters()
@@ -118,6 +95,13 @@ void Scene::initDebugTextBuffers()
   glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), 0);
   glBindBuffer(GL_ARRAY_BUFFER, 0);
   glBindVertexArray(0);
+}
+
+void Scene::updateTextDebugProjectionMat()
+{
+  textDebugProjectionMat = glm::ortho(0.0f, (float)windowWidth, 0.0f, (float)windowWidth);
+  textDebugShader.use();
+  textDebugShader.setUniform("projection", textDebugProjectionMat);
 }
 
 void Scene::renderText(std::string text, GLfloat x, GLfloat y, GLfloat scale, glm::vec3 color)

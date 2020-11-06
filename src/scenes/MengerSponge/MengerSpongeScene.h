@@ -23,9 +23,9 @@ const resolution screenResolutions[] = {
 
 class MengerSpongeScene final : public GodModeScene {
 public:
-  MengerSpongeScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth);
+  MengerSpongeScene(GLFWwindow* window);
 
-  void frameBufferSize(uint32 width, uint32 height) override;
+  void framebufferSizeChange(uint32 width, uint32 height) override;
   void runScene() override;
 
   void key_E_pressed() override;

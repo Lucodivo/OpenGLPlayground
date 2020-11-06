@@ -38,9 +38,9 @@ const glm::vec3 colors[] = {
 class InfiniteCubeScene final : public FirstPersonScene
 {
 public:
-  InfiniteCubeScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth);
+  InfiniteCubeScene(GLFWwindow* window);
   void runScene() override;
-  void frameBufferSize(uint32 width, uint32 height) override;
+  void framebufferSizeChange(uint32 width, uint32 height) override;
 
 private:
   Shader cubeShader;

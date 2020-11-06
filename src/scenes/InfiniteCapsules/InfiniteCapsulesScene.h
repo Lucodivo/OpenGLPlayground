@@ -11,10 +11,10 @@
 
 class InfiniteCapsulesScene final : public GodModeScene {
 public:
-  InfiniteCapsulesScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth);
+  InfiniteCapsulesScene(GLFWwindow* window);
 
   // FrameBufferSizeConsumer override
-  void frameBufferSize(uint32 width, uint32 height);
+  void framebufferSizeChange(uint32 width, uint32 height);
   void key_LeftMouseButton_pressed(float32 xPos, float32 yPos);
   void runScene() override;
 
@@ -28,7 +28,7 @@ private:
 
   VertexAtt quadVertexAtt;
 
-  void init();
+  void init(uint32 windowWidth, uint32 windowHeight);
   void drawFrame();
   void deinit();
 
