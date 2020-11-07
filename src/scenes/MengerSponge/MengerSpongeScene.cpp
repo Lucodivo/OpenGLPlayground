@@ -11,50 +11,28 @@
 #include "../../common/Util.h"
 
 MengerSpongeScene::MengerSpongeScene(GLFWwindow* window)
-        : GodModeScene(window),
-          mengerSpongeShader(UVCoordVertexShaderFileLoc, MengerSpongeFragmentShaderFileLoc),
-          pixel2DShader(pixel2DVertexShaderFileLoc, textureFragmentShaderFileLoc),
-          cubeShader(CubePosNormTexVertexShaderFileLoc, CubeTextureFragmentShaderFileLoc) {
-  if(showDebugWindows) {
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-  }
+        : GodModeScene(window) {
+  camera.Position = glm::vec3(0.0f, 1.0f, 30.0f);
 }
 
 void MengerSpongeScene::init(uint32 windowWidth, uint32 windowHeight)
 {
   GodModeScene::init(windowWidth, windowHeight);
-}
 
-void MengerSpongeScene::deinit()
-{
-  GodModeScene::deinit();
-}
+  originalCursorInputMode =  glfwGetInputMode(window, GLFW_CURSOR); // TODO: is this actually helpful?
+  glfwSetInputMode(window, GLFW_CURSOR, showDebugWindows ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_HIDDEN);
 
-void MengerSpongeScene::drawFrame()
-{
-  GodModeScene::drawFrame();
-}
+  mengerSpongeShader = new Shader(UVCoordVertexShaderFileLoc, MengerSpongeFragmentShaderFileLoc);
+  pixel2DShader = new Shader(pixel2DVertexShaderFileLoc, textureFragmentShaderFileLoc);
+  cubeShader = new Shader(CubePosNormTexVertexShaderFileLoc, CubeTextureFragmentShaderFileLoc);
 
-void MengerSpongeScene::runScene()
-{
-  VertexAtt quadVertexAtt = initializeFrameBufferQuadVertexAttBuffers();
-  VertexAtt cubeVertexAtt = initializeCubePosNormTexVertexAttBuffers();
+  quadVertexAtt = initializeFrameBufferQuadVertexAttBuffers();
+  cubeVertexAtt = initializeCubePosNormTexVertexAttBuffers();
 
-  renderLoop(quadVertexAtt.arrayObject, cubeVertexAtt.arrayObject);
-
-  deleteVertexAtt(quadVertexAtt);
-  deleteVertexAtt(cubeVertexAtt);
-}
-
-void MengerSpongeScene::renderLoop(uint32 quadVAO, uint32 cubeVAO)
-{
   resolution largestResolution = screenResolutions[ArrayCount(screenResolutions) - 1];
-  Framebuffer dynamicResolutionFBO = initializeFrameBuffer(largestResolution.width, largestResolution.height);
+  dynamicResolutionFBO = initializeFrameBuffer(largestResolution.width, largestResolution.height);
 
-  const float cubeScale = 10.0f;
-  const glm::vec3 cubePos = glm::vec3(0.0, 0.0, 0.0);
   const glm::vec3 cubeColor = glm::vec3(0.5, 0.0, 0.0);
-  const glm::vec3 cubeRotAxis = glm::vec3(1.0, 1.0, -1.0);
 
   // NOTE: This is helps maintain same projection for both the ray marching and rasterization
   // If how we shoot rays change, this must change. If this changes, how we shoot rays must change.
@@ -74,39 +52,33 @@ void MengerSpongeScene::renderLoop(uint32 quadVAO, uint32 cubeVAO)
   glActiveTexture(GL_TEXTURE3);
   glBindTexture(GL_TEXTURE_2D, textureSpec2Id);
 
-  const glm::vec3 directionalLightAmb = glm::vec3(0.15, 0.15, 0.15);
-  const glm::vec3 directionalLightDiff = glm::vec3(0.6, 0.6, 0.6);
-  const glm::vec3 directionalLightSpec = glm::vec3(0.8, 0.8, 0.8);
-  const glm::vec3 directionalLightDir = glm::vec3(1.0, -1.0, -1.0);
+  mengerSpongeShader->use();
+  mengerSpongeShader->setUniform("viewPortResolution", glm::vec2(currentResolution.width, currentResolution.height));
+  mengerSpongeShader->setUniform("directionalLight.color.ambient", directionalLightAmb);
+  mengerSpongeShader->setUniform("directionalLight.color.diffuse", directionalLightDiff);
+  mengerSpongeShader->setUniform("directionalLight.color.specular", directionalLightSpec);
+  mengerSpongeShader->setUniform("directionalLight.direction", directionalLightDir);
+  mengerSpongeShader->setUniform("projection", projectionMat);
 
-  mengerSpongeShader.use();
-  mengerSpongeShader.setUniform("viewPortResolution", glm::vec2(currentResolution.width, currentResolution.height));
-  mengerSpongeShader.setUniform("directionalLight.color.ambient", directionalLightAmb);
-  mengerSpongeShader.setUniform("directionalLight.color.diffuse", directionalLightDiff);
-  mengerSpongeShader.setUniform("directionalLight.color.specular", directionalLightSpec);
-  mengerSpongeShader.setUniform("directionalLight.direction", directionalLightDir);
+  cubeShader->use();
+  cubeShader->setUniform("projection", projectionMat);
+  cubeShader->setUniform("material.diffTexture", 0);
+  cubeShader->setUniform("material.specTexture", 1);
+  cubeShader->setUniform("material.shininess", 16.0f);
+  cubeShader->setUniform("directionalLight.color.ambient", directionalLightAmb);
+  cubeShader->setUniform("directionalLight.color.diffuse", directionalLightDiff);
+  cubeShader->setUniform("directionalLight.color.specular", directionalLightSpec);
+  cubeShader->setUniform("directionalLight.direction", directionalLightDir);
 
-  cubeShader.use();
-  cubeShader.setUniform("projection", projectionMat);
-  cubeShader.setUniform("material.diffTexture", 0);
-  cubeShader.setUniform("material.specTexture", 1);
-  cubeShader.setUniform("material.shininess", 16.0f);
-  cubeShader.setUniform("directionalLight.color.ambient", directionalLightAmb);
-  cubeShader.setUniform("directionalLight.color.diffuse", directionalLightDiff);
-  cubeShader.setUniform("directionalLight.color.specular", directionalLightSpec);
-  cubeShader.setUniform("directionalLight.direction", directionalLightDir);
+//  pixel2DShader->use();
+//  pixel2DShader->setUniform("windowDimens", glm::vec2(currentResolution.width, currentResolution.height));
+//  pixel2DShader->setUniform("lowerLeftOffset", glm::vec2((currentResolution.width / 2) - 16.0, (currentResolution.height / 2) - 16.0));
+//  pixel2DShader->setUniform("spriteDimens", glm::vec2(textureWidth, textureHeight));
 
-//  pixel2DShader.use();
-//  pixel2DShader.setUniform("windowDimens", glm::vec2(currentResolution.width, currentResolution.height));
-//  pixel2DShader.setUniform("lowerLeftOffset", glm::vec2((currentResolution.width / 2) - 16.0, (currentResolution.height / 2) - 16.0));
-//  pixel2DShader.setUniform("spriteDimens", glm::vec2(textureWidth, textureHeight));
-
-  glBindVertexArray(quadVAO);
-
-  camera.Position = glm::vec3(0.0f, 1.0f, 30.0f);
+  glBindVertexArray(quadVertexAtt.arrayObject);
 
   lastFrame = (float32)glfwGetTime();
-  float32 startTime = lastFrame;
+  startTime = lastFrame;
 
   // background clear color
   glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
@@ -114,73 +86,93 @@ void MengerSpongeScene::renderLoop(uint32 quadVAO, uint32 cubeVAO)
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-  const float32 frameTime = 0.2f;
-  int32 numSamples = 1;
-
   // NOTE: the viewport dictates the area of the bound
   glViewport(0, 0, currentResolution.width, currentResolution.height);
+}
 
-  // NOTE: render/game loop
-  while (glfwWindowShouldClose(window) == GL_FALSE)
-  {
-    // Start the Dear ImGui frame
-    ImGui_ImplOpenGL3_NewFrame();
-    ImGui_ImplGlfw_NewFrame();
-    ImGui::NewFrame();
+void MengerSpongeScene::deinit()
+{
+  GodModeScene::deinit();
 
-    if (showDebugWindows){
-      //ImGui::ShowDemoWindow(&showDebugWindows);
+  mengerSpongeShader->deleteShaderResources();
+  pixel2DShader->deleteShaderResources();
+  cubeShader->deleteShaderResources();
+  delete mengerSpongeShader;
+  delete pixel2DShader;
+  delete cubeShader;
 
-      ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.50f);
-      // Simplified Settings (expose floating-pointer border sizes as boolean representing 0.0f or 1.0f)
-      if (ImGui::SliderInt("Supersamples", &numSamples, 1, 8)) {}
-      ImGui::PopItemWidth();
-    }
+  VertexAtt deleteVertexAttributes[] = { quadVertexAtt, cubeVertexAtt };
+  deleteVertexAtts(ArrayCount(deleteVertexAttributes), deleteVertexAttributes);
 
-    float32 t = (float32)glfwGetTime() - startTime;
-    deltaTime = t - lastFrame;
-    lastFrame = t;
+  deleteFrameBuffer(dynamicResolutionFBO);
 
-    if(((uint32)(t / frameTime) % 2) == 0) {
-      cubeShader.setUniform("material.diffTexture", 0);
-      cubeShader.setUniform("material.specTexture", 1);
-    } else {
-      cubeShader.setUniform("material.diffTexture", 2);
-      cubeShader.setUniform("material.specTexture", 3);
-    }
+  uint32 deleteTextures[] = { textureDiff1Id, textureSpec1Id, textureDiff2Id, textureSpec2Id };
+  glDeleteTextures(ArrayCount(deleteTextures), deleteTextures);
 
-    // Auto run forward
+  glfwSetInputMode(window, GLFW_CURSOR, originalCursorInputMode);
+}
+
+void MengerSpongeScene::drawFrame()
+{
+  GodModeScene::drawFrame();
+
+  // Start the Dear ImGui frame
+  ImGui_ImplOpenGL3_NewFrame();
+  ImGui_ImplGlfw_NewFrame();
+  ImGui::NewFrame();
+
+  if (showDebugWindows){
+    //ImGui::ShowDemoWindow(&showDebugWindows);
+
+    ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.50f);
+    // Simplified Settings (expose floating-pointer border sizes as boolean representing 0.0f or 1.0f)
+    if (ImGui::SliderInt("Supersamples", &numSamples, 1, 8)) {}
+    ImGui::PopItemWidth();
+  }
+
+  float32 t = (float32)glfwGetTime() - startTime;
+  deltaTime = t - lastFrame;
+  lastFrame = t;
+
+  if(((uint32)(t / frameTime) % 2) == 0) {
+    cubeShader->setUniform("material.diffTexture", 0);
+    cubeShader->setUniform("material.specTexture", 1);
+  } else {
+    cubeShader->setUniform("material.diffTexture", 2);
+    cubeShader->setUniform("material.specTexture", 3);
+  }
+
+  // Auto run forward
 //    glm::vec3 deltaCameraPos = camera.Front;
 //    deltaCameraPos *= 0.07;
 //    camera.Position += deltaCameraPos;
-    glm::mat4 cameraMat = camera.GetViewMatrix(deltaTime);
+  glm::mat4 cameraMat = camera.GetViewMatrix(deltaTime);
 
-    // bind our frame buffer
-    glBindFramebuffer(GL_FRAMEBUFFER, dynamicResolutionFBO.id);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  // bind our frame buffer
+  glBindFramebuffer(GL_FRAMEBUFFER, dynamicResolutionFBO.id);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    mengerSpongeShader.use();
-    glBindVertexArray(quadVAO);
+  mengerSpongeShader->use();
+  glBindVertexArray(quadVertexAtt.arrayObject);
 
-    if(mengerSpongeShader.updateFragmentShaderIfOutdated()) {
-      mengerSpongeShader.use();
-      mengerSpongeShader.setUniform("viewPortResolution", glm::vec2(currentResolution.width, currentResolution.height));
-      mengerSpongeShader.setUniform("directionalLight.color.ambient", directionalLightAmb);
-      mengerSpongeShader.setUniform("directionalLight.color.diffuse", directionalLightDiff);
-      mengerSpongeShader.setUniform("directionalLight.color.specular", directionalLightSpec);
-      mengerSpongeShader.setUniform("directionalLight.direction", directionalLightDir);
-    }
+  if(mengerSpongeShader->updateFragmentShaderIfOutdated()) {
+    mengerSpongeShader->use();
+    mengerSpongeShader->setUniform("viewPortResolution", glm::vec2(currentResolution.width, currentResolution.height));
+    mengerSpongeShader->setUniform("directionalLight.color.ambient", directionalLightAmb);
+    mengerSpongeShader->setUniform("directionalLight.color.diffuse", directionalLightDiff);
+    mengerSpongeShader->setUniform("directionalLight.color.specular", directionalLightSpec);
+    mengerSpongeShader->setUniform("directionalLight.direction", directionalLightDir);
+  }
 
-    mengerSpongeShader.setUniform("rayOrigin", camera.Position);
-    mengerSpongeShader.setUniform("elapsedTime", t);
-    mengerSpongeShader.setUniform("view", cameraMat);
-    mengerSpongeShader.setUniform("projection", projectionMat);
-    mengerSpongeShader.setUniform("cameraPos", camera.Position);
-    mengerSpongeShader.setUniform("numSamples", numSamples);
-    glDrawElements(GL_TRIANGLES, // drawing mode
-                   6, // number of elements to draw (3 vertices per triangle * 2 triangles per quad)
-                   GL_UNSIGNED_INT, // type of the indices
-                   0 /* offset in the EBO */);
+  mengerSpongeShader->setUniform("rayOrigin", camera.Position);
+  mengerSpongeShader->setUniform("elapsedTime", t);
+  mengerSpongeShader->setUniform("view", cameraMat);
+  mengerSpongeShader->setUniform("cameraPos", camera.Position);
+  mengerSpongeShader->setUniform("numSamples", numSamples);
+  glDrawElements(GL_TRIANGLES, // drawing mode
+                 6, // number of elements to draw (3 vertices per triangle * 2 triangles per quad)
+                 GL_UNSIGNED_INT, // type of the indices
+                 0 /* offset in the EBO */);
 
 //    static uint32 numSnapshots = 0;
 //    if(numSnapshots < 1) {
@@ -188,41 +180,38 @@ void MengerSpongeScene::renderLoop(uint32 quadVAO, uint32 cubeVAO)
 //      ++numSnapshots;
 //    }
 
-    glm::mat4 cubeModel;
-    cubeModel = glm::scale(cubeModel, glm::vec3(cubeScale));
-    cubeModel = glm::translate(cubeModel, cubePos);
-    cubeModel = glm::rotate(cubeModel, t * glm::radians(20.0f), cubeRotAxis);
+  glm::mat4 cubeModel;
+  cubeModel = glm::scale(cubeModel, glm::vec3(cubeScale));
+  cubeModel = glm::translate(cubeModel, cubePos);
+  cubeModel = glm::rotate(cubeModel, t * glm::radians(20.0f), cubeRotAxis);
 
-    cubeShader.use();
-    cubeShader.setUniform("model", cubeModel);
-    cubeShader.setUniform("view", cameraMat);
-    cubeShader.setUniform("cameraPos", camera.Position);
+  cubeShader->use();
+  cubeShader->setUniform("model", cubeModel);
+  cubeShader->setUniform("view", cameraMat);
+  cubeShader->setUniform("cameraPos", camera.Position);
 
-    glBindVertexArray(cubeVAO);
-    glDrawElements(GL_TRIANGLES, // drawing mode
-                   cubePosNormTexNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
-                   GL_UNSIGNED_INT, // type of the indices
-                   0); // offset in the EBO
-    glBindVertexArray(0);
+  glBindVertexArray(cubeVertexAtt.arrayObject);
+  glDrawElements(GL_TRIANGLES, // drawing mode
+                 cubePosNormTexNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
+                 GL_UNSIGNED_INT, // type of the indices
+                 0); // offset in the EBO
+  glBindVertexArray(0);
 
-//    pixel2DShader.use();
+//    pixel2DShader->use();
 //    glDrawElements(GL_TRIANGLES, // drawing mode
 //                   6, // number of elements to draw (3 vertices per triangle * 2 triangles per quad)
 //                   GL_UNSIGNED_INT, // type of the indices
 //                   0); // offset in the EBO
 
-    // bind our frame buffer
-    //NOTE: dynamicResolutionFBO is already bound to GL_READ_FRAMEBUFFER
-    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-    glBlitFramebuffer(0, 0, currentResolution.width, currentResolution.height, 0, 0, windowWidth, windowHeight, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+  // bind our frame buffer
+  //NOTE: dynamicResolutionFBO is already bound to GL_READ_FRAMEBUFFER
+  glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+  glBlitFramebuffer(0, 0, currentResolution.width, currentResolution.height, 0, 0, windowWidth, windowHeight, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+  glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
 
-    // Rendering ImGui
-    ImGui::Render();
-    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
-    glfwSwapBuffers(window); // swaps double buffers (call after all render commands are completed)
-    glfwPollEvents(); // checks for events (ex: keyboard/mouse input)
-  }
+  // Rendering ImGui
+  ImGui::Render();
+  ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
 void MengerSpongeScene::framebufferSizeChange(uint32 width, uint32 height)
@@ -241,12 +230,12 @@ void MengerSpongeScene::key_E_pressed() {
 
   glViewport(0, 0, currentResolution.width, currentResolution.height);
 
-  mengerSpongeShader.use();
-  mengerSpongeShader.setUniform("viewPortResolution", glm::vec2(currentResolution.width, currentResolution.height));
+  mengerSpongeShader->use();
+  mengerSpongeShader->setUniform("viewPortResolution", glm::vec2(currentResolution.width, currentResolution.height));
 
-  pixel2DShader.use();
-  pixel2DShader.setUniform("windowDimens", glm::vec2(currentResolution.width, currentResolution.height));
-  pixel2DShader.setUniform("lowerLeftOffset", glm::vec2((currentResolution.width / 2) - 16.0, (currentResolution.height / 2) - 16.0));
+  pixel2DShader->use();
+  pixel2DShader->setUniform("windowDimens", glm::vec2(currentResolution.width, currentResolution.height));
+  pixel2DShader->setUniform("lowerLeftOffset", glm::vec2((currentResolution.width / 2) - 16.0, (currentResolution.height / 2) - 16.0));
 }
 
 void MengerSpongeScene::key_Q_pressed() {
@@ -258,12 +247,12 @@ void MengerSpongeScene::key_Q_pressed() {
 
   glViewport(0, 0, currentResolution.width, currentResolution.height);
 
-  mengerSpongeShader.use();
-  mengerSpongeShader.setUniform("viewPortResolution", glm::vec2(currentResolution.width, currentResolution.height));
+  mengerSpongeShader->use();
+  mengerSpongeShader->setUniform("viewPortResolution", glm::vec2(currentResolution.width, currentResolution.height));
 
-  pixel2DShader.use();
-  pixel2DShader.setUniform("windowDimens", glm::vec2(currentResolution.width, currentResolution.height));
-  pixel2DShader.setUniform("lowerLeftOffset", glm::vec2((currentResolution.width / 2) - 16.0, (currentResolution.height / 2) - 16.0));
+  pixel2DShader->use();
+  pixel2DShader->setUniform("windowDimens", glm::vec2(currentResolution.width, currentResolution.height));
+  pixel2DShader->setUniform("lowerLeftOffset", glm::vec2((currentResolution.width / 2) - 16.0, (currentResolution.height / 2) - 16.0));
 }
 
 void MengerSpongeScene::key_Tab_pressed() {

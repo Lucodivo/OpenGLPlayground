@@ -2,10 +2,10 @@
 // Created by Connor on 11/21/2019.
 //
 
-#ifndef LEARNOPENGL_MENGERSPONGESCENE_H
-#define LEARNOPENGL_MENGERSPONGESCENE_H
+#pragma once
 
 #include "../GodModeScene.h"
+#include "../../common/ObjectData.h"
 
 struct resolution {
   uint32 width;
@@ -25,7 +25,6 @@ class MengerSpongeScene final : public GodModeScene {
 public:
   MengerSpongeScene(GLFWwindow* window);
 
-  void runScene() override;
   void init(uint32 windowWidth, uint32 windowHeight);
   void deinit();
   void drawFrame();
@@ -39,9 +38,13 @@ public:
 
 private:
 
-  Shader mengerSpongeShader;
-  Shader pixel2DShader;
-  Shader cubeShader;
+  Shader* mengerSpongeShader = NULL;
+  Shader* pixel2DShader = NULL;
+  Shader* cubeShader = NULL;
+
+  VertexAtt quadVertexAtt = {};
+  VertexAtt cubeVertexAtt = {};
+  Framebuffer dynamicResolutionFBO = {};
 
   uint32 textureDiff1Id;
   uint32 textureSpec1Id;
@@ -53,14 +56,24 @@ private:
 
   bool showDebugWindows = true;
 
+  float32 startTime = 0;
   float32 deltaTime = 0;
   float32 lastFrame = 0;
 
-  void renderLoop(uint32 quadVAO, uint32 cubeVAO);
-
   uint32 currentResolutionIndex = 0;
   resolution currentResolution = screenResolutions[currentResolutionIndex];
+
+  int32 numSamples = 1;
+
+  const float cubeScale = 10.0f;
+  const float32 frameTime = 0.2f;
+
+  const glm::vec3 directionalLightAmb = glm::vec3(0.15, 0.15, 0.15);
+  const glm::vec3 directionalLightDiff = glm::vec3(0.6, 0.6, 0.6);
+  const glm::vec3 directionalLightSpec = glm::vec3(0.8, 0.8, 0.8);
+  const glm::vec3 directionalLightDir = glm::vec3(1.0, -1.0, -1.0);
+  const glm::vec3 cubePos = glm::vec3(0.0, 0.0, 0.0);
+  const glm::vec3 cubeRotAxis = glm::vec3(1.0, 1.0, -1.0);
+
+  int32 originalCursorInputMode = GLFW_CURSOR_DISABLED;
 };
-
-
-#endif //LEARNOPENGL_MENGERSPONGESCENE_H
