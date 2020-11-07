@@ -46,8 +46,8 @@ enum Mode
 };
 Mode currMode = None;
 
-ReflectRefractScene::ReflectRefractScene(GLFWwindow* window)
-        : FirstPersonScene(window) {
+ReflectRefractScene::ReflectRefractScene() : FirstPersonScene()
+{
   camera.Position = glm::vec3(0.0f, 0.0f, 7.0f);
 }
 

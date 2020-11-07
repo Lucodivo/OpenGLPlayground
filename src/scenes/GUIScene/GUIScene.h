@@ -28,6 +28,8 @@ public:
   void mouseMovement(float32 xOffset, float32 yOffset);
 
 private:
+  GLFWwindow* window = NULL;
+
   bool cursorMode = false;
 
   Shader* cubeShader;

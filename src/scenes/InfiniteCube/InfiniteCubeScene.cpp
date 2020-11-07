@@ -6,7 +6,8 @@
 const uint32 framebufferTextureIndex = 0;
 const uint32 outlineTextureIndex = 1;
 
-InfiniteCubeScene::InfiniteCubeScene(GLFWwindow* window): FirstPersonScene(window) {}
+InfiniteCubeScene::InfiniteCubeScene(): FirstPersonScene()
+{}
 
 void InfiniteCubeScene::init(uint32 windowWidth, uint32 windowHeight)
 {

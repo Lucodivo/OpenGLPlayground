@@ -17,16 +17,14 @@ struct Character
 class Scene : public KeyboardConsumer
 {
 public:
-  Scene(GLFWwindow* window);
+  Scene();
   virtual void framebufferSizeChange(uint32 width, uint32 height);
   virtual void init(uint32 windowWidth, uint32 windowHeight);
-  virtual void deinit(){} // de-initializes scene
-  virtual void drawFrame(){} // draws scene to back buffer
+  virtual void deinit() {} // de-initializes scene
+  virtual void drawFrame() {} // draws scene to back buffer
   void renderText(std::string text, GLfloat x, GLfloat y, GLfloat scale, glm::vec3 color);
 
 protected:
-  // TODO: Remove GLFWwindow from Scene?
-  GLFWwindow* window;
   uint32 windowWidth = 0;
   uint32 windowHeight = 0;
 

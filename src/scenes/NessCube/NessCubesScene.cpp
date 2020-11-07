@@ -35,7 +35,7 @@ const float32 cubeScales[] = {
 };
 // ===== cube values =====
 
-NessCubesScene::NessCubesScene(GLFWwindow* window): FirstPersonScene(window)
+NessCubesScene::NessCubesScene(): FirstPersonScene()
 {
   camera.Position = glm::vec3(0.0f, 0.0f, 6.0f);
 }

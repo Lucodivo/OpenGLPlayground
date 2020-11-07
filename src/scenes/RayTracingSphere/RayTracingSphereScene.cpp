@@ -7,8 +7,8 @@
 #include "../../common/ObjectData.h"
 #include "../../common/Util.h"
 
-RayTracingSphereScene::RayTracingSphereScene(GLFWwindow* window)
-        : GodModeScene(window) {
+RayTracingSphereScene::RayTracingSphereScene() : GodModeScene()
+{
   camera.Position = glm::vec3(0.0f, 1.0f, 10.0f);
 }
 

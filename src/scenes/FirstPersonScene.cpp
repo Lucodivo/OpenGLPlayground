@@ -1,6 +1,6 @@
 #include "FirstPersonScene.h"
 
-FirstPersonScene::FirstPersonScene(GLFWwindow* window): Scene(window) {}
+FirstPersonScene::FirstPersonScene() : Scene(){}
 
 void FirstPersonScene::init(uint32 windowWidth, uint32 windowHeight)
 {

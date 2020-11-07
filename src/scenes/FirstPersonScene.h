@@ -6,7 +6,7 @@
 class FirstPersonScene : public Scene, public ControllerConsumer, public MouseConsumer
 {
 public:
-  FirstPersonScene(GLFWwindow* window);
+  FirstPersonScene();
 
   // Scene implementation required
   virtual void init(uint32 windowWidth, uint32 windowHeight);

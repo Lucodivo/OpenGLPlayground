@@ -11,7 +11,7 @@
 class ReflectRefractScene final : public FirstPersonScene
 {
 public:
-  ReflectRefractScene(GLFWwindow* window);
+  ReflectRefractScene();
   void init(uint32 windowWidth, uint32 windowHeight);
   void deinit();
   void drawFrame();

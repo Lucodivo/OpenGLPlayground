@@ -7,8 +7,8 @@
 #include "../../common/ObjectData.h"
 #include "../../common/Util.h"
 
-Pixel2DScene::Pixel2DScene(GLFWwindow* window)
-  : Scene(window){}
+Pixel2DScene::Pixel2DScene() : Scene()
+{}
 
 void Pixel2DScene::init(uint32 windowWidth, uint32 windowHeight)
 {

@@ -6,8 +6,8 @@
 const uint32 SHADOW_MAP_WIDTH = 2048;
 const uint32 SHADOW_MAP_HEIGHT = 2048;
 
-RoomScene::RoomScene(GLFWwindow* window)
-        : GodModeScene(window) {
+RoomScene::RoomScene() : GodModeScene()
+{
   camera.Position = glm::vec3(0.0f, 5.0f, 30.0f);
 }
 

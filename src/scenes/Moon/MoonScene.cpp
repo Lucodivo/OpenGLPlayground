@@ -6,8 +6,8 @@
 const uint32 SHADOW_MAP_WIDTH = 2048;
 const uint32 SHADOW_MAP_HEIGHT = 2048;
 
-MoonScene::MoonScene(GLFWwindow* window)
-        : GodModeScene(window) {
+MoonScene::MoonScene() : GodModeScene()
+{
   // TODO: Implement a nicer way to position the camera and direction in the Camera class?
   camera.Position = glm::vec3(-15.0f, 7.0f, -15.0f);
   camera.Front = glm::normalize(-camera.Position);

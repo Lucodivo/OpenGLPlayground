@@ -6,7 +6,8 @@
 #include "../../common/FileLocations.h"
 #include "../../common/Util.h"
 
-InfiniteCapsulesScene::InfiniteCapsulesScene(GLFWwindow* window): GodModeScene(window) {
+InfiniteCapsulesScene::InfiniteCapsulesScene(): GodModeScene()
+{
   camera.Position = glm::vec3(0.0f, 1.0f, 0.0f);
 }
 

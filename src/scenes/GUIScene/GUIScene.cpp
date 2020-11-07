@@ -10,8 +10,8 @@
 const glm::vec3 startingBoundingBoxMin = glm::vec3(-1.0f, -1.0f, -1.0f);
 const glm::vec3 startingBoundingBoxMax = glm::vec3(1.0f, 1.0f, 1.0f);
 
-GUIScene::GUIScene(GLFWwindow* window)
-      : FirstPersonScene(window) {
+GUIScene::GUIScene(GLFWwindow* window): FirstPersonScene(), window(window)
+{
   camera.Position += glm::vec3(0.0f, 0.0f, 4.0f);
 }
 

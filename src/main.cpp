@@ -10,7 +10,7 @@
 
 #include "main.h"
 #include "common/Input.h"
-#include "scenes/Scenes.h"
+#include "scenes/SceneManager.h"
 
 #define MULTI_SAMPLING_ON true
 

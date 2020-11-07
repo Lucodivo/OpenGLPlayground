@@ -6,8 +6,8 @@
 #include "../../common/FileLocations.h"
 #include "../../common/ObjectData.h"
 
-MandelbrotScene::MandelbrotScene(GLFWwindow* window)
-        : FirstPersonScene(window){} /* TODO: only first person due to input consumers, change? */
+/* TODO: only first person due to input consumers, change? */
+MandelbrotScene::MandelbrotScene(GLFWwindow* window): FirstPersonScene(), window(window) {}
 
 void MandelbrotScene::init(uint32 windowWidth, uint32 windowHeight)
 {

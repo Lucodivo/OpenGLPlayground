@@ -6,7 +6,7 @@
 #include FT_FREETYPE_H
 #include <iostream>
 
-Scene::Scene(GLFWwindow* window): window(window), textDebugShader(textVertexShaderFileLoc, textFragmentShaderFileLoc)
+Scene::Scene() : textDebugShader(textVertexShaderFileLoc, textFragmentShaderFileLoc)
 {
   initDebugTextCharacters();
   initDebugTextBuffers();

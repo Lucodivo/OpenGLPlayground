@@ -6,7 +6,7 @@
 class GodModeScene : public FirstPersonScene
 {
 public:
-  GodModeScene(GLFWwindow* window);
+  GodModeScene();
 
   // ControllerConsumer implementation
   void button_B_pressed();

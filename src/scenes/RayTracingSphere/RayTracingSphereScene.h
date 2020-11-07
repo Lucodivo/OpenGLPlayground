@@ -10,7 +10,7 @@
 
 class RayTracingSphereScene final : public GodModeScene {
 public:
-  RayTracingSphereScene(GLFWwindow* window);
+  RayTracingSphereScene();
   void init(uint32 windowWidth, uint32 windowHeight);
   void deinit();
   void drawFrame();

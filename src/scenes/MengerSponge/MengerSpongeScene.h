@@ -38,6 +38,8 @@ public:
 
 private:
 
+  GLFWwindow* window = NULL;
+
   Shader* mengerSpongeShader = NULL;
   Shader* pixel2DShader = NULL;
   Shader* cubeShader = NULL;

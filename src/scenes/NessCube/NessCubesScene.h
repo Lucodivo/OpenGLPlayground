@@ -12,7 +12,7 @@
 class NessCubesScene final : public FirstPersonScene
 {
 public:
-  NessCubesScene(GLFWwindow* window);
+  NessCubesScene();
 
   // FrameBufferSizeConsumer override
   void framebufferSizeChange(uint32 width, uint32 height) override;

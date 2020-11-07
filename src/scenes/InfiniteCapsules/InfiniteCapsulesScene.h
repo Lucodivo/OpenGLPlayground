@@ -11,7 +11,7 @@
 
 class InfiniteCapsulesScene final : public GodModeScene {
 public:
-  InfiniteCapsulesScene(GLFWwindow* window);
+  InfiniteCapsulesScene();
 
   // FrameBufferSizeConsumer override
   void framebufferSizeChange(uint32 width, uint32 height);

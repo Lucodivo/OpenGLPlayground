@@ -10,8 +10,8 @@
 #include "../../common/ObjectData.h"
 #include "../../common/Util.h"
 
-MengerSpongeScene::MengerSpongeScene(GLFWwindow* window)
-        : GodModeScene(window) {
+MengerSpongeScene::MengerSpongeScene(GLFWwindow* window): GodModeScene(), window(window)
+{
   camera.Position = glm::vec3(0.0f, 1.0f, 30.0f);
 }
 

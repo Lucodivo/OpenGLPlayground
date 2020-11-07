@@ -6,7 +6,7 @@
 class RoomScene : public GodModeScene
 {
 public:
-  RoomScene(GLFWwindow* window);
+  RoomScene();
   void init(uint32 windowWidth, uint32 windowHeight);
   void deinit();
   void drawFrame();

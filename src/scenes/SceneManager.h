@@ -21,18 +21,18 @@ void runScenes(GLFWwindow* window) {
   uint32 windowHeight = VIEWPORT_INIT_HEIGHT;
 
   uint32 sceneIndex = 0;
-  NessCubesScene nessCubeScene = NessCubesScene(window);
-  InfiniteCapsulesScene infiniteCapsulesScene = InfiniteCapsulesScene(window);
-  InfiniteCubeScene infiniteCubeScene = InfiniteCubeScene(window);
-  AsteroidBeltScene asteroidBeltScene = AsteroidBeltScene(window);
+  NessCubesScene nessCubeScene = NessCubesScene();
+  InfiniteCapsulesScene infiniteCapsulesScene = InfiniteCapsulesScene();
+  InfiniteCubeScene infiniteCubeScene = InfiniteCubeScene();
+  AsteroidBeltScene asteroidBeltScene = AsteroidBeltScene();
   MandelbrotScene mandelbrotScene = MandelbrotScene(window);
-  RayTracingSphereScene rayTracingSphereScene = RayTracingSphereScene(window);
+  RayTracingSphereScene rayTracingSphereScene = RayTracingSphereScene();
   MengerSpongeScene mengerSpongeScene = MengerSpongeScene(window);
-  MoonScene moonScene = MoonScene(window);
-  RoomScene roomScene = RoomScene(window);
-  ReflectRefractScene reflectRefractScene = ReflectRefractScene(window);
+  MoonScene moonScene = MoonScene();
+  RoomScene roomScene = RoomScene();
+  ReflectRefractScene reflectRefractScene = ReflectRefractScene();
   GUIScene guiScene = GUIScene(window);
-  //Pixel2DScene pixel2DScene = Pixel2DScene(window);
+  //Pixel2DScene pixel2DScene = Pixel2DScene();
   Scene* scenes[] = { &mengerSpongeScene, &rayTracingSphereScene, &mandelbrotScene, &infiniteCubeScene,
                       &infiniteCapsulesScene, &roomScene, &guiScene, &moonScene, &asteroidBeltScene,
                       &reflectRefractScene, &nessCubeScene };

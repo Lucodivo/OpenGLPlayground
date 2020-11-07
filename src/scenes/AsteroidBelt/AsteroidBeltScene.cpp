@@ -4,8 +4,8 @@
 #include "../../common/Util.h"
 #include "../../common/ObjectData.h"
 
-AsteroidBeltScene::AsteroidBeltScene(GLFWwindow* window)
-        : FirstPersonScene(window) {
+AsteroidBeltScene::AsteroidBeltScene() : FirstPersonScene()
+{
   camera.Position = glm::vec3(0.0f, 0.0f, 50.0f);
 }
 
