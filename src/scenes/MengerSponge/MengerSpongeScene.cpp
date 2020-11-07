@@ -20,7 +20,7 @@ void MengerSpongeScene::init(uint32 windowWidth, uint32 windowHeight)
   GodModeScene::init(windowWidth, windowHeight);
 
   originalCursorInputMode =  glfwGetInputMode(window, GLFW_CURSOR); // TODO: is this actually helpful?
-  glfwSetInputMode(window, GLFW_CURSOR, showDebugWindows ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_HIDDEN);
+  glfwSetInputMode(window, GLFW_CURSOR, showDebugWindows ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED);
 
   mengerSpongeShader = new Shader(UVCoordVertexShaderFileLoc, MengerSpongeFragmentShaderFileLoc);
   pixel2DShader = new Shader(pixel2DVertexShaderFileLoc, textureFragmentShaderFileLoc);

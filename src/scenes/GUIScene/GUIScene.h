@@ -2,15 +2,15 @@
 // Created by Connor on 10/24/2019.
 //
 
-#ifndef LEARNOPENGL_GUISCENE_H
-#define LEARNOPENGL_GUISCENE_H
+#pragma once
 
 #include "../FirstPersonScene.h"
+#include "../../common/ObjectData.h"
 
 const uint32 numCubes = 3;
 
 struct Cube {
-  bool wireframe;
+  bool wireframe = false;
   glm::vec3 worldPos;
   glm::vec3 boundingBoxMin;
   glm::vec3 boundingBoxMax;
@@ -19,23 +19,22 @@ struct Cube {
 class GUIScene final : public FirstPersonScene {
 public:
   GUIScene(GLFWwindow* window);
-
-  void runScene() override;
   void init(uint32 windowWidth, uint32 windowHeight);
   void deinit();
   void drawFrame();
 
-  void key_Tab_pressed() override;
-  void key_LeftMouseButton_pressed(float32 xPos, float32 yPos) override;
-  void key_RightMouseButton_pressed(float32 xPos, float32 yPos) override;
-  void mouseMovement(float32 xOffset, float32 yOffset) override;
+  void key_E_pressed();
+  void key_LeftMouseButton_pressed(float32 xPos, float32 yPos);
+  void mouseMovement(float32 xOffset, float32 yOffset);
 
 private:
   bool cursorMode = false;
-  bool displayMouseClick = false;
 
-  Shader cubeShader;
+  Shader* cubeShader;
 
+  VertexAtt cubeVertexAtt;
+
+  float32 startTime = 0;
   float32 deltaTime = 0;
   float32 lastFrame = 0;
 
@@ -44,12 +43,13 @@ private:
   glm::mat4 viewMat;
 
   Cube cubes[numCubes];
+  glm::mat4 cubeModelMats[3];
 
-  void renderLoop(uint32 cubeVAO);
+  const glm::vec3 cubeColor = { 0.8f, 0.0f, 0.0f };
+  const glm::vec3 wireFrameColor = { 0.0f, 0.0f, 0.0f };
+
+  int32 originalCursorMode = GLFW_CURSOR_DISABLED;
 
   void checkMouseClickCollision(float32 mouseX, float32 mouseY);
   bool checkCubeCollision(glm::vec3* worldRay, glm::vec3* rayOrigin, Cube* cube);
 };
-
-
-#endif //LEARNOPENGL_GUISCENE_H

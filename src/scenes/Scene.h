@@ -22,7 +22,6 @@ public:
   virtual void init(uint32 windowWidth, uint32 windowHeight);
   virtual void deinit(){} // de-initializes scene
   virtual void drawFrame(){} // draws scene to back buffer
-  virtual void runScene(){}; // TODO: Delete
   void renderText(std::string text, GLfloat x, GLfloat y, GLfloat scale, glm::vec3 color);
 
 protected:

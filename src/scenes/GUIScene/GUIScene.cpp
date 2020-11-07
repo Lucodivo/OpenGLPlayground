@@ -11,59 +11,41 @@ const glm::vec3 startingBoundingBoxMin = glm::vec3(-1.0f, -1.0f, -1.0f);
 const glm::vec3 startingBoundingBoxMax = glm::vec3(1.0f, 1.0f, 1.0f);
 
 GUIScene::GUIScene(GLFWwindow* window)
-      : FirstPersonScene(window),
-        cubeShader(posVertexShaderFileLoc, singleColorFragmentShaderFileLoc),
-        cursorMode(glfwGetInputMode(window, GLFW_CURSOR) == GLFW_CURSOR_NORMAL) {}
+      : FirstPersonScene(window) {
+  camera.Position += glm::vec3(0.0f, 0.0f, 4.0f);
+}
 
 void GUIScene::init(uint32 windowWidth, uint32 windowHeight)
 {
   FirstPersonScene::init(windowWidth, windowHeight);
-}
 
-void GUIScene::deinit()
-{
-  FirstPersonScene::deinit();
-}
+  // TODO: rethink this cursor logic?
+  originalCursorMode = glfwGetInputMode(window, GLFW_CURSOR);
+  glfwSetInputMode(window, GLFW_CURSOR, cursorMode ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED);
+  
+  cubeShader = new Shader(posVertexShaderFileLoc, singleColorFragmentShaderFileLoc);
 
-void GUIScene::drawFrame()
-{
-  FirstPersonScene::drawFrame();
-}
-
-void GUIScene::runScene()
-{
-  VertexAtt cubeVertexAtt = initializeCubePositionVertexAttBuffers();
-
-  renderLoop(cubeVertexAtt.arrayObject);
-
-  deleteVertexAtt(cubeVertexAtt);
-}
-
-void GUIScene::renderLoop(uint32 cubeVAO)
-{
+  cubeVertexAtt = initializeCubePositionVertexAttBuffers();
+  
   projectionMat = glm::perspective(glm::radians(camera.Zoom), (float32)windowWidth / (float32)windowHeight, 0.1f, 100.0f);
-  const glm::vec3 cubeColor = glm::vec3(0.8f, 0.0f, 0.0f);
-  const glm::vec3 wireFrameColor = glm::vec3(0.0f, 0.0f, 0.0f);
 
-  cubes[0].wireframe = false;
   cubes[0].worldPos = glm::vec3(3.0f, 0.0f, 0.0f);
   cubes[0].boundingBoxMin = startingBoundingBoxMin + cubes[0].worldPos;
   cubes[0].boundingBoxMax = startingBoundingBoxMax + cubes[0].worldPos;
-  cubes[1].wireframe = false;
   cubes[1].worldPos = glm::vec3(-3.0f, 0.0f, 0.0f);
   cubes[1].boundingBoxMin = startingBoundingBoxMin + cubes[1].worldPos;
   cubes[1].boundingBoxMax = startingBoundingBoxMax + cubes[1].worldPos;
-  cubes[2].wireframe = false;
   cubes[2].worldPos = glm::vec3(0.0f, 0.0f, -3.0f);
   cubes[2].boundingBoxMin = startingBoundingBoxMin + cubes[2].worldPos;
   cubes[2].boundingBoxMax = startingBoundingBoxMax + cubes[2].worldPos;
 
-  glm::mat4 cubeModelMats[3];
+  cubeModelMats[0] = glm::translate(glm::mat4(), cubes[0].worldPos);
+  cubeModelMats[1] = glm::translate(glm::mat4(), cubes[1].worldPos);
+  cubeModelMats[2] = glm::translate(glm::mat4(), cubes[2].worldPos);
 
   // set constant uniforms
-  cubeShader.use();
-  cubeShader.setUniform("projection", projectionMat);
-  cubeShader.setUniform("color", cubeColor);
+  cubeShader->use();
+  cubeShader->setUniform("projection", projectionMat);
 
   glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 
@@ -71,81 +53,79 @@ void GUIScene::renderLoop(uint32 cubeVAO)
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   glLineWidth(3.0f);
+  
+  glBindVertexArray(cubeVertexAtt.arrayObject);
 
-  camera.Position += glm::vec3(0.0f, 0.0f, 4.0f);
+  startTime = (float32)glfwGetTime();
+}
 
-  // NOTE: render/game loop
-  float32 startTime = (float32)glfwGetTime();
-  while (glfwWindowShouldClose(window) == GL_FALSE)
+void GUIScene::deinit()
+{
+  FirstPersonScene::deinit();
+  
+  cubeShader->deleteShaderResources();
+  delete cubeShader;
+  
+  deleteVertexAtt(cubeVertexAtt);
+
+  glfwSetInputMode(window, GLFW_CURSOR, originalCursorMode);
+}
+
+void GUIScene::drawFrame()
+{
+  FirstPersonScene::drawFrame();
+  
+  float32 t = (float32) glfwGetTime() - startTime;
+  deltaTime = t - lastFrame;
+  lastFrame = t;
+
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+  viewMat = camera.GetViewMatrix(deltaTime);
+
+  // draw cubes
+  cubeShader->use();
+  cubeShader->setUniform("view", viewMat);
+  cubeShader->setUniform("color", cubeColor);
+  for(uint8 i = 0; i < numCubes; i++)
   {
-    float32 t = (float32) glfwGetTime() - startTime;
-    deltaTime = t - lastFrame;
-    lastFrame = t;
+    cubeShader->setUniform("model", cubeModelMats[i]);
 
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glDrawElements(GL_TRIANGLES, // drawing mode
+                   36, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
+                   GL_UNSIGNED_INT, // type of the indices
+                   0); // offset in the EBO
+  }
 
-    viewMat = camera.GetViewMatrix(deltaTime);
-
-    // draw cubes
-    cubeShader.use();
-    cubeShader.setUniform("view", viewMat);
-    cubeShader.setUniform("color", cubeColor);
-    for(uint8 i = 0; i < numCubes; i++)
-    {
-      cubeModelMats[i] = glm::translate(glm::mat4(), cubes[i].worldPos);
-      cubeShader.setUniform("model", cubeModelMats[i]);
-
-      glBindVertexArray(cubeVAO);
+  // draw wireframes on top
+  cubeShader->setUniform("color", wireFrameColor);
+  glDisable(GL_DEPTH_TEST);
+  glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+  for(uint32 i = 0; i < numCubes; i++)
+  {
+    if(cubes[i].wireframe) {
+      cubeShader->setUniform("model", cubeModelMats[i]);
+      glBindVertexArray(cubeVertexAtt.arrayObject);
       glDrawElements(GL_TRIANGLES, // drawing mode
                      36, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
                      GL_UNSIGNED_INT, // type of the indices
                      0); // offset in the EBO
     }
-
-    // draw wireframes on top
-    cubeShader.setUniform("color", wireFrameColor);
-    glDisable(GL_DEPTH_TEST);
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    for(uint32 i = 0; i < numCubes; i++)
-    {
-      if(cubes[i].wireframe) {
-        cubeShader.setUniform("model", cubeModelMats[i]);
-        glBindVertexArray(cubeVAO);
-        glDrawElements(GL_TRIANGLES, // drawing mode
-                       36, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
-                       GL_UNSIGNED_INT, // type of the indices
-                       0); // offset in the EBO
-      }
-    }
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    glEnable(GL_DEPTH_TEST);
-
-    if(displayMouseClick)
-    {
-      renderText(text, 25.0f, 25.0f, 1.0f, glm::vec3(1.0f, 0.0f, 0.0f));
-    }
-
-    glfwSwapBuffers(window); // swaps double buffers
-    glfwPollEvents(); // checks for events (ex: keyboard/mouse input)
   }
+  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+  glEnable(GL_DEPTH_TEST);
 }
 
-void GUIScene::key_Tab_pressed()
+void GUIScene::key_E_pressed()
 {
   cursorMode = !cursorMode;
+  // TODO: Cannot turn off input mode when I am trying to select a scene, think of alternative
   glfwSetInputMode(window, GLFW_CURSOR, cursorMode ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED);
 }
 
 void GUIScene::key_LeftMouseButton_pressed(float32 xPos, float32 yPos)
 {
-  displayMouseClick = true;
-  text = "Left click at: X = " + std::to_string(xPos) + ", Y = " + std::to_string(yPos);
   checkMouseClickCollision(xPos, yPos);
-}
-
-void GUIScene::key_RightMouseButton_pressed(float32 xPos, float32 yPos)
-{
-  displayMouseClick = false;
 }
 
 void GUIScene::mouseMovement(float32 xOffset, float32 yOffset)

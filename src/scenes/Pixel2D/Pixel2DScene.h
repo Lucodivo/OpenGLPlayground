@@ -2,6 +2,7 @@
 
 #include "../Scene.h"
 #include "../../common/Input.h"
+#include "../../common/ObjectData.h"
 
 class Pixel2DScene : public Scene
 {
@@ -11,14 +12,15 @@ public:
   void deinit();
   void drawFrame();
 
-  void runScene();
-
 private:
 
-  Shader pixel2DShader;
+  Shader* pixel2DShader;
 
+  VertexAtt quadVertexAtt;
+
+  uint32 textureId;
+
+  float32 startTime = 0.0f;
   float32 deltaTime = 0.0f;  // Time between current frame and last frame
   float32 lastFrame = 0.0f; // Time of last frame
-
-  void renderLoop(uint32 skyboxVAO);
 };
