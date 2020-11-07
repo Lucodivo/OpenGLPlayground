@@ -14,10 +14,13 @@
 class MandelbrotScene final : public FirstPersonScene {
 public:
   MandelbrotScene(GLFWwindow* window);
+  void runScene() override;
+  void init(uint32 windowWidth, uint32 windowHeight);
+  void deinit();
+  void drawFrame();
 
   // FrameBufferSizeConsumer override
   void framebufferSizeChange(uint32 width, uint32 height) override;
-  void runScene() override;
 
   // KeyboardConsumer override
   void key_LeftShift_pressed() override;

@@ -13,6 +13,21 @@ RoomScene::RoomScene(GLFWwindow* window)
           singleColorShader(posGlobalBlockVertexShaderFileLoc, singleColorFragmentShaderFileLoc),
           depthCubeMapShader(modelMatVertexShaderFileLoc, linearDepthMapFragmentShaderFileLoc, cubeMapGeometryShaderFileLoc) {}
 
+void RoomScene::init(uint32 windowWidth, uint32 windowHeight)
+{
+  GodModeScene::init(windowWidth, windowHeight);
+}
+
+void RoomScene::deinit()
+{
+  GodModeScene::deinit();
+}
+
+void RoomScene::drawFrame()
+{
+  GodModeScene::drawFrame();
+}
+
 void RoomScene::runScene()
 {
   VertexAtt cubeVertexAtt = initializeCubePosNormTexVertexAttBuffers();

@@ -8,7 +8,7 @@ GLFWwindow* createWindow();
 void initializeGLAD();
 void initImgui(GLFWwindow* window);
 void toggleWindowSize(GLFWwindow* window, uint32 width, uint32 height);
-
+void runScenes(GLFWwindow* window);
 
 // ===== double triangle values =====
 const uint32 triangleVertexAttSize = 8;

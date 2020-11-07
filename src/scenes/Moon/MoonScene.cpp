@@ -12,6 +12,21 @@ MoonScene::MoonScene(GLFWwindow* window)
           quadTextureShader(billboardPosTexVertexShaderFileLoc, textureFragmentShaderFileLoc),
           depthMapShader(simpleDepthVertexShaderFileLoc, emptyFragmentShaderFileLoc) {}
 
+void MoonScene::init(uint32 windowWidth, uint32 windowHeight)
+{
+  GodModeScene::init(windowWidth, windowHeight);
+}
+
+void MoonScene::deinit()
+{
+  GodModeScene::deinit();
+}
+
+void MoonScene::drawFrame()
+{
+  GodModeScene::drawFrame();
+}
+
 void MoonScene::runScene()
 {
   VertexAtt floorVertexAtt = initializeQuadPosNormTexVertexAttBuffers();

@@ -7,8 +7,23 @@
 #include "../../common/ObjectData.h"
 
 MandelbrotScene::MandelbrotScene(GLFWwindow* window)
-        : FirstPersonScene(window),
+        : FirstPersonScene(window), // TODO: why is this a first person scene??
           mandelbrotShader(UVCoordVertexShaderFileLoc, MandelbrotFragmentShaderFileLoc) {}
+
+void MandelbrotScene::init(uint32 windowWidth, uint32 windowHeight)
+{
+  FirstPersonScene::init(windowWidth, windowHeight);
+}
+
+void MandelbrotScene::deinit()
+{
+  FirstPersonScene::deinit();
+}
+
+void MandelbrotScene::drawFrame()
+{
+  FirstPersonScene::drawFrame();
+}
 
 void MandelbrotScene::runScene()
 {

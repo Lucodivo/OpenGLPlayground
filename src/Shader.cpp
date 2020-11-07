@@ -9,18 +9,19 @@
 #include <iostream>
 #include <vector>
 
+#define NO_SHADER 0
+
 bool Shader::updateFragmentShaderIfOutdated() {
   uint32 lastWriteTime = getFileLastWriteTime(fragmentShaderPath);
   bool fileUpToDate = fragmentShaderFileTime == lastWriteTime;
 
   if(!fileUpToDate) {
-
     glDeleteShader(fragmentShader); // remove old fragment shader
     fragmentShader = loadShader(fragmentShaderPath, Fragment);
 
     glAttachShader(this->ID, vertexShader);
     glAttachShader(this->ID, fragmentShader);
-    if(geometryShader != vertexShader) glAttachShader(this->ID, geometryShader);
+    if(geometryShader != NO_SHADER) glAttachShader(this->ID, geometryShader);
     glLinkProgram(this->ID);
 
     int32 linkSuccess;
@@ -34,7 +35,7 @@ bool Shader::updateFragmentShaderIfOutdated() {
 
     glDetachShader(this->ID, vertexShader);
     glDetachShader(this->ID, fragmentShader);
-    if (geometryShader != vertexShader) glAttachShader(this->ID, geometryShader);
+    if (geometryShader != NO_SHADER) glDetachShader(this->ID, geometryShader);
 
     return true;
   }
@@ -49,14 +50,13 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath, const char* geo
 
   vertexShader = loadShader(vertexPath, Vertex);
   fragmentShader = loadShader(fragmentPath, Fragment);
-  geometryShader = vertexShader;
-  if (geometryPath != NULL) geometryShader = loadShader(geometryPath, Geometry);
+  geometryShader = geometryPath != NULL ? loadShader(geometryPath, Geometry) : NO_SHADER;
 
   // shader program
   this->ID = glCreateProgram(); // NOTE: returns 0 if error occurs when creating program
   glAttachShader(this->ID, vertexShader);
   glAttachShader(this->ID, fragmentShader);
-  if (geometryShader != vertexShader) glAttachShader(this->ID, geometryShader);
+  if (geometryPath != NO_SHADER) glAttachShader(this->ID, geometryShader);
   glLinkProgram(this->ID);
 
   int32 linkSuccess;
@@ -70,15 +70,16 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath, const char* geo
 
   glDetachShader(this->ID, vertexShader);
   glDetachShader(this->ID, fragmentShader);
-  if (geometryShader != vertexShader) glAttachShader(this->ID, geometryShader);
+  if (geometryPath != NO_SHADER) glDetachShader(this->ID, geometryShader);
 }
 
-Shader::~Shader()
+void Shader::deleteShaderResources()
 {
   // delete the shaders
   glDeleteShader(vertexShader);
   glDeleteShader(fragmentShader);
-  if (geometryShader != vertexShader) glDeleteShader(geometryShader);
+  if (geometryShader != NO_SHADER) glDeleteShader(geometryShader);
+  glDeleteProgram(ID);
 }
 
 // use/activate the shader

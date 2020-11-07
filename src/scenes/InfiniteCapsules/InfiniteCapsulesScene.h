@@ -16,7 +16,6 @@ public:
   // FrameBufferSizeConsumer override
   void framebufferSizeChange(uint32 width, uint32 height);
   void key_LeftMouseButton_pressed(float32 xPos, float32 yPos);
-  void runScene() override;
 
 private:
 

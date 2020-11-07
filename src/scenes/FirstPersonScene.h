@@ -12,7 +12,6 @@ public:
   virtual void init(uint32 windowWidth, uint32 windowHeight);
   virtual void deinit();
   virtual void drawFrame(){};
-  virtual void runScene() = 0;
 
   // ControllerConsumer implementation
   void leftAnalog(int16 stickX, int16 stickY);

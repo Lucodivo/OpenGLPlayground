@@ -8,6 +8,7 @@
 
 #include "LearnOpenGLPlatform.h"
 
+// TODO: Convert to a simple structure
 class Shader
 {
 public:
@@ -16,8 +17,6 @@ public:
 
   // constructor reads and builds the shader
   Shader(const char* vertexPath, const char* fragmentPath, const char* geometryPath = NULL);
-  ~Shader();
-
 
   // TODO: Update other shaders if outdated?
   // Returns true if shader was outdated
@@ -26,6 +25,8 @@ public:
 
   // use/activate the shader
   void use();
+
+  void deleteShaderResources();
 
   // utility uniform functions
   void setUniform(const std::string& name, bool value) const;

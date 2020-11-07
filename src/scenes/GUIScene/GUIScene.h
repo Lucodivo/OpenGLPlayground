@@ -21,6 +21,10 @@ public:
   GUIScene(GLFWwindow* window);
 
   void runScene() override;
+  void init(uint32 windowWidth, uint32 windowHeight);
+  void deinit();
+  void drawFrame();
+
   void key_Tab_pressed() override;
   void key_LeftMouseButton_pressed(float32 xPos, float32 yPos) override;
   void key_RightMouseButton_pressed(float32 xPos, float32 yPos) override;

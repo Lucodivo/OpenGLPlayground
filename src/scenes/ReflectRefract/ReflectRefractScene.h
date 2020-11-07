@@ -13,6 +13,9 @@ class ReflectRefractScene final : public FirstPersonScene
 public:
   ReflectRefractScene(GLFWwindow* window);
   void runScene() override;
+  void init(uint32 windowWidth, uint32 windowHeight);
+  void deinit();
+  void drawFrame();
 
 private:
   Shader explodingReflectionShader;
@@ -32,7 +35,7 @@ private:
   double reflactionModeSwitchTimer = 0.0f;
   double modeSwitchTimer = 0.0f;
 
-  void renderLoop(GLFWwindow* window, uint32& cubeVAO, uint32& skyboxVAO);
+  void renderLoop(uint32& cubeVAO, uint32& skyboxVAO);
 
   void key_Up() override;
   void key_Down() override;

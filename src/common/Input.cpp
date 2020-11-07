@@ -7,7 +7,7 @@
 
 // NOTE: This file does not support multiple windows
 #define MAX_NUMBER_OF_SUBSCRIBERS 10
-file_accessible struct {
+file_access struct {
   uint32 keyboardCount = 0;
   KeyboardConsumer* keyboard[MAX_NUMBER_OF_SUBSCRIBERS]{};
   uint32 controllerCount = 0;
@@ -17,7 +17,7 @@ file_accessible struct {
   WindowSizeConsumer* windowSize = NULL;
 } inputConsumers;
 
-file_accessible bool skipMouseMovementFromWindowSizeChange = false;
+file_access bool skipMouseMovementFromWindowSizeChange = false;
 
 // NOTE: Casey Muratori's efficient way of handling function pointers, Handmade Hero episode 6 @ 22:06 & 1:00:21
 // NOTE: Allows us to quickly change the function parameters & return type in one place and cascade throughout the rest
@@ -28,10 +28,10 @@ X_INPUT_GET_STATE(XInputGetStateStub) // create stub function of type above
 {
   return (ERROR_DEVICE_NOT_CONNECTED);
 }
-file_accessible x_input_get_state* XInputGetState_ = XInputGetStateStub; // Create a function pointer of type above to point to stub
+file_access x_input_get_state* XInputGetState_ = XInputGetStateStub; // Create a function pointer of type above to point to stub
 #define XInputGetState XInputGetState_ // Allow us to use XInputGetState method name without conflicting with definition in Xinput.h
 
-file_accessible void loadXInput()
+file_access void loadXInput()
 {
   HMODULE XInputLibrary = LoadLibraryA("xinput1_4.dll");
   if (!XInputLibrary)
@@ -147,7 +147,7 @@ void processXInput()
       }
 
 
-      local_persist bool selectWasDown = false;
+      local_access bool selectWasDown = false;
       if (select)
       {
         if (!selectWasDown)
@@ -165,7 +165,7 @@ void processXInput()
         }
       }
 
-      local_persist bool aWasDown = false;
+      local_access bool aWasDown = false;
       if (a)
       {
         if (!aWasDown)
@@ -183,7 +183,7 @@ void processXInput()
         }
       }
 
-      local_persist bool bWasDown = false;
+      local_access bool bWasDown = false;
       if (b)
       {
         if (!bWasDown)
@@ -201,7 +201,7 @@ void processXInput()
         }
       }
 
-      local_persist bool xWasDown = false;
+      local_access bool xWasDown = false;
       if (x)
       {
         if (!xWasDown)
@@ -219,7 +219,7 @@ void processXInput()
         }
       }
 
-      local_persist bool yWasDown = false;
+      local_access bool yWasDown = false;
       if (y)
       {
         if (!yWasDown)
@@ -296,7 +296,7 @@ void processKeyboardInput(GLFWwindow* window)
     }
   }
 
-  local_persist bool leftShiftWasDown = false;
+  local_access bool leftShiftWasDown = false;
   if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
   {
     if (!leftShiftWasDown)
@@ -314,7 +314,7 @@ void processKeyboardInput(GLFWwindow* window)
     }
   }
 
-  local_persist bool EWasDown = false;
+  local_access bool EWasDown = false;
   if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
   {
     if (!EWasDown)
@@ -332,7 +332,7 @@ void processKeyboardInput(GLFWwindow* window)
     }
   }
 
-  local_persist bool QWasDown = false;
+  local_access bool QWasDown = false;
   if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
   {
     if (!QWasDown)
@@ -350,7 +350,7 @@ void processKeyboardInput(GLFWwindow* window)
     }
   }
 
-  local_persist bool OWasDown = false;
+  local_access bool OWasDown = false;
   if (glfwGetKey(window, GLFW_KEY_O) == GLFW_PRESS)
   {
     if (!OWasDown)
@@ -360,7 +360,7 @@ void processKeyboardInput(GLFWwindow* window)
         consumers[i]->key_O_pressed();
       }
     }
-  } else if (QWasDown)
+  } else if (OWasDown)
   {
     OWasDown = false;
     for(uint32 i = 0; i < consumerCount; ++i) {
@@ -368,7 +368,7 @@ void processKeyboardInput(GLFWwindow* window)
     }
   }
 
-  local_persist bool PWasDown = false;
+  local_access bool PWasDown = false;
   if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS)
   {
     if (!PWasDown)
@@ -417,7 +417,7 @@ void processKeyboardInput(GLFWwindow* window)
     }
   }
 
-  local_persist bool altEnterWasDown = false;
+  local_access bool altEnterWasDown = false;
   if (glfwGetKey(window, GLFW_KEY_RIGHT_ALT) == GLFW_PRESS &&
       glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS)
   {
@@ -464,7 +464,7 @@ void processKeyboardInput(GLFWwindow* window)
     }
   }
 
-  local_persist bool tabWasDown = false;
+  local_access bool tabWasDown = false;
   if (glfwGetKey(window, GLFW_KEY_TAB) == GLFW_PRESS)
   {
     if (!tabWasDown)
@@ -488,7 +488,7 @@ void processMouseInput(GLFWwindow* window) {
   MouseConsumer** consumers = inputConsumers.mouse;
   uint32 consumerCount = inputConsumers.mouseCount;
 
-  local_persist bool leftMouseButtonWasDown = false;
+  local_access bool leftMouseButtonWasDown = false;
   if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
   {
     if (!leftMouseButtonWasDown)
@@ -510,7 +510,7 @@ void processMouseInput(GLFWwindow* window) {
     }
   }
 
-  local_persist bool rightMouseButtonWasDown = false;
+  local_access bool rightMouseButtonWasDown = false;
   if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
   {
     if (!rightMouseButtonWasDown)
@@ -603,9 +603,9 @@ void unsubscribeWindowSize()
 // Callback function for when user moves mouse
 void mouse_movement_callback(GLFWwindow* window, float64 xPos, float64 yPos)
 {
-  local_persist float32 lastXPos = (float32) xPos;
-  local_persist float32 lastYPos = (float32) yPos;
-  local_persist bool firstMouse = true;
+  local_access float32 lastXPos = (float32) xPos;
+  local_access float32 lastYPos = (float32) yPos;
+  local_access bool firstMouse = true;
 
   if(skipMouseMovementFromWindowSizeChange)
   {

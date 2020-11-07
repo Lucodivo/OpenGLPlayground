@@ -11,6 +11,21 @@ RayTracingSphereScene::RayTracingSphereScene(GLFWwindow* window)
         : GodModeScene(window),
           rayTracingSphereShader(UVCoordVertexShaderFileLoc, RayTracingSphereFragmentShaderFileLoc) {}
 
+void RayTracingSphereScene::init(uint32 windowWidth, uint32 windowHeight)
+{
+  GodModeScene::init(windowWidth, windowHeight);
+}
+
+void RayTracingSphereScene::deinit()
+{
+  GodModeScene::deinit();
+}
+
+void RayTracingSphereScene::drawFrame()
+{
+  GodModeScene::drawFrame();
+}
+
 void RayTracingSphereScene::runScene()
 {
   VertexAtt quadVertexAtt = initializeFrameBufferQuadVertexAttBuffers();

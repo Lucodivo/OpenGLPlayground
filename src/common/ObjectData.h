@@ -21,9 +21,11 @@ VertexAtt initializeQuadPosNormTexVertexAttBuffers();
 VertexAtt initializeQuadPosNormTexTanBiVertexAttBuffers();
 VertexAtt initializeFrameBufferQuadVertexAttBuffers();
 void deleteVertexAtt(VertexAtt vertexAtt);
+void deleteVertexAtts(uint32 count, VertexAtt* vertexAtts);
 
 Framebuffer initializeFrameBuffer(uint32 width, uint32 height);
 void deleteFrameBuffer(Framebuffer framebuffer);
+void deleteFrameBuffers(uint32 count, Framebuffer* framebuffer);
 
 // ===== cube values =====
 #define BottomLeftTexture 0.0f, 0.0f

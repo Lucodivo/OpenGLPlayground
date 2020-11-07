@@ -8,7 +8,6 @@
 
 Scene::Scene(GLFWwindow* window): window(window), textDebugShader(textVertexShaderFileLoc, textFragmentShaderFileLoc)
 {
-  // TODO: Handle rending text separate of scenes?
   initDebugTextCharacters();
   initDebugTextBuffers();
 }

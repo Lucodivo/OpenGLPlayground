@@ -10,11 +10,46 @@ void deleteVertexAtt(VertexAtt vertexAtt) {
   glDeleteBuffers(1, &vertexAtt.bufferObject);
 }
 
+void deleteVertexAtts(uint32 count, VertexAtt* vertexAtts)
+{
+  uint32* deleteBufferObjects = new uint32[count * 3];
+  uint32* deleteIndexObjects = deleteBufferObjects + count;
+  uint32* deleteVertexArrays = deleteIndexObjects + count;
+  for(uint32 i = 0; i < count; i++) {
+    deleteBufferObjects[i] = vertexAtts[i].bufferObject;
+    deleteIndexObjects[i] = vertexAtts[i].indexObject;
+    deleteVertexArrays[i] = vertexAtts[i].arrayObject;
+  }
+
+  glDeleteBuffers(count * 2, deleteBufferObjects);
+  glDeleteVertexArrays(count, deleteVertexArrays);
+
+  delete[] deleteBufferObjects;
+}
+
 void deleteFrameBuffer(Framebuffer framebuffer)
 {
   glDeleteFramebuffers(1, &framebuffer.id);
   glDeleteTextures(1, &framebuffer.colorAttachment);
   glDeleteRenderbuffers(1, &framebuffer.depthStencilAttachment);
+}
+
+void deleteFrameBuffers(uint32 count, Framebuffer* framebuffer)
+{
+  uint32* deleteFramebufferObjects = new uint32[count * 3];
+  uint32* deleteColorAttachments = deleteFramebufferObjects + count;
+  uint32* deleteDepthStencilAttachments = deleteColorAttachments + count;
+  for(uint32 i = 0; i < count; i++) {
+    deleteFramebufferObjects[i] = framebuffer[i].id;
+    deleteColorAttachments[i] = framebuffer[i].colorAttachment;
+    deleteDepthStencilAttachments[i] = framebuffer[i].depthStencilAttachment;
+  }
+
+  glDeleteFramebuffers(count, deleteFramebufferObjects);
+  glDeleteTextures(count, deleteColorAttachments);
+  glDeleteRenderbuffers(count, deleteDepthStencilAttachments);
+
+  delete[] deleteFramebufferObjects;
 }
 
 VertexAtt initializeCubePosNormTexVertexAttBuffers(bool invertNormals) {

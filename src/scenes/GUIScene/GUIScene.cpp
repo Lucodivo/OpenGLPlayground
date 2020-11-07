@@ -15,6 +15,21 @@ GUIScene::GUIScene(GLFWwindow* window)
         cubeShader(posVertexShaderFileLoc, singleColorFragmentShaderFileLoc),
         cursorMode(glfwGetInputMode(window, GLFW_CURSOR) == GLFW_CURSOR_NORMAL) {}
 
+void GUIScene::init(uint32 windowWidth, uint32 windowHeight)
+{
+  FirstPersonScene::init(windowWidth, windowHeight);
+}
+
+void GUIScene::deinit()
+{
+  FirstPersonScene::deinit();
+}
+
+void GUIScene::drawFrame()
+{
+  FirstPersonScene::drawFrame();
+}
+
 void GUIScene::runScene()
 {
   VertexAtt cubeVertexAtt = initializeCubePositionVertexAttBuffers();

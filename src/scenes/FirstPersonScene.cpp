@@ -4,12 +4,14 @@ FirstPersonScene::FirstPersonScene(GLFWwindow* window): Scene(window) {}
 
 void FirstPersonScene::init(uint32 windowWidth, uint32 windowHeight)
 {
+  Scene::init(windowWidth, windowHeight);
   subscribeMouseInput(this);
   subscribeKeyboardInput(this);
   subscribeXInput(this);
 }
 
 void FirstPersonScene::deinit() {
+  Scene::deinit();
   unsubscribeMouseInput(this);
   unsubscribeKeyboardInput(this);
   unsubscribeXInput(this);

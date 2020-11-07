@@ -58,18 +58,33 @@ ReflectRefractScene::ReflectRefractScene(GLFWwindow* window)
           normalVisualizationShader(normalVisualizerVertexShaderFileLoc, singleColorFragmentShaderFileLoc, triangleNormalVisualizerGeometryShaderFileLoc),
           normalVisualization10InstanceShader(normalVisualizer10InstanceVertexShaderFileLoc, singleColorFragmentShaderFileLoc, triangleNormalVisualizerGeometryShaderFileLoc) {}
 
+void ReflectRefractScene::init(uint32 windowWidth, uint32 windowHeight)
+{
+  FirstPersonScene::init(windowWidth, windowHeight);
+}
+
+void ReflectRefractScene::deinit()
+{
+  FirstPersonScene::deinit();
+}
+
+void ReflectRefractScene::drawFrame()
+{
+  FirstPersonScene::drawFrame();
+}
+
 void ReflectRefractScene::runScene()
 {
   VertexAtt cubeVertexAtt = initializeCubePosNormVertexAttBuffers();
   VertexAtt skyboxVertexAtt = initializeCubePositionVertexAttBuffers();
 
-  renderLoop(window, cubeVertexAtt.arrayObject, skyboxVertexAtt.arrayObject);
+  renderLoop(cubeVertexAtt.arrayObject, skyboxVertexAtt.arrayObject);
 
   deleteVertexAtt(cubeVertexAtt);
   deleteVertexAtt(skyboxVertexAtt);
 }
 
-void ReflectRefractScene::renderLoop(GLFWwindow* window, uint32& cubeVAO, uint32& skyboxVAO)
+void ReflectRefractScene::renderLoop(uint32& cubeVAO, uint32& skyboxVAO)
 {
 
   uint32 skyboxTextureId;

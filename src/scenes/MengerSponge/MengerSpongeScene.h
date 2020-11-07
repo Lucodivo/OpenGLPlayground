@@ -25,8 +25,12 @@ class MengerSpongeScene final : public GodModeScene {
 public:
   MengerSpongeScene(GLFWwindow* window);
 
-  void framebufferSizeChange(uint32 width, uint32 height) override;
   void runScene() override;
+  void init(uint32 windowWidth, uint32 windowHeight);
+  void deinit();
+  void drawFrame();
+
+  void framebufferSizeChange(uint32 width, uint32 height) override;
 
   void key_E_pressed() override;
   void key_Q_pressed() override;

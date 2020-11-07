@@ -8,9 +8,6 @@ class GodModeScene : public FirstPersonScene
 public:
   GodModeScene(GLFWwindow* window);
 
-  // Scene implementation required
-  virtual void runScene() = 0;
-
   // ControllerConsumer implementation
   void button_B_pressed();
   void button_B_released();

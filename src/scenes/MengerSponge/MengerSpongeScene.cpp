@@ -20,6 +20,21 @@ MengerSpongeScene::MengerSpongeScene(GLFWwindow* window)
   }
 }
 
+void MengerSpongeScene::init(uint32 windowWidth, uint32 windowHeight)
+{
+  GodModeScene::init(windowWidth, windowHeight);
+}
+
+void MengerSpongeScene::deinit()
+{
+  GodModeScene::deinit();
+}
+
+void MengerSpongeScene::drawFrame()
+{
+  GodModeScene::drawFrame();
+}
+
 void MengerSpongeScene::runScene()
 {
   VertexAtt quadVertexAtt = initializeFrameBufferQuadVertexAttBuffers();

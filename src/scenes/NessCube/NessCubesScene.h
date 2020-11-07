@@ -13,7 +13,6 @@ class NessCubesScene final : public FirstPersonScene
 {
 public:
   NessCubesScene(GLFWwindow* window);
-  void runScene() override;
 
   // FrameBufferSizeConsumer override
   void framebufferSizeChange(uint32 width, uint32 height) override;
@@ -56,8 +55,6 @@ private:
   uint32 globalVSUniformBuffer;
   const uint32 globalVSBufferBindIndex = 1;
   const uint32 globalVSBufferViewMatOffset = sizeof(glm::mat4);
-
-  glm::mat4 projectionMat;
 
   const float32 lightOrbitSpeed = 1.0f;
   const float32 lightOrbitRadius = 2.5f;

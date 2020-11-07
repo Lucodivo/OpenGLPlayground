@@ -11,6 +11,21 @@ Pixel2DScene::Pixel2DScene(GLFWwindow* window)
   : Scene(window),
     pixel2DShader(pixel2DVertexShaderFileLoc, textureFragmentShaderFileLoc){}
 
+void Pixel2DScene::init(uint32 windowWidth, uint32 windowHeight)
+{
+  Scene::init(windowWidth, windowHeight);
+}
+
+void Pixel2DScene::deinit()
+{
+  Scene::deinit();
+}
+
+void Pixel2DScene::drawFrame()
+{
+  Scene::drawFrame();
+}
+
 void Pixel2DScene::runScene() {
     VertexAtt quadVertexAtt = initializeFrameBufferQuadVertexAttBuffers();
 

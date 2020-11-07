@@ -8,19 +8,6 @@
 
 InfiniteCapsulesScene::InfiniteCapsulesScene(GLFWwindow* window): GodModeScene(window) {}
 
-void InfiniteCapsulesScene::runScene()
-{
-  // TODO: Remove
-//  init();
-//  while (glfwWindowShouldClose(window) == GL_FALSE)
-//  {
-//    drawFrame();
-//    glfwSwapBuffers(window); // swaps double buffers (call after all render commands are completed)
-//    glfwPollEvents(); // checks for events (ex: keyboard/mouse input)
-//  }
-//  deinit();
-}
-
 void InfiniteCapsulesScene::init(uint32 windowWidth, uint32 windowHeight)
 {
   GodModeScene::init(windowWidth, windowHeight);
@@ -36,11 +23,22 @@ void InfiniteCapsulesScene::init(uint32 windowWidth, uint32 windowHeight)
 
   camera.Position = glm::vec3(0.0f, 1.0f, 0.0f);
 
+  glDisable(GL_DEPTH_TEST);
   glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+
   glBindVertexArray(quadVertexAtt.arrayObject);
 
   lastFrame = (float32)glfwGetTime();
   startTime = lastFrame;
+}
+
+void InfiniteCapsulesScene::deinit() {
+  GodModeScene::deinit();
+
+  rayMarchingShader->deleteShaderResources();
+  delete rayMarchingShader;
+
+  deleteVertexAtt(quadVertexAtt);
 }
 
 void InfiniteCapsulesScene::drawFrame() {
@@ -69,17 +67,9 @@ void InfiniteCapsulesScene::drawFrame() {
                  0); // offset in the EBO
 }
 
-void InfiniteCapsulesScene::deinit() {
-  GodModeScene::deinit();
-
-  delete rayMarchingShader;
-
-  deleteVertexAtt(quadVertexAtt);
-}
-
 void InfiniteCapsulesScene::framebufferSizeChange(uint32 width, uint32 height)
 {
-  FirstPersonScene::framebufferSizeChange(width, height);
+  GodModeScene::framebufferSizeChange(width, height);
   rayMarchingShader->use();
   rayMarchingShader->setUniform("viewPortResolution", glm::vec2(width, height));
 }

@@ -39,12 +39,24 @@ class InfiniteCubeScene final : public FirstPersonScene
 {
 public:
   InfiniteCubeScene(GLFWwindow* window);
-  void runScene() override;
+  void init(uint32 windowWidth, uint32 windowHeight);
+  void deinit();
+  void drawFrame();
+
   void framebufferSizeChange(uint32 width, uint32 height) override;
 
 private:
-  Shader cubeShader;
-  Shader cubeOutlineShader;
+  Shader* cubeShader = NULL;
+  Shader* cubeOutlineShader = NULL;
+
+  VertexAtt cubeVertexAtt;
+  VertexAtt quadVertexAtt;
+
+  uint32 outlineTexture;
+  uint32 globalVSUniformBufferID;
+  uint32 globalVSBufferBindIndex = 0;
+  uint32 globalVSBufferViewMatOffset = sizeof(glm::mat4);
+  const float32 cubeRotationAngle = 2.5f;
 
   // frame rate
   float32 deltaTime = 0.0f;  // Time between current frame and last frame
@@ -53,6 +65,4 @@ private:
   Framebuffer framebuffer;
   uint32 framebufferDimen;
   uint32 colorIndex = 0;
-
-  void renderLoop(GLFWwindow* window, uint32& shapesVAO);
 };

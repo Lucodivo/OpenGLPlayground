@@ -42,9 +42,10 @@ NessCubesScene::NessCubesScene(GLFWwindow* window): FirstPersonScene(window)
 
 void NessCubesScene::init(uint32 windowWidth, uint32 windowHeight)
 {
+  // TODO: subscribing to input so early makes it so the scene camera can change before things are rendered for the first time
   FirstPersonScene::init(windowWidth, windowHeight);
 
-  projectionMat = glm::perspective(glm::radians(camera.Zoom), (float32)windowWidth / (float32)windowHeight, 0.1f, 100.0f);
+  glm::mat4 projectionMat = glm::perspective(glm::radians(camera.Zoom), (float32)windowWidth / (float32)windowHeight, 0.1f, 100.0f);
 
   cubeShader = new Shader(posNormTexVertexShaderFileLoc, nessCubeFragmentShaderFileLoc);
   lightShader = new Shader(posGlobalBlockVertexShaderFileLoc, singleColorFragmentShaderFileLoc);
@@ -146,6 +147,12 @@ void NessCubesScene::initializeTextures(uint32& diffTextureId, uint32& specTextu
 void NessCubesScene::deinit(){
   FirstPersonScene::deinit();
 
+  cubeShader->deleteShaderResources();
+  lightShader->deleteShaderResources();
+  modelShader->deleteShaderResources();
+  stencilShader->deleteShaderResources();
+  frameBufferShader->deleteShaderResources();
+  skyboxShader->deleteShaderResources();
   delete cubeShader;
   delete lightShader;
   delete modelShader;
@@ -153,21 +160,18 @@ void NessCubesScene::deinit(){
   delete frameBufferShader;
   delete skyboxShader;
 
-  deleteVertexAtt(lightVertexAtt);
-  deleteVertexAtt(cubeVertexAtt);
-  deleteVertexAtt(quadVertexAtt);
-  deleteVertexAtt(skyboxVertexAtt);
+  VertexAtt deleteVertexAttributes[] = { lightVertexAtt, cubeVertexAtt, quadVertexAtt, skyboxVertexAtt };
+  deleteVertexAtts(ArrayCount(deleteVertexAttributes), deleteVertexAttributes);
 
-  glDeleteTextures(1, &cubeDiffTextureId);
-  glDeleteTextures(1, &cubeSpecTextureId);
-  glDeleteTextures(1, &skyboxTextureId);
+  uint32 deleteTextures[] = { cubeDiffTextureId, cubeSpecTextureId, skyboxTextureId };
+  glDeleteTextures(ArrayCount(deleteTextures), deleteTextures);
 
   deleteFrameBuffer(framebuffer);
 
   delete nanoSuitModel;
 
-  glDeleteBuffers(1, &globalVSUniformBuffer);
-  glDeleteBuffers(1, &globalFSUniformBuffer);
+  uint32 deleteBuffers[] = { globalVSUniformBuffer, globalFSUniformBuffer };
+  glDeleteBuffers(ArrayCount(deleteBuffers), deleteBuffers);
 }
 
 void NessCubesScene::drawFrame(){
@@ -393,19 +397,6 @@ void NessCubesScene::drawFrame(){
                  6, // number of elements to draw (3 vertices per triangle * 2 triangles per quad)
                  GL_UNSIGNED_INT, // type of the indices
                  (void*)0); // offset in the EBO
-}
-
-void NessCubesScene::runScene()
-{
-  // TODO: remove
-//  init();
-//  while (glfwWindowShouldClose(window) == GL_FALSE)
-//  {
-//    drawFrame();
-//    glfwSwapBuffers(window); // swaps double buffers (call after all render commands are completed)
-//    glfwPollEvents(); // checks for events (ex: keyboard/mouse input)
-//  }
-//  deinit();
 }
 
 void NessCubesScene::framebufferSizeChange(uint32 width, uint32 height)

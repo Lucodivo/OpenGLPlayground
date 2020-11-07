@@ -7,6 +7,9 @@ class Pixel2DScene : public Scene
 {
 public:
   Pixel2DScene(GLFWwindow* window);
+  void init(uint32 windowWidth, uint32 windowHeight);
+  void deinit();
+  void drawFrame();
 
   void runScene();
 
