@@ -29,8 +29,11 @@ void runScenes(GLFWwindow* window) {
   RayTracingSphereScene rayTracingSphereScene = RayTracingSphereScene(window);
   MengerSpongeScene mengerSpongeScene = MengerSpongeScene(window);
   MoonScene moonScene = MoonScene(window);
+  RoomScene roomScene = RoomScene(window);
+  ReflectRefractScene reflectRefractScene = ReflectRefractScene(window);
   Scene* scenes[] = { &mengerSpongeScene, &rayTracingSphereScene, &mandelbrotScene, &infiniteCubeScene,
-                      &infiniteCapsulesScene, &moonScene, &asteroidBeltScene, &nessCubeScene };
+                      &infiniteCapsulesScene, &roomScene, &moonScene, &asteroidBeltScene,
+                      &reflectRefractScene, &nessCubeScene };
 
   class InputConsumer_ : public KeyboardConsumer, public WindowSizeConsumer {
   public:

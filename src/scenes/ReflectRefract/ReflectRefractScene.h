@@ -12,30 +12,35 @@ class ReflectRefractScene final : public FirstPersonScene
 {
 public:
   ReflectRefractScene(GLFWwindow* window);
-  void runScene() override;
   void init(uint32 windowWidth, uint32 windowHeight);
   void deinit();
   void drawFrame();
 
 private:
-  Shader explodingReflectionShader;
-  Shader exploding10InstanceReflectionShader;
-  Shader reflectionShader;
-  Shader reflection10InstanceShader;
-  Shader explodingRefractionShader;
-  Shader refractionShader;
-  Shader skyboxShader;
-  Shader normalVisualizationShader;
-  Shader normalVisualization10InstanceShader;
+  Shader* explodingReflectionShader;
+  Shader* exploding10InstanceReflectionShader;
+  Shader* reflectionShader;
+  Shader* reflection10InstanceShader;
+  Shader* explodingRefractionShader;
+  Shader* refractionShader;
+  Shader* skyboxShader;
+  Shader* normalVisualizationShader;
+  Shader* normalVisualization10InstanceShader;
+
+  VertexAtt cubeVertexAtt;
+  VertexAtt skyboxVertexAtt;
+
+  Model* nanoSuitModel;
+
+  uint32 skyboxTextureId;
 
   // frame rate
+  float32 initTime = 0.0f;
   float32 deltaTime = 0.0f;  // Time between current frame and last frame
   float32 lastFrame = 0.0f; // Time of last frame
 
   double reflactionModeSwitchTimer = 0.0f;
   double modeSwitchTimer = 0.0f;
-
-  void renderLoop(uint32& cubeVAO, uint32& skyboxVAO);
 
   void key_Up() override;
   void key_Down() override;

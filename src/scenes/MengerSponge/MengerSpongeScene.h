@@ -63,7 +63,7 @@ private:
   uint32 currentResolutionIndex = 0;
   resolution currentResolution = screenResolutions[currentResolutionIndex];
 
-  int32 numSamples = 1;
+  int32 numSamples = 4;
 
   const float cubeScale = 10.0f;
   const float32 frameTime = 0.2f;

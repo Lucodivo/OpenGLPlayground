@@ -151,8 +151,8 @@ void MoonScene::deinit()
                               depthMapTextureId };
   glDeleteTextures(ArrayCount(deleteTextures), deleteTextures);
 
-  uint32 deleteBuffers[] = { depthMapFBO, globalVSUniformBuffer };
-  glDeleteBuffers(1, deleteBuffers);
+  glDeleteBuffers(1, &globalVSUniformBuffer);
+  glDeleteFramebuffers(1, &depthMapFBO);
 }
 
 void MoonScene::drawFrame()
