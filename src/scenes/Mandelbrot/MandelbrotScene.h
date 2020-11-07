@@ -2,10 +2,10 @@
 // Created by Connor on 11/21/2019.
 //
 
-#ifndef LEARNOPENGL_MANDELBROTSCENE_H
-#define LEARNOPENGL_MANDELBROTSCENE_H
+#pragma once
 
 #include "../FirstPersonScene.h"
+#include "../../common/ObjectData.h"
 
 #define ZOOM_SPEED_NORMAL 1.0f
 #define ZOOM_SPEED_FAST 3.0f
@@ -14,7 +14,6 @@
 class MandelbrotScene final : public FirstPersonScene {
 public:
   MandelbrotScene(GLFWwindow* window);
-  void runScene() override;
   void init(uint32 windowWidth, uint32 windowHeight);
   void deinit();
   void drawFrame();
@@ -34,10 +33,11 @@ public:
 
 private:
 
-  Shader mandelbrotShader;
+  Shader* mandelbrotShader = NULL;
 
   float zoomSpeed = ZOOM_SPEED_NORMAL;
 
+  float32 startTime = 0;
   float32 deltaTime = 0;
   float32 lastFrame = 0;
 
@@ -45,18 +45,13 @@ private:
   glm::vec2 centerOffset = glm::vec2(0.0f, 0.0f);
   bool mouseDown = false;
 
-  uint32 frameBuffer = 0;
-  uint32 frameBufferTexture = 0;
-  uint32 rbo = 0;
+  VertexAtt quadVertexAtt = {};
+
+  int32 deinitCursorInputMode = GLFW_CURSOR_DISABLED;
 
   glm::vec3 colorFavors[3] = { glm::vec3(1.0f, 0.33f, 0.66f),
                               glm::vec3(0.165f, 0.33f, 1.0f),
                               glm::vec3(0.5f, 1.0f, 0.5f) };
   int32 currentColorFavorIndex = 0;
   float32 mouseDownTime = 0.0f;
-
-  void renderLoop(uint32 quadVAO);
 };
-
-
-#endif //LEARNOPENGL_MANDELBROTSCENE_H

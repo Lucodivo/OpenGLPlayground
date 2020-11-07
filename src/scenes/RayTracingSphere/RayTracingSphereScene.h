@@ -6,11 +6,11 @@
 #define LEARNOPENGL_RAYTRACINGSPHERESCENE_H
 
 #include "../GodModeScene.h"
+#include "../../common/ObjectData.h"
 
 class RayTracingSphereScene final : public GodModeScene {
 public:
   RayTracingSphereScene(GLFWwindow* window);
-  void runScene() override;
   void init(uint32 windowWidth, uint32 windowHeight);
   void deinit();
   void drawFrame();
@@ -20,12 +20,13 @@ public:
 
 private:
 
-  Shader rayTracingSphereShader;
+  Shader* rayTracingSphereShader = NULL;
+
+  VertexAtt quadVertexAtt = {};
 
   float32 deltaTime = 0;
   float32 lastFrame = 0;
-
-  void renderLoop(uint32 quadVAO);
+  float32 startTime = 0;
 };
 
 
