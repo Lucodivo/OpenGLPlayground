@@ -6,7 +6,9 @@
 #include "../../common/FileLocations.h"
 #include "../../common/Util.h"
 
-InfiniteCapsulesScene::InfiniteCapsulesScene(GLFWwindow* window): GodModeScene(window) {}
+InfiniteCapsulesScene::InfiniteCapsulesScene(GLFWwindow* window): GodModeScene(window) {
+  camera.Position = glm::vec3(0.0f, 1.0f, 0.0f);
+}
 
 void InfiniteCapsulesScene::init(uint32 windowWidth, uint32 windowHeight)
 {
@@ -19,9 +21,7 @@ void InfiniteCapsulesScene::init(uint32 windowWidth, uint32 windowHeight)
   rayMarchingShader->use();
   rayMarchingShader->setUniform("viewPortResolution", glm::vec2(windowWidth, windowHeight));
   rayMarchingShader->setUniform("lightColor", glm::vec3(0.5f, 0.5f, 0.5f));
-  rayMarchingShader->setUniform("lightPos", glm::vec3(0.0f, 0.0f, 0.0f));
-
-  camera.Position = glm::vec3(0.0f, 1.0f, 0.0f);
+  rayMarchingShader->setUniform("lightPos", lightPosition);
 
   glDisable(GL_DEPTH_TEST);
   glClearColor(0.1f, 0.1f, 0.1f, 1.0f);

@@ -31,7 +31,7 @@ private:
   void drawFrame();
   void deinit();
 
-  glm::vec3 lightPosition;
+  glm::vec3 lightPosition = { 0.0f, 0.0f, 0.0f };
   bool lightAlive = false;
   glm::vec3 lightMoveDir;
   float lightDistanceTraveled;
