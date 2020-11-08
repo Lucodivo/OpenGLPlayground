@@ -15,22 +15,10 @@ Camera::Camera(glm::vec3 position, glm::vec3 up, float32 yaw, float32 pitch)
   updateCameraVectors();
 }
 
-// Constructor with scalar values
-Camera::Camera(float32 posX, float32 posY, float32 posZ, float32 upX, float32 upY, float32 upZ, float32 yaw, float32 pitch)
-: Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(CAMERA_SPEED), MouseSensitivity(SENSITIVITY), Zoom(ZOOM)
-{
-  Position = glm::vec3(posX, posY, posZ);
-  WorldUp = glm::vec3(upX, upY, upZ);
-  Yaw = yaw;
-  Pitch = pitch;
-  updateCameraVectors();
-}
-
 // Returns the view matrix calculated using Eular Angles and the LookAt Matrix
 glm::mat4 Camera::GetViewMatrix(float32 deltaTime)
 {
   changePositioning(deltaTime);
-
   return lookAt();
 }
 
@@ -109,7 +97,7 @@ void Camera::ProcessInput(Camera_Movement direction)
       deltaPosition += Right;
       break;
     case JUMP:
-      jumping = true;
+      jumping = groundedMovement;
       break;
   }
 }

@@ -56,8 +56,6 @@ public:
   // Constructor with vectors
   Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 3.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float32 yaw = YAW, float32 pitch = PITCH);
 
-  // Constructor with scalar values
-  Camera(float32 posX, float32 posY, float32 posZ, float32 upX, float32 upY, float32 upZ, float32 yaw, float32 pitch);
   // Returns the view matrix calculated using Eular Angles and the LookAt Matrix
   glm::mat4 GetViewMatrix(float32 deltaTime);
   glm::mat4 lookAt();

@@ -9,7 +9,7 @@
 
 RayTracingSphereScene::RayTracingSphereScene() : GodModeScene()
 {
-  camera.Position = glm::vec3(0.0f, 1.0f, 10.0f);
+  camera.Position = glm::vec3(0.0f, 0.0f, 10.0f);
 }
 
 void RayTracingSphereScene::init(uint32 windowWidth, uint32 windowHeight)

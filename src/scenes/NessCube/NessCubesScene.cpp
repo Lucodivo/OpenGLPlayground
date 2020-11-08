@@ -122,12 +122,17 @@ void NessCubesScene::init(uint32 windowWidth, uint32 windowHeight)
 
   glBindBuffer(GL_UNIFORM_BUFFER, 0); // unbind uniform buffers
 
+  nanoSuitModelMatrix = glm::scale(glm::mat4(), glm::vec3(modelScale));  // it's a bit too big for our scene, so scale it down
+  nanoSuitModelMatrix = glm::translate(nanoSuitModelMatrix, glm::vec3(0.0f, -6.0f, 0.0f)); // translate it down so it's at the center of the scene
+
   cubeShader->use();
   setConstantLightUniforms(cubeShader);
   cubeShader->setUniform("material.shininess", 32.0f);
 
   modelShader->use();
   setConstantLightUniforms(modelShader);
+  modelShader->setUniform("material.shininess", 32.0f);
+  modelShader->setUniform("model", nanoSuitModelMatrix);
 
   skyboxShader->use();
   skyboxShader->setUniform("projection", projectionMat);
@@ -221,28 +226,21 @@ void NessCubesScene::drawFrame(){
   // oscillate with time
   const glm::vec3 lightPosition = glm::vec3(lightOrbitRadius * sinf(t * lightOrbitSpeed), sineVal, lightOrbitRadius * cosf(t * lightOrbitSpeed));
   // orbit with time
-  glm::mat4 lightModel; // default constructor is identity matrix
-  lightModel = glm::translate(lightModel, lightPosition);
-  lightModel = glm::scale(lightModel, glm::vec3(lightScale));
+  glm::mat4 lightModelMat; // default constructor is identity matrix
+  lightModelMat = glm::translate(lightModelMat, lightPosition);
+  lightModelMat = glm::scale(lightModelMat, glm::vec3(lightScale));
 
   // draw positional light
   lightShader->use();
   glBindVertexArray(lightVertexAtt.arrayObject);
 
-  lightShader->setUniform("model", lightModel);
+  lightShader->setUniform("model", lightModelMat);
   lightShader->setUniform("color", positionalLightColor);
   glDrawElements(GL_TRIANGLES, // drawing mode
                  cubePosNormTexNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
                  GL_UNSIGNED_INT, // type of the indices
                  0); // offset in the EBO
   glBindVertexArray(0);
-
-  // rotate with time
-  glm::mat4 cubeModel = glm::rotate(glm::mat4(), t * glm::radians(cubRotAngle), glm::vec3(1.0f, 0.3f, 0.5f));
-  // switch between two images over time
-  bool animSwitch = sin(8 * t) > 0;
-  // emission strength fluctuating over time
-  float32 emissionStrength = ((sin(t * 2) + 1.0f) / 4) + 0.15f;
 
   auto setDynamicLightUniforms = [&](Shader* shader)
   {
@@ -285,32 +283,33 @@ void NessCubesScene::drawFrame(){
 
   setDynamicLightUniforms(cubeShader);
 
+  // switch between two images over time
+  bool animSwitch = sin(8 * t) > 0;
+
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, cubeDiffTextureId);
   glActiveTexture(GL_TEXTURE1);
   glBindTexture(GL_TEXTURE_2D, cubeSpecTextureId);
   cubeShader->setUniform("material.diffTexture1", 0);
   cubeShader->setUniform("material.specTexture1", 1);
-
   cubeShader->setUniform("animSwitch", animSwitch);
-
   cubeShader->setUniform("viewPos", camera.Position);
   cubeShader->setUniform("view", viewMat);
 
-  for (uint32 i = 0; i < ArrayCount(cubePositions); i++)
+  glm::mat4 cubeModelMat[ArrayCount(cubePositions)];
+  for (uint32 i = 0; i < ArrayCount(cubeModelMat); i++)
   {
-    glm::mat4 model;
     float32 angularSpeed = 7.3f * (i + 1);
 
     // orbit around the specified axis from the translated distance
-    model = glm::rotate(model, t * glm::radians(angularSpeed), glm::vec3(50.0f - (i * 10), 100.0f, -50.0f + (i * 10)));
+    cubeModelMat[i] = glm::rotate(glm::mat4(), t * glm::radians(angularSpeed), glm::vec3(50.0f - (i * 10), 100.0f, -50.0f + (i * 10)));
     // translate to position in world
-    model = glm::translate(model, cubePositions[i]);
+    cubeModelMat[i] = glm::translate(cubeModelMat[i], cubePositions[i]);
     // rotate with time
-    model = glm::rotate(model, t * glm::radians(angularSpeed), glm::vec3(1.0f, 0.3f, 0.5f));
+    cubeModelMat[i] = glm::rotate(cubeModelMat[i], t * glm::radians(angularSpeed), glm::vec3(1.0f, 0.3f, 0.5f));
     // scale object
-    model = glm::scale(model, glm::vec3(cubeScales[i]));
-    cubeShader->setUniform("model", model);
+    cubeModelMat[i] = glm::scale(cubeModelMat[i], glm::vec3(cubeScales[i]));
+    cubeShader->setUniform("model", cubeModelMat[i]);
     glDrawElements(GL_TRIANGLES, // drawing mode
                    cubePosNormTexNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
                    GL_UNSIGNED_INT, // type of the indices
@@ -318,23 +317,12 @@ void NessCubesScene::drawFrame(){
   }
 
   // draw cube stencil outlines
-  for (uint32 i = 0; i < ArrayCount(cubePositions); i++)
+  stencilShader->use();
+  stencilShader->setUniform("color", glm::vec3(1.0f, 1.0f, 1.0f));
+  stencilShader->setUniform("view", viewMat);
+  for (uint32 i = 0; i < ArrayCount(cubeModelMat); i++)
   {
-    float32 angularSpeed = 7.3f * (i + 1);
-
-    glm::mat4 model;
-    // orbit around the specified axis from the translated distance
-    model = glm::rotate(model, t * glm::radians(angularSpeed), glm::vec3(50.0f - (i * 10), 100.0f, -50.0f + (i * 10)));
-    // translate to position in world
-    model = glm::translate(model, cubePositions[i]);
-    // rotate with time
-    model = glm::rotate(model, t * glm::radians(angularSpeed), glm::vec3(1.0f, 0.3f, 0.5f));
-    // scale object
-    model = glm::scale(model, glm::vec3(cubeScales[i] + 0.05f));
-    stencilShader->use();
-    stencilShader->setUniform("color", glm::vec3(1.0f, 1.0f, 1.0f));
-    stencilShader->setUniform("view", viewMat);
-    stencilShader->setUniform("model", model);
+    stencilShader->setUniform("model", cubeModelMat[i]);
     glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
     glStencilMask(0x00);
     glDisable(GL_DEPTH_TEST);
@@ -344,7 +332,6 @@ void NessCubesScene::drawFrame(){
                    0); // offset in the EBO
     glEnable(GL_DEPTH_TEST);
   }
-  glBindVertexArray(0);
 
   glStencilFunc(GL_ALWAYS, // stencil function
                 1, // reference value for stencil test
@@ -354,28 +341,18 @@ void NessCubesScene::drawFrame(){
 
   // draw models
   {
-    const float32 modelScale = 0.2f;
-
     // Drawing the model
     modelShader->use();
     setDynamicLightUniforms(modelShader);
-
-    modelShader->setUniform("material.shininess", 32.0f);
-
     modelShader->setUniform("viewPos", camera.Position);
     modelShader->setUniform("view", viewMat);
-
-    glm::mat4 model;
-    model = glm::scale(model, glm::vec3(modelScale));  // it's a bit too big for our scene, so scale it down
-    model = glm::translate(model, glm::vec3(0.0f, -1.75f, 0.0f)); // translate it down so it's at the center of the scene
-    modelShader->setUniform("model", model);
     nanoSuitModel->Draw(*modelShader);
 
     //  Wall Hack Stencil For Model
     stencilShader->use();
     stencilShader->setUniform("color", glm::vec3(0.5f, 0.0f, 0.0f));
     stencilShader->setUniform("view", viewMat);
-    stencilShader->setUniform("model", model);
+    stencilShader->setUniform("model", nanoSuitModelMatrix);
     glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
     glStencilMask(0x00);
     glDisable(GL_DEPTH_TEST);

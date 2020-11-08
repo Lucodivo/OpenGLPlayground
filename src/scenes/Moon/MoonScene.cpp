@@ -6,16 +6,15 @@
 const uint32 SHADOW_MAP_WIDTH = 2048;
 const uint32 SHADOW_MAP_HEIGHT = 2048;
 
-MoonScene::MoonScene() : GodModeScene()
+MoonScene::MoonScene() : FirstPersonScene()
 {
-  // TODO: Implement a nicer way to position the camera and direction in the Camera class?
-  camera.Position = glm::vec3(-15.0f, 7.0f, -15.0f);
-  camera.Front = glm::normalize(-camera.Position);
+  camera = Camera({-25.0f, 10.0f, -25.0f}, {0.0f, 1.0f, 0.0f}, 45.0f, -12.0f);
+  camera.groundedMovement = false;
 }
 
 void MoonScene::init(uint32 windowWidth, uint32 windowHeight)
 {
-  GodModeScene::init(windowWidth, windowHeight);
+  FirstPersonScene::init(windowWidth, windowHeight);
 
   directionalLightShader = new Shader(lightSpaceVertexShaderFileLoc, directionalLightShadowMapFragmentShaderFileLoc, tbnGeometryShaderFileLoc);
   quadTextureShader = new Shader(billboardPosTexVertexShaderFileLoc, textureFragmentShaderFileLoc);
@@ -131,7 +130,7 @@ void MoonScene::init(uint32 windowWidth, uint32 windowHeight)
 
 void MoonScene::deinit()
 {
-  GodModeScene::deinit();
+  FirstPersonScene::deinit();
 
   directionalLightShader->deleteShaderResources();
   quadTextureShader->deleteShaderResources();
@@ -157,7 +156,7 @@ void MoonScene::deinit()
 
 void MoonScene::drawFrame()
 {
-  GodModeScene::drawFrame();
+  FirstPersonScene::drawFrame();
   float32 t = (float32)glfwGetTime() - startTime;
   deltaTime = t - lastFrame;
   lastFrame = t;

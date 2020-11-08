@@ -48,7 +48,7 @@ Mode currMode = None;
 
 ReflectRefractScene::ReflectRefractScene() : FirstPersonScene()
 {
-  camera.Position = glm::vec3(0.0f, 0.0f, 7.0f);
+  camera.Position = glm::vec3(0.0f, 1.0f, 9.0f);
 }
 
 void ReflectRefractScene::init(uint32 windowWidth, uint32 windowHeight)
@@ -98,6 +98,9 @@ void ReflectRefractScene::init(uint32 windowWidth, uint32 windowHeight)
 
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_CUBE_MAP, skyboxTextureId);
+
+  nanoSuitModelMat = glm::scale(glm::mat4(), glm::vec3(modelScale));  // it's a bit too big for our scene, so scale it down
+  nanoSuitModelMat = glm::translate(nanoSuitModelMat, glm::vec3(0.0f, -1.75f, 0.0f)); // translate it down so it's at the center of the scene
 
   explodingReflectionShader->use();
   explodingReflectionShader->setUniform("projection", projectionMat);
@@ -190,10 +193,6 @@ void ReflectRefractScene::drawFrame()
   cubeShader->setUniform("view", viewMat);
   cubeShader->setUniform("time", currTime);
 
-  float32 angularSpeed = 7.3f;
-  glm::vec3 orbitAxis = glm::vec3(0.0f, 1.0f, 0.0f);
-  glm::vec3 rotationAxis = glm::vec3(1.0f, 0.3f, 0.5f);
-
   for (int i = 0; i < ArrayCount(cubePositions); i++)
   {
     glm::mat4 model = glm::rotate(glm::mat4(), currTime * glm::radians(angularSpeed), orbitAxis); // orbit with time
@@ -220,7 +219,6 @@ void ReflectRefractScene::drawFrame()
   {
     normalVisualization10InstanceShader->use();
     normalVisualization10InstanceShader->setUniform("view", viewMat);
-
     glDrawElementsInstanced(GL_TRIANGLES, // drawing mode
                             cubePosNormTexNumElements * 3, // number of elements to be rendered
                             GL_UNSIGNED_INT, // type of values in the indices
@@ -250,18 +248,11 @@ void ReflectRefractScene::drawFrame()
     }
   }
 
-  glm::mat4 model;
-  model = glm::scale(model, glm::vec3(modelScale));  // it's a bit too big for our scene, so scale it down
-  model = glm::translate(model, glm::vec3(0.0f, -1.75f, 0.0f)); // translate it down so it's at the center of the scene
-//    model = glm::rotate(model, glm::radians(5.0f * sin(currTime)), glm::vec3(1.0f, 0.0f, 0.0f));
-//    model = glm::rotate(model, glm::radians(5.0f * cos(currTime)), glm::vec3(0.0f, 1.0f, 0.0f));
-//    model = glm::rotate(model, glm::radians(5.0f * -sin(currTime)), glm::vec3(0.0f, 0.0f, 1.0f));
-
   modelShader->use();
   modelShader->setUniform("cameraPos", camera.Position);
   modelShader->setUniform("view", viewMat);
   modelShader->setUniform("refractiveIndex", refractionIndexValues[selectedReflactionIndex]);
-  modelShader->setUniform("model", model);
+  modelShader->setUniform("model", nanoSuitModelMat);
   modelShader->setUniform("time", currTime);
   nanoSuitModel->Draw(*modelShader);
 
@@ -269,17 +260,14 @@ void ReflectRefractScene::drawFrame()
   {
     normalVisualizationShader->use();
     normalVisualizationShader->setUniform("view", viewMat);
-    normalVisualizationShader->setUniform("model", model);
-
+    normalVisualizationShader->setUniform("model", nanoSuitModelMat);
     nanoSuitModel->Draw(*normalVisualizationShader);
   }
 
   // draw skybox
   skyboxShader->use();
-
   glm::mat4 viewMinusTranslation = glm::mat4(glm::mat3(viewMat));
   skyboxShader->setUniform("view", viewMinusTranslation);
-
   glBindVertexArray(skyboxVertexAtt.arrayObject);
   glDrawElements(GL_TRIANGLES, // drawing mode
                  36, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)

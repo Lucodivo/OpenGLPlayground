@@ -3,7 +3,7 @@
 #include "../GodModeScene.h"
 #include "../../common/ObjectData.h"
 
-class MoonScene : public GodModeScene
+class MoonScene : public FirstPersonScene
 {
 public:
   MoonScene();

@@ -49,6 +49,9 @@ private:
 
   Model* nanoSuitModel;
 
+  const float32 modelScale = 0.2f;
+  glm::mat4 nanoSuitModelMatrix;
+
   uint32 globalFSUniformBuffer;
   const uint32 globalFSBufferBindIndex = 0;
 
