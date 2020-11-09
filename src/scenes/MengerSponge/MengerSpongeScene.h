@@ -56,13 +56,17 @@ private:
   uint32 textureWidth;
   uint32 textureHeight;
 
-  bool showDebugWindows = true;
+  glm::mat4 projectionMat;
+
+  bool showDebugWindows = false;
 
   float32 startTime = 0;
   float32 deltaTime = 0;
   float32 lastFrame = 0;
+  float32 lastShaderFileUpdateCheck = 0;
+  const float32 shaderFileCheckIntervalInSeconds = 2.0f;
 
-  uint32 currentResolutionIndex = 0;
+  uint32 currentResolutionIndex = 1;
   resolution currentResolution = screenResolutions[currentResolutionIndex];
 
   int32 numSamples = 4;

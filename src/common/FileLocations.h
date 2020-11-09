@@ -146,6 +146,7 @@ const char* const planetModelLoc = "src/data/models/planet/planet.obj";
 const char* const bb8ModelLoc = "src/data/models/BB8.obj";
 const char* const theObjectModelLoc = "src/data/models/TheObject.obj";
 const char* const superMario64LogoModelLoc = "src/data/models/SM64Logo.obj";
+const char* const starmanModelLoc = "src/data/models/starman.obj";
 
 // Skybox Cube Map textures
 #define skybox(folder, extension) {  \

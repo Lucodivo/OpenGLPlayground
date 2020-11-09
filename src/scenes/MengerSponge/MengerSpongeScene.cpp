@@ -4,7 +4,6 @@
 
 #include <imgui/imgui.h>
 #include <imgui/imgui_impl_glfw.h>
-#include <imgui/imgui_impl_opengl3.h>
 #include "MengerSpongeScene.h"
 #include "../../common/FileLocations.h"
 #include "../../common/ObjectData.h"
@@ -37,7 +36,7 @@ void MengerSpongeScene::init(uint32 windowWidth, uint32 windowHeight)
   // NOTE: This is helps maintain same projection for both the ray marching and rasterization
   // If how we shoot rays change, this must change. If this changes, how we shoot rays must change.
   const float rayMarchFovVertical = glm::radians(53.14f);
-  const glm::mat4 projectionMat = glm::perspective(rayMarchFovVertical, (float32)currentResolution.width / (float32)currentResolution.height, 0.1f, 200.0f);
+  projectionMat = glm::perspective(rayMarchFovVertical, (float32)currentResolution.width / (float32)currentResolution.height, 0.1f, 200.0f);
 
   load2DTexture(scarabWingsTextureLoc, textureDiff1Id, true, true, &textureWidth, &textureHeight);
   load2DTexture(scarabWingsSpecTextureLoc, textureSpec1Id, true, false);
@@ -116,11 +115,6 @@ void MengerSpongeScene::drawFrame()
 {
   GodModeScene::drawFrame();
 
-  // Start the Dear ImGui frame
-  ImGui_ImplOpenGL3_NewFrame();
-  ImGui_ImplGlfw_NewFrame();
-  ImGui::NewFrame();
-
   if (showDebugWindows){
     //ImGui::ShowDemoWindow(&showDebugWindows);
 
@@ -152,23 +146,25 @@ void MengerSpongeScene::drawFrame()
   glBindFramebuffer(GL_FRAMEBUFFER, dynamicResolutionFBO.id);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-  mengerSpongeShader->use();
-  glBindVertexArray(quadVertexAtt.arrayObject);
-
-  if(mengerSpongeShader->updateFragmentShaderIfOutdated()) {
+  bool checkShaderFiles = t - lastShaderFileUpdateCheck > shaderFileCheckIntervalInSeconds;
+  if(checkShaderFiles && mengerSpongeShader->updateShadersWhenOutdated(FragmentShaderFlag)) {
     mengerSpongeShader->use();
     mengerSpongeShader->setUniform("viewPortResolution", glm::vec2(currentResolution.width, currentResolution.height));
     mengerSpongeShader->setUniform("directionalLight.color.ambient", directionalLightAmb);
     mengerSpongeShader->setUniform("directionalLight.color.diffuse", directionalLightDiff);
     mengerSpongeShader->setUniform("directionalLight.color.specular", directionalLightSpec);
     mengerSpongeShader->setUniform("directionalLight.direction", directionalLightDir);
+    mengerSpongeShader->setUniform("projection", projectionMat);
+    lastShaderFileUpdateCheck = t;
   }
 
+  mengerSpongeShader->use();
   mengerSpongeShader->setUniform("rayOrigin", camera.Position);
   mengerSpongeShader->setUniform("elapsedTime", t);
   mengerSpongeShader->setUniform("view", cameraMat);
   mengerSpongeShader->setUniform("cameraPos", camera.Position);
   mengerSpongeShader->setUniform("numSamples", numSamples);
+  glBindVertexArray(quadVertexAtt.arrayObject);
   glDrawElements(GL_TRIANGLES, // drawing mode
                  6, // number of elements to draw (3 vertices per triangle * 2 triangles per quad)
                  GL_UNSIGNED_INT, // type of the indices
@@ -208,10 +204,6 @@ void MengerSpongeScene::drawFrame()
   glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
   glBlitFramebuffer(0, 0, currentResolution.width, currentResolution.height, 0, 0, windowWidth, windowHeight, GL_COLOR_BUFFER_BIT, GL_NEAREST);
   glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
-
-  // Rendering ImGui
-  ImGui::Render();
-  ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
 void MengerSpongeScene::framebufferSizeChange(uint32 width, uint32 height)

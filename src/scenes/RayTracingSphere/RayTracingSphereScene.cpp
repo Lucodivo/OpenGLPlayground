@@ -45,7 +45,7 @@ void RayTracingSphereScene::drawFrame()
   GodModeScene::drawFrame();
 
   // NOTE: uncomment for real time testing of fragment shader
-//  if(rayTracingSphereShader->updateFragmentShaderIfOutdated()) {
+//  if(rayTracingSphereShader->updateShadersWhenOutdated(FragmentShaderFlag)) {
 //    rayTracingSphereShader->use();
 //    rayTracingSphereShader->setUniform("viewPortResolution", glm::vec2(windowWidth, windowHeight));
 //  }

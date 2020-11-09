@@ -8,6 +8,12 @@
 
 #include "LearnOpenGLPlatform.h"
 
+enum ShaderTypeFlags {
+  VertexShaderFlag = 1 << 0,
+  FragmentShaderFlag = 1 << 1,
+  GeometryShaderFlag = 1 << 2
+};
+
 // TODO: Convert to a simple structure
 class Shader
 {
@@ -18,10 +24,10 @@ public:
   // constructor reads and builds the shader
   Shader(const char* vertexPath, const char* fragmentPath, const char* geometryPath = NULL);
 
-  // TODO: Update other shaders if outdated?
+  // This function takes in a bit flag of ShaderType enums
   // Returns true if shader was outdated
   // NOTE: This will require you to resupply any uniforms that aren't supplied in render loop
-  bool updateFragmentShaderIfOutdated();
+  bool updateShadersWhenOutdated(uint32 shaderTypeFlag);
 
   // use/activate the shader
   void use();
@@ -47,21 +53,19 @@ public:
 
 private:
 
-  enum ShaderType {
-    Vertex = GL_VERTEX_SHADER,
-    Fragment = GL_FRAGMENT_SHADER,
-    Geometry = GL_GEOMETRY_SHADER
-  };
-
-  uint32 vertexShader;
+  uint32 vertexShaderFileTime;
+  GLuint vertexShader;
+  const char* vertexShaderPath;
 
   uint32 fragmentShaderFileTime;
-  uint32 fragmentShader;
+  GLuint fragmentShader;
   const char* fragmentShaderPath;
 
-  uint32 geometryShader;
+  uint32 geometryShaderFileTime;
+  GLuint geometryShader;
+  const char* geometryShaderPath;
 
-  uint32 loadShader(const char* shaderPath, ShaderType shaderType);
+  uint32 loadShader(const char* shaderPath, GLenum shaderType);
+  bool updateShaderWhenOutdated(GLuint* shader, const char* shaderFileLocation, uint32* lastUpdated, GLenum shaderType);
   void readShaderCodeAsString(const char* shaderPath, std::string* shaderCode);
-
 };

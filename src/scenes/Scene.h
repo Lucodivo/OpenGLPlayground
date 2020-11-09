@@ -9,7 +9,7 @@
 class Scene : public KeyboardConsumer
 {
 public:
-  Scene();
+  Scene(){};
   virtual void init(uint32 windowWidth, uint32 windowHeight);
   virtual void deinit() {} // de-initializes scene
   virtual void drawFrame() {} // draws scene to back buffer

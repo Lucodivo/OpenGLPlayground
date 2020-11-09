@@ -25,7 +25,7 @@ const glm::vec3 cubePositions[] = {
 };
 
 const glm::vec3 modelPosition = glm::vec3(0.0f, -2.0f, 0.0f);
-const float32 modelScale = 0.3f;
+const float32 modelScale = 0.7f;
 
 const float32 refractionIndexValues[] = {
         1.33f,  // Water
@@ -71,7 +71,7 @@ void ReflectRefractScene::init(uint32 windowWidth, uint32 windowHeight)
   loadCubeMapTexture(skyboxInterstellarFaceLocations, skyboxTextureId);
 
   // load models
-  nanoSuitModel = new Model(nanoSuitModelLoc);
+  nanoSuitModel = new Model(starmanModelLoc);
   //nanoSuitModel = new Model(superMario64LogoModelLoc);
 
   const glm::mat4 projectionMat = glm::perspective(glm::radians(camera.Zoom), (float32)windowWidth / (float32)windowHeight, 0.1f, 100.0f);

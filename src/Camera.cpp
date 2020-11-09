@@ -80,7 +80,7 @@ void Camera::changePositioning(float32 deltaTime)
 }
 
 // Processes input received from any keyboard-like input system. Accepts input parameter in the form of camera defined ENUM (to abstract it from windowing systems)
-void Camera::ProcessInput(Camera_Movement direction)
+void Camera::ProcessInput(CameraMovement direction)
 {
   switch (direction)
   {

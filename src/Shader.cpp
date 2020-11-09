@@ -11,14 +11,25 @@
 
 #define NO_SHADER 0
 
-bool Shader::updateFragmentShaderIfOutdated() {
-  uint32 lastWriteTime = getFileLastWriteTime(fragmentShaderPath);
-  bool fileUpToDate = fragmentShaderFileTime == lastWriteTime;
+bool Shader::updateShaderWhenOutdated(GLuint* shader, const char* shaderFileLocation, uint32* lastUpdated, GLenum shaderType) {
+  uint32 lastWriteTime = getFileLastWriteTime(shaderFileLocation);
+  bool fileUpToDate = *lastUpdated == lastWriteTime;
+  if(fileUpToDate) { return false; }
+  *lastUpdated = lastWriteTime;
+  glDeleteShader(*shader); // remove old fragment shader
+  *shader = loadShader(shaderFileLocation, shaderType);
+  return true;
+}
 
-  if(!fileUpToDate) {
-    glDeleteShader(fragmentShader); // remove old fragment shader
-    fragmentShader = loadShader(fragmentShaderPath, Fragment);
+bool Shader::updateShadersWhenOutdated(uint32 shaderTypeFlag) {
+  bool shaderFileWasOutdated;
 
+  shaderFileWasOutdated =
+          ((shaderTypeFlag & VertexShaderFlag) && updateShaderWhenOutdated(&vertexShader, vertexShaderPath, &vertexShaderFileTime, GL_VERTEX_SHADER)) ||
+          ((shaderTypeFlag & GeometryShaderFlag) && (geometryShader != NO_SHADER) && updateShaderWhenOutdated(&geometryShader, geometryShaderPath, &geometryShaderFileTime, GL_GEOMETRY_SHADER)) ||
+          ((shaderTypeFlag & FragmentShaderFlag) && updateShaderWhenOutdated(&fragmentShader, fragmentShaderPath, &fragmentShaderFileTime, GL_FRAGMENT_SHADER));
+
+  if(shaderFileWasOutdated) {
     glAttachShader(this->ID, vertexShader);
     glAttachShader(this->ID, fragmentShader);
     if(geometryShader != NO_SHADER) glAttachShader(this->ID, geometryShader);
@@ -36,21 +47,25 @@ bool Shader::updateFragmentShaderIfOutdated() {
     glDetachShader(this->ID, vertexShader);
     glDetachShader(this->ID, fragmentShader);
     if (geometryShader != NO_SHADER) glDetachShader(this->ID, geometryShader);
-
-    return true;
   }
 
-  return false;
+  return shaderFileWasOutdated;
 }
 
 // constructor reads and builds the shader
 Shader::Shader(const char* vertexPath, const char* fragmentPath, const char* geometryPath)
 {
-  fragmentShaderPath = fragmentPath;
+  vertexShaderPath = vertexPath;
+  vertexShader = loadShader(vertexPath, GL_VERTEX_SHADER);
+  vertexShaderFileTime = getFileLastWriteTime(vertexShaderPath);
 
-  vertexShader = loadShader(vertexPath, Vertex);
-  fragmentShader = loadShader(fragmentPath, Fragment);
-  geometryShader = geometryPath != NULL ? loadShader(geometryPath, Geometry) : NO_SHADER;
+  fragmentShaderPath = fragmentPath;
+  fragmentShader = loadShader(fragmentPath, GL_FRAGMENT_SHADER);
+  fragmentShaderFileTime = getFileLastWriteTime(fragmentShaderPath);
+
+  geometryShaderPath = geometryPath;
+  geometryShader = geometryPath != NULL ? loadShader(geometryPath, GL_GEOMETRY_SHADER) : NO_SHADER;
+  geometryShaderFileTime = geometryShader != NO_SHADER ? getFileLastWriteTime(geometryShaderPath) : 0;
 
   // shader program
   this->ID = glCreateProgram(); // NOTE: returns 0 if error occurs when creating program
@@ -137,7 +152,7 @@ void Shader::setUniform(const std::string& name, const glm::mat4* matArray, cons
   glUniformMatrix4fv(glGetUniformLocation(ID, name.c_str()),
                      arraySize, // count
                      GL_FALSE, // transpose: swap columns and rows (true or false)
-                     (GLfloat*)matArray); // pointer to float values // TODO: glm::value_ptr(mats[0])
+                     glm::value_ptr(*matArray)); // pointer to float values
 }
 
 void Shader::setUniform(const std::string& name, const float* floatArray, const uint32 arraySize)
@@ -170,15 +185,13 @@ void Shader::bindBlockIndex(const std::string& name, uint32 index)
  * parameters:
  * shaderType can be GL_VERTEX_SHADER, GL_FRAGMENT_SHADER, or GL_GEOMETRY_SHADER
  */
-uint32 Shader::loadShader(const char* shaderPath, ShaderType shaderType) {
+uint32 Shader::loadShader(const char* shaderPath, GLenum shaderType) {
   std::string shaderTypeStr;
-  uint32 lastWriteTime = getFileLastWriteTime(shaderPath);
-  if(shaderType == Vertex) {
+  if(shaderType == GL_VERTEX_SHADER) {
     shaderTypeStr = "VERTEX";
-  } else if(shaderType == Fragment){
-    fragmentShaderFileTime = lastWriteTime;
+  } else if(shaderType == GL_FRAGMENT_SHADER){
     shaderTypeStr = "FRAGMENT";
-  } else if(shaderType == Geometry) {
+  } else if(shaderType == GL_GEOMETRY_SHADER) {
     shaderTypeStr = "GEOMETRY";
   }
 

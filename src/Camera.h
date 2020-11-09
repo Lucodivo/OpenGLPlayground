@@ -11,7 +11,7 @@
 #include "LearnOpenGLPlatform.h"
 
 // Defines several possible options for camera movement. Used as abstraction to stay away from window-system specific input methods
-enum Camera_Movement
+enum CameraMovement
 {
   FORWARD,
   BACKWARD,
@@ -54,13 +54,16 @@ public:
   bool groundedMovement = true;
 
   // Constructor with vectors
-  Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 3.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float32 yaw = YAW, float32 pitch = PITCH);
+  Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 3.0f),
+          glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f),
+          float32 yaw = YAW,
+          float32 pitch = PITCH);
 
   // Returns the view matrix calculated using Eular Angles and the LookAt Matrix
   glm::mat4 GetViewMatrix(float32 deltaTime);
   glm::mat4 lookAt();
   // Processes input received from any keyboard-like input system. Accepts input parameter in the form of camera defined ENUM (to abstract it from windowing systems)
-  void ProcessInput(Camera_Movement direction);
+  void ProcessInput(CameraMovement direction);
   void ProcessLeftAnalog(int16 stickX, int16 stickY, GLboolean constrainPitch = true);
   // Processes input received from a mouse input system. Expects the offset value in both the x and y direction.
   void ProcessMouseMovement(float32 xoffset, float32 yoffset, GLboolean constrainPitch = true);
