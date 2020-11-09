@@ -26,6 +26,7 @@ public:
   // use/activate the shader
   void use();
 
+  // clean up resources when unneeded
   void deleteShaderResources();
 
   // utility uniform functions

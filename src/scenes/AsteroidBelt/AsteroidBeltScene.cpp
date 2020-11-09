@@ -192,7 +192,4 @@ void AsteroidBeltScene::drawFrame()
                  36, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
                  GL_UNSIGNED_INT, // type of the indices
                  0); // offset in the EBO
-
-  uint32 numFrames = (uint32)(1.0f / deltaTime);
-  renderText(std::to_string(numFrames) + " FPS", 25.0f, 25.0f, 1.0f, glm::vec3(1.0f, 0.0f, 0.0f));
 }

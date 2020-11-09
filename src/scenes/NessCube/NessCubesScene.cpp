@@ -42,7 +42,6 @@ NessCubesScene::NessCubesScene(): FirstPersonScene()
 
 void NessCubesScene::init(uint32 windowWidth, uint32 windowHeight)
 {
-  // TODO: subscribing to input so early makes it so the scene camera can change before things are rendered for the first time
   FirstPersonScene::init(windowWidth, windowHeight);
 
   glm::mat4 projectionMat = glm::perspective(glm::radians(camera.Zoom), (float32)windowWidth / (float32)windowHeight, 0.1f, 100.0f);
