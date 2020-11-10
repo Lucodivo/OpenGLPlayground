@@ -14,7 +14,6 @@ struct MouseCoord
   float64 y;
 };
 
-
 struct Extent2D
 {
   int32 x;
@@ -44,39 +43,28 @@ enum InputState
   INPUT_INACTIVE = 1 << 3
 };
 
-class InputConsumer_
+class InputConsumer
 {
 public:
-  class_access void initializeInput(GLFWwindow* window, Extent2D windowExtent);
-  // TODO: deinit input?
-
-  class_access void loadInputStateForFrame(GLFWwindow* window);
   virtual void inputStatesUpdated() = 0;
-
-protected:
-
-  class_access bool hotPress(InputType key); // returns true if key was just pressed
-  class_access bool hotRelease(InputType key); // returns true if key was just released
-  class_access bool isActive(InputType key); // returns true if key is pressed or held down
-
-  class_access InputState getInputState(InputType key);
-  class_access MouseCoord getMousePosition();
-  class_access MouseCoord getMouseDelta();
-  class_access float32 getMouseScrollY();
-  class_access Extent2D getWindowExtent();
-
-private:
-  class_access void setKeyState(GLFWwindow* window, uint32 glfwKey, InputType keyboardInput);
-  class_access void setMouseState(GLFWwindow* window, uint32 glfwKey, InputType mouseInput);
-
-  class_access std::map<InputType, InputState> inputState;
-  class_access MouseCoord mousePosition;
-  class_access MouseCoord mouseDelta;
-  class_access float32 mouseScrollY;
 };
 
-void mouse_scroll_callback(GLFWwindow* window, float64 xOffset, float64 yOffset);
-void window_size_callback(GLFWwindow* window, int32 width, int32 height);
+void initializeInput(GLFWwindow* window, Extent2D windowExtent);
+void deinitializeInput(GLFWwindow* window);
+void loadInputStateForFrame(GLFWwindow* window);
+bool hotPress(InputType key); // returns true if input was just activated
+bool hotRelease(InputType key); // returns true if input was just deactivated
+bool isActive(InputType key); // returns true if key is pressed or held down
+
+InputState getInputState(InputType key); // Note: for special use cases (ex: double click), use hotPress/hotRelease/isActive in most cases
+MouseCoord getMousePosition();
+MouseCoord getMouseDelta();
+float32 getMouseScrollY();
+Extent2D getWindowExtent();
+
+
+
+
 
 
 

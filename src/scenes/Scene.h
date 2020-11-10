@@ -6,7 +6,7 @@
 #include "../common/Input.h"
 #include "../Shader.h"
 
-class Scene : public KeyboardConsumer, public InputConsumer_
+class Scene : public InputConsumer
 {
 public:
   Scene(){};
@@ -14,6 +14,7 @@ public:
   virtual void init(uint32 windowWidth, uint32 windowHeight);
   virtual void deinit() {} // de-initializes scene
   virtual void drawFrame() {} // draws scene to back buffer
+  virtual void drawGui() {};
   virtual void inputStatesUpdated();
 
 protected:

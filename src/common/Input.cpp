@@ -5,132 +5,146 @@
 #include <iostream>
 #include <vector>
 
+file_access void setKeyState(GLFWwindow* window, uint32 glfwKey, InputType keyboardInput);
+file_access void setMouseState(GLFWwindow* window, uint32 glfwKey, InputType mouseInput);
+
+void mouse_scroll_callback(GLFWwindow* window, float64 xOffset, float64 yOffset);
+void window_size_callback(GLFWwindow* window, int32 width, int32 height);
+
 file_access bool globalWindowSizeChange;
 file_access Extent2D globalWindowExtent;
 file_access MouseCoord globalMouseScroll;
-MouseCoord InputConsumer_::mousePosition = { 0.0f, 0.0f };
-MouseCoord InputConsumer_::mouseDelta = { 0.0f, 0.0f };
-float32 InputConsumer_::mouseScrollY = 0.0f;
-std::map<InputType, InputState> InputConsumer_::inputState = std::map<InputType, InputState>();
+file_access MouseCoord mousePosition = {0.0f, 0.0f };
+file_access MouseCoord mouseDelta = {0.0f, 0.0f };
+file_access float32 mouseScrollY = 0.0f;
+file_access std::map<InputType, InputState>* inputState = NULL;
 
-void InputConsumer_::initializeInput(GLFWwindow* window, Extent2D windowExtent)
+void initializeInput(GLFWwindow* window, Extent2D windowExtent)
 {
   globalMouseScroll = MouseCoord{0.0f, 0.0f};
   globalWindowSizeChange = true;
   globalWindowExtent = windowExtent;
+  inputState = new std::map<InputType, InputState>();
   glfwSetScrollCallback(window, mouse_scroll_callback);
   glfwSetFramebufferSizeCallback(window, window_size_callback);
 }
 
-InputState InputConsumer_::getInputState(InputType key) {
-  std::map<InputType, InputState>::iterator inputSearch = inputState.find(key);
-  return inputSearch != inputState.end() ? inputSearch->second : INPUT_INACTIVE;
+void deinitializeInput(GLFWwindow* window)
+{
+  delete inputState;
+  glfwSetScrollCallback(window, NULL);
+  glfwSetFramebufferSizeCallback(window, NULL);
 }
 
-bool InputConsumer_::hotPress(InputType key) {
+InputState getInputState(InputType key) {
+  std::map<InputType, InputState>::iterator inputSearch = inputState->find(key);
+  return inputSearch != inputState->end() ? inputSearch->second : INPUT_INACTIVE;
+}
+
+bool hotPress(InputType key) {
   return getInputState(key) & INPUT_HOT_PRESS;
 }
 
-bool InputConsumer_::hotRelease(InputType key) {
+bool hotRelease(InputType key) {
   return getInputState(key) & INPUT_HOT_RELEASE;
 }
 
-bool InputConsumer_::isActive(InputType key) {
+bool isActive(InputType key) {
   return getInputState(key) & (INPUT_HOT_PRESS | INPUT_ACTIVE);
 }
 
-MouseCoord InputConsumer_::getMousePosition() {
+MouseCoord getMousePosition() {
   return mousePosition;
 }
 
-MouseCoord InputConsumer_::getMouseDelta() {
+MouseCoord getMouseDelta() {
   return mouseDelta;
 }
 
-float32 InputConsumer_::getMouseScrollY() {
+float32 getMouseScrollY() {
   return mouseScrollY;
 }
 
-Extent2D InputConsumer_::getWindowExtent() {
+Extent2D getWindowExtent() {
   return globalWindowExtent;
 }
 
-void InputConsumer_::setKeyState(GLFWwindow* window, uint32 glfwKey, InputType keyboardInput)
+void setKeyState(GLFWwindow* window, uint32 glfwKey, InputType keyboardInput)
 {
-  std::map<InputType, InputState>::iterator keyIterator = inputState.find(keyboardInput);
-  InputState oldKeyState = keyIterator != inputState.end() ? keyIterator->second : INPUT_INACTIVE;
+  std::map<InputType, InputState>::iterator keyIterator = inputState->find(keyboardInput);
+  InputState oldKeyState = keyIterator != inputState->end() ? keyIterator->second : INPUT_INACTIVE;
   if (glfwGetKey(window, glfwKey) == GLFW_PRESS)
   {
     if(oldKeyState & INPUT_HOT_PRESS) {
-      inputState[keyboardInput] = INPUT_ACTIVE;
+      (*inputState)[keyboardInput] = INPUT_ACTIVE;
     } else if(oldKeyState ^ INPUT_ACTIVE) {
-      inputState[keyboardInput] = INPUT_HOT_PRESS;
+      (*inputState)[keyboardInput] = INPUT_HOT_PRESS;
     }
   } else if(oldKeyState & (INPUT_HOT_PRESS | INPUT_ACTIVE)) {
-    inputState[keyboardInput] = INPUT_HOT_RELEASE;
+    (*inputState)[keyboardInput] = INPUT_HOT_RELEASE;
   } else if(oldKeyState & INPUT_HOT_RELEASE) { // only erase if there is something to be erased
-    inputState.erase(keyIterator);
+    inputState->erase(keyIterator);
   }
 }
 
-void InputConsumer_::setMouseState(GLFWwindow* window, uint32 glfwKey, InputType mouseInput)
+void setMouseState(GLFWwindow* window, uint32 glfwKey, InputType mouseInput)
 {
-  std::map<InputType, InputState>::iterator mouseInputIterator = inputState.find(mouseInput);
-  InputState oldMouseInputState = mouseInputIterator != inputState.end() ? mouseInputIterator->second : INPUT_INACTIVE;
+  std::map<InputType, InputState>::iterator mouseInputIterator = inputState->find(mouseInput);
+  InputState oldMouseInputState = mouseInputIterator != inputState->end() ? mouseInputIterator->second : INPUT_INACTIVE;
   if (glfwGetMouseButton(window, glfwKey) == GLFW_PRESS)
   {
     if(oldMouseInputState & INPUT_HOT_PRESS) {
-      inputState[mouseInput] = INPUT_ACTIVE;
+      (*inputState)[mouseInput] = INPUT_ACTIVE;
     } else if(oldMouseInputState ^ INPUT_ACTIVE) {
-      inputState[mouseInput] = INPUT_HOT_PRESS;
+      (*inputState)[mouseInput] = INPUT_HOT_PRESS;
     }
   } else if(oldMouseInputState & (INPUT_HOT_PRESS | INPUT_ACTIVE)) {
-    inputState[mouseInput] = INPUT_HOT_RELEASE;
+    (*inputState)[mouseInput] = INPUT_HOT_RELEASE;
   } else if(oldMouseInputState & INPUT_HOT_RELEASE) { // only erase if there is something to be erased
-    inputState.erase(mouseInputIterator);
+    inputState->erase(mouseInputIterator);
   }
 }
 
-void InputConsumer_::loadInputStateForFrame(GLFWwindow* window) {
+void loadInputStateForFrame(GLFWwindow* window) {
   // keyboard state
   {
-    InputConsumer_::setKeyState(window, GLFW_KEY_Q, KeyboardInput_Q);
-    InputConsumer_::setKeyState(window, GLFW_KEY_W, KeyboardInput_W);
-    InputConsumer_::setKeyState(window, GLFW_KEY_E, KeyboardInput_E);
-    InputConsumer_::setKeyState(window, GLFW_KEY_R, KeyboardInput_R);
-    InputConsumer_::setKeyState(window, GLFW_KEY_A, KeyboardInput_A);
-    InputConsumer_::setKeyState(window, GLFW_KEY_S, KeyboardInput_S);
-    InputConsumer_::setKeyState(window, GLFW_KEY_D, KeyboardInput_D);
-    InputConsumer_::setKeyState(window, GLFW_KEY_F, KeyboardInput_F);
-    InputConsumer_::setKeyState(window, GLFW_KEY_J, KeyboardInput_J);
-    InputConsumer_::setKeyState(window, GLFW_KEY_K, KeyboardInput_K);
-    InputConsumer_::setKeyState(window, GLFW_KEY_L, KeyboardInput_L);
-    InputConsumer_::setKeyState(window, GLFW_KEY_SEMICOLON, KeyboardInput_Semicolon);
-    InputConsumer_::setKeyState(window, GLFW_KEY_LEFT_SHIFT, KeyboardInput_Shift_Left);
-    InputConsumer_::setKeyState(window, GLFW_KEY_LEFT_CONTROL, KeyboardInput_Ctrl_Left);
-    InputConsumer_::setKeyState(window, GLFW_KEY_LEFT_ALT, KeyboardInput_Alt_Left);
-    InputConsumer_::setKeyState(window, GLFW_KEY_TAB, KeyboardInput_Tab);
-    InputConsumer_::setKeyState(window, GLFW_KEY_RIGHT_SHIFT, KeyboardInput_Shift_Right);
-    InputConsumer_::setKeyState(window, GLFW_KEY_RIGHT_CONTROL, KeyboardInput_Ctrl_Right);
-    InputConsumer_::setKeyState(window, GLFW_KEY_RIGHT_ALT, KeyboardInput_Alt_Right);
-    InputConsumer_::setKeyState(window, GLFW_KEY_ENTER, KeyboardInput_Enter);
-    InputConsumer_::setKeyState(window, GLFW_KEY_ESCAPE, KeyboardInput_Esc);
-    InputConsumer_::setKeyState(window, GLFW_KEY_GRAVE_ACCENT, KeyboardInput_Backtick);
-    InputConsumer_::setKeyState(window, GLFW_KEY_1, KeyboardInput_1);
-    InputConsumer_::setKeyState(window, GLFW_KEY_2, KeyboardInput_2);
-    InputConsumer_::setKeyState(window, GLFW_KEY_3, KeyboardInput_3);
-    InputConsumer_::setKeyState(window, GLFW_KEY_UP, KeyboardInput_Up);
-    InputConsumer_::setKeyState(window, GLFW_KEY_DOWN, KeyboardInput_Down);
-    InputConsumer_::setKeyState(window, GLFW_KEY_LEFT, KeyboardInput_Left);
-    InputConsumer_::setKeyState(window, GLFW_KEY_RIGHT, KeyboardInput_Right);
-    InputConsumer_::setKeyState(window, GLFW_KEY_SPACE, KeyboardInput_Space);
+    setKeyState(window, GLFW_KEY_Q, KeyboardInput_Q);
+    setKeyState(window, GLFW_KEY_W, KeyboardInput_W);
+    setKeyState(window, GLFW_KEY_E, KeyboardInput_E);
+    setKeyState(window, GLFW_KEY_R, KeyboardInput_R);
+    setKeyState(window, GLFW_KEY_A, KeyboardInput_A);
+    setKeyState(window, GLFW_KEY_S, KeyboardInput_S);
+    setKeyState(window, GLFW_KEY_D, KeyboardInput_D);
+    setKeyState(window, GLFW_KEY_F, KeyboardInput_F);
+    setKeyState(window, GLFW_KEY_J, KeyboardInput_J);
+    setKeyState(window, GLFW_KEY_K, KeyboardInput_K);
+    setKeyState(window, GLFW_KEY_L, KeyboardInput_L);
+    setKeyState(window, GLFW_KEY_SEMICOLON, KeyboardInput_Semicolon);
+    setKeyState(window, GLFW_KEY_LEFT_SHIFT, KeyboardInput_Shift_Left);
+    setKeyState(window, GLFW_KEY_LEFT_CONTROL, KeyboardInput_Ctrl_Left);
+    setKeyState(window, GLFW_KEY_LEFT_ALT, KeyboardInput_Alt_Left);
+    setKeyState(window, GLFW_KEY_TAB, KeyboardInput_Tab);
+    setKeyState(window, GLFW_KEY_RIGHT_SHIFT, KeyboardInput_Shift_Right);
+    setKeyState(window, GLFW_KEY_RIGHT_CONTROL, KeyboardInput_Ctrl_Right);
+    setKeyState(window, GLFW_KEY_RIGHT_ALT, KeyboardInput_Alt_Right);
+    setKeyState(window, GLFW_KEY_ENTER, KeyboardInput_Enter);
+    setKeyState(window, GLFW_KEY_ESCAPE, KeyboardInput_Esc);
+    setKeyState(window, GLFW_KEY_GRAVE_ACCENT, KeyboardInput_Backtick);
+    setKeyState(window, GLFW_KEY_1, KeyboardInput_1);
+    setKeyState(window, GLFW_KEY_2, KeyboardInput_2);
+    setKeyState(window, GLFW_KEY_3, KeyboardInput_3);
+    setKeyState(window, GLFW_KEY_UP, KeyboardInput_Up);
+    setKeyState(window, GLFW_KEY_DOWN, KeyboardInput_Down);
+    setKeyState(window, GLFW_KEY_LEFT, KeyboardInput_Left);
+    setKeyState(window, GLFW_KEY_RIGHT, KeyboardInput_Right);
+    setKeyState(window, GLFW_KEY_SPACE, KeyboardInput_Space);
   }
 
   // mouse state
   {
-    InputConsumer_::setMouseState(window, GLFW_MOUSE_BUTTON_LEFT, MouseInput_Left);
-    InputConsumer_::setMouseState(window, GLFW_MOUSE_BUTTON_RIGHT, MouseInput_Right);
-    InputConsumer_::setMouseState(window, GLFW_MOUSE_BUTTON_MIDDLE, MouseInput_Middle);
+    setMouseState(window, GLFW_MOUSE_BUTTON_LEFT, MouseInput_Left);
+    setMouseState(window, GLFW_MOUSE_BUTTON_RIGHT, MouseInput_Right);
+    setMouseState(window, GLFW_MOUSE_BUTTON_MIDDLE, MouseInput_Middle);
     setMouseState(window, GLFW_MOUSE_BUTTON_LAST, MouseInput_Last); // TODO: does this work?
 
     // mouse movement state management
@@ -144,31 +158,31 @@ void InputConsumer_::loadInputStateForFrame(GLFWwindow* window) {
       mouseDelta = globalWindowSizeChange ? MouseCoord{0.0f, 0.0f} : MouseCoord{newMouseCoord.x - mousePosition.x, newMouseCoord.y - mousePosition.y};
       mousePosition = newMouseCoord;
 
-      std::map<InputType, InputState>::iterator movementIterator = inputState.find(MouseInput_Movement);
-      bool movementWasActive = movementIterator != inputState.end();
+      std::map<InputType, InputState>::iterator movementIterator = inputState->find(MouseInput_Movement);
+      bool movementWasActive = movementIterator != inputState->end();
       if (mouseDelta.x != 0.0f || mouseDelta.y != 0.0f)
       {
         if(!movementWasActive) {
-          inputState[MouseInput_Movement] = INPUT_ACTIVE;
+          (*inputState)[MouseInput_Movement] = INPUT_ACTIVE;
         }
       } else if (movementWasActive) // scroll no longer active
       {
-        inputState.erase(movementIterator);
+        inputState->erase(movementIterator);
       }
     }
 
     // mouse scroll state management
     {
-      std::map<InputType, InputState>::iterator scrollIterator = inputState.find(MouseInput_Scroll);
-      bool scrollWasActive = scrollIterator != inputState.end();
-      mouseScrollY = globalMouseScroll.y;
+      std::map<InputType, InputState>::iterator scrollIterator = inputState->find(MouseInput_Scroll);
+      bool scrollWasActive = scrollIterator != inputState->end();
+      mouseScrollY = (float32)globalMouseScroll.y;
       globalMouseScroll.y = 0.0f; // NOTE: Set to 0.0f to signify that the result has been consumed
       if (mouseScrollY != 0.0f && !scrollWasActive)
       {
-        inputState[MouseInput_Scroll] = INPUT_ACTIVE;
-      } else if (scrollWasActive) // scroll no longer active 
+        (*inputState)[MouseInput_Scroll] = INPUT_ACTIVE;
+      } else if (scrollWasActive) // scroll no longer active
       {
-        inputState.erase(scrollIterator);
+        inputState->erase(scrollIterator);
       }
     }
 
@@ -178,11 +192,11 @@ void InputConsumer_::loadInputStateForFrame(GLFWwindow* window) {
       local_access bool removeWindowInputSizeChange = false;
       if(globalWindowSizeChange)
       {
-        inputState[WindowInput_SizeChange] = INPUT_ACTIVE;
+        (*inputState)[WindowInput_SizeChange] = INPUT_ACTIVE;
         removeWindowInputSizeChange = true;
       } else if(removeWindowInputSizeChange)
       {
-        inputState.erase(WindowInput_SizeChange);
+        inputState->erase(WindowInput_SizeChange);
         removeWindowInputSizeChange = false;
       }
       globalWindowSizeChange = false; // NOTE: Set to false to signify that the result has been consumed
@@ -194,7 +208,7 @@ void InputConsumer_::loadInputStateForFrame(GLFWwindow* window) {
 void mouse_scroll_callback(GLFWwindow* window, float64 xOffset, float64 yOffset)
 {
   // NOTE: InputConsumer consumes this value and sets it to 0.0 if consumed
-  globalMouseScroll.y = (float32)yOffset;
+  globalMouseScroll.y = yOffset;
 }
 
 // NOTE: returns (0,0) when no longer on screen
