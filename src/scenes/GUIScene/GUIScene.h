@@ -22,10 +22,7 @@ public:
   void init(uint32 windowWidth, uint32 windowHeight);
   void deinit();
   void drawFrame();
-
-  void key_E_pressed();
-  void key_LeftMouseButton_pressed(float32 xPos, float32 yPos);
-  void mouseMovement(float32 xOffset, float32 yOffset);
+  void inputStatesUpdated();
 
 private:
   GLFWwindow* window = NULL;

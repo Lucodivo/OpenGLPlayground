@@ -275,45 +275,47 @@ void ReflectRefractScene::drawFrame()
                  0); // offset in the EBO
 }
 
-void ReflectRefractScene::key_Up()
-{
-  nextModelReflaction();
+
+void ReflectRefractScene::inputStatesUpdated() {
+  FirstPersonScene::inputStatesUpdated();
+
+  if(hotPress(KeyboardInput_Up)) {
+    nextModelReflaction();
+  }
+
+  if(hotPress(KeyboardInput_Down)) {
+    prevModelReflaction();
+  }
+
+  if(hotPress(KeyboardInput_Left)) {
+    prevMode();
+  }
+
+  if(hotPress(KeyboardInput_Right)) {
+    nextMode();
+  }
 }
 
-void ReflectRefractScene::key_Down()
-{
-  prevModelReflaction();
-}
-
-void ReflectRefractScene::key_Left()
-{
-  prevMode();
-}
-
-void ReflectRefractScene::key_Right()
-{
-  nextMode();
-}
-
-void ReflectRefractScene::button_dPadUp_pressed()
-{
-  nextModelReflaction();
-}
-
-void ReflectRefractScene::button_dPadDown_pressed()
-{
-  prevModelReflaction();
-}
-
-void ReflectRefractScene::button_dPadLeft_pressed()
-{
-  prevMode();
-}
-
-void ReflectRefractScene::button_dPadRight_pressed()
-{
-  nextMode();
-}
+// TODO: reintroduce when controller input is complete
+//void ReflectRefractScene::button_dPadUp_pressed()
+//{
+//  nextModelReflaction();
+//}
+//
+//void ReflectRefractScene::button_dPadDown_pressed()
+//{
+//  prevModelReflaction();
+//}
+//
+//void ReflectRefractScene::button_dPadLeft_pressed()
+//{
+//  prevMode();
+//}
+//
+//void ReflectRefractScene::button_dPadRight_pressed()
+//{
+//  nextMode();
+//}
 
 void ReflectRefractScene::nextModelReflaction()
 {

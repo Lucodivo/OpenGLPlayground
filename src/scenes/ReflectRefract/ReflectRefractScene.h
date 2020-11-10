@@ -15,6 +15,7 @@ public:
   void init(uint32 windowWidth, uint32 windowHeight);
   void deinit();
   void drawFrame();
+  void inputStatesUpdated();
 
 private:
   Shader* explodingReflectionShader;
@@ -46,15 +47,6 @@ private:
 
   double reflactionModeSwitchTimer = 0.0f;
   double modeSwitchTimer = 0.0f;
-
-  void key_Up() override;
-  void key_Down() override;
-  void key_Left() override;
-  void key_Right() override;
-  void button_dPadUp_pressed() override;
-  void button_dPadDown_pressed() override;
-  void button_dPadLeft_pressed() override;
-  void button_dPadRight_pressed() override;
 
   void nextModelReflaction();
   void prevModelReflaction();

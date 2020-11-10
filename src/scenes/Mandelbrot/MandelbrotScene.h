@@ -17,21 +17,11 @@ public:
   void init(uint32 windowWidth, uint32 windowHeight);
   void deinit();
   void drawFrame();
-
-  // FrameBufferSizeConsumer override
-  void framebufferSizeChange(uint32 width, uint32 height) override;
-
-  // KeyboardConsumer override
-  void key_LeftShift_pressed() override;
-  void key_LeftShift_released() override;
-
-  // MouseConsumer override
-  void mouseMovement(float32 xOffset, float32 yOffset);
-  void mouseScroll(float32 yOffset) override;
-  void key_LeftMouseButton_pressed(float32 xPos, float32 yPos) override;
-  void key_LeftMouseButton_released(float32 xPos, float32 yPos) override;
+  void inputStatesUpdated();
 
 private:
+
+  Extent2D oldWindowExtent;
 
   GLFWwindow* window = NULL;
 

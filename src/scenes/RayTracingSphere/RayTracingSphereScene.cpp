@@ -66,9 +66,13 @@ void RayTracingSphereScene::drawFrame()
                  0); // offset in the EBO
 }
 
-void RayTracingSphereScene::framebufferSizeChange(uint32 width, uint32 height)
-{
-  FirstPersonScene::framebufferSizeChange(width, height);
-  rayTracingSphereShader->use();
-  rayTracingSphereShader->setUniform("viewPortResolution", glm::vec2(width, height));
+
+void RayTracingSphereScene::inputStatesUpdated() {
+  GodModeScene::inputStatesUpdated();
+
+  if(isActive(WindowInput_SizeChange)) {
+    Extent2D windowExtent = getWindowExtent();
+    rayTracingSphereShader->use();
+    rayTracingSphereShader->setUniform("viewPortResolution", glm::vec2(windowExtent.x, windowExtent.y));
+  }
 }

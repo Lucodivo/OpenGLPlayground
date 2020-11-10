@@ -22,14 +22,13 @@ void GodModeScene::button_B_released()
 }
 // +++ CONTROLLER CONSUMER OVERRIDES - END +++
 
-// +++ KEYBOARD CONSUMER OVERRIDES - START +++
-void GodModeScene::key_LeftShift_pressed()
+void GodModeScene::inputStatesUpdated()
 {
-  camera.MovementSpeed = GODMOD_CAMERA_SPEED_FAST;
-}
+  FirstPersonScene::inputStatesUpdated();
 
-void GodModeScene::key_LeftShift_released()
-{
-  camera.MovementSpeed = GODMODE_CAMERA_SPEED;
+  if(hotPress(KeyboardInput_Shift_Left)){
+    camera.MovementSpeed = GODMOD_CAMERA_SPEED_FAST;
+  } else if(hotRelease(KeyboardInput_Shift_Left)) {
+    camera.MovementSpeed = GODMODE_CAMERA_SPEED;
+  }
 }
-// +++ KEYBOARD CONSUMER OVERRIDES - START +++

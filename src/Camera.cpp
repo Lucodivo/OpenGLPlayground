@@ -5,7 +5,7 @@
 #include "Camera.h"
 
 // Constructor with vectors
-Camera::Camera(glm::vec3 position, glm::vec3 up, float32 yaw, float32 pitch)
+Camera::Camera(glm::vec3 position, glm::vec3 up, float64 yaw, float64 pitch)
 : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(CAMERA_SPEED), MouseSensitivity(SENSITIVITY), Zoom(ZOOM)
 {
   Position = position;
@@ -110,8 +110,10 @@ void Camera::ProcessLeftAnalog(int16 stickX, int16 stickY, GLboolean constrainPi
   else if (stickX < 0) ProcessInput(LEFT);
 }
 
+
+// TODO: use MouseCoord?
 // Processes input received from a mouse input system. Expects the offset value in both the x and y direction.
-void Camera::ProcessMouseMovement(float32 xoffset, float32 yoffset, GLboolean constrainPitch)
+void Camera::ProcessMouseMovement(float64 xoffset, float64 yoffset, GLboolean constrainPitch)
 {
   xoffset *= MouseSensitivity;
   yoffset *= MouseSensitivity;
@@ -159,9 +161,11 @@ void Camera::updateCameraVectors()
 {
   // Calculate the new Front vector
   glm::vec3 front;
-  front.x = cos(glm::radians(Yaw)) * cos(glm::radians(Pitch));
-  front.y = sin(glm::radians(Pitch));
-  front.z = sin(glm::radians(Yaw)) * cos(glm::radians(Pitch));
+  float32 pitch = (float32)Pitch;
+  float32 yaw = (float32)Yaw;
+  front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+  front.y = sin(glm::radians(pitch));
+  front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
   Front = glm::normalize(front);
   // Also re-calculate the Right and Up vector
   Right = glm::normalize(glm::cross(Front, WorldUp));  // Normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.

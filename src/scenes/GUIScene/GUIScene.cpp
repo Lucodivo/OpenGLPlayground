@@ -53,6 +53,10 @@ void GUIScene::init(uint32 windowWidth, uint32 windowHeight)
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   glLineWidth(3.0f);
+
+  glEnable(GL_CULL_FACE);
+  glFrontFace(GL_CCW);
+  glCullFace(GL_BACK);
   
   glBindVertexArray(cubeVertexAtt.arrayObject);
 
@@ -101,6 +105,7 @@ void GUIScene::drawFrame()
   cubeShader->setUniform("color", wireFrameColor);
   glDisable(GL_DEPTH_TEST);
   glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+  glDisable(GL_CULL_FACE);
   for(uint32 i = 0; i < numCubes; i++)
   {
     if(cubes[i].wireframe) {
@@ -114,24 +119,24 @@ void GUIScene::drawFrame()
   }
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
   glEnable(GL_DEPTH_TEST);
+  glEnable(GL_CULL_FACE);
 }
 
-void GUIScene::key_E_pressed()
-{
-  cursorMode = !cursorMode;
-  // TODO: Cannot turn off input mode when I am trying to select a scene, think of alternative
-  glfwSetInputMode(window, GLFW_CURSOR, cursorMode ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED);
-}
+void GUIScene::inputStatesUpdated() {
+  FirstPersonScene::inputStatesUpdated();
 
-void GUIScene::key_LeftMouseButton_pressed(float32 xPos, float32 yPos)
-{
-  checkMouseClickCollision(xPos, yPos);
-}
+  if(hotPress(MouseInput_Left))
+  {
+    MouseCoord mousePos = getMousePosition();
+    checkMouseClickCollision((float32)mousePos.x, (float32)mousePos.y);
+  }
 
-void GUIScene::mouseMovement(float32 xOffset, float32 yOffset)
-{
-  if(!cursorMode) {
-    FirstPersonScene::mouseMovement(xOffset, yOffset);
+  if(hotPress(KeyboardInput_E))
+  {
+    cursorMode = !cursorMode;
+    enableDefaultMouseCameraMovement(!cursorMode); // if cursor mode, disable defauly mouse camera control
+    // TODO: Cannot turn off input mode when I am trying to select a scene, think of alternative
+    glfwSetInputMode(window, GLFW_CURSOR, cursorMode ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED);
   }
 }
 
@@ -158,11 +163,7 @@ void GUIScene::checkMouseClickCollision(float32 mouseX, float32 mouseY)
 
   glm::vec3 rayOrigin = camera.Position;
   for(int i = 0; i < numCubes; i++) {
-    if(checkCubeCollision(&rayWorldCoord, &rayOrigin, &cubes[i])) {
-      cubes[i].wireframe = true;
-    } else {
-      cubes[i].wireframe = false;
-    }
+    cubes[i].wireframe = checkCubeCollision(&rayWorldCoord, &rayOrigin, &cubes[i]);
   }
 }
 
@@ -201,7 +202,6 @@ bool GUIScene::checkCubeCollision(glm::vec3* worldRay, glm::vec3* rayOrigin, Cub
   float32 tmax = (txymax < tzmax) ? txymax : tzmin;
 
   // If the time of the collisions is negative, an intersection happened "behind" the origin and we don't consider the intersection
-  if(tmin < 0 && tmax < 0) return false;
+  return tmin > 0.0f || tmax > 0.0f;
 
-  return true;
 }

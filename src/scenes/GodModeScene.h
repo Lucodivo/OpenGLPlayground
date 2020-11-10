@@ -8,11 +8,9 @@ class GodModeScene : public FirstPersonScene
 public:
   GodModeScene();
 
+  virtual void inputStatesUpdated();
+
   // ControllerConsumer implementation
   void button_B_pressed();
   void button_B_released();
-
-  // KeyboardConsumer overrides
-  void key_LeftShift_pressed();
-  void key_LeftShift_released();
 };

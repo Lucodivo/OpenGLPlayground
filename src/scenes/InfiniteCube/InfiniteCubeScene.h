@@ -42,8 +42,7 @@ public:
   void init(uint32 windowWidth, uint32 windowHeight);
   void deinit();
   void drawFrame();
-
-  void framebufferSizeChange(uint32 width, uint32 height) override;
+  void inputStatesUpdated();
 
 private:
   Shader* cubeShader = NULL;

@@ -21,59 +21,75 @@
 
 void toggleWindowSize(GLFWwindow* window, const uint32 width, const uint32 height);
 
-class InputConsumer_ : public KeyboardConsumer, public WindowSizeConsumer {
+class InputConsumer__ : public InputConsumer_ {
 public:
-  InputConsumer_(GLFWwindow* window, Scene** scenes, uint32* sceneIndex, uint32 sceneCount,
-                 uint32* windowWidth, uint32* windowHeight, TextDebugShader* textShader){
+  InputConsumer__(GLFWwindow* window, Scene** scenes, uint32* sceneIndex, uint32 sceneCount,
+          Extent2D* windowExtent, TextDebugShader* textShader) {
+    InputConsumer_::initializeInput(window, *windowExtent);
     this->window = window;
     this->scenes = scenes;
     this->sceneIndex = sceneIndex;
     this->sceneCount = sceneCount;
-    this->windowWidth = windowWidth;
-    this->windowHeight = windowHeight;
+    this->windowExtent = windowExtent;
     this->textShader = textShader;
   }
+
+  void processInput()
+  {
+    loadInputStateForFrame(window);
+    inputStatesUpdated();
+  }
+
+private:
   GLFWwindow* window;
   Scene** scenes;
   TextDebugShader* textShader;
   uint32* sceneIndex;
   uint32 sceneCount;
-  uint32* windowWidth;
-  uint32* windowHeight;
-  void key_O_pressed() {
-    scenes[*sceneIndex]->deinit();
-    if(*sceneIndex == 0) {
-      *sceneIndex = sceneCount - 1;
-    } else { --(*sceneIndex); }
-    scenes[*sceneIndex]->init(*windowWidth, *windowHeight);
-  }
-  void key_P_pressed() {
-    scenes[*sceneIndex]->deinit();
-    if(++(*sceneIndex) == sceneCount) {
-      *sceneIndex = 0;
+  Extent2D* windowExtent;
+
+  void inputStatesUpdated()
+  {
+    if(hotPress(KeyboardInput_J))
+    {
+      scenes[*sceneIndex]->deinit();
+      if(*sceneIndex == 0) {
+        *sceneIndex = sceneCount - 1;
+      } else { --(*sceneIndex); }
+      scenes[*sceneIndex]->init(windowExtent->x, windowExtent->y);
+    } else if(hotPress(KeyboardInput_K))
+    {
+      scenes[*sceneIndex]->deinit();
+      if(++(*sceneIndex) == sceneCount) {
+        *sceneIndex = 0;
+      }
+      scenes[*sceneIndex]->init(windowExtent->x, windowExtent->y);
     }
-    scenes[*sceneIndex]->init(*windowWidth, *windowHeight);
-  }
-  void key_Esc(){
-    glfwSetWindowShouldClose(window, GL_TRUE);
-  }
-  void key_AltEnter_pressed() {
-    toggleWindowSize(window, VIEWPORT_INIT_WIDTH, VIEWPORT_INIT_HEIGHT);
-  }
-  void windowSizeChanged(uint32 width, uint32 height) {
-    *windowWidth = width;
-    *windowHeight = height;
-    scenes[*sceneIndex]->framebufferSizeChange(*windowWidth, *windowHeight);
-    textShader->updateWindowDimens(width, height);
+
+    if(hotPress(KeyboardInput_Esc))
+    {
+      glfwSetWindowShouldClose(window, GL_TRUE);
+    }
+
+    if(isActive(KeyboardInput_Alt_Right) && hotPress(KeyboardInput_Enter))
+    {
+      toggleWindowSize(window, VIEWPORT_INIT_WIDTH, VIEWPORT_INIT_HEIGHT);
+    }
+
+    if(isActive(WindowInput_SizeChange))
+    {
+      *windowExtent = getWindowExtent();
+      textShader->updateWindowDimens(windowExtent->x, windowExtent->y);
+    }
+
+    scenes[*sceneIndex]->inputStatesUpdated();
   }
 };
 
-
 void runScenes(GLFWwindow* window) {
-  uint32 windowWidth = VIEWPORT_INIT_WIDTH;
-  uint32 windowHeight = VIEWPORT_INIT_HEIGHT;
+  Extent2D windowExtent = { VIEWPORT_INIT_WIDTH, VIEWPORT_INIT_HEIGHT };
 
-  TextDebugShader textDebugShader = TextDebugShader(windowWidth, windowHeight);
+  TextDebugShader textDebugShader = TextDebugShader(windowExtent.x, windowExtent.y);
 
   uint32 sceneIndex = 0;
   NessCubesScene nessCubeScene = NessCubesScene();
@@ -92,16 +108,15 @@ void runScenes(GLFWwindow* window) {
                       &infiniteCapsulesScene, &roomScene, &guiScene, &moonScene, &asteroidBeltScene,
                       &reflectRefractScene, &nessCubeScene };
 
-  InputConsumer_ inputConsumer = InputConsumer_(window, scenes, &sceneIndex, ArrayCount(scenes), &windowWidth, &windowHeight, &textDebugShader);
-  subscribeKeyboardInput(&inputConsumer);
-  subscribeWindowSize(&inputConsumer);
+  InputConsumer__ inputConsumer = InputConsumer__(window, scenes, &sceneIndex, ArrayCount(scenes), &windowExtent, &textDebugShader);
 
-  scenes[sceneIndex]->init(windowWidth, windowHeight);
+  scenes[sceneIndex]->init(windowExtent.x, windowExtent.y);
   float32 deltaTime = 1.0;
   float32 lastFrame = (float32)glfwGetTime();
   while (glfwWindowShouldClose(window) == GL_FALSE)
   {
     processInput(window);
+    inputConsumer.processInput();
 
     // Start the Dear ImGui frame
     ImGui_ImplOpenGL3_NewFrame();

@@ -7,8 +7,18 @@
 #include <iostream>
 #include <glad/glad.h>
 
+// TODO: have function take in Extend2D
 void Scene::init(uint32 windowWidth, uint32 windowHeight) {
-  framebufferSizeChange(windowWidth, windowHeight);
+  Scene::framebufferSizeChange(windowWidth, windowHeight);
+}
+
+void Scene::inputStatesUpdated()
+{
+  if(isActive(WindowInput_SizeChange))
+  {
+    Extent2D extent = getWindowExtent();
+    framebufferSizeChange(extent.x, extent.y);
+  }
 }
 
 // Callback function for when user resizes our window

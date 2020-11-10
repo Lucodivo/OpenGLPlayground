@@ -375,44 +375,53 @@ void NessCubesScene::drawFrame(){
                  (void*)0); // offset in the EBO
 }
 
-void NessCubesScene::framebufferSizeChange(uint32 width, uint32 height)
-{
-  FirstPersonScene::framebufferSizeChange(width, height);
-  deleteFrameBuffer(framebuffer);
-  framebuffer = initializeFrameBuffer(width, height);
-  frameBufferShader->setUniform("textureWidth", (float32)width);
-  frameBufferShader->setUniform("textureHeight", (float32)height);
+void NessCubesScene::inputStatesUpdated() {
+  FirstPersonScene::inputStatesUpdated();
+
+  if(hotPress(KeyboardInput_E))
+  {
+    nextImageKernel();
+  }
+
+  if(hotPress(KeyboardInput_Q))
+  {
+    prevImageKernel();
+  }
+
+  if(hotPress(MouseInput_Left))
+  {
+    toggleFlashlight();
+  }
+
+  if(isActive(WindowInput_SizeChange)) {
+    Extent2D windowExtent = getWindowExtent();
+    deleteFrameBuffer(framebuffer);
+    framebuffer = initializeFrameBuffer(windowExtent.x, windowExtent.y);
+    frameBufferShader->setUniform("textureWidth", (float32)windowExtent.x);
+    frameBufferShader->setUniform("textureHeight", (float32)windowExtent.y);
+  }
 }
 
-void NessCubesScene::key_E_released()
-{
-  nextImageKernel();
-}
-
-void NessCubesScene::key_Q_released()
-{
-  prevImageKernel();
-}
-
-void NessCubesScene::key_LeftMouseButton_pressed(float32 xPos, float32 yPos)
-{
-  toggleFlashlight();
-}
-
-void NessCubesScene::button_X_pressed()
-{
-  toggleFlashlight();
-}
-
-void NessCubesScene::button_dPadUp_pressed()
-{
-  nextImageKernel();
-}
-
-void NessCubesScene::button_dPadDown_pressed()
-{
-  prevImageKernel();
-}
+// TODO: reintroduce when controller input is added
+//void NessCubesScene::key_LeftMouseButton_pressed(float32 xPos, float32 yPos)
+//{
+//  toggleFlashlight();
+//}
+//
+//void NessCubesScene::button_X_pressed()
+//{
+//  toggleFlashlight();
+//}
+//
+//void NessCubesScene::button_dPadUp_pressed()
+//{
+//  nextImageKernel();
+//}
+//
+//void NessCubesScene::button_dPadDown_pressed()
+//{
+//  prevImageKernel();
+//}
 
 void NessCubesScene::toggleFlashlight()
 {

@@ -28,13 +28,7 @@ public:
   void init(uint32 windowWidth, uint32 windowHeight);
   void deinit();
   void drawFrame();
-
-  void framebufferSizeChange(uint32 width, uint32 height) override;
-
-  void key_E_pressed() override;
-  void key_Q_pressed() override;
-  void key_Tab_pressed() override;
-  void mouseMovement(float32 xOffset, float32 yOffset) override;
+  void inputStatesUpdated();
 
 private:
 
@@ -69,7 +63,7 @@ private:
   uint32 currentResolutionIndex = 1;
   resolution currentResolution = screenResolutions[currentResolutionIndex];
 
-  int32 numSamples = 4;
+  int32 numSamples = 1;
 
   const float cubeScale = 10.0f;
   const float32 frameTime = 0.2f;

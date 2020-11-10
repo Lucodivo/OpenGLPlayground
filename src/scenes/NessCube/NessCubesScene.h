@@ -15,20 +15,10 @@ public:
   NessCubesScene();
 
   // FrameBufferSizeConsumer override
-  void framebufferSizeChange(uint32 width, uint32 height) override;
   void init(uint32 windowWidth, uint32 windowHeight);
   void deinit();
   void drawFrame();
-
-  // KeyboardConsumer overrides
-  void key_LeftMouseButton_pressed(float32 xPos, float32 yPos) override;
-  void key_E_released() override;
-  void key_Q_released() override;
-
-  // ControllerConsumer overrides
-  void button_X_pressed() override;
-  void button_dPadUp_pressed() override;
-  void button_dPadDown_pressed() override;
+  void inputStatesUpdated();
 
 private:
   Shader* cubeShader = NULL;

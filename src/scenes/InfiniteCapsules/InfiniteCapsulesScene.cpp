@@ -68,16 +68,19 @@ void InfiniteCapsulesScene::drawFrame() {
                  0); // offset in the EBO
 }
 
-void InfiniteCapsulesScene::framebufferSizeChange(uint32 width, uint32 height)
-{
-  GodModeScene::framebufferSizeChange(width, height);
-  rayMarchingShader->use();
-  rayMarchingShader->setUniform("viewPortResolution", glm::vec2(width, height));
-}
+void InfiniteCapsulesScene::inputStatesUpdated() {
+  GodModeScene::inputStatesUpdated();
 
-void InfiniteCapsulesScene::key_LeftMouseButton_pressed(float32 xPos, float32 yPos) {
-  lightAlive = true;
-  lightDistanceTraveled = 0.0f;
-  lightMoveDir = camera.Front;
-  lightPosition = camera.Position + lightMoveDir;
+  if(hotPress(MouseInput_Left)) {
+    lightAlive = true;
+    lightDistanceTraveled = 0.0f;
+    lightMoveDir = camera.Front;
+    lightPosition = camera.Position + lightMoveDir;
+  }
+
+  if(isActive(WindowInput_SizeChange)) {
+    Extent2D extent2D = getWindowExtent();
+    rayMarchingShader->use();
+    rayMarchingShader->setUniform("viewPortResolution", glm::vec2(extent2D.x, extent2D.y));
+  }
 }

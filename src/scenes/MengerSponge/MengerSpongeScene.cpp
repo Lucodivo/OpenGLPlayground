@@ -206,58 +206,60 @@ void MengerSpongeScene::drawFrame()
   glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
 }
 
-void MengerSpongeScene::framebufferSizeChange(uint32 width, uint32 height)
-{
-  FirstPersonScene::framebufferSizeChange(width, height);
-  // NOTE: We need our viewport extent to match specified resolution instead of matching out window extent
-  glViewport(0, 0, currentResolution.width, currentResolution.height);
-}
+void MengerSpongeScene::inputStatesUpdated() {
+  GodModeScene::inputStatesUpdated();
 
-void MengerSpongeScene::key_E_pressed() {
-  if(++currentResolutionIndex >= ArrayCount(screenResolutions)) {
-    currentResolutionIndex = 0;
+  if(hotPress(KeyboardInput_E))
+  {
+    if(++currentResolutionIndex >= ArrayCount(screenResolutions)) {
+      currentResolutionIndex = 0;
+    }
+
+    currentResolution = screenResolutions[currentResolutionIndex];
+
+    glViewport(0, 0, currentResolution.width, currentResolution.height);
+
+    mengerSpongeShader->use();
+    mengerSpongeShader->setUniform("viewPortResolution", glm::vec2(currentResolution.width, currentResolution.height));
+
+    pixel2DShader->use();
+    pixel2DShader->setUniform("windowDimens", glm::vec2(currentResolution.width, currentResolution.height));
+    pixel2DShader->setUniform("lowerLeftOffset", glm::vec2((currentResolution.width / 2) - 16.0, (currentResolution.height / 2) - 16.0));
   }
 
-  currentResolution = screenResolutions[currentResolutionIndex];
+  if(hotPress(KeyboardInput_Q))
+  {
+    if(--currentResolutionIndex == -1) {
+      currentResolutionIndex = ArrayCount(screenResolutions) - 1;
+    }
 
-  glViewport(0, 0, currentResolution.width, currentResolution.height);
+    currentResolution = screenResolutions[currentResolutionIndex];
 
-  mengerSpongeShader->use();
-  mengerSpongeShader->setUniform("viewPortResolution", glm::vec2(currentResolution.width, currentResolution.height));
+    glViewport(0, 0, currentResolution.width, currentResolution.height);
 
-  pixel2DShader->use();
-  pixel2DShader->setUniform("windowDimens", glm::vec2(currentResolution.width, currentResolution.height));
-  pixel2DShader->setUniform("lowerLeftOffset", glm::vec2((currentResolution.width / 2) - 16.0, (currentResolution.height / 2) - 16.0));
-}
+    mengerSpongeShader->use();
+    mengerSpongeShader->setUniform("viewPortResolution", glm::vec2(currentResolution.width, currentResolution.height));
 
-void MengerSpongeScene::key_Q_pressed() {
-  if(--currentResolutionIndex == -1) {
-    currentResolutionIndex = ArrayCount(screenResolutions) - 1;
+    pixel2DShader->use();
+    pixel2DShader->setUniform("windowDimens", glm::vec2(currentResolution.width, currentResolution.height));
+    pixel2DShader->setUniform("lowerLeftOffset", glm::vec2((currentResolution.width / 2) - 16.0, (currentResolution.height / 2) - 16.0));
   }
 
-  currentResolution = screenResolutions[currentResolutionIndex];
+  if(hotPress(KeyboardInput_R))
+  {
+    showDebugWindows = !showDebugWindows;
+    enableDefaultMouseCameraMovement(!showDebugWindows);
+    if(showDebugWindows) {
+      glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+    } else {
+      glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    }
+  }
 
-  glViewport(0, 0, currentResolution.width, currentResolution.height);
-
-  mengerSpongeShader->use();
-  mengerSpongeShader->setUniform("viewPortResolution", glm::vec2(currentResolution.width, currentResolution.height));
-
-  pixel2DShader->use();
-  pixel2DShader->setUniform("windowDimens", glm::vec2(currentResolution.width, currentResolution.height));
-  pixel2DShader->setUniform("lowerLeftOffset", glm::vec2((currentResolution.width / 2) - 16.0, (currentResolution.height / 2) - 16.0));
-}
-
-void MengerSpongeScene::key_Tab_pressed() {
-  showDebugWindows = !showDebugWindows;
-  if(showDebugWindows) {
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-  } else {
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+  // TODO: Overriding viewport changes in Scenes class. Should we simply not call glViewport in parent classes?
+  if(isActive(WindowInput_SizeChange)) {
+    // NOTE: We need our viewport extent to match specified resolution instead of matching out window extent
+    glViewport(0, 0, currentResolution.width, currentResolution.height);
   }
 }
 
-void MengerSpongeScene::mouseMovement(float32 xOffset, float32 yOffset)
-{
-  if(showDebugWindows) return;
-  FirstPersonScene::mouseMovement(xOffset, yOffset);
-}

@@ -12,6 +12,10 @@ MandelbrotScene::MandelbrotScene(GLFWwindow* window): FirstPersonScene(), window
 void MandelbrotScene::init(uint32 windowWidth, uint32 windowHeight)
 {
   FirstPersonScene::init(windowWidth, windowHeight);
+  enableDefaultMouseCameraMovement(false);
+  enableDefaultKeyboardCameraMovement(false);
+
+  oldWindowExtent = { (int32)windowWidth, (int32)windowHeight };
 
   mandelbrotShader = new Shader(UVCoordVertexShaderFileLoc, MandelbrotFragmentShaderFileLoc);
   mandelbrotShader->use();
@@ -63,59 +67,56 @@ void MandelbrotScene::drawFrame()
                  0); // offset in the EBO
 }
 
-void MandelbrotScene::framebufferSizeChange(uint32 width, uint32 height)
-{
-  float32 oldWidth = (float32)windowWidth;
-  float32 oldHeight = (float32)windowHeight;
-  FirstPersonScene::framebufferSizeChange(width, height);
 
-  mandelbrotShader->use();
-  mandelbrotShader->setUniform("viewPortResolution", glm::vec2(width, height));
 
-  // The center needs to be adjusted when the viewport size changes in order to maintain the same position
-  float32 widthRatio = windowWidth / oldWidth;
-  float32 heightRatio = windowHeight / oldHeight;
-  centerOffset *= glm::vec2(widthRatio, heightRatio);
-}
+void MandelbrotScene::inputStatesUpdated() {
+  FirstPersonScene::inputStatesUpdated();
 
-void MandelbrotScene::mouseScroll(float32 yOffset)
-{
-  float zoomDelta = zoom * 0.03f * zoomSpeed;
-  if(yOffset < 0) {
-    zoom -= zoomDelta;
-  } else if(yOffset > 0) {
-    zoom += zoomDelta;
+  if(isActive(WindowInput_SizeChange)) {
+    Extent2D extent2D = getWindowExtent();\
+
+    mandelbrotShader->use();
+    mandelbrotShader->setUniform("viewPortResolution", glm::vec2(extent2D.x, extent2D.y));
+
+    // The center needs to be adjusted when the viewport size changes in order to maintain the same position
+    float32 widthRatio = (float32)windowWidth / oldWindowExtent.x;
+    float32 heightRatio = (float32)windowHeight / oldWindowExtent.y;
+    oldWindowExtent = extent2D;
+    centerOffset *= glm::vec2(widthRatio, heightRatio);
   }
-}
 
-void MandelbrotScene::key_LeftMouseButton_pressed(float32 xPos, float32 yPos)
-{
-  mouseDownTime = (float32)glfwGetTime();
-  mouseDown = true;
-}
-
-void MandelbrotScene::key_LeftMouseButton_released(float32 xPos, float32 yPos)
-{
-  if((float32)glfwGetTime() - mouseDownTime < MOUSE_ACTION_TIME_SECONDS) {
-    currentColorFavorIndex++;
-    if(currentColorFavorIndex >= ArrayCount(colorFavors)) currentColorFavorIndex = 0;
+  if(isActive(MouseInput_Scroll)) {
+    float32 yOffset = getMouseScrollY();
+    float zoomDelta = zoom * 0.03f * zoomSpeed;
+    if(yOffset < 0) {
+      zoom -= zoomDelta;
+    } else if(yOffset > 0) {
+      zoom += zoomDelta;
+    }
   }
-  mouseDown = false;
-}
 
-void MandelbrotScene::mouseMovement(float32 xOffset, float32 yOffset)
-{
-  if(mouseDown) {
-    centerOffset -= glm::vec2(xOffset / zoom, yOffset / zoom);
+  if(hotPress(MouseInput_Left)) {
+    mouseDownTime = (float32)glfwGetTime();
+    mouseDown = true;
+  } else if(hotRelease(MouseInput_Left)) {
+    if((float32)glfwGetTime() - mouseDownTime < MOUSE_ACTION_TIME_SECONDS) {
+      currentColorFavorIndex++;
+      if(currentColorFavorIndex >= ArrayCount(colorFavors)) currentColorFavorIndex = 0;
+    }
+    mouseDown = false;
   }
-}
 
-void MandelbrotScene::key_LeftShift_pressed()
-{
-  zoomSpeed = ZOOM_SPEED_FAST;
-}
+  if(isActive(MouseInput_Movement)) {
+    MouseCoord mouseDelta = getMouseDelta();
+    if(mouseDown) {
+      // Note: mouseDelta.y is negative when mouse moves up due to upper left origin (0, 0)
+      centerOffset -= glm::vec2(mouseDelta.x / zoom, -mouseDelta.y / zoom);
+    }
+  }
 
-void MandelbrotScene::key_LeftShift_released()
-{
-  zoomSpeed = ZOOM_SPEED_NORMAL;
+  if(hotPress(KeyboardInput_Shift_Left)) {
+    zoomSpeed = ZOOM_SPEED_FAST;
+  } else if (hotRelease(KeyboardInput_Shift_Left)) {
+    zoomSpeed = ZOOM_SPEED_NORMAL;
+  }
 }

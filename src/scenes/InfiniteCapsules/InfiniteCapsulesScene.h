@@ -2,8 +2,7 @@
 // Created by Connor on 11/12/2019.
 //
 
-#ifndef LEARNOPENGL_INFINITECAPSULESSCENE_H
-#define LEARNOPENGL_INFINITECAPSULESSCENE_H
+#pragma once
 
 #include "../FirstPersonScene.h"
 #include "../GodModeScene.h"
@@ -12,13 +11,12 @@
 class InfiniteCapsulesScene final : public GodModeScene {
 public:
   InfiniteCapsulesScene();
-
-  // FrameBufferSizeConsumer override
-  void framebufferSizeChange(uint32 width, uint32 height);
-  void key_LeftMouseButton_pressed(float32 xPos, float32 yPos);
+  void init(uint32 windowWidth, uint32 windowHeight);
+  void drawFrame();
+  void deinit();
+  virtual void inputStatesUpdated();
 
 private:
-
   Shader* rayMarchingShader = NULL;
 
   float32 startTime = 0;
@@ -27,14 +25,8 @@ private:
 
   VertexAtt quadVertexAtt;
 
-  void init(uint32 windowWidth, uint32 windowHeight);
-  void drawFrame();
-  void deinit();
-
   glm::vec3 lightPosition = { 0.0f, 0.0f, 0.0f };
   bool lightAlive = false;
   glm::vec3 lightMoveDir;
   float lightDistanceTraveled;
 };
-
-#endif //LEARNOPENGL_INFINITECAPSULESSCENE_H

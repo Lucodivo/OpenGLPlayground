@@ -156,14 +156,17 @@ void InfiniteCubeScene::drawFrame()
   glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 }
 
-void InfiniteCubeScene::framebufferSizeChange(uint32 width, uint32 height)
-{
-  FirstPersonScene::framebufferSizeChange(width, height);
-  framebufferDimen = width > height ? height : width;
+void InfiniteCubeScene::inputStatesUpdated() {
+  FirstPersonScene::inputStatesUpdated();
 
-  deleteFrameBuffer(framebuffer);
-  framebuffer = initializeFrameBuffer(framebufferDimen, framebufferDimen);
+  if(isActive(WindowInput_SizeChange)) {
+    Extent2D extent2D = getWindowExtent();
+    framebufferDimen = extent2D.x > extent2D.y ? extent2D.y : extent2D.x;
 
-  glActiveTexture(GL_TEXTURE0 + framebufferTextureIndex);
-  glBindTexture(GL_TEXTURE_2D, framebuffer.colorAttachment);
+    deleteFrameBuffer(framebuffer);
+    framebuffer = initializeFrameBuffer(framebufferDimen, framebufferDimen);
+
+    glActiveTexture(GL_TEXTURE0 + framebufferTextureIndex);
+    glBindTexture(GL_TEXTURE_2D, framebuffer.colorAttachment);
+  }
 }
