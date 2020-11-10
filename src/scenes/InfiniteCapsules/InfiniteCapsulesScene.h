@@ -15,6 +15,7 @@ public:
   void drawFrame();
   void deinit();
   virtual void inputStatesUpdated();
+  const char* title();
 
 private:
   Shader* rayMarchingShader = NULL;

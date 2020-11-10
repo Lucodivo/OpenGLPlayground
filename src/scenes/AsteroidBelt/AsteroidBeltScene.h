@@ -11,6 +11,7 @@ public:
   void init(uint32 windowWidth, uint32 windowHeight);
   void deinit();
   void drawFrame();
+  const char* title();
 
 private:
 

@@ -6,8 +6,12 @@
 const uint32 framebufferTextureIndex = 0;
 const uint32 outlineTextureIndex = 1;
 
-InfiniteCubeScene::InfiniteCubeScene(): FirstPersonScene()
-{}
+InfiniteCubeScene::InfiniteCubeScene(): FirstPersonScene(){}
+
+const char* InfiniteCubeScene::title()
+{
+  return "Infinite Cube";
+}
 
 void InfiniteCubeScene::init(uint32 windowWidth, uint32 windowHeight)
 {

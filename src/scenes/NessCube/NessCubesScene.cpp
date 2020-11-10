@@ -40,6 +40,11 @@ NessCubesScene::NessCubesScene(): FirstPersonScene()
   camera.Position = glm::vec3(0.0f, 0.0f, 6.0f);
 }
 
+const char* NessCubesScene::title()
+{
+  return "Image Kernel";
+}
+
 void NessCubesScene::init(uint32 windowWidth, uint32 windowHeight)
 {
   FirstPersonScene::init(windowWidth, windowHeight);

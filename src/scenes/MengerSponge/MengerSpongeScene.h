@@ -29,6 +29,8 @@ public:
   void deinit();
   void drawFrame();
   void inputStatesUpdated();
+  void drawGui();
+  const char* title();
 
 private:
 

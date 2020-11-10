@@ -16,6 +16,7 @@ public:
   virtual void drawFrame() {} // draws scene to back buffer
   virtual void drawGui() {};
   virtual void inputStatesUpdated();
+  virtual const char* title();
 
 protected:
   uint32 windowWidth = 0;

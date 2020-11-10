@@ -14,6 +14,11 @@ MengerSpongeScene::MengerSpongeScene(GLFWwindow* window): GodModeScene(), window
   camera.Position = glm::vec3(0.0f, 1.0f, 30.0f);
 }
 
+const char* MengerSpongeScene::title()
+{
+  return "Menger Prison SDF + Raster Cube";
+}
+
 void MengerSpongeScene::init(uint32 windowWidth, uint32 windowHeight)
 {
   GodModeScene::init(windowWidth, windowHeight);
@@ -115,15 +120,6 @@ void MengerSpongeScene::drawFrame()
 {
   GodModeScene::drawFrame();
 
-  if (showDebugWindows){
-    //ImGui::ShowDemoWindow(&showDebugWindows);
-
-    ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.50f);
-    // Simplified Settings (expose floating-pointer border sizes as boolean representing 0.0f or 1.0f)
-    if (ImGui::SliderInt("Supersamples", &numSamples, 1, 8)) {}
-    ImGui::PopItemWidth();
-  }
-
   float32 t = (float32)glfwGetTime() - startTime;
   deltaTime = t - lastFrame;
   lastFrame = t;
@@ -204,6 +200,20 @@ void MengerSpongeScene::drawFrame()
   glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
   glBlitFramebuffer(0, 0, currentResolution.width, currentResolution.height, 0, 0, windowWidth, windowHeight, GL_COLOR_BUFFER_BIT, GL_NEAREST);
   glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+}
+
+void MengerSpongeScene::drawGui()
+{
+  GodModeScene::drawGui();
+
+  if (showDebugWindows){
+    //ImGui::ShowDemoWindow(&showDebugWindows);
+
+    ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.50f);
+    // Simplified Settings (expose floating-pointer border sizes as boolean representing 0.0f or 1.0f)
+    if (ImGui::SliderInt("Supersamples", &numSamples, 1, 8)) {}
+    ImGui::PopItemWidth();
+  }
 }
 
 void MengerSpongeScene::inputStatesUpdated() {

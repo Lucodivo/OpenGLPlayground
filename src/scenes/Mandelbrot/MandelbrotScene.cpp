@@ -9,6 +9,11 @@
 /* TODO: only first person due to input consumers, change? */
 MandelbrotScene::MandelbrotScene(GLFWwindow* window): FirstPersonScene(), window(window) {}
 
+const char* MandelbrotScene::title()
+{
+  return "Mandelbrot";
+}
+
 void MandelbrotScene::init(uint32 windowWidth, uint32 windowHeight)
 {
   FirstPersonScene::init(windowWidth, windowHeight);

@@ -11,6 +11,11 @@ RoomScene::RoomScene() : GodModeScene()
   camera.Position = glm::vec3(0.0f, 5.0f, 30.0f);
 }
 
+const char* RoomScene::title()
+{
+  return "Room w/ Dynamic Point Light";
+}
+
 void RoomScene::init(uint32 windowWidth, uint32 windowHeight)
 {
   GodModeScene::init(windowWidth, windowHeight);

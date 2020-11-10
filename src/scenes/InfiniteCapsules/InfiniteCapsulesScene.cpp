@@ -11,6 +11,11 @@ InfiniteCapsulesScene::InfiniteCapsulesScene(): GodModeScene()
   camera.Position = glm::vec3(0.0f, 1.0f, 0.0f);
 }
 
+const char* InfiniteCapsulesScene::title()
+{
+  return "Infinite Capsules";
+}
+
 void InfiniteCapsulesScene::init(uint32 windowWidth, uint32 windowHeight)
 {
   GodModeScene::init(windowWidth, windowHeight);

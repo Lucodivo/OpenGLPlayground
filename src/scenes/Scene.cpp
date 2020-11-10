@@ -12,6 +12,11 @@ void Scene::init(uint32 windowWidth, uint32 windowHeight) {
   Scene::framebufferSizeChange(windowWidth, windowHeight);
 }
 
+const char* Scene::title()
+{
+  return "unnamed Scene";
+}
+
 void Scene::inputStatesUpdated()
 {
   if(isActive(WindowInput_SizeChange))

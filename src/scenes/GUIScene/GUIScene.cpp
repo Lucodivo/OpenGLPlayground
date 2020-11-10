@@ -15,6 +15,11 @@ GUIScene::GUIScene(GLFWwindow* window): FirstPersonScene(), window(window)
   camera.Position += glm::vec3(0.0f, 0.0f, 4.0f);
 }
 
+const char* GUIScene::title()
+{
+  return "Select A Box";
+}
+
 void GUIScene::init(uint32 windowWidth, uint32 windowHeight)
 {
   FirstPersonScene::init(windowWidth, windowHeight);

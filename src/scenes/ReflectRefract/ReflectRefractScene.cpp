@@ -24,7 +24,7 @@ const glm::vec3 cubePositions[] = {
         glm::vec3(-startDist * sqr2over2, -0.5f, -startDist * sqr2over2)
 };
 
-const glm::vec3 modelPosition = glm::vec3(0.0f, -2.0f, 0.0f);
+const glm::vec3 modelPosition = glm::vec3(0.0f, -4.0f, 0.0f);
 const float32 modelScale = 0.7f;
 
 const float32 refractionIndexValues[] = {
@@ -48,7 +48,12 @@ Mode currMode = None;
 
 ReflectRefractScene::ReflectRefractScene() : FirstPersonScene()
 {
-  camera.Position = glm::vec3(0.0f, 1.0f, 9.0f);
+  camera.Position = glm::vec3(0.0f, 0.0f, 9.0f);
+}
+
+const char* ReflectRefractScene::title()
+{
+  return "Reflect & Refract";
 }
 
 void ReflectRefractScene::init(uint32 windowWidth, uint32 windowHeight)
@@ -76,8 +81,6 @@ void ReflectRefractScene::init(uint32 windowWidth, uint32 windowHeight)
 
   const glm::mat4 projectionMat = glm::perspective(glm::radians(camera.Zoom), (float32)windowWidth / (float32)windowHeight, 0.1f, 100.0f);
 
-  const float32 cubRotAngle = 7.3f;
-
   glEnable(GL_CULL_FACE);
   glCullFace(GL_BACK);
   glFrontFace(GL_CCW);
@@ -100,7 +103,7 @@ void ReflectRefractScene::init(uint32 windowWidth, uint32 windowHeight)
   glBindTexture(GL_TEXTURE_CUBE_MAP, skyboxTextureId);
 
   nanoSuitModelMat = glm::scale(glm::mat4(), glm::vec3(modelScale));  // it's a bit too big for our scene, so scale it down
-  nanoSuitModelMat = glm::translate(nanoSuitModelMat, glm::vec3(0.0f, -1.75f, 0.0f)); // translate it down so it's at the center of the scene
+  nanoSuitModelMat = glm::translate(nanoSuitModelMat, modelPosition); // translate it down so it's at the center of the scene
 
   explodingReflectionShader->use();
   explodingReflectionShader->setUniform("projection", projectionMat);

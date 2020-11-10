@@ -43,6 +43,7 @@ public:
   void deinit();
   void drawFrame();
   void inputStatesUpdated();
+  const char* title();
 
 private:
   Shader* cubeShader = NULL;

@@ -9,6 +9,11 @@ AsteroidBeltScene::AsteroidBeltScene() : FirstPersonScene()
   camera.Position = glm::vec3(0.0f, 0.0f, 50.0f);
 }
 
+const char* AsteroidBeltScene::title()
+{
+  return "Planet & Asteroid";
+}
+
 void AsteroidBeltScene::init(uint32 windowWidth, uint32 windowHeight)
 {
   FirstPersonScene::init(windowWidth, windowHeight);

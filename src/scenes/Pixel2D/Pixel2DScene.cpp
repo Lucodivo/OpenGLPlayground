@@ -7,8 +7,12 @@
 #include "../../common/ObjectData.h"
 #include "../../common/Util.h"
 
-Pixel2DScene::Pixel2DScene() : Scene()
-{}
+Pixel2DScene::Pixel2DScene() : Scene() {}
+
+const char* Pixel2DScene::title()
+{
+  return "2D Pixel";
+}
 
 void Pixel2DScene::init(uint32 windowWidth, uint32 windowHeight)
 {

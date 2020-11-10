@@ -23,6 +23,7 @@ public:
   void deinit();
   void drawFrame();
   void inputStatesUpdated();
+  const char* title();
 
 private:
   GLFWwindow* window = NULL;

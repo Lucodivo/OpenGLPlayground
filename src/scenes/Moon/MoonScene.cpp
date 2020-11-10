@@ -12,6 +12,11 @@ MoonScene::MoonScene() : GodModeScene()
   camera.groundedMovement = false;
 }
 
+const char* MoonScene::title()
+{
+  return "Moon : Parallax : Bump";
+}
+
 void MoonScene::init(uint32 windowWidth, uint32 windowHeight)
 {
   GodModeScene::init(windowWidth, windowHeight);
