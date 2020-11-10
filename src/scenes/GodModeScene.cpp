@@ -1,10 +1,10 @@
 #include "GodModeScene.h"
 
 #define GODMODE_CAMERA_SPEED (CAMERA_SPEED * 4)
-#define GODMOD_CAMERA_SPED_FAST (GODMODE_CAMERA_SPEED * 2)
+#define GODMOD_CAMERA_SPEED_FAST (GODMODE_CAMERA_SPEED * 2)
 
-GodModeScene::GodModeScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth)
-        : FirstPersonScene(window, initScreenHeight, initScreenWidth)
+// TODO: Replace GodModeScene by simply using a different camera for FirstPersonScene
+GodModeScene::GodModeScene() : FirstPersonScene()
 {
   camera.groundedMovement = false;
   camera.MovementSpeed = GODMODE_CAMERA_SPEED;
@@ -13,7 +13,7 @@ GodModeScene::GodModeScene(GLFWwindow* window, uint32 initScreenHeight, uint32 i
 // +++ CONTROLLER CONSUMER IMPLEMETNATION - START +++
 void GodModeScene::button_B_pressed()
 {
-  camera.MovementSpeed = GODMOD_CAMERA_SPED_FAST;
+  camera.MovementSpeed = GODMOD_CAMERA_SPEED_FAST;
 }
 
 void GodModeScene::button_B_released()
@@ -22,14 +22,13 @@ void GodModeScene::button_B_released()
 }
 // +++ CONTROLLER CONSUMER OVERRIDES - END +++
 
-// +++ KEYBOARD CONSUMER OVERRIDES - START +++
-void GodModeScene::key_LeftShift_pressed()
+void GodModeScene::inputStatesUpdated()
 {
-  camera.MovementSpeed = GODMOD_CAMERA_SPED_FAST;
-}
+  FirstPersonScene::inputStatesUpdated();
 
-void GodModeScene::key_LeftShift_released()
-{
-  camera.MovementSpeed = GODMODE_CAMERA_SPEED;
+  if(hotPress(KeyboardInput_Shift_Left)){
+    camera.MovementSpeed = GODMOD_CAMERA_SPEED_FAST;
+  } else if(hotRelease(KeyboardInput_Shift_Left)) {
+    camera.MovementSpeed = GODMODE_CAMERA_SPEED;
+  }
 }
-// +++ KEYBOARD CONSUMER OVERRIDES - START +++

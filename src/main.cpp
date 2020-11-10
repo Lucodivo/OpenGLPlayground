@@ -9,39 +9,19 @@
 #include <glad/glad.h>
 
 #include "main.h"
-#include "scenes/NessCube/NessCubesScene.h"
-#include "scenes/InfiniteCube/InfiniteCubeScene.h"
-#include "scenes/ReflectRefract/ReflectRefractScene.h"
-#include "scenes/AsteroidBelt/AsteroidBeltScene.h"
-#include "scenes/Moon/MoonScene.h"
-#include "scenes/Room/RoomScene.h"
 #include "common/Input.h"
-#include "scenes/GUIScene/GUIScene.h"
-#include "scenes/InfiniteCapsules/InfiniteCapsulesScene.h"
-#include "scenes/Mandelbrot/MandelbrotScene.h"
-#include "scenes/MengerSponge/MengerSpongeScene.h"
-#include "scenes/RayTracingSphere/RayTracingSphereScene.h"
-#include "scenes/Pixel2D/Pixel2DScene.h"
+#include "scenes/SceneManager.h"
 
 #define MULTI_SAMPLING_ON true
-
-void initImgui(GLFWwindow* window);
-
-#define VIEWPORT_INIT_WIDTH 1920
-#define VIEWPORT_INIT_HEIGHT 1080
 
 int main()
 {
   loadGLFW();
   GLFWwindow* window = createWindow();
   initializeGLAD();
-  loadXInput();
+  initializeInput(window);
   initImgui(window);
-
-  Scene* scene = new NessCubesScene(window, VIEWPORT_INIT_HEIGHT, VIEWPORT_INIT_WIDTH);
-  scene->runScene();
-
-  glfwTerminate(); // clean up gl resources
+  runScenes(window);
   return 0;
 }
 
@@ -112,7 +92,6 @@ GLFWwindow* createWindow()
   }
 
   glfwMakeContextCurrent(window);
-  glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
   return window;
 }

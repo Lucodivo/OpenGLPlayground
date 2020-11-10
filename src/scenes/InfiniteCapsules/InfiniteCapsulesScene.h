@@ -2,34 +2,32 @@
 // Created by Connor on 11/12/2019.
 //
 
-#ifndef LEARNOPENGL_INFINITECAPSULESSCENE_H
-#define LEARNOPENGL_INFINITECAPSULESSCENE_H
+#pragma once
 
 #include "../FirstPersonScene.h"
 #include "../GodModeScene.h"
+#include "../../common/ObjectData.h"
 
 class InfiniteCapsulesScene final : public GodModeScene {
 public:
-  InfiniteCapsulesScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth);
-
-  // FrameBufferSizeConsumer override
-  void frameBufferSize(uint32 width, uint32 height) override;
-  void key_LeftMouseButton_pressed(float32 xPos, float32 yPos) override;
-  void runScene() override;
+  InfiniteCapsulesScene();
+  void init(uint32 windowWidth, uint32 windowHeight);
+  void drawFrame();
+  void deinit();
+  virtual void inputStatesUpdated();
+  const char* title();
 
 private:
+  Shader* rayMarchingShader = NULL;
 
-  Shader rayMarchingShader;
-
+  float32 startTime = 0;
   float32 deltaTime = 0;
   float32 lastFrame = 0;
 
-  void renderLoop(uint32 quadVAO);
+  VertexAtt quadVertexAtt;
 
-  glm::vec3 lightPosition;
+  glm::vec3 lightPosition = { 0.0f, 0.0f, 0.0f };
   bool lightAlive = false;
   glm::vec3 lightMoveDir;
   float lightDistanceTraveled;
 };
-
-#endif //LEARNOPENGL_INFINITECAPSULESSCENE_H

@@ -10,48 +10,45 @@
 const glm::vec3 startingBoundingBoxMin = glm::vec3(-1.0f, -1.0f, -1.0f);
 const glm::vec3 startingBoundingBoxMax = glm::vec3(1.0f, 1.0f, 1.0f);
 
-GUIScene::GUIScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth)
-      : FirstPersonScene(window, initScreenHeight, initScreenWidth),
-        cubeShader(posVertexShaderFileLoc, singleColorFragmentShaderFileLoc),
-        cursorMode(glfwGetInputMode(window, GLFW_CURSOR) == GLFW_CURSOR_NORMAL) {}
-
-void GUIScene::runScene()
+GUIScene::GUIScene(GLFWwindow* window): FirstPersonScene(), window(window)
 {
-  uint32 cubeVAO, cubeVBO, cubeEBO;
-  initializeCubePositionVertexAttBuffers(cubeVAO, cubeVBO, cubeEBO);
-
-  renderLoop(cubeVAO);
-
-  glDeleteVertexArrays(1, &cubeVAO);
-  glDeleteBuffers(1, &cubeVBO);
-  glDeleteBuffers(1, &cubeEBO);
+  camera.Position += glm::vec3(0.0f, 0.0f, 4.0f);
 }
 
-void GUIScene::renderLoop(uint32 cubeVAO)
+const char* GUIScene::title()
 {
-  projectionMat = glm::perspective(glm::radians(camera.Zoom), (float32)windowWidth / (float32)windowHeight, 0.1f, 100.0f);
-  const glm::vec3 cubeColor = glm::vec3(0.8f, 0.0f, 0.0f);
-  const glm::vec3 wireFrameColor = glm::vec3(0.0f, 0.0f, 0.0f);
+  return "Select A Box";
+}
 
-  cubes[0].wireframe = false;
+void GUIScene::init(uint32 windowWidth, uint32 windowHeight)
+{
+  FirstPersonScene::init(windowWidth, windowHeight);
+
+  enableCursor(window, cursorModeEnabled);
+  
+  cubeShader = new Shader(posVertexShaderFileLoc, singleColorFragmentShaderFileLoc);
+
+  cubeVertexAtt = initializeCubePositionVertexAttBuffers();
+  
+  projectionMat = glm::perspective(glm::radians(camera.Zoom), (float32)windowWidth / (float32)windowHeight, 0.1f, 100.0f);
+
   cubes[0].worldPos = glm::vec3(3.0f, 0.0f, 0.0f);
   cubes[0].boundingBoxMin = startingBoundingBoxMin + cubes[0].worldPos;
   cubes[0].boundingBoxMax = startingBoundingBoxMax + cubes[0].worldPos;
-  cubes[1].wireframe = false;
   cubes[1].worldPos = glm::vec3(-3.0f, 0.0f, 0.0f);
   cubes[1].boundingBoxMin = startingBoundingBoxMin + cubes[1].worldPos;
   cubes[1].boundingBoxMax = startingBoundingBoxMax + cubes[1].worldPos;
-  cubes[2].wireframe = false;
   cubes[2].worldPos = glm::vec3(0.0f, 0.0f, -3.0f);
   cubes[2].boundingBoxMin = startingBoundingBoxMin + cubes[2].worldPos;
   cubes[2].boundingBoxMax = startingBoundingBoxMax + cubes[2].worldPos;
 
-  glm::mat4 cubeModelMats[3];
+  cubeModelMats[0] = glm::translate(glm::mat4(), cubes[0].worldPos);
+  cubeModelMats[1] = glm::translate(glm::mat4(), cubes[1].worldPos);
+  cubeModelMats[2] = glm::translate(glm::mat4(), cubes[2].worldPos);
 
   // set constant uniforms
-  cubeShader.use();
-  cubeShader.setUniform("projection", projectionMat);
-  cubeShader.setUniform("color", cubeColor);
+  cubeShader->use();
+  cubeShader->setUniform("projection", projectionMat);
 
   glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 
@@ -60,91 +57,86 @@ void GUIScene::renderLoop(uint32 cubeVAO)
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   glLineWidth(3.0f);
 
-  camera.Position += glm::vec3(0.0f, 0.0f, 4.0f);
+  glEnable(GL_CULL_FACE);
+  glFrontFace(GL_CCW);
+  glCullFace(GL_BACK);
+  
+  glBindVertexArray(cubeVertexAtt.arrayObject);
 
-  // NOTE: render/game loop
-  float32 startTime = (float32)glfwGetTime();
-  while (glfwWindowShouldClose(window) == GL_FALSE)
+  startTime = (float32)glfwGetTime();
+}
+
+void GUIScene::deinit()
+{
+  FirstPersonScene::deinit();
+  
+  cubeShader->deleteShaderResources();
+  delete cubeShader;
+  
+  deleteVertexAtt(cubeVertexAtt);
+}
+
+void GUIScene::drawFrame()
+{
+  FirstPersonScene::drawFrame();
+  
+  float32 t = (float32) glfwGetTime() - startTime;
+  deltaTime = t - lastFrame;
+  lastFrame = t;
+
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+  viewMat = camera.GetViewMatrix(deltaTime);
+
+  // draw cubes
+  cubeShader->use();
+  cubeShader->setUniform("view", viewMat);
+  cubeShader->setUniform("color", cubeColor);
+  for(uint8 i = 0; i < numCubes; i++)
   {
-    float32 t = (float32) glfwGetTime() - startTime;
-    deltaTime = t - lastFrame;
-    lastFrame = t;
+    cubeShader->setUniform("model", cubeModelMats[i]);
 
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glDrawElements(GL_TRIANGLES, // drawing mode
+                   36, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
+                   GL_UNSIGNED_INT, // type of the indices
+                   0); // offset in the EBO
+  }
 
-    // check for input
-    processKeyboardInput(window, this);
-
-    viewMat = camera.GetViewMatrix(deltaTime);
-
-    // draw cubes
-    cubeShader.use();
-    cubeShader.setUniform("view", viewMat);
-    cubeShader.setUniform("color", cubeColor);
-    for(uint8 i = 0; i < numCubes; i++)
-    {
-      cubeModelMats[i] = glm::translate(glm::mat4(), cubes[i].worldPos);
-      cubeShader.setUniform("model", cubeModelMats[i]);
-
-      glBindVertexArray(cubeVAO);
+  // draw wireframes on top
+  cubeShader->setUniform("color", wireFrameColor);
+  glDisable(GL_DEPTH_TEST);
+  glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+  glDisable(GL_CULL_FACE);
+  for(uint32 i = 0; i < numCubes; i++)
+  {
+    if(cubes[i].wireframe) {
+      cubeShader->setUniform("model", cubeModelMats[i]);
+      glBindVertexArray(cubeVertexAtt.arrayObject);
       glDrawElements(GL_TRIANGLES, // drawing mode
                      36, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
                      GL_UNSIGNED_INT, // type of the indices
                      0); // offset in the EBO
     }
-
-    // draw wireframes on top
-    cubeShader.setUniform("color", wireFrameColor);
-    glDisable(GL_DEPTH_TEST);
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    for(uint32 i = 0; i < numCubes; i++)
-    {
-      if(cubes[i].wireframe) {
-        cubeShader.setUniform("model", cubeModelMats[i]);
-        glBindVertexArray(cubeVAO);
-        glDrawElements(GL_TRIANGLES, // drawing mode
-                       36, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
-                       GL_UNSIGNED_INT, // type of the indices
-                       0); // offset in the EBO
-      }
-    }
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    glEnable(GL_DEPTH_TEST);
-
-    if(displayMouseClick)
-    {
-      renderText(text, 25.0f, 25.0f, 1.0f, glm::vec3(1.0f, 0.0f, 0.0f));
-    }
-
-    glfwSwapBuffers(window); // swaps double buffers
-    glfwPollEvents(); // checks for events (ex: keyboard/mouse input)
   }
+  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+  glEnable(GL_DEPTH_TEST);
+  glEnable(GL_CULL_FACE);
 }
 
-void GUIScene::key_Tab_pressed()
-{
-  cursorMode = !cursorMode;
-  glfwSetInputMode(window, GLFW_CURSOR, cursorMode ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED);
-}
+void GUIScene::inputStatesUpdated() {
+  FirstPersonScene::inputStatesUpdated();
 
-void GUIScene::key_LeftMouseButton_pressed(float32 xPos, float32 yPos)
-{
-  displayMouseClick = true;
-  text = "Left click at: X = " + std::to_string(xPos) + ", Y = " + std::to_string(yPos);
-  checkMouseClickCollision(xPos, yPos);
-}
+  if(hotPress(MouseInput_Left))
+  {
+    MouseCoord mousePos = getMousePosition();
+    checkMouseClickCollision((float32)mousePos.x, (float32)mousePos.y);
+  }
 
-void GUIScene::key_RightMouseButton_pressed(float32 xPos, float32 yPos)
-{
-  displayMouseClick = false;
-}
-
-void GUIScene::mouseMovement(float32 xOffset, float32 yOffset)
-{
-  if(!cursorMode) {
-    FirstPersonScene::mouseMovement(xOffset, yOffset);
-  } else {
-    // TODO
+  if(hotPress(KeyboardInput_E))
+  {
+    cursorModeEnabled = !cursorModeEnabled;
+    enableDefaultMouseCameraMovement(!cursorModeEnabled); // if cursor mode, disable defauly mouse camera control
+    enableCursor(window, cursorModeEnabled);
   }
 }
 
@@ -171,11 +163,7 @@ void GUIScene::checkMouseClickCollision(float32 mouseX, float32 mouseY)
 
   glm::vec3 rayOrigin = camera.Position;
   for(int i = 0; i < numCubes; i++) {
-    if(checkCubeCollision(&rayWorldCoord, &rayOrigin, &cubes[i])) {
-      cubes[i].wireframe = true;
-    } else {
-      cubes[i].wireframe = false;
-    }
+    cubes[i].wireframe = checkCubeCollision(&rayWorldCoord, &rayOrigin, &cubes[i]);
   }
 }
 
@@ -214,7 +202,6 @@ bool GUIScene::checkCubeCollision(glm::vec3* worldRay, glm::vec3* rayOrigin, Cub
   float32 tmax = (txymax < tzmax) ? txymax : tzmin;
 
   // If the time of the collisions is negative, an intersection happened "behind" the origin and we don't consider the intersection
-  if(tmin < 0 && tmax < 0) return false;
+  return tmin > 0.0f || tmax > 0.0f;
 
-  return true;
 }

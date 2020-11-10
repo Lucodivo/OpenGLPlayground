@@ -24,8 +24,8 @@ const glm::vec3 cubePositions[] = {
         glm::vec3(-startDist * sqr2over2, -0.5f, -startDist * sqr2over2)
 };
 
-const glm::vec3 modelPosition = glm::vec3(0.0f, -2.0f, 0.0f);
-const float32 modelScale = 0.3f;
+const glm::vec3 modelPosition = glm::vec3(0.0f, -4.0f, 0.0f);
+const float32 modelScale = 0.7f;
 
 const float32 refractionIndexValues[] = {
         1.33f,  // Water
@@ -46,51 +46,40 @@ enum Mode
 };
 Mode currMode = None;
 
-ReflectRefractScene::ReflectRefractScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth)
-        : FirstPersonScene(window, initScreenHeight, initScreenWidth),
-          explodingReflectionShader(posNormalVertexShaderFileLoc, skyboxReflectionFragmentShaderFileLoc, explodeGeometryShaderFileLoc),
-          exploding10InstanceReflectionShader(posNormal10InstanceVertexShaderFileLoc, skyboxReflectionFragmentShaderFileLoc, explodeGeometryShaderFileLoc),
-          reflectionShader(posNormalVertexShaderFileLoc, skyboxReflectionFragmentShaderFileLoc),
-          reflection10InstanceShader(posNormal10InstanceVertexShaderFileLoc, skyboxReflectionFragmentShaderFileLoc),
-          explodingRefractionShader(posNormalVertexShaderFileLoc, skyboxRefractionFragmentShaderFileLoc, explodeGeometryShaderFileLoc),
-          refractionShader(posNormalVertexShaderFileLoc, skyboxRefractionFragmentShaderFileLoc),
-          skyboxShader(skyboxVertexShaderFileLoc, skyboxFragmentShaderFileLoc),
-          normalVisualizationShader(normalVisualizerVertexShaderFileLoc, singleColorFragmentShaderFileLoc, triangleNormalVisualizerGeometryShaderFileLoc),
-          normalVisualization10InstanceShader(normalVisualizer10InstanceVertexShaderFileLoc, singleColorFragmentShaderFileLoc, triangleNormalVisualizerGeometryShaderFileLoc) {}
-
-void ReflectRefractScene::runScene()
+ReflectRefractScene::ReflectRefractScene() : FirstPersonScene()
 {
-
-  uint32 cubeVAO, cubeVBO, cubeEBO;
-  initializeCubePosNormVertexAttBuffers(cubeVAO, cubeVBO, cubeEBO);
-
-  uint32 skyboxVAO, skyboxVBO, skyboxEBO;
-  initializeCubePositionVertexAttBuffers(skyboxVAO, skyboxVBO, skyboxEBO);
-
-  renderLoop(window, cubeVAO, skyboxVAO);
-
-  glDeleteVertexArrays(1, &cubeVAO);
-  glDeleteBuffers(1, &cubeVBO);
-  glDeleteBuffers(1, &cubeEBO);
-
-  glDeleteVertexArrays(1, &skyboxVAO);
-  glDeleteBuffers(1, &skyboxVBO);
-  glDeleteBuffers(1, &skyboxEBO);
+  camera.Position = glm::vec3(0.0f, 0.0f, 9.0f);
 }
 
-void ReflectRefractScene::renderLoop(GLFWwindow* window, uint32& cubeVAO, uint32& skyboxVAO)
+const char* ReflectRefractScene::title()
 {
+  return "Reflect & Refract";
+}
 
-  uint32 skyboxTextureId;
+void ReflectRefractScene::init(uint32 windowWidth, uint32 windowHeight)
+{
+  FirstPersonScene::init(windowWidth, windowHeight);
+  
+  explodingReflectionShader = new Shader(posNormalVertexShaderFileLoc, skyboxReflectionFragmentShaderFileLoc, explodeGeometryShaderFileLoc);
+  exploding10InstanceReflectionShader = new Shader(posNormal10InstanceVertexShaderFileLoc, skyboxReflectionFragmentShaderFileLoc, explodeGeometryShaderFileLoc);
+  reflectionShader = new Shader(posNormalVertexShaderFileLoc, skyboxReflectionFragmentShaderFileLoc);
+  reflection10InstanceShader = new Shader(posNormal10InstanceVertexShaderFileLoc, skyboxReflectionFragmentShaderFileLoc);
+  explodingRefractionShader = new Shader(posNormalVertexShaderFileLoc, skyboxRefractionFragmentShaderFileLoc, explodeGeometryShaderFileLoc);
+  refractionShader = new Shader(posNormalVertexShaderFileLoc, skyboxRefractionFragmentShaderFileLoc);
+  skyboxShader = new Shader(skyboxVertexShaderFileLoc, skyboxFragmentShaderFileLoc);
+  normalVisualizationShader = new Shader(normalVisualizerVertexShaderFileLoc, singleColorFragmentShaderFileLoc, triangleNormalVisualizerGeometryShaderFileLoc);
+  normalVisualization10InstanceShader = new Shader(normalVisualizer10InstanceVertexShaderFileLoc, singleColorFragmentShaderFileLoc, triangleNormalVisualizerGeometryShaderFileLoc);
+
+  cubeVertexAtt = initializeCubePosNormVertexAttBuffers();
+  skyboxVertexAtt = initializeCubePositionVertexAttBuffers();
+
   loadCubeMapTexture(skyboxInterstellarFaceLocations, skyboxTextureId);
 
   // load models
-  Model nanoSuitModel((char*)nanoSuitModelLoc);
-  //Model nanoSuitModel((char*)superMario64LogoModelLoc);
+  nanoSuitModel = new Model(starmanModelLoc);
+  //nanoSuitModel = new Model(superMario64LogoModelLoc);
 
   const glm::mat4 projectionMat = glm::perspective(glm::radians(camera.Zoom), (float32)windowWidth / (float32)windowHeight, 0.1f, 100.0f);
-
-  const float32 cubRotAngle = 7.3f;
 
   glEnable(GL_CULL_FACE);
   glCullFace(GL_BACK);
@@ -102,6 +91,9 @@ void ReflectRefractScene::renderLoop(GLFWwindow* window, uint32& cubeVAO, uint32
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+  glEnable(GL_DEPTH_TEST);
+  glDepthFunc(GL_LEQUAL);
+
 #if 0
   // draw in wireframe
   glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -110,221 +102,223 @@ void ReflectRefractScene::renderLoop(GLFWwindow* window, uint32& cubeVAO, uint32
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_CUBE_MAP, skyboxTextureId);
 
-  explodingReflectionShader.use();
-  explodingReflectionShader.setUniform("projection", projectionMat);
-  explodingReflectionShader.setUniform("skybox", 0);
+  nanoSuitModelMat = glm::scale(glm::mat4(), glm::vec3(modelScale));  // it's a bit too big for our scene, so scale it down
+  nanoSuitModelMat = glm::translate(nanoSuitModelMat, modelPosition); // translate it down so it's at the center of the scene
 
-  exploding10InstanceReflectionShader.use();
-  exploding10InstanceReflectionShader.setUniform("projection", projectionMat);
-  exploding10InstanceReflectionShader.setUniform("skybox", 0);
+  explodingReflectionShader->use();
+  explodingReflectionShader->setUniform("projection", projectionMat);
+  explodingReflectionShader->setUniform("skybox", 0);
 
-  reflectionShader.use();
-  reflectionShader.setUniform("projection", projectionMat);
-  reflectionShader.setUniform("skybox", 0);
+  exploding10InstanceReflectionShader->use();
+  exploding10InstanceReflectionShader->setUniform("projection", projectionMat);
+  exploding10InstanceReflectionShader->setUniform("skybox", 0);
 
-  reflection10InstanceShader.use();
-  reflection10InstanceShader.setUniform("projection", projectionMat);
-  reflection10InstanceShader.setUniform("skybox", 0);
+  reflectionShader->use();
+  reflectionShader->setUniform("projection", projectionMat);
+  reflectionShader->setUniform("skybox", 0);
 
-  explodingRefractionShader.use();
-  explodingRefractionShader.setUniform("projection", projectionMat);
-  explodingRefractionShader.setUniform("skybox", 0);
+  reflection10InstanceShader->use();
+  reflection10InstanceShader->setUniform("projection", projectionMat);
+  reflection10InstanceShader->setUniform("skybox", 0);
 
-  refractionShader.use();
-  refractionShader.setUniform("projection", projectionMat);
-  refractionShader.setUniform("skybox", 0);
+  explodingRefractionShader->use();
+  explodingRefractionShader->setUniform("projection", projectionMat);
+  explodingRefractionShader->setUniform("skybox", 0);
 
-  skyboxShader.use();
-  skyboxShader.setUniform("projection", projectionMat);
-  skyboxShader.setUniform("skybox", 0);
+  refractionShader->use();
+  refractionShader->setUniform("projection", projectionMat);
+  refractionShader->setUniform("skybox", 0);
 
-  normalVisualizationShader.use();
-  normalVisualizationShader.setUniform("projection", projectionMat);
-  normalVisualizationShader.setUniform("color", glm::vec3(1.0f, 1.0f, 0.0f));
+  skyboxShader->use();
+  skyboxShader->setUniform("projection", projectionMat);
+  skyboxShader->setUniform("skybox", 0);
 
-  normalVisualization10InstanceShader.use();
-  normalVisualization10InstanceShader.setUniform("projection", projectionMat);
-  normalVisualization10InstanceShader.setUniform("color", glm::vec3(1.0f, 1.0f, 0.0f));
+  normalVisualizationShader->use();
+  normalVisualizationShader->setUniform("projection", projectionMat);
+  normalVisualizationShader->setUniform("color", glm::vec3(1.0f, 1.0f, 0.0f));
 
-  glEnable(GL_DEPTH_TEST);
-  glDepthFunc(GL_LEQUAL);
+  normalVisualization10InstanceShader->use();
+  normalVisualization10InstanceShader->setUniform("projection", projectionMat);
+  normalVisualization10InstanceShader->setUniform("color", glm::vec3(1.0f, 1.0f, 0.0f));
 
-  camera.Position += glm::vec3(0.0f, 0.0f, 7.0f);
+  initTime = (float32)glfwGetTime();
+}
 
-  // NOTE: render/game loop
-  float32 initTime = (float32)glfwGetTime();
-  while (glfwWindowShouldClose(window) == GL_FALSE)
+void ReflectRefractScene::deinit()
+{
+  FirstPersonScene::deinit();
+  
+  explodingReflectionShader->deleteShaderResources();
+  exploding10InstanceReflectionShader->deleteShaderResources();
+  reflectionShader->deleteShaderResources();
+  reflection10InstanceShader->deleteShaderResources();
+  explodingRefractionShader->deleteShaderResources();
+  refractionShader->deleteShaderResources();
+  skyboxShader->deleteShaderResources();
+  normalVisualizationShader->deleteShaderResources();
+  normalVisualization10InstanceShader->deleteShaderResources();
+  delete explodingReflectionShader;
+  delete exploding10InstanceReflectionShader;
+  delete reflectionShader;
+  delete reflection10InstanceShader;
+  delete explodingRefractionShader;
+  delete refractionShader;
+  delete skyboxShader;
+  delete normalVisualizationShader;
+  delete normalVisualization10InstanceShader;
+
+  VertexAtt vertexAttributes[] = {cubeVertexAtt, skyboxVertexAtt };
+  deleteVertexAtts(ArrayCount(vertexAttributes), vertexAttributes);
+
+  glDeleteTextures(1, &skyboxTextureId);
+
+  delete nanoSuitModel;
+}
+
+void ReflectRefractScene::drawFrame()
+{
+  FirstPersonScene::drawFrame();
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+  float32 currTime = (float32)glfwGetTime() - initTime;
+  deltaTime = currTime - lastFrame;
+  lastFrame = currTime;
+
+  glm::mat4 viewMat = camera.GetViewMatrix(deltaTime);
+
+  // draw cube
+  Shader* cubeShader = currMode == Exploding ? exploding10InstanceReflectionShader : reflection10InstanceShader;
+  cubeShader->use();
+
+  glBindVertexArray(cubeVertexAtt.arrayObject);
+
+  cubeShader->setUniform("cameraPos", camera.Position);
+  cubeShader->setUniform("view", viewMat);
+  cubeShader->setUniform("time", currTime);
+
+  for (int i = 0; i < ArrayCount(cubePositions); i++)
   {
+    glm::mat4 model = glm::rotate(glm::mat4(), currTime * glm::radians(angularSpeed), orbitAxis); // orbit with time
+    model = glm::translate(model, cubePositions[i]);
+    model = glm::rotate(model, currTime * glm::radians(angularSpeed), rotationAxis); // rotate with time
 
-    // check for input
-    processKeyboardInput(window, this);
-    processXInput(this);
+    const std::string instanceModelName = "models[" + std::to_string(i) + "]";
+    cubeShader->setUniform(instanceModelName, model);
 
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    float32 currTime = (float32)glfwGetTime() - initTime;
-    deltaTime = currTime - lastFrame;
-    lastFrame = currTime;
-
-    glm::mat4 viewMat = camera.GetViewMatrix(deltaTime);
-
-    // draw cube
-    Shader* cubeShader = currMode == Exploding ? &exploding10InstanceReflectionShader : &reflection10InstanceShader;
-    cubeShader->use();
-
-    glBindVertexArray(cubeVAO);
-
-    cubeShader->setUniform("cameraPos", camera.Position);
-    cubeShader->setUniform("view", viewMat);
-    cubeShader->setUniform("time", currTime);
-
-    float32 angularSpeed = 7.3f;
-    glm::vec3 orbitAxis = glm::vec3(0.0f, 1.0f, 0.0f);
-    glm::vec3 rotationAxis = glm::vec3(1.0f, 0.3f, 0.5f);
-
-    for (int i = 0; i < ArrayCount(cubePositions); i++)
+    if (currMode == NormalVisualization) // draw cube normal visualizations
     {
-      glm::mat4 model = glm::rotate(glm::mat4(), currTime * glm::radians(angularSpeed), orbitAxis); // orbit with time
-      model = glm::translate(model, cubePositions[i]);
-      model = glm::rotate(model, currTime * glm::radians(angularSpeed), rotationAxis); // rotate with time
-
-      const std::string instanceModelName = "models[" + std::to_string(i) + "]";
-      cubeShader->setUniform(instanceModelName, model);
-
-      if (currMode == NormalVisualization) // draw cube normal visualizations
-      {
-        normalVisualization10InstanceShader.use();
-        normalVisualization10InstanceShader.setUniform(instanceModelName, model);
-        cubeShader->use();
-      }
+      normalVisualization10InstanceShader->use();
+      normalVisualization10InstanceShader->setUniform(instanceModelName, model);
+      cubeShader->use();
     }
+  }
+  glDrawElementsInstanced(GL_TRIANGLES, // drawing mode
+                          cubePosNormTexNumElements * 3, // number of elements to be rendered
+                          GL_UNSIGNED_INT, // type of values in the indices
+                          0, // offset in the EB
+                          ArrayCount(cubePositions)); // instance count
 
+  if (currMode == NormalVisualization)
+  {
+    normalVisualization10InstanceShader->use();
+    normalVisualization10InstanceShader->setUniform("view", viewMat);
     glDrawElementsInstanced(GL_TRIANGLES, // drawing mode
                             cubePosNormTexNumElements * 3, // number of elements to be rendered
                             GL_UNSIGNED_INT, // type of values in the indices
                             0, // offset in the EB
-                            8); // instance count
+                            ArrayCount(cubePositions)); // instance count
+  }
 
-    if (currMode == NormalVisualization)
+  // draw model
+  Shader* modelShader;
+  if (currMode == Exploding)
+  {
+    if (selectedReflactionIndex == reflectionIndex)
     {
-      normalVisualization10InstanceShader.use();
-      normalVisualization10InstanceShader.setUniform("view", viewMat);
-
-      glDrawElementsInstanced(GL_TRIANGLES, // drawing mode
-                              cubePosNormTexNumElements * 3, // number of elements to be rendered
-                              GL_UNSIGNED_INT, // type of values in the indices
-                              0, // offset in the EB
-                              8); // instance count
-    }
-    glBindVertexArray(0);
-
-    // draw model
-    Shader* modelShader;
-    if (currMode == Exploding)
-    {
-      if (selectedReflactionIndex == reflectionIndex)
-      {
-        modelShader = &explodingReflectionShader;
-      } else
-      {
-        modelShader = &explodingRefractionShader;
-      }
+      modelShader = explodingReflectionShader;
     } else
     {
-      if (selectedReflactionIndex == reflectionIndex)
-      {
-        modelShader = &reflectionShader;
-      } else
-      {
-        modelShader = &refractionShader;
-      }
+      modelShader = explodingRefractionShader;
     }
-
-    glm::mat4 model;
-    model = glm::scale(model, glm::vec3(modelScale));  // it's a bit too big for our scene, so scale it down
-    model = glm::translate(model, glm::vec3(0.0f, -1.75f, 0.0f)); // translate it down so it's at the center of the scene
-//    model = glm::rotate(model, glm::radians(5.0f * sin(currTime)), glm::vec3(1.0f, 0.0f, 0.0f));
-//    model = glm::rotate(model, glm::radians(5.0f * cos(currTime)), glm::vec3(0.0f, 1.0f, 0.0f));
-//    model = glm::rotate(model, glm::radians(5.0f * -sin(currTime)), glm::vec3(0.0f, 0.0f, 1.0f));
-
-    modelShader->use();
-    modelShader->setUniform("cameraPos", camera.Position);
-    modelShader->setUniform("view", viewMat);
-    modelShader->setUniform("refractiveIndex", refractionIndexValues[selectedReflactionIndex]);
-    modelShader->setUniform("model", model);
-    modelShader->setUniform("time", currTime);
-    nanoSuitModel.Draw(*modelShader);
-
-    if (currMode == NormalVisualization)
+  } else
+  {
+    if (selectedReflactionIndex == reflectionIndex)
     {
-      normalVisualizationShader.use();
-      normalVisualizationShader.setUniform("view", viewMat);
-      normalVisualizationShader.setUniform("model", model);
-
-      nanoSuitModel.Draw(normalVisualizationShader);
+      modelShader = reflectionShader;
+    } else
+    {
+      modelShader = refractionShader;
     }
+  }
 
-    // draw skybox
-    skyboxShader.use();
+  modelShader->use();
+  modelShader->setUniform("cameraPos", camera.Position);
+  modelShader->setUniform("view", viewMat);
+  modelShader->setUniform("refractiveIndex", refractionIndexValues[selectedReflactionIndex]);
+  modelShader->setUniform("model", nanoSuitModelMat);
+  modelShader->setUniform("time", currTime);
+  nanoSuitModel->Draw(*modelShader);
 
-    glBindVertexArray(skyboxVAO);
+  if (currMode == NormalVisualization)
+  {
+    normalVisualizationShader->use();
+    normalVisualizationShader->setUniform("view", viewMat);
+    normalVisualizationShader->setUniform("model", nanoSuitModelMat);
+    nanoSuitModel->Draw(*normalVisualizationShader);
+  }
 
-    glm::mat4 viewMinusTranslation = glm::mat4(glm::mat3(viewMat));
-    skyboxShader.setUniform("view", viewMinusTranslation);
+  // draw skybox
+  skyboxShader->use();
+  glm::mat4 viewMinusTranslation = glm::mat4(glm::mat3(viewMat));
+  skyboxShader->setUniform("view", viewMinusTranslation);
+  glBindVertexArray(skyboxVertexAtt.arrayObject);
+  glDrawElements(GL_TRIANGLES, // drawing mode
+                 36, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
+                 GL_UNSIGNED_INT, // type of the indices
+                 0); // offset in the EBO
+}
 
-    glDrawElements(GL_TRIANGLES, // drawing mode
-                   36, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
-                   GL_UNSIGNED_INT, // type of the indices
-                   0); // offset in the EBO
-    glBindVertexArray(0);
 
-    uint32 numFrames = (uint32)(1 / deltaTime);
-    renderText(std::to_string(numFrames) + " FPS", 25.0f, 25.0f, 1.0f, glm::vec3(1.0f, 0.0f, 0.0f));
+void ReflectRefractScene::inputStatesUpdated() {
+  FirstPersonScene::inputStatesUpdated();
 
-    glfwSwapBuffers(window); // swaps double buffers (call after all render commands are completed)
-    glfwPollEvents(); // checks for events (ex: keyboard/mouse input)
+  if(hotPress(KeyboardInput_Up)) {
+    nextModelReflaction();
+  }
+
+  if(hotPress(KeyboardInput_Down)) {
+    prevModelReflaction();
+  }
+
+  if(hotPress(KeyboardInput_Left)) {
+    prevMode();
+  }
+
+  if(hotPress(KeyboardInput_Right)) {
+    nextMode();
   }
 }
 
-void ReflectRefractScene::key_Up()
-{
-  nextModelReflaction();
-}
-
-void ReflectRefractScene::key_Down()
-{
-  prevModelReflaction();
-}
-
-void ReflectRefractScene::key_Left()
-{
-  prevMode();
-}
-
-void ReflectRefractScene::key_Right()
-{
-  nextMode();
-}
-
-void ReflectRefractScene::button_dPadUp_pressed()
-{
-  nextModelReflaction();
-}
-
-void ReflectRefractScene::button_dPadDown_pressed()
-{
-  prevModelReflaction();
-}
-
-void ReflectRefractScene::button_dPadLeft_pressed()
-{
-  prevMode();
-}
-
-void ReflectRefractScene::button_dPadRight_pressed()
-{
-  nextMode();
-}
+// TODO: reintroduce when controller input is complete
+//void ReflectRefractScene::button_dPadUp_pressed()
+//{
+//  nextModelReflaction();
+//}
+//
+//void ReflectRefractScene::button_dPadDown_pressed()
+//{
+//  prevModelReflaction();
+//}
+//
+//void ReflectRefractScene::button_dPadLeft_pressed()
+//{
+//  prevMode();
+//}
+//
+//void ReflectRefractScene::button_dPadRight_pressed()
+//{
+//  nextMode();
+//}
 
 void ReflectRefractScene::nextModelReflaction()
 {

@@ -35,7 +35,7 @@ void main() {
   vec3 colorSub = (1.0 / colorFavor) * iterFraction;
   color -= colorSub;
 
-  FragColor = vec4(color, 0.0);
+  FragColor = vec4(color, 1.0);
 }
 
 vec2 complexMul(vec2 a, vec2 b) {

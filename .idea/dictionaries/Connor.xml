@@ -7,6 +7,7 @@
       <w>gpu</w>
       <w>rasterization</w>
       <w>skybox</w>
+      <w>wireframe</w>
     </words>
   </dictionary>
 </component>

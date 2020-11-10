@@ -43,6 +43,10 @@ void load2DTexture(const char* imgLocation, uint32& textureId, bool flipImageVer
                  data); // pointer to the image data
     glGenerateMipmap(GL_TEXTURE_2D);
 
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+
     // set texture options
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST); // disables bilinear filtering (creates sharp edges when magnifying texture)
 
@@ -130,4 +134,20 @@ void swap(float32* a, float32* b)
   float32 tmp = *a;
   *a = *b;
   *b = tmp;
+}
+
+void toWindowedMode(GLFWwindow* window, const uint32 width, const uint32 height)
+{
+  GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+  const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+  uint32 centeringUpperLeftX = (mode->width / 2) - (width / 2);
+  uint32 centeringUpperLeftY = (mode->height / 2) - (height / 2);
+  glfwSetWindowMonitor(window, NULL/*Null for windowed mode*/, centeringUpperLeftX, centeringUpperLeftY, width, height, GLFW_DONT_CARE);
+}
+
+void toFullScreenMode(GLFWwindow* window)
+{
+  GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+  const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+  glfwSetWindowMonitor(window, monitor, 0, 0, mode->width, mode->height, GLFW_DONT_CARE);
 }

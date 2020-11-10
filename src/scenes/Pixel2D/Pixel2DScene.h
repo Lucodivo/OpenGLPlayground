@@ -2,20 +2,29 @@
 
 #include "../Scene.h"
 #include "../../common/Input.h"
+#include "../../common/ObjectData.h"
 
 class Pixel2DScene : public Scene
 {
 public:
-  Pixel2DScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth);
-
-  void runScene();
+  Pixel2DScene();
+  void init(uint32 windowWidth, uint32 windowHeight);
+  void deinit();
+  void drawFrame();
+  void inputStatesUpdated();
+  const char* title();
 
 private:
 
-  Shader pixel2DShader;
+  Shader* pixel2DShader;
 
+  VertexAtt quadVertexAtt;
+
+  uint32 textureId;
+
+  uint32 textureWidth, textureHeight;
+
+  float32 startTime = 0.0f;
   float32 deltaTime = 0.0f;  // Time between current frame and last frame
   float32 lastFrame = 0.0f; // Time of last frame
-
-  void renderLoop(uint32 skyboxVAO);
 };

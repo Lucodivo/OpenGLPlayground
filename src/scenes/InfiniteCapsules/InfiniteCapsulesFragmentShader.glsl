@@ -31,14 +31,14 @@ float cosElapsedTime;
 
 void main()
 {
-  sinElapsedTime = sin(elapsedTime / 4.0);
-  cosElapsedTime = cos(elapsedTime / 4.0);
-
   vec2 uv = (gl_FragCoord.xy-0.5*viewPortResolution.xy)/viewPortResolution.y;
 
   vec3 rayDir = vec3(uv.x, uv.y, 1.0); // NOTE: Expected to be normalized!
   rayDir = vec3(vec4(rayDir, 0.0) * viewRotationMat);
   rayDir = normalize(rayDir);
+
+  //sinElapsedTime = sin(elapsedTime / 4.0);
+  //cosElapsedTime = cos(elapsedTime / 4.0);
 
   float dist = distanceRayToScene(rayOrigin, rayDir);
   //vec3 worldColor = vec3((sinElapsedTime + 1.0) / 2.0, cos(elapsedTime/7), (cosElapsedTime + 1.0) / 2.0);

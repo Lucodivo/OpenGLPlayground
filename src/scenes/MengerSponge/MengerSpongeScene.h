@@ -2,10 +2,10 @@
 // Created by Connor on 11/21/2019.
 //
 
-#ifndef LEARNOPENGL_MENGERSPONGESCENE_H
-#define LEARNOPENGL_MENGERSPONGESCENE_H
+#pragma once
 
 #include "../GodModeScene.h"
+#include "../../common/ObjectData.h"
 
 struct resolution {
   uint32 width;
@@ -23,21 +23,26 @@ const resolution screenResolutions[] = {
 
 class MengerSpongeScene final : public GodModeScene {
 public:
-  MengerSpongeScene(GLFWwindow* window, uint32 initScreenHeight, uint32 initScreenWidth);
+  MengerSpongeScene(GLFWwindow* window);
 
-  void frameBufferSize(uint32 width, uint32 height) override;
-  void runScene() override;
-
-  void key_E_pressed() override;
-  void key_Q_pressed() override;
-  void key_Tab_pressed() override;
-  void mouseMovement(float32 xOffset, float32 yOffset) override;
+  void init(uint32 windowWidth, uint32 windowHeight);
+  void deinit();
+  void drawFrame();
+  void inputStatesUpdated();
+  void drawGui();
+  const char* title();
 
 private:
 
-  Shader mengerSpongeShader;
-  Shader pixel2DShader;
-  Shader cubeShader;
+  GLFWwindow* window = NULL;
+
+  Shader* mengerSpongeShader = NULL;
+  Shader* pixel2DShader = NULL;
+  Shader* cubeShader = NULL;
+
+  VertexAtt quadVertexAtt = {};
+  VertexAtt cubeVertexAtt = {};
+  Framebuffer dynamicResolutionFBO = {};
 
   uint32 textureDiff1Id;
   uint32 textureSpec1Id;
@@ -47,16 +52,28 @@ private:
   uint32 textureWidth;
   uint32 textureHeight;
 
-  bool showDebugWindows = true;
+  glm::mat4 projectionMat;
 
+  bool showDebugWindows = false;
+
+  float32 startTime = 0;
   float32 deltaTime = 0;
   float32 lastFrame = 0;
+  float32 lastShaderFileUpdateCheck = 0;
+  const float32 shaderFileCheckIntervalInSeconds = 2.0f;
 
-  void renderLoop(uint32 quadVAO, uint32 cubeVAO);
-
-  uint32 currentResolutionIndex = 0;
+  uint32 currentResolutionIndex = 1;
   resolution currentResolution = screenResolutions[currentResolutionIndex];
+
+  int32 numSamples = 1;
+
+  const float cubeScale = 10.0f;
+  const float32 frameTime = 0.2f;
+
+  const glm::vec3 directionalLightAmb = glm::vec3(0.15, 0.15, 0.15);
+  const glm::vec3 directionalLightDiff = glm::vec3(0.6, 0.6, 0.6);
+  const glm::vec3 directionalLightSpec = glm::vec3(0.8, 0.8, 0.8);
+  const glm::vec3 directionalLightDir = glm::vec3(1.0, -1.0, -1.0);
+  const glm::vec3 cubePos = glm::vec3(0.0, 0.0, 0.0);
+  const glm::vec3 cubeRotAxis = glm::vec3(1.0, 1.0, -1.0);
 };
-
-
-#endif //LEARNOPENGL_MENGERSPONGESCENE_H
