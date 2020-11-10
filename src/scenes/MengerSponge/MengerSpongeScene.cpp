@@ -23,8 +23,7 @@ void MengerSpongeScene::init(uint32 windowWidth, uint32 windowHeight)
 {
   GodModeScene::init(windowWidth, windowHeight);
 
-  originalCursorInputMode =  glfwGetInputMode(window, GLFW_CURSOR); // TODO: is this actually helpful?
-  glfwSetInputMode(window, GLFW_CURSOR, showDebugWindows ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED);
+  enableCursor(window, showDebugWindows);
 
   mengerSpongeShader = new Shader(UVCoordVertexShaderFileLoc, MengerSpongeFragmentShaderFileLoc);
   pixel2DShader = new Shader(pixel2DVertexShaderFileLoc, textureFragmentShaderFileLoc);
@@ -112,8 +111,6 @@ void MengerSpongeScene::deinit()
 
   uint32 deleteTextures[] = { textureDiff1Id, textureSpec1Id, textureDiff2Id, textureSpec2Id };
   glDeleteTextures(ArrayCount(deleteTextures), deleteTextures);
-
-  glfwSetInputMode(window, GLFW_CURSOR, originalCursorInputMode);
 }
 
 void MengerSpongeScene::drawFrame()
@@ -207,8 +204,6 @@ void MengerSpongeScene::drawGui()
   GodModeScene::drawGui();
 
   if (showDebugWindows){
-    //ImGui::ShowDemoWindow(&showDebugWindows);
-
     ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.50f);
     // Simplified Settings (expose floating-pointer border sizes as boolean representing 0.0f or 1.0f)
     if (ImGui::SliderInt("Supersamples", &numSamples, 1, 8)) {}
@@ -259,11 +254,7 @@ void MengerSpongeScene::inputStatesUpdated() {
   {
     showDebugWindows = !showDebugWindows;
     enableDefaultMouseCameraMovement(!showDebugWindows);
-    if(showDebugWindows) {
-      glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-    } else {
-      glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-    }
+    enableCursor(window, showDebugWindows);
   }
 
   // TODO: Overriding viewport changes in Scenes class. Should we simply not call glViewport in parent classes?

@@ -22,7 +22,7 @@ public:
 
 private:
 
-  Extent2D oldWindowExtent;
+  Extent2D oldWindowExtent = { 0, 0 };
 
   GLFWwindow* window = NULL;
 
@@ -39,8 +39,6 @@ private:
   bool mouseDown = false;
 
   VertexAtt quadVertexAtt = {};
-
-  int32 deinitCursorInputMode = GLFW_CURSOR_DISABLED;
 
   glm::vec3 colorFavors[3] = { glm::vec3(1.0f, 0.33f, 0.66f),
                               glm::vec3(0.165f, 0.33f, 1.0f),

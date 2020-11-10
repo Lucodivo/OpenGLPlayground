@@ -7,7 +7,11 @@
 #include "../../common/ObjectData.h"
 
 /* TODO: only first person due to input consumers, change? */
-MandelbrotScene::MandelbrotScene(GLFWwindow* window): FirstPersonScene(), window(window) {}
+MandelbrotScene::MandelbrotScene(GLFWwindow* window): FirstPersonScene(), window(window)
+{
+  enableDefaultMouseCameraMovement(false);
+  enableDefaultKeyboardCameraMovement(false);
+}
 
 const char* MandelbrotScene::title()
 {
@@ -17,8 +21,13 @@ const char* MandelbrotScene::title()
 void MandelbrotScene::init(uint32 windowWidth, uint32 windowHeight)
 {
   FirstPersonScene::init(windowWidth, windowHeight);
-  enableDefaultMouseCameraMovement(false);
-  enableDefaultKeyboardCameraMovement(false);
+
+  if(oldWindowExtent.x != 0) // Adjust the center offset in the event that the window size has changed since last init
+  {
+    float32 widthRatio = (float32)windowWidth / oldWindowExtent.x;
+    float32 heightRatio = (float32)windowHeight / oldWindowExtent.y;
+    centerOffset *= glm::vec2(widthRatio, heightRatio);
+  }
 
   oldWindowExtent = { (int32)windowWidth, (int32)windowHeight };
 
@@ -26,8 +35,7 @@ void MandelbrotScene::init(uint32 windowWidth, uint32 windowHeight)
   mandelbrotShader->use();
   mandelbrotShader->setUniform("viewPortResolution", glm::vec2(windowWidth, windowHeight));
 
-  deinitCursorInputMode = glfwGetInputMode(window, GLFW_CURSOR);
-  glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+  enableCursor(window, true);
 
   quadVertexAtt = initializeFrameBufferQuadVertexAttBuffers();
 
@@ -46,8 +54,6 @@ void MandelbrotScene::deinit()
 
   mandelbrotShader->deleteShaderResources();
   delete mandelbrotShader;
-
-  glfwSetInputMode(window, GLFW_CURSOR, deinitCursorInputMode);
 
   deleteVertexAtt(quadVertexAtt);
 }

@@ -62,7 +62,8 @@ MouseCoord getMouseDelta();
 float32 getMouseScrollY();
 Extent2D getWindowExtent();
 
-
+void enableCursor(GLFWwindow* window, bool enable);
+bool isCursorEnabled(GLFWwindow* window);
 
 
 

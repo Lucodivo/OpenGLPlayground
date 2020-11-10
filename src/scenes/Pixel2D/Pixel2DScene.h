@@ -11,6 +11,7 @@ public:
   void init(uint32 windowWidth, uint32 windowHeight);
   void deinit();
   void drawFrame();
+  void inputStatesUpdated();
   const char* title();
 
 private:
@@ -20,6 +21,8 @@ private:
   VertexAtt quadVertexAtt;
 
   uint32 textureId;
+
+  uint32 textureWidth, textureHeight;
 
   float32 startTime = 0.0f;
   float32 deltaTime = 0.0f;  // Time between current frame and last frame

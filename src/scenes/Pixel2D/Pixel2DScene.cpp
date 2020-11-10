@@ -26,21 +26,20 @@ void Pixel2DScene::init(uint32 windowWidth, uint32 windowHeight)
   glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
   glDisable(GL_DEPTH_TEST);
 
-  uint32 width, height;
-  load2DTexture(flowerTextureLoc, textureId, true, true, &width, &height);
+  load2DTexture(flowerTextureLoc, textureId, true, true, &textureWidth, &textureHeight);
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, textureId);
 
   // Turn on free gamma correction for entire scene, only affects color attachments
   glEnable(GL_FRAMEBUFFER_SRGB);
 
-  uint32 widthOffset = (windowWidth / 2) - (width / 2);
-  uint32 heightOffset = (windowHeight / 2) - (height / 2);
+  uint32 widthOffset = (windowWidth / 2) - (textureWidth / 2);
+  uint32 heightOffset = (windowHeight / 2) - (textureHeight / 2);
 
   pixel2DShader->use();
   pixel2DShader->setUniform("windowDimens", glm::vec2(windowWidth, windowHeight));
   pixel2DShader->setUniform("lowerLeftOffset", glm::vec2(widthOffset, heightOffset));
-  pixel2DShader->setUniform("spriteDimens", glm::vec2(64.0, 64.0));
+  pixel2DShader->setUniform("spriteDimens", glm::vec2(textureWidth, textureHeight));
   pixel2DShader->setUniform("tex", 0);
 
   glBindVertexArray(quadVertexAtt.arrayObject);
@@ -77,4 +76,18 @@ void Pixel2DScene::drawFrame()
                  6, // number of elements to draw (3 vertices per triangle * 2 triangles per quad)
                  GL_UNSIGNED_INT, // type of the indices
                  0 /*offset in the EBO */);
+}
+
+void Pixel2DScene::inputStatesUpdated() {
+  Scene::inputStatesUpdated();
+
+  if(isActive(WindowInput_SizeChange))
+  {
+    uint32 widthOffset = (windowWidth / 2) - (textureWidth / 2);
+    uint32 heightOffset = (windowHeight / 2) - (textureHeight / 2);
+
+    pixel2DShader->use();
+    pixel2DShader->setUniform("windowDimens", glm::vec2(windowWidth, windowHeight));
+    pixel2DShader->setUniform("lowerLeftOffset", glm::vec2(widthOffset, heightOffset));
+  }
 }

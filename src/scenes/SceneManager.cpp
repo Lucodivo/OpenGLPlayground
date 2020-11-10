@@ -19,14 +19,28 @@
 #include "RayTracingSphere/RayTracingSphereScene.h"
 #include "Pixel2D/Pixel2DScene.h"
 
+file_access bool sceneManagerIsActive = true;
+
 void toggleWindowSize(GLFWwindow* window, const uint32 width, const uint32 height);
+
+class EmptyScene : public Scene
+{
+  void init(uint32 windowWidth, uint32 windowHeight) {
+    Scene::init(windowWidth, windowHeight);
+    glClearColor( 0.0f, 0.0f, 0.0f, 0.0f );
+  }
+  const char* title() { return "Empty Scene"; }
+  void drawFrame() {
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+  }
+};
 
 void runScenes(GLFWwindow* window) {
   Extent2D windowExtent = { VIEWPORT_INIT_WIDTH, VIEWPORT_INIT_HEIGHT };
 
   TextDebugShader textDebugShader = TextDebugShader(windowExtent.x, windowExtent.y);
 
-  uint32 sceneIndex = 0;
+  EmptyScene emptyScene = EmptyScene();
   NessCubesScene nessCubeScene = NessCubesScene();
   InfiniteCapsulesScene infiniteCapsulesScene = InfiniteCapsulesScene();
   InfiniteCubeScene infiniteCubeScene = InfiniteCubeScene();
@@ -38,32 +52,24 @@ void runScenes(GLFWwindow* window) {
   RoomScene roomScene = RoomScene();
   ReflectRefractScene reflectRefractScene = ReflectRefractScene();
   GUIScene guiScene = GUIScene(window);
-  //Pixel2DScene pixel2DScene = Pixel2DScene();
+  Pixel2DScene pixel2DScene = Pixel2DScene();
   Scene* scenes[] = { &mengerSpongeScene, &rayTracingSphereScene, &mandelbrotScene, &infiniteCubeScene,
                       &infiniteCapsulesScene, &roomScene, &guiScene, &moonScene, &asteroidBeltScene,
-                      &reflectRefractScene, &nessCubeScene };
+                      &reflectRefractScene, &nessCubeScene, &pixel2DScene, &emptyScene };
+  uint32 sceneIndex = 0;
   uint32 sceneCount = ArrayCount(scenes);
-  bool sceneManagerIsActive = false;
+  bool sceneCursorMode = false;
 
-  auto handleInputForFrame = [&scenes, &sceneIndex, sceneCount, &window, &windowExtent, &textDebugShader, &sceneManagerIsActive]()
+  auto handleInputForFrame = [&scenes, &sceneIndex, sceneCount, &window, &windowExtent, &textDebugShader, &sceneCursorMode]()
   {
     if(hotPress(KeyboardInput_Tab)) {
       sceneManagerIsActive = !sceneManagerIsActive;
-    }
-
-    if(hotPress(KeyboardInput_J)) {
-      scenes[sceneIndex]->deinit();
-      if(sceneIndex == 0) {
-        sceneIndex = sceneCount - 1;
-      } else { --sceneIndex; }
-      scenes[sceneIndex]->init(windowExtent.x, windowExtent.y);
-    } else if(hotPress(KeyboardInput_K))
-    {
-      scenes[sceneIndex]->deinit();
-      if(++sceneIndex == sceneCount) {
-        sceneIndex = 0;
+      if(sceneManagerIsActive) {
+        sceneCursorMode = isCursorEnabled(window);
+        enableCursor(window, true);
+      } else { // scene manager deactivated
+        enableCursor(window, sceneCursorMode);
       }
-      scenes[sceneIndex]->init(windowExtent.x, windowExtent.y);
     }
 
     if(hotPress(KeyboardInput_Esc))
@@ -76,19 +82,22 @@ void runScenes(GLFWwindow* window) {
       toggleWindowSize(window, VIEWPORT_INIT_WIDTH, VIEWPORT_INIT_HEIGHT);
     }
 
-    if(isActive(WindowInput_SizeChange))
+    bool windowSizeChange = isActive(WindowInput_SizeChange);
+    if(windowSizeChange)
     {
       windowExtent = getWindowExtent();
       textDebugShader.updateWindowDimens(windowExtent.x, windowExtent.y);
     }
 
-    if(!sceneManagerIsActive) { // if scene manager isn't active, pass input to scene
+    if(!sceneManagerIsActive || windowSizeChange) { // if scene manager isn't active or we have a window size change, pass input to scene
       scenes[sceneIndex]->inputStatesUpdated();
     }
   };
 
   initializeInput(window, windowExtent);
   scenes[sceneIndex]->init(windowExtent.x, windowExtent.y);
+  sceneCursorMode = isCursorEnabled(window);
+  enableCursor(window, true);
   float32 deltaTime = 1.0;
   float32 lastFrame = (float32)glfwGetTime();
   while (glfwWindowShouldClose(window) == GL_FALSE)
@@ -113,7 +122,27 @@ void runScenes(GLFWwindow* window) {
       deltaTime = t - lastFrame;
       lastFrame = t;
 
-
+      // ImGui
+      // NOTE: below is a GREAT resource for ImGui
+      //ImGui::ShowDemoWindow(&showDebugWindows);
+      if (ImGui::BeginMainMenuBar())
+      {
+        if (ImGui::BeginMenu("Scenes"))
+        {
+          for(uint32 i = 0; i < sceneCount; ++i)
+          {
+            if (ImGui::MenuItem(scenes[i]->title())) {
+              sceneManagerIsActive = false;
+              scenes[sceneIndex]->deinit();
+              enableCursor(window, false);
+              sceneIndex = i;
+              scenes[sceneIndex]->init(windowExtent.x, windowExtent.y);
+            }
+          }
+          ImGui::EndMenu();
+        }
+        ImGui::EndMainMenuBar();
+      }
     }
 
     // Rendering ImGui

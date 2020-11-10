@@ -12,6 +12,7 @@ void mouse_scroll_callback(GLFWwindow* window, float64 xOffset, float64 yOffset)
 void window_size_callback(GLFWwindow* window, int32 width, int32 height);
 
 file_access bool globalWindowSizeChange;
+file_access bool cursorModeChange;
 file_access Extent2D globalWindowExtent;
 file_access MouseCoord globalMouseScroll;
 file_access MouseCoord mousePosition = {0.0f, 0.0f };
@@ -23,6 +24,7 @@ void initializeInput(GLFWwindow* window, Extent2D windowExtent)
 {
   globalMouseScroll = MouseCoord{0.0f, 0.0f};
   globalWindowSizeChange = true;
+  cursorModeChange = false;
   globalWindowExtent = windowExtent;
   inputState = new std::map<InputType, InputState>();
   glfwSetScrollCallback(window, mouse_scroll_callback);
@@ -155,7 +157,7 @@ void loadInputStateForFrame(GLFWwindow* window) {
       // TODO: floating point precision requires we subtract with float64
 
       // NOTE: We do not consume mouse input on window size changes as it results in unwanted values
-      mouseDelta = globalWindowSizeChange ? MouseCoord{0.0f, 0.0f} : MouseCoord{newMouseCoord.x - mousePosition.x, newMouseCoord.y - mousePosition.y};
+      mouseDelta = (globalWindowSizeChange || cursorModeChange) ? MouseCoord{0.0f, 0.0f} : MouseCoord{newMouseCoord.x - mousePosition.x, newMouseCoord.y - mousePosition.y};
       mousePosition = newMouseCoord;
 
       std::map<InputType, InputState>::iterator movementIterator = inputState->find(MouseInput_Movement);
@@ -169,6 +171,7 @@ void loadInputStateForFrame(GLFWwindow* window) {
       {
         inputState->erase(movementIterator);
       }
+      cursorModeChange = false;
     }
 
     // mouse scroll state management
@@ -217,6 +220,17 @@ void window_size_callback(GLFWwindow* window, int32 width, int32 height)
   // NOTE: InputConsumer consumes this value and sets it to 0.0 if consumed
   globalWindowSizeChange = true;
   globalWindowExtent = {width, height };
+}
+
+void enableCursor(GLFWwindow* window, bool enable)
+{
+  glfwSetInputMode(window, GLFW_CURSOR, enable ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED);
+  cursorModeChange = true;
+}
+
+bool isCursorEnabled(GLFWwindow* window)
+{
+  return glfwGetInputMode(window, GLFW_CURSOR) == GLFW_CURSOR_NORMAL;
 }
 
 

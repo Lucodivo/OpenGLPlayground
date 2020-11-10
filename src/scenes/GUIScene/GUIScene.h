@@ -28,7 +28,7 @@ public:
 private:
   GLFWwindow* window = NULL;
 
-  bool cursorMode = false;
+  bool cursorModeEnabled = false;
 
   Shader* cubeShader;
 
@@ -47,8 +47,6 @@ private:
 
   const glm::vec3 cubeColor = { 0.8f, 0.0f, 0.0f };
   const glm::vec3 wireFrameColor = { 0.0f, 0.0f, 0.0f };
-
-  int32 originalCursorMode = GLFW_CURSOR_DISABLED;
 
   void checkMouseClickCollision(float32 mouseX, float32 mouseY);
   bool checkCubeCollision(glm::vec3* worldRay, glm::vec3* rayOrigin, Cube* cube);

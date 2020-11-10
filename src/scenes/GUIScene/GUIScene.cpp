@@ -24,9 +24,7 @@ void GUIScene::init(uint32 windowWidth, uint32 windowHeight)
 {
   FirstPersonScene::init(windowWidth, windowHeight);
 
-  // TODO: rethink this cursor logic?
-  originalCursorMode = glfwGetInputMode(window, GLFW_CURSOR);
-  glfwSetInputMode(window, GLFW_CURSOR, cursorMode ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED);
+  enableCursor(window, cursorModeEnabled);
   
   cubeShader = new Shader(posVertexShaderFileLoc, singleColorFragmentShaderFileLoc);
 
@@ -76,8 +74,6 @@ void GUIScene::deinit()
   delete cubeShader;
   
   deleteVertexAtt(cubeVertexAtt);
-
-  glfwSetInputMode(window, GLFW_CURSOR, originalCursorMode);
 }
 
 void GUIScene::drawFrame()
@@ -138,10 +134,9 @@ void GUIScene::inputStatesUpdated() {
 
   if(hotPress(KeyboardInput_E))
   {
-    cursorMode = !cursorMode;
-    enableDefaultMouseCameraMovement(!cursorMode); // if cursor mode, disable defauly mouse camera control
-    // TODO: Cannot turn off input mode when I am trying to select a scene, think of alternative
-    glfwSetInputMode(window, GLFW_CURSOR, cursorMode ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED);
+    cursorModeEnabled = !cursorModeEnabled;
+    enableDefaultMouseCameraMovement(!cursorModeEnabled); // if cursor mode, disable defauly mouse camera control
+    enableCursor(window, cursorModeEnabled);
   }
 }
 
