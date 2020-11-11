@@ -147,17 +147,18 @@ void loadInputStateForFrame(GLFWwindow* window) {
     setMouseState(window, GLFW_MOUSE_BUTTON_LEFT, MouseInput_Left);
     setMouseState(window, GLFW_MOUSE_BUTTON_RIGHT, MouseInput_Right);
     setMouseState(window, GLFW_MOUSE_BUTTON_MIDDLE, MouseInput_Middle);
-    setMouseState(window, GLFW_MOUSE_BUTTON_LAST, MouseInput_Last); // TODO: does this work?
+    setMouseState(window, GLFW_MOUSE_BUTTON_4, MouseInput_Back);
+    setMouseState(window, GLFW_MOUSE_BUTTON_5, MouseInput_Forward);
 
     // mouse movement state management
     {
       MouseCoord newMouseCoord;
 
       glfwGetCursorPos(window, &newMouseCoord.x, &newMouseCoord.y);
-      // TODO: floating point precision requires we subtract with float64
 
       // NOTE: We do not consume mouse input on window size changes as it results in unwanted values
       mouseDelta = (globalWindowSizeChange || cursorModeChange) ? MouseCoord{0.0f, 0.0f} : MouseCoord{newMouseCoord.x - mousePosition.x, newMouseCoord.y - mousePosition.y};
+      cursorModeChange = false; // The above essentially consumers the
       mousePosition = newMouseCoord;
 
       std::map<InputType, InputState>::iterator movementIterator = inputState->find(MouseInput_Movement);
@@ -171,7 +172,6 @@ void loadInputStateForFrame(GLFWwindow* window) {
       {
         inputState->erase(movementIterator);
       }
-      cursorModeChange = false;
     }
 
     // mouse scroll state management
@@ -191,18 +191,17 @@ void loadInputStateForFrame(GLFWwindow* window) {
 
     // window size change management
     {
-      // TODO: think of something better than this pls
-      local_access bool removeWindowInputSizeChange = false;
+      local_access bool windowInputSizeChangeReportedLastFrame = false;
       if(globalWindowSizeChange)
       {
         (*inputState)[WindowInput_SizeChange] = INPUT_ACTIVE;
-        removeWindowInputSizeChange = true;
-      } else if(removeWindowInputSizeChange)
+        globalWindowSizeChange = false; // NOTE: Set to false to signify that the result has been consumed
+        windowInputSizeChangeReportedLastFrame = true;
+      } else if(windowInputSizeChangeReportedLastFrame)
       {
         inputState->erase(WindowInput_SizeChange);
-        removeWindowInputSizeChange = false;
+        windowInputSizeChangeReportedLastFrame = false;
       }
-      globalWindowSizeChange = false; // NOTE: Set to false to signify that the result has been consumed
     }
   }
 }
@@ -210,16 +209,14 @@ void loadInputStateForFrame(GLFWwindow* window) {
 // Callback function for when user scrolls with mouse wheel
 void mouse_scroll_callback(GLFWwindow* window, float64 xOffset, float64 yOffset)
 {
-  // NOTE: InputConsumer consumes this value and sets it to 0.0 if consumed
   globalMouseScroll.y = yOffset;
 }
 
 // NOTE: returns (0,0) when no longer on screen
 void window_size_callback(GLFWwindow* window, int32 width, int32 height)
 {
-  // NOTE: InputConsumer consumes this value and sets it to 0.0 if consumed
   globalWindowSizeChange = true;
-  globalWindowExtent = {width, height };
+  globalWindowExtent = { width, height };
 }
 
 void enableCursor(GLFWwindow* window, bool enable)
@@ -238,7 +235,7 @@ bool isCursorEnabled(GLFWwindow* window)
 
 
 
-// TODO: fix XInput below
+// TODO: reintroduce xinput controller logic to new input code
 
 // NOTE: Casey Muratori's efficient way of handling function pointers, Handmade Hero episode 6 @ 22:06 & 1:00:21
 // NOTE: Allows us to quickly change the function parameters & return type in one place and cascade throughout the rest
@@ -277,220 +274,216 @@ file_access void loadXInput()
   }
 }
 
-void initializeInput(GLFWwindow* window)
+void initializeXInput()
 {
-  loadXInput(); // TODO: remove
+  loadXInput();
 }
 
-void processInput(GLFWwindow* window) {
-  processXInput();
-}
-
-void processXInput()
+void processXInput(ControllerConsumer** consumers, uint32 consumerCount)
 {
-//  for (DWORD controllerIndex = 0; controllerIndex < XUSER_MAX_COUNT; ++controllerIndex)
-//  {
-//    XINPUT_STATE controllerState;
-//    if (XInputGetState(controllerIndex, &controllerState) == ERROR_SUCCESS)
-//    {
-//      // the controller is plugged in
-//      XINPUT_GAMEPAD* pad = &controllerState.Gamepad;
-//
-//      bool dPadUp = (pad->wButtons & XINPUT_GAMEPAD_DPAD_UP);
-//      bool dPadDown = (pad->wButtons & XINPUT_GAMEPAD_DPAD_DOWN);
-//      bool dPadLeft = (pad->wButtons & XINPUT_GAMEPAD_DPAD_LEFT);
-//      bool dPadRight = (pad->wButtons & XINPUT_GAMEPAD_DPAD_RIGHT);
-//      bool leftShoulder = (pad->wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER);
-//      bool rightShoulder = (pad->wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER);
-//      bool start = (pad->wButtons & XINPUT_GAMEPAD_START);
-//      bool select = (pad->wButtons & XINPUT_GAMEPAD_BACK);
-//      bool a = (pad->wButtons & XINPUT_GAMEPAD_A);
-//      bool b = (pad->wButtons & XINPUT_GAMEPAD_B);
-//      bool x = (pad->wButtons & XINPUT_GAMEPAD_X);
-//      bool y = (pad->wButtons & XINPUT_GAMEPAD_Y);
-//
-//      if (dPadUp)
-//      {
-//        for(uint32 i = 0; i < consumerCount; ++i) {
-//          consumers[i]->button_dPadUp_pressed();;
-//        }
-//      }
-//
-//      if (dPadDown)
-//      {
-//        for(uint32 i = 0; i < consumerCount; ++i) {
-//          consumers[i]->button_dPadDown_pressed();;
-//        }
-//      }
-//
-//      if (dPadLeft)
-//      {
-//        for(uint32 i = 0; i < consumerCount; ++i) {
-//          consumers[i]->button_dPadLeft_pressed();;
-//        }
-//      }
-//
-//      if (dPadRight)
-//      {
-//        for(uint32 i = 0; i < consumerCount; ++i) {
-//          consumers[i]->button_dPadRight_pressed();;
-//        }
-//      }
-//
-//      if (leftShoulder)
-//      {
-//        for(uint32 i = 0; i < consumerCount; ++i) {
-//          consumers[i]->button_leftShoulder_pressed();;
-//        }
-//      }
-//
-//      if (rightShoulder)
-//      {
-//        for(uint32 i = 0; i < consumerCount; ++i) {
-//          consumers[i]->button_rightShoulder_pressed();;
-//        }
-//      }
-//
-//      if (start)
-//      {
-//        for(uint32 i = 0; i < consumerCount; ++i) {
-//          consumers[i]->button_start_pressed();;
-//        }
-//      }
-//
-//
-//      local_access bool selectWasDown = false;
-//      if (select)
-//      {
-//        if (!selectWasDown)
-//        {
-//          selectWasDown = true;
-//          for(uint32 i = 0; i < consumerCount; ++i) {
-//            consumers[i]->button_select_pressed();;
-//          }
-//        }
-//      } else if (selectWasDown)
-//      {
-//        selectWasDown = false;
-//        for(uint32 i = 0; i < consumerCount; ++i) {
-//          consumers[i]->button_select_released();;
-//        }
-//      }
-//
-//      local_access bool aWasDown = false;
-//      if (a)
-//      {
-//        if (!aWasDown)
-//        {
-//          aWasDown = true;
-//          for(uint32 i = 0; i < consumerCount; ++i) {
-//            consumers[i]->button_A_pressed();;
-//          }
-//        }
-//      } else if (aWasDown)
-//      {
-//        aWasDown = false;
-//        for(uint32 i = 0; i < consumerCount; ++i) {
-//          consumers[i]->button_A_released();;
-//        }
-//      }
-//
-//      local_access bool bWasDown = false;
-//      if (b)
-//      {
-//        if (!bWasDown)
-//        {
-//          bWasDown = true;
-//          for(uint32 i = 0; i < consumerCount; ++i) {
-//            consumers[i]->button_B_pressed();;
-//          }
-//        }
-//      } else if (bWasDown)
-//      {
-//        bWasDown = false;
-//        for(uint32 i = 0; i < consumerCount; ++i) {
-//          consumers[i]->button_B_released();;
-//        }
-//      }
-//
-//      local_access bool xWasDown = false;
-//      if (x)
-//      {
-//        if (!xWasDown)
-//        {
-//          xWasDown = true;
-//          for(uint32 i = 0; i < consumerCount; ++i) {
-//            consumers[i]->button_X_pressed();;
-//          }
-//        }
-//      } else if (xWasDown)
-//      {
-//        xWasDown = false;
-//        for(uint32 i = 0; i < consumerCount; ++i) {
-//          consumers[i]->button_X_released();;
-//        }
-//      }
-//
-//      local_access bool yWasDown = false;
-//      if (y)
-//      {
-//        if (!yWasDown)
-//        {
-//          yWasDown = true;
-//          for(uint32 i = 0; i < consumerCount; ++i) {
-//            consumers[i]->button_Y_pressed();;
-//          }
-//        }
-//      } else if (yWasDown)
-//      {
-//        yWasDown = false;
-//        for(uint32 i = 0; i < consumerCount; ++i) {
-//          consumers[i]->button_Y_released();;
-//        }
-//      }
-//
-//      int16 leftStickX = pad->sThumbLX;
-//      int16 leftStickY = pad->sThumbLY;
-//
-//      if (leftStickX < XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE &&
-//          leftStickX > -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE)
-//      {
-//        leftStickX = 0;
-//      }
-//      if (leftStickY < XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE &&
-//          leftStickY > -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE)
-//      {
-//        leftStickY = 0;
-//      }
-//      if (leftStickX != 0 && leftStickY != 0)
-//      {
-//        for(uint32 i = 0; i < consumerCount; ++i) {
-//          consumers[i]->leftAnalog(leftStickX, leftStickY);
-//        }
-//      }
-//
-//      int16 rightStickX = pad->sThumbRX;
-//      int16 rightStickY = pad->sThumbRY;
-//
-//      if (rightStickX < XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE &&
-//          rightStickX > -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE)
-//      {
-//        rightStickX = 0;
-//      }
-//      if (rightStickY < XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE &&
-//          rightStickY > -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE)
-//      {
-//        rightStickY = 0;
-//      }
-//      if (rightStickX != 0 && rightStickY != 0)
-//      {
-//        for(uint32 i = 0; i < consumerCount; ++i) {
-//          consumers[i]->rightAnalog(rightStickX, rightStickY);
-//        }
-//      }
-//    } else
-//    {
-//      // the controller is not available
-//    }
-//  }
+  for (DWORD controllerIndex = 0; controllerIndex < XUSER_MAX_COUNT; ++controllerIndex)
+  {
+    XINPUT_STATE controllerState;
+    if (XInputGetState(controllerIndex, &controllerState) == ERROR_SUCCESS)
+    {
+      // the controller is plugged in
+      XINPUT_GAMEPAD* pad = &controllerState.Gamepad;
+
+      bool dPadUp = (pad->wButtons & XINPUT_GAMEPAD_DPAD_UP);
+      bool dPadDown = (pad->wButtons & XINPUT_GAMEPAD_DPAD_DOWN);
+      bool dPadLeft = (pad->wButtons & XINPUT_GAMEPAD_DPAD_LEFT);
+      bool dPadRight = (pad->wButtons & XINPUT_GAMEPAD_DPAD_RIGHT);
+      bool leftShoulder = (pad->wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER);
+      bool rightShoulder = (pad->wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER);
+      bool start = (pad->wButtons & XINPUT_GAMEPAD_START);
+      bool select = (pad->wButtons & XINPUT_GAMEPAD_BACK);
+      bool a = (pad->wButtons & XINPUT_GAMEPAD_A);
+      bool b = (pad->wButtons & XINPUT_GAMEPAD_B);
+      bool x = (pad->wButtons & XINPUT_GAMEPAD_X);
+      bool y = (pad->wButtons & XINPUT_GAMEPAD_Y);
+
+      if (dPadUp)
+      {
+        for(uint32 i = 0; i < consumerCount; ++i) {
+          consumers[i]->button_dPadUp_pressed();;
+        }
+      }
+
+      if (dPadDown)
+      {
+        for(uint32 i = 0; i < consumerCount; ++i) {
+          consumers[i]->button_dPadDown_pressed();;
+        }
+      }
+
+      if (dPadLeft)
+      {
+        for(uint32 i = 0; i < consumerCount; ++i) {
+          consumers[i]->button_dPadLeft_pressed();;
+        }
+      }
+
+      if (dPadRight)
+      {
+        for(uint32 i = 0; i < consumerCount; ++i) {
+          consumers[i]->button_dPadRight_pressed();;
+        }
+      }
+
+      if (leftShoulder)
+      {
+        for(uint32 i = 0; i < consumerCount; ++i) {
+          consumers[i]->button_leftShoulder_pressed();;
+        }
+      }
+
+      if (rightShoulder)
+      {
+        for(uint32 i = 0; i < consumerCount; ++i) {
+          consumers[i]->button_rightShoulder_pressed();;
+        }
+      }
+
+      if (start)
+      {
+        for(uint32 i = 0; i < consumerCount; ++i) {
+          consumers[i]->button_start_pressed();;
+        }
+      }
+
+
+      local_access bool selectWasDown = false;
+      if (select)
+      {
+        if (!selectWasDown)
+        {
+          selectWasDown = true;
+          for(uint32 i = 0; i < consumerCount; ++i) {
+            consumers[i]->button_select_pressed();;
+          }
+        }
+      } else if (selectWasDown)
+      {
+        selectWasDown = false;
+        for(uint32 i = 0; i < consumerCount; ++i) {
+          consumers[i]->button_select_released();;
+        }
+      }
+
+      local_access bool aWasDown = false;
+      if (a)
+      {
+        if (!aWasDown)
+        {
+          aWasDown = true;
+          for(uint32 i = 0; i < consumerCount; ++i) {
+            consumers[i]->button_A_pressed();;
+          }
+        }
+      } else if (aWasDown)
+      {
+        aWasDown = false;
+        for(uint32 i = 0; i < consumerCount; ++i) {
+          consumers[i]->button_A_released();;
+        }
+      }
+
+      local_access bool bWasDown = false;
+      if (b)
+      {
+        if (!bWasDown)
+        {
+          bWasDown = true;
+          for(uint32 i = 0; i < consumerCount; ++i) {
+            consumers[i]->button_B_pressed();;
+          }
+        }
+      } else if (bWasDown)
+      {
+        bWasDown = false;
+        for(uint32 i = 0; i < consumerCount; ++i) {
+          consumers[i]->button_B_released();;
+        }
+      }
+
+      local_access bool xWasDown = false;
+      if (x)
+      {
+        if (!xWasDown)
+        {
+          xWasDown = true;
+          for(uint32 i = 0; i < consumerCount; ++i) {
+            consumers[i]->button_X_pressed();;
+          }
+        }
+      } else if (xWasDown)
+      {
+        xWasDown = false;
+        for(uint32 i = 0; i < consumerCount; ++i) {
+          consumers[i]->button_X_released();;
+        }
+      }
+
+      local_access bool yWasDown = false;
+      if (y)
+      {
+        if (!yWasDown)
+        {
+          yWasDown = true;
+          for(uint32 i = 0; i < consumerCount; ++i) {
+            consumers[i]->button_Y_pressed();;
+          }
+        }
+      } else if (yWasDown)
+      {
+        yWasDown = false;
+        for(uint32 i = 0; i < consumerCount; ++i) {
+          consumers[i]->button_Y_released();;
+        }
+      }
+
+      int16 leftStickX = pad->sThumbLX;
+      int16 leftStickY = pad->sThumbLY;
+
+      if (leftStickX < XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE &&
+          leftStickX > -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE)
+      {
+        leftStickX = 0;
+      }
+      if (leftStickY < XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE &&
+          leftStickY > -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE)
+      {
+        leftStickY = 0;
+      }
+      if (leftStickX != 0 && leftStickY != 0)
+      {
+        for(uint32 i = 0; i < consumerCount; ++i) {
+          consumers[i]->leftAnalog(leftStickX, leftStickY);
+        }
+      }
+
+      int16 rightStickX = pad->sThumbRX;
+      int16 rightStickY = pad->sThumbRY;
+
+      if (rightStickX < XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE &&
+          rightStickX > -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE)
+      {
+        rightStickX = 0;
+      }
+      if (rightStickY < XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE &&
+          rightStickY > -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE)
+      {
+        rightStickY = 0;
+      }
+      if (rightStickX != 0 && rightStickY != 0)
+      {
+        for(uint32 i = 0; i < consumerCount; ++i) {
+          consumers[i]->rightAnalog(rightStickX, rightStickY);
+        }
+      }
+    } else
+    {
+      // the controller is not available
+    }
+  }
 }

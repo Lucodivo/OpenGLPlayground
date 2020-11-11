@@ -29,8 +29,7 @@ enum InputType
   KeyboardInput_Shift_Right, KeyboardInput_Ctrl_Right, KeyboardInput_Alt_Right, KeyboardInput_Enter,
   KeyboardInput_Esc, KeyboardInput_Backtick, KeyboardInput_1, KeyboardInput_2, KeyboardInput_3,
   KeyboardInput_Up, KeyboardInput_Down, KeyboardInput_Left, KeyboardInput_Right, KeyboardInput_Space,
-  MouseInput_Left, MouseInput_Right, MouseInput_Middle,
-  MouseInput_Last, //TODO: MouseInput_Next ?
+  MouseInput_Left, MouseInput_Right, MouseInput_Middle, MouseInput_Back, MouseInput_Forward,
   MouseInput_Scroll, MouseInput_Movement,
   WindowInput_SizeChange
 };
@@ -72,48 +71,7 @@ bool isCursorEnabled(GLFWwindow* window);
 
 
 
-// TODO: remove below
-
-
-class KeyboardConsumer
-{
-public:
-  virtual void key_LeftShift_pressed() {};
-  virtual void key_LeftShift_released() {};
-  virtual void key_Esc(){};
-  virtual void key_W() {};
-  virtual void key_S() {};
-  virtual void key_A() {};
-  virtual void key_D() {};
-  virtual void key_Q_pressed() {};
-  virtual void key_Q_released() {};
-  virtual void key_E_pressed() {};
-  virtual void key_E_released() {};
-  virtual void key_O_pressed() {};
-  virtual void key_O_released() {};
-  virtual void key_P_pressed() {};
-  virtual void key_P_released() {};
-  virtual void key_Space() {};
-  virtual void key_Up() {};
-  virtual void key_Down() {};
-  virtual void key_Left() {};
-  virtual void key_Right() {};
-  virtual void key_AltEnter_pressed() {};
-  virtual void key_AltEnter_released() {};
-  virtual void key_Tab_pressed() {};
-  virtual void key_Tab_released() {};
-};
-
-class MouseConsumer
-{
-public:
-  virtual void mouseMovement(float32 xOffset, float32 yOffset) {};
-  virtual void mouseScroll(float32 yOffset) {};
-  virtual void key_LeftMouseButton_pressed(float32 xPos, float32 yPos) {};
-  virtual void key_LeftMouseButton_released(float32 xPos, float32 yPos) {};
-  virtual void key_RightMouseButton_pressed(float32 xPos, float32 yPos) {};
-  virtual void key_RightMouseButton_released(float32 xPos, float32 yPos) {};
-};
+// TODO: reintroduce xinput controller logic to new input code
 
 class ControllerConsumer
 {
@@ -139,14 +97,5 @@ public:
   virtual void button_select_released() {};
 };
 
-class WindowSizeConsumer
-{
-public:
-  virtual void windowSizeChanged(uint32 width, uint32 height) {};
-};
-
-void initializeInput(GLFWwindow* window);
-void processInput(GLFWwindow* window);
-void processXInput();
-void subscribeXInput(ControllerConsumer* consumer);
-bool unsubscribeXInput(ControllerConsumer* consumer);
+void initializeXInput();
+void processXInput(ControllerConsumer** consumers, uint32 consumerCount);

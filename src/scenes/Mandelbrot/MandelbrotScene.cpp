@@ -6,12 +6,7 @@
 #include "../../common/FileLocations.h"
 #include "../../common/ObjectData.h"
 
-/* TODO: only first person due to input consumers, change? */
-MandelbrotScene::MandelbrotScene(GLFWwindow* window): FirstPersonScene(), window(window)
-{
-  enableDefaultMouseCameraMovement(false);
-  enableDefaultKeyboardCameraMovement(false);
-}
+MandelbrotScene::MandelbrotScene(GLFWwindow* window): Scene(), window(window) {}
 
 const char* MandelbrotScene::title()
 {
@@ -20,7 +15,7 @@ const char* MandelbrotScene::title()
 
 void MandelbrotScene::init(uint32 windowWidth, uint32 windowHeight)
 {
-  FirstPersonScene::init(windowWidth, windowHeight);
+  Scene::init(windowWidth, windowHeight);
 
   if(oldWindowExtent.x != 0) // Adjust the center offset in the event that the window size has changed since last init
   {
@@ -50,7 +45,7 @@ void MandelbrotScene::init(uint32 windowWidth, uint32 windowHeight)
 
 void MandelbrotScene::deinit()
 {
-  FirstPersonScene::deinit();
+  Scene::deinit();
 
   mandelbrotShader->deleteShaderResources();
   delete mandelbrotShader;
@@ -60,7 +55,7 @@ void MandelbrotScene::deinit()
 
 void MandelbrotScene::drawFrame()
 {
-  FirstPersonScene::drawFrame();
+  Scene::drawFrame();
 
   float32 t = (float32)glfwGetTime() - startTime;
   deltaTime = t - lastFrame;
@@ -81,7 +76,7 @@ void MandelbrotScene::drawFrame()
 
 
 void MandelbrotScene::inputStatesUpdated() {
-  FirstPersonScene::inputStatesUpdated();
+  Scene::inputStatesUpdated();
 
   if(isActive(WindowInput_SizeChange)) {
     Extent2D extent2D = getWindowExtent();\

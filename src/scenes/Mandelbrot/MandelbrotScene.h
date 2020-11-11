@@ -11,7 +11,7 @@
 #define ZOOM_SPEED_FAST 3.0f
 #define MOUSE_ACTION_TIME_SECONDS 0.15f
 
-class MandelbrotScene final : public FirstPersonScene {
+class MandelbrotScene final : public Scene {
 public:
   MandelbrotScene(GLFWwindow* window);
   void init(uint32 windowWidth, uint32 windowHeight);

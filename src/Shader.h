@@ -14,7 +14,7 @@ enum ShaderTypeFlags {
   GeometryShaderFlag = 1 << 2
 };
 
-// TODO: Convert to a simple structure
+// TODO: Convert to a simple structure?
 class Shader
 {
 public:
@@ -66,6 +66,6 @@ private:
   const char* geometryShaderPath;
 
   uint32 loadShader(const char* shaderPath, GLenum shaderType);
-  bool updateShaderWhenOutdated(GLuint* shader, const char* shaderFileLocation, uint32* lastUpdated, GLenum shaderType);
+  bool updateShaderWhenOutdated(GLuint* shaderId, const char* shaderFileLocation, uint32* lastUpdated, GLenum shaderType);
   void readShaderCodeAsString(const char* shaderPath, std::string* shaderCode);
 };

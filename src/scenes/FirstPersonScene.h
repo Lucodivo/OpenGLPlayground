@@ -36,8 +36,6 @@ public:
   void button_start_pressed() {}
   void button_select_pressed() {}
   void button_select_released() {}
-  void key_Tab_pressed() {}
-  void key_Tab_released() {}
 
 protected:
   Camera camera = Camera();

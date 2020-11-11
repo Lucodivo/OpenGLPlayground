@@ -11,16 +11,17 @@
 
 #define NO_SHADER 0
 
-bool Shader::updateShaderWhenOutdated(GLuint* shader, const char* shaderFileLocation, uint32* lastUpdated, GLenum shaderType) {
+bool Shader::updateShaderWhenOutdated(GLuint* shaderId, const char* shaderFileLocation, uint32* lastUpdated, GLenum shaderType) {
   uint32 lastWriteTime = getFileLastWriteTime(shaderFileLocation);
   bool fileUpToDate = *lastUpdated == lastWriteTime;
   if(fileUpToDate) { return false; }
   *lastUpdated = lastWriteTime;
-  glDeleteShader(*shader); // remove old fragment shader
-  *shader = loadShader(shaderFileLocation, shaderType);
+  glDeleteShader(*shaderId); // remove old fragment shader
+  *shaderId = loadShader(shaderFileLocation, shaderType);
   return true;
 }
 
+// TODO: Add cooldown so we don't check the file time for three shader files 60 times a second?
 bool Shader::updateShadersWhenOutdated(uint32 shaderTypeFlag) {
   bool shaderFileWasOutdated;
 
