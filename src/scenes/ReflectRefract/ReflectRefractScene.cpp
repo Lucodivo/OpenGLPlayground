@@ -67,8 +67,8 @@ void ReflectRefractScene::init(uint32 windowWidth, uint32 windowHeight)
   explodingRefractionShader = new Shader(posNormalVertexShaderFileLoc, skyboxRefractionFragmentShaderFileLoc, explodeGeometryShaderFileLoc);
   refractionShader = new Shader(posNormalVertexShaderFileLoc, skyboxRefractionFragmentShaderFileLoc);
   skyboxShader = new Shader(skyboxVertexShaderFileLoc, skyboxFragmentShaderFileLoc);
-  normalVisualizationShader = new Shader(normalVisualizerVertexShaderFileLoc, singleColorFragmentShaderFileLoc, triangleNormalVisualizerGeometryShaderFileLoc);
-  normalVisualization10InstanceShader = new Shader(normalVisualizer10InstanceVertexShaderFileLoc, singleColorFragmentShaderFileLoc, triangleNormalVisualizerGeometryShaderFileLoc);
+  normalVisualizationShader = new Shader(normalVisualizerVertexShaderFileLoc, SingleColorFragmentShaderFileLoc, triangleNormalVisualizerGeometryShaderFileLoc);
+  normalVisualization10InstanceShader = new Shader(normalVisualizer10InstanceVertexShaderFileLoc, SingleColorFragmentShaderFileLoc, triangleNormalVisualizerGeometryShaderFileLoc);
 
   cubeVertexAtt = initializeCubePosNormVertexAttBuffers();
   skyboxVertexAtt = initializeCubePositionVertexAttBuffers();

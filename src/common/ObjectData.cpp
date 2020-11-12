@@ -1,6 +1,7 @@
 #include <glad/glad.h>
 
 #include <iostream>
+#include <glm/detail/type_mat4x4.hpp>
 
 #include "ObjectData.h"
 
@@ -96,7 +97,7 @@ VertexAtt initializeCubePosNormTexVertexAttBuffers(bool invertNormals) {
   glEnableVertexAttribArray(2);
 
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vertexAtt.indexObject);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(cubePosNormIndices), cubePosNormIndices, GL_STATIC_DRAW);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(cubeAttributeIndices), cubeAttributeIndices, GL_STATIC_DRAW);
 
   // unbind VBO, VAO, & EBO
   glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -139,7 +140,7 @@ VertexAtt initializeCubePosNormVertexAttBuffers() {
   glEnableVertexAttribArray(1);
 
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vertexAtt.indexObject);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(cubePosNormIndices), cubePosNormIndices, GL_STATIC_DRAW);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(cubeAttributeIndices), cubeAttributeIndices, GL_STATIC_DRAW);
 
   // unbind VBO, VAO, & EBO
   glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -233,6 +234,67 @@ VertexAtt initializeQuadPosNormTexVertexAttBuffers() {
   // Must unbind EBO AFTER unbinding VAO, since VAO stores all glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _) calls
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
   return vertexAtt;
+}
+
+/*
+NOTE: Alternative without having to sort sides of an individual cube is to cull front faces to draw only the back faces
+NOTE: And then follow it up with a second draw call not culling the back faces
+Arguments:
+ - viewPos: This is the views position in the cube's model space. This may require
+    transforming the view position with the inverse matrix of the cube's model matrix
+ - cubeAttributeIndices: This function fills an indices array equal to ArrayCount(cubeAttributeIndices)
+    And the caller must supply us with an array of exactly that size
+ */
+void cubeAttributeIndicesBackToFront(glm::vec3 viewPosCubeSpace, uint32* cubeAttrIndices)
+{
+  const uint32 numSides = 6;
+  const uint32 indicesPerSide = 6;
+
+  struct FaceDistance
+  {
+    uint32 faceIndex;
+    float32 distance;
+  } distances[] = { // each index represents a specific face
+          {0, glm::distance(viewPosCubeSpace, cubeFaceCenterPos[0])}, // -X
+          {1, glm::distance(viewPosCubeSpace, cubeFaceCenterPos[1])}, // +X
+          {2, glm::distance(viewPosCubeSpace, cubeFaceCenterPos[2])}, // -Y
+          {3, glm::distance(viewPosCubeSpace, cubeFaceCenterPos[3])}, // +Y
+          {4, glm::distance(viewPosCubeSpace, cubeFaceCenterPos[4])}, // -Z
+          {5, glm::distance(viewPosCubeSpace, cubeFaceCenterPos[5])}  // +Z
+  };
+
+  // sorting network optimized for 6 items
+#define SWAP(x,y) if (distances[y].distance < distances[x].distance) { FaceDistance tmp = distances[x]; distances[x] = distances[y]; distances[y] = tmp; }
+  SWAP(1, 2);
+  SWAP(0, 2);
+  SWAP(0, 1);
+  SWAP(4, 5);
+  SWAP(3, 5);
+  SWAP(3, 4);
+  SWAP(0, 3);
+  SWAP(1, 4);
+  SWAP(2, 5);
+  SWAP(2, 4);
+  SWAP(1, 3);
+  SWAP(2, 3);
+#undef SWAP
+
+  for(uint32 i = 0; i < numSides; ++i)
+  {
+    uint32 cubeAttributeStartingIndex = distances[numSides - 1 - i].faceIndex * indicesPerSide;
+    for(int j = 0; j < indicesPerSide; ++j) {
+      cubeAttrIndices[(i * indicesPerSide) + j] = cubeAttributeIndices[cubeAttributeStartingIndex + j];
+    }
+  }
+}
+
+void cubeAttributeIndicesBackToFront(glm::vec3 viewPos, glm::mat3 cubeModel, uint32* cubeAttrIndices)
+{
+  // NOTE: if you are using the overloaded function that takes in the view position already in the cube model space]
+  // NOTE: Remember that matrix multiplication with a vector is not commutative. If things look right but feel
+  // NOTE: slightly off, you could just be multiplying the inverse on the wrong side.
+  glm::vec3 viewPositionInCubeModelSpace = glm::inverse(cubeModel) * viewPos;
+  cubeAttributeIndicesBackToFront(viewPositionInCubeModelSpace, cubeAttrIndices);
 }
 
 VertexAtt initializeQuadPosNormTexTanBiVertexAttBuffers() {

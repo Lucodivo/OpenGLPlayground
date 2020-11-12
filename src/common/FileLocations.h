@@ -16,7 +16,7 @@ const char* const posTexVertexShaderFileLoc = COMMON_BASE_VERTEX"PosTexVertexSha
 const char* const UVCoordVertexShaderFileLoc = COMMON_BASE_VERTEX"UVCoordVertexShader.glsl";
 
 #define COMMON_BASE_FRAGMENT "src/common/shaders/fragment/"
-const char* const singleColorFragmentShaderFileLoc = COMMON_BASE_FRAGMENT"SingleColorFragmentShader.glsl";
+const char* const SingleColorFragmentShaderFileLoc = COMMON_BASE_FRAGMENT"SingleColorFragmentShader.glsl";
 const char* const skyboxFragmentShaderFileLoc = COMMON_BASE_FRAGMENT"SkyboxFragmentShader.glsl";
 const char* const skyboxReflectionFragmentShaderFileLoc = COMMON_BASE_FRAGMENT"SkyboxReflectionFragmentShader.glsl";
 const char* const emptyFragmentShaderFileLoc = COMMON_BASE_FRAGMENT"EmptyFragmentShader.glsl";

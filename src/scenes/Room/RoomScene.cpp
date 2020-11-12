@@ -21,7 +21,7 @@ void RoomScene::init(uint32 windowWidth, uint32 windowHeight)
   GodModeScene::init(windowWidth, windowHeight);
   
   positionalLightShader = new Shader(posNormTexVertexShaderFileLoc, positionalLightShadowMapFragmentShaderFileLoc);
-  singleColorShader = new Shader(posGlobalBlockVertexShaderFileLoc, singleColorFragmentShaderFileLoc);
+  singleColorShader = new Shader(posGlobalBlockVertexShaderFileLoc, SingleColorFragmentShaderFileLoc);
   depthCubeMapShader = new Shader(modelMatVertexShaderFileLoc, linearDepthMapFragmentShaderFileLoc, cubeMapGeometryShaderFileLoc);
   
   cubeVertexAtt = initializeCubePosNormTexVertexAttBuffers();

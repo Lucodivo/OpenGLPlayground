@@ -52,9 +52,9 @@ void NessCubesScene::init(uint32 windowWidth, uint32 windowHeight)
   glm::mat4 projectionMat = glm::perspective(glm::radians(camera.Zoom), (float32)windowWidth / (float32)windowHeight, 0.1f, 100.0f);
 
   cubeShader = new Shader(posNormTexVertexShaderFileLoc, nessCubeFragmentShaderFileLoc);
-  lightShader = new Shader(posGlobalBlockVertexShaderFileLoc, singleColorFragmentShaderFileLoc);
+  lightShader = new Shader(posGlobalBlockVertexShaderFileLoc, SingleColorFragmentShaderFileLoc);
   modelShader = new Shader(posNormTexVertexShaderFileLoc, dirPosSpotLightModelFragmentShaderFileLoc);
-  stencilShader = new Shader(posNormTexVertexShaderFileLoc, singleColorFragmentShaderFileLoc);
+  stencilShader = new Shader(posNormTexVertexShaderFileLoc, SingleColorFragmentShaderFileLoc);
   frameBufferShader = new Shader(frameBufferVertexShaderFileLoc, kernel5x5TextureFragmentShaderFileLoc);
   skyboxShader = new Shader(skyboxVertexShaderFileLoc, skyboxFragmentShaderFileLoc);
 
@@ -77,6 +77,9 @@ void NessCubesScene::init(uint32 windowWidth, uint32 windowHeight)
 
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  glEnable(GL_CULL_FACE);
+  glFrontFace(GL_CCW);
+  glCullFace(GL_BACK);
 
   auto setConstantLightUniforms = [&](Shader* shader)
   {
@@ -313,9 +316,22 @@ void NessCubesScene::drawFrame(){
     cubeModelMat[i] = glm::rotate(cubeModelMat[i], t * glm::radians(angularSpeed), glm::vec3(1.0f, 0.3f, 0.5f));
     // scale object
     cubeModelMat[i] = glm::scale(cubeModelMat[i], glm::vec3(cubeScales[i]));
+  }
+
+  // TODO: Sort cube models by distance to camera position and draw back to front
+  for (uint32 i = 0; i < ArrayCount(cubeModelMat); i++)
+  {
     cubeShader->setUniform("model", cubeModelMat[i]);
+    glCullFace(GL_FRONT);
     glDrawElements(GL_TRIANGLES, // drawing mode
-                   cubePosNormTexNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
+                   cubePosNormTexNumElements *
+                   3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
+                   GL_UNSIGNED_INT, // type of the indices
+                   0); // offset in the EBO
+    glCullFace(GL_BACK);
+    glDrawElements(GL_TRIANGLES, // drawing mode
+                   cubePosNormTexNumElements *
+                   3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
                    GL_UNSIGNED_INT, // type of the indices
                    0); // offset in the EBO
   }

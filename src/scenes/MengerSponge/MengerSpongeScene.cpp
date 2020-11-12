@@ -35,8 +35,6 @@ void MengerSpongeScene::init(uint32 windowWidth, uint32 windowHeight)
   resolution largestResolution = screenResolutions[ArrayCount(screenResolutions) - 1];
   dynamicResolutionFBO = initializeFrameBuffer(largestResolution.width, largestResolution.height);
 
-  const glm::vec3 cubeColor = glm::vec3(0.5, 0.0, 0.0);
-
   // NOTE: This is helps maintain same projection for both the ray marching and rasterization
   // If how we shoot rays change, this must change. If this changes, how we shoot rays must change.
   const float rayMarchFovVertical = glm::radians(53.14f);
@@ -163,28 +161,30 @@ void MengerSpongeScene::drawFrame()
                  GL_UNSIGNED_INT, // type of the indices
                  0 /* offset in the EBO */);
 
-//    static uint32 numSnapshots = 0;
-//    if(numSnapshots < 1) {
-//      snapshot(currentResolution.width, currentResolution.height, "C:\\Users\\Connor\\Desktop\\tmp\\snapshot.bmp", dynamicResolutionFBO);
-//      ++numSnapshots;
-//    }
-
-  glm::mat4 cubeModel;
-  cubeModel = glm::scale(cubeModel, glm::vec3(cubeScale));
+  glm::mat4 cubeModel = glm::scale(glm::mat4(), glm::vec3(cubeScale)); // scale is uniform
   cubeModel = glm::translate(cubeModel, cubePos);
   cubeModel = glm::rotate(cubeModel, t * glm::radians(20.0f), cubeRotAxis);
+
+  glBindVertexArray(cubeVertexAtt.arrayObject);
+
+  uint32 cubeAttrIndices[ArrayCount(cubeAttributeIndices)];
+  cubeAttributeIndicesBackToFront(camera.Position, cubeModel, cubeAttrIndices);
+
+  // bind element buffer object to give indices
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cubeVertexAtt.indexObject);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(cubeAttrIndices), cubeAttrIndices, GL_DYNAMIC_DRAW);
 
   cubeShader->use();
   cubeShader->setUniform("model", cubeModel);
   cubeShader->setUniform("view", cameraMat);
   cubeShader->setUniform("cameraPos", camera.Position);
 
-  glBindVertexArray(cubeVertexAtt.arrayObject);
   glDrawElements(GL_TRIANGLES, // drawing mode
                  cubePosNormTexNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
                  GL_UNSIGNED_INT, // type of the indices
                  0); // offset in the EBO
   glBindVertexArray(0);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
 //    pixel2DShader->use();
 //    glDrawElements(GL_TRIANGLES, // drawing mode

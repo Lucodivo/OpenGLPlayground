@@ -15,7 +15,7 @@ void main()
 {
   gl_Position = projection * view * model * vec4(aPosition, 1.0);
   FragPos = vec3(model * vec4(aPosition, 1.0));
-  mat3 normalMat = mat3(transpose(inverse(model)));
+  mat3 normalMat = mat3(transpose(inverse(model))); // note: inverse transpose only necessary with non-uniform scaling
   Normal = normalMat * aNormal;
   TexCoords = aTextureCoord;
 }

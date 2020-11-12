@@ -26,7 +26,7 @@ void GUIScene::init(uint32 windowWidth, uint32 windowHeight)
 
   enableCursor(window, cursorModeEnabled);
   
-  cubeShader = new Shader(posVertexShaderFileLoc, singleColorFragmentShaderFileLoc);
+  cubeShader = new Shader(posVertexShaderFileLoc, SingleColorFragmentShaderFileLoc);
 
   cubeVertexAtt = initializeCubePositionVertexAttBuffers();
   
