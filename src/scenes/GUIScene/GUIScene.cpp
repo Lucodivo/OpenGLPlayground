@@ -86,7 +86,7 @@ void GUIScene::drawFrame()
 
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-  viewMat = camera.GetViewMatrix(deltaTime);
+  viewMat = camera.UpdateViewMatrix(deltaTime, cameraMovementSpeed);
 
   // draw cubes
   cubeShader->use();

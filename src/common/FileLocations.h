@@ -44,11 +44,11 @@ const char* const cropCenterSquareTexFragmentShader = INFINITE_CUBE_BASE"CropCen
 const char* const discardAlphaFragmentShaderFileLoc = INFINITE_CUBE_BASE"DiscardAlphaFragmentShader.glsl";
 
 // Ness Cubes Shaders
-#define NESS_BASE "src/scenes/NessCube/"
-const char* const nessCubeFragmentShaderFileLoc = NESS_BASE"NessCubeFragmentShader.glsl";
-const char* const dirPosSpotLightModelFragmentShaderFileLoc = NESS_BASE"DirPosSpotLightModelFragmentShader.glsl";
-const char* const kernel3x3TextureFragmentShaderFileLoc = NESS_BASE"Kernel3x3TextureFragmentShader.glsl";
-const char* const kernel5x5TextureFragmentShaderFileLoc = NESS_BASE"Kernel5x5TextureFragmentShader.glsl";
+#define KERNEL_BASE "src/scenes/Kernel/"
+const char* const nessCubeFragmentShaderFileLoc = KERNEL_BASE"NessCubeFragmentShader.glsl";
+const char* const dirPosSpotLightModelFragmentShaderFileLoc = KERNEL_BASE"DirPosSpotLightModelFragmentShader.glsl";
+const char* const kernel3x3TextureFragmentShaderFileLoc = KERNEL_BASE"Kernel3x3TextureFragmentShader.glsl";
+const char* const kernel5x5TextureFragmentShaderFileLoc = KERNEL_BASE"Kernel5x5TextureFragmentShader.glsl";
 
 // Reflect Refract Shaders
 #define REFLECT_REFRACT_BASE "src/scenes/ReflectRefract/"

@@ -6,7 +6,7 @@
 const uint32 SHADOW_MAP_WIDTH = 2048;
 const uint32 SHADOW_MAP_HEIGHT = 2048;
 
-RoomScene::RoomScene() : GodModeScene()
+RoomScene::RoomScene() : FirstPersonScene()
 {
   camera.Position = glm::vec3(0.0f, 5.0f, 30.0f);
 }
@@ -18,7 +18,7 @@ const char* RoomScene::title()
 
 void RoomScene::init(uint32 windowWidth, uint32 windowHeight)
 {
-  GodModeScene::init(windowWidth, windowHeight);
+  FirstPersonScene::init(windowWidth, windowHeight);
   
   positionalLightShader = new Shader(posNormTexVertexShaderFileLoc, positionalLightShadowMapFragmentShaderFileLoc);
   singleColorShader = new Shader(posGlobalBlockVertexShaderFileLoc, SingleColorFragmentShaderFileLoc);
@@ -107,7 +107,7 @@ void RoomScene::init(uint32 windowWidth, uint32 windowHeight)
 
 void RoomScene::deinit()
 {
-  GodModeScene::deinit();
+  FirstPersonScene::deinit();
 
   positionalLightShader->deleteShaderResources();
   singleColorShader->deleteShaderResources();
@@ -131,12 +131,12 @@ void RoomScene::deinit()
 
 void RoomScene::drawFrame()
 {
-  GodModeScene::drawFrame();
+  FirstPersonScene::drawFrame();
   float32 t = (float32)glfwGetTime();
   deltaTime = t - lastFrame;
   lastFrame = t;
 
-  glm::mat4 viewMat = camera.GetViewMatrix(deltaTime);
+  glm::mat4 viewMat = camera.UpdateViewMatrix(deltaTime, cameraMovementSpeed * 4.0f, false);
 
   // update global view matrix uniform
   glBufferSubData(GL_UNIFORM_BUFFER, globalVSBufferViewMatOffset, sizeof(glm::mat4), glm::value_ptr(viewMat));

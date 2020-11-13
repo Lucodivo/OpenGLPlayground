@@ -5,10 +5,9 @@
 #pragma once
 
 #include "../FirstPersonScene.h"
-#include "../GodModeScene.h"
 #include "../../common/ObjectData.h"
 
-class InfiniteCapsulesScene final : public GodModeScene {
+class InfiniteCapsulesScene final : public FirstPersonScene {
 public:
   InfiniteCapsulesScene();
   void init(uint32 windowWidth, uint32 windowHeight);

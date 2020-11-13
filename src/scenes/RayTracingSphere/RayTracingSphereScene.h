@@ -5,10 +5,10 @@
 #ifndef LEARNOPENGL_RAYTRACINGSPHERESCENE_H
 #define LEARNOPENGL_RAYTRACINGSPHERESCENE_H
 
-#include "../GodModeScene.h"
+#include "../FirstPersonScene.h"
 #include "../../common/ObjectData.h"
 
-class RayTracingSphereScene final : public GodModeScene {
+class RayTracingSphereScene final : public FirstPersonScene {
 public:
   RayTracingSphereScene();
   void init(uint32 windowWidth, uint32 windowHeight);

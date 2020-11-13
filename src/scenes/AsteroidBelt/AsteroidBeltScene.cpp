@@ -160,7 +160,7 @@ void AsteroidBeltScene::drawFrame()
   deltaTime = t - lastFrame;
   lastFrame = t;
 
-  glm::mat4 viewMat = camera.GetViewMatrix(deltaTime);
+  glm::mat4 viewMat = camera.UpdateViewMatrix(deltaTime, cameraMovementSpeed);
 
   modelShader->use();
   modelShader->setUniform("view", viewMat);

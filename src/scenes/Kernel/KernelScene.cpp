@@ -7,7 +7,7 @@
 #include "../../common/FileLocations.h"
 #include "../../common/Util.h"
 
-#include "NessCubesScene.h"
+#include "KernelScene.h"
 
 // ===== cube values =====
 const glm::vec3 cubePositions[] = {
@@ -35,17 +35,17 @@ const float32 cubeScales[] = {
 };
 // ===== cube values =====
 
-NessCubesScene::NessCubesScene(): FirstPersonScene()
+KernelScene::KernelScene(): FirstPersonScene()
 {
   camera.Position = glm::vec3(0.0f, 0.0f, 6.0f);
 }
 
-const char* NessCubesScene::title()
+const char* KernelScene::title()
 {
   return "Image Kernel";
 }
 
-void NessCubesScene::init(uint32 windowWidth, uint32 windowHeight)
+void KernelScene::init(uint32 windowWidth, uint32 windowHeight)
 {
   FirstPersonScene::init(windowWidth, windowHeight);
 
@@ -149,14 +149,14 @@ void NessCubesScene::init(uint32 windowWidth, uint32 windowHeight)
   frameBufferShader->setUniform("textureHeight", (float32)windowHeight);
 }
 
-void NessCubesScene::initializeTextures(uint32& diffTextureId, uint32& specTextureId, uint32& skyboxTextureId)
+void KernelScene::initializeTextures(uint32& diffTextureId, uint32& specTextureId, uint32& skyboxTextureId)
 {
   load2DTexture(diffuseTextureLoc, diffTextureId, true, true);
   load2DTexture(specularTextureLoc, specTextureId, true, false);
   loadCubeMapTexture(skyboxWaterFaceLocations, skyboxTextureId);
 }
 
-void NessCubesScene::deinit(){
+void KernelScene::deinit(){
   FirstPersonScene::deinit();
 
   cubeShader->deleteShaderResources();
@@ -186,7 +186,7 @@ void NessCubesScene::deinit(){
   glDeleteBuffers(ArrayCount(deleteBuffers), deleteBuffers);
 }
 
-void NessCubesScene::drawFrame(){
+void KernelScene::drawFrame(){
   FirstPersonScene::drawFrame();
 
   // bind our frame buffer
@@ -204,7 +204,7 @@ void NessCubesScene::drawFrame(){
                 0xFF); // mask that is ANDed with stencil value and reference value before the test compares them
   glStencilMask(0xFF); // mask that is ANDed with the stencil value that is about to be written to stencil buffer
 
-#if 1
+#if 0
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);           // OpenGL state-using function
 #else
   // FUN MODE - WINDOWS XP
@@ -223,7 +223,7 @@ void NessCubesScene::drawFrame(){
   float32 lightB = (sinf(t / 17.0f) / 2.0f) + 0.5f;
   glm::vec3 positionalLightColor(lightR, lightG, lightB);
 
-  glm::mat4 viewMat = camera.GetViewMatrix(deltaTime);
+  glm::mat4 viewMat = camera.UpdateViewMatrix(deltaTime, cameraMovementSpeed);
 
   glBindBuffer(GL_UNIFORM_BUFFER, globalVSUniformBuffer);
   // update global view matrix uniform
@@ -396,7 +396,7 @@ void NessCubesScene::drawFrame(){
                  (void*)0); // offset in the EBO
 }
 
-void NessCubesScene::inputStatesUpdated() {
+void KernelScene::inputStatesUpdated() {
   FirstPersonScene::inputStatesUpdated();
 
   if(hotPress(KeyboardInput_E))
@@ -424,32 +424,32 @@ void NessCubesScene::inputStatesUpdated() {
 }
 
 // TODO: reintroduce when controller input is added
-//void NessCubesScene::key_LeftMouseButton_pressed(float32 xPos, float32 yPos)
+//void KernelScene::key_LeftMouseButton_pressed(float32 xPos, float32 yPos)
 //{
 //  toggleFlashlight();
 //}
 //
-//void NessCubesScene::button_X_pressed()
+//void KernelScene::button_X_pressed()
 //{
 //  toggleFlashlight();
 //}
 //
-//void NessCubesScene::button_dPadUp_pressed()
+//void KernelScene::button_dPadUp_pressed()
 //{
 //  nextImageKernel();
 //}
 //
-//void NessCubesScene::button_dPadDown_pressed()
+//void KernelScene::button_dPadDown_pressed()
 //{
 //  prevImageKernel();
 //}
 
-void NessCubesScene::toggleFlashlight()
+void KernelScene::toggleFlashlight()
 {
   flashLightOn = !flashLightOn;
 }
 
-void NessCubesScene::nextImageKernel()
+void KernelScene::nextImageKernel()
 {
   double currentTime = glfwGetTime();
   if (currentTime - kernelModeSwitchTimer > 0.5f)
@@ -459,7 +459,7 @@ void NessCubesScene::nextImageKernel()
   }
 }
 
-void NessCubesScene::prevImageKernel()
+void KernelScene::prevImageKernel()
 {
   double currentTime = glfwGetTime();
   if (currentTime - kernelModeSwitchTimer > 0.5f)

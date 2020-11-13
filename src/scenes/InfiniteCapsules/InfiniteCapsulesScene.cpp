@@ -6,7 +6,7 @@
 #include "../../common/FileLocations.h"
 #include "../../common/Util.h"
 
-InfiniteCapsulesScene::InfiniteCapsulesScene(): GodModeScene()
+InfiniteCapsulesScene::InfiniteCapsulesScene(): FirstPersonScene()
 {
   camera.Position = glm::vec3(0.0f, 1.0f, 0.0f);
 }
@@ -18,7 +18,7 @@ const char* InfiniteCapsulesScene::title()
 
 void InfiniteCapsulesScene::init(uint32 windowWidth, uint32 windowHeight)
 {
-  GodModeScene::init(windowWidth, windowHeight);
+  FirstPersonScene::init(windowWidth, windowHeight);
 
   rayMarchingShader = new Shader(UVCoordVertexShaderFileLoc, InfiniteCapsulesFragmentShaderFileLoc);
 
@@ -39,7 +39,7 @@ void InfiniteCapsulesScene::init(uint32 windowWidth, uint32 windowHeight)
 }
 
 void InfiniteCapsulesScene::deinit() {
-  GodModeScene::deinit();
+  FirstPersonScene::deinit();
 
   rayMarchingShader->deleteShaderResources();
   delete rayMarchingShader;
@@ -48,7 +48,7 @@ void InfiniteCapsulesScene::deinit() {
 }
 
 void InfiniteCapsulesScene::drawFrame() {
-  GodModeScene::drawFrame();
+  FirstPersonScene::drawFrame();
 
   float32 t = (float32)glfwGetTime() - startTime;
   deltaTime = t - lastFrame;
@@ -56,7 +56,7 @@ void InfiniteCapsulesScene::drawFrame() {
 
   glClear(GL_COLOR_BUFFER_BIT);
 
-  glm::mat4 cameraRotationMatrix = camera.GetViewMatrix(deltaTime);
+  glm::mat4 cameraRotationMatrix = camera.UpdateViewMatrix(deltaTime, cameraMovementSpeed * 4.0f, false);
   rayMarchingShader->setUniform("rayOrigin", camera.Position);
   rayMarchingShader->setUniform("elapsedTime", t);
   rayMarchingShader->setUniform("viewRotationMat", reverseZMat4 * cameraRotationMatrix);
@@ -74,7 +74,7 @@ void InfiniteCapsulesScene::drawFrame() {
 }
 
 void InfiniteCapsulesScene::inputStatesUpdated() {
-  GodModeScene::inputStatesUpdated();
+  FirstPersonScene::inputStatesUpdated();
 
   if(hotPress(MouseInput_Left)) {
     lightAlive = true;

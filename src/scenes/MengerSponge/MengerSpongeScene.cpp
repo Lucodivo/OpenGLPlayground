@@ -9,7 +9,7 @@
 #include "../../common/ObjectData.h"
 #include "../../common/Util.h"
 
-MengerSpongeScene::MengerSpongeScene(GLFWwindow* window): GodModeScene(), window(window)
+MengerSpongeScene::MengerSpongeScene(GLFWwindow* window): FirstPersonScene(), window(window)
 {
   camera.Position = glm::vec3(0.0f, 1.0f, 30.0f);
 }
@@ -21,7 +21,7 @@ const char* MengerSpongeScene::title()
 
 void MengerSpongeScene::init(uint32 windowWidth, uint32 windowHeight)
 {
-  GodModeScene::init(windowWidth, windowHeight);
+  FirstPersonScene::init(windowWidth, windowHeight);
 
   enableCursor(window, showDebugWindows);
 
@@ -93,7 +93,7 @@ void MengerSpongeScene::init(uint32 windowWidth, uint32 windowHeight)
 
 void MengerSpongeScene::deinit()
 {
-  GodModeScene::deinit();
+  FirstPersonScene::deinit();
 
   mengerSpongeShader->deleteShaderResources();
   pixel2DShader->deleteShaderResources();
@@ -113,7 +113,7 @@ void MengerSpongeScene::deinit()
 
 void MengerSpongeScene::drawFrame()
 {
-  GodModeScene::drawFrame();
+  FirstPersonScene::drawFrame();
 
   float32 t = (float32)glfwGetTime() - startTime;
   deltaTime = t - lastFrame;
@@ -131,7 +131,7 @@ void MengerSpongeScene::drawFrame()
 //    glm::vec3 deltaCameraPos = camera.Front;
 //    deltaCameraPos *= 0.07;
 //    camera.Position += deltaCameraPos;
-  glm::mat4 cameraMat = camera.GetViewMatrix(deltaTime);
+  glm::mat4 cameraMat = camera.UpdateViewMatrix(deltaTime, cameraMovementSpeed * 4.0f, false);
 
   // bind our frame buffer
   glBindFramebuffer(GL_FRAMEBUFFER, dynamicResolutionFBO.id);
@@ -201,7 +201,7 @@ void MengerSpongeScene::drawFrame()
 
 void MengerSpongeScene::drawGui()
 {
-  GodModeScene::drawGui();
+  FirstPersonScene::drawGui();
 
   if (showDebugWindows){
     ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.50f);
@@ -212,7 +212,7 @@ void MengerSpongeScene::drawGui()
 }
 
 void MengerSpongeScene::inputStatesUpdated() {
-  GodModeScene::inputStatesUpdated();
+  FirstPersonScene::inputStatesUpdated();
 
   if(hotPress(KeyboardInput_E))
   {

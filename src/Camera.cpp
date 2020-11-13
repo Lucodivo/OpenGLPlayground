@@ -4,9 +4,16 @@
 
 #include "Camera.h"
 
+#define CAMERA_SPEED_MULTIPLIER 2.5f
+#define DEFAULT_SENSITIVITY 0.1f
+#define DEFAULT_JUMP_SPEED 1.0f
+#define DEFAULT_ZOOM 45.0f
+#define DEFAULT_STICK_SENSITIVITY 0.00007f
+#define GROUND_Y_VALUE 0.0f
+
 // Constructor with vectors
 Camera::Camera(glm::vec3 position, glm::vec3 up, float64 yaw, float64 pitch)
-: Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(CAMERA_SPEED), MouseSensitivity(SENSITIVITY), Zoom(ZOOM)
+: Front(glm::vec3(0.0f, 0.0f, -1.0f)), MouseSensitivity(DEFAULT_SENSITIVITY), Zoom(DEFAULT_ZOOM)
 {
   Position = position;
   WorldUp = up;
@@ -16,9 +23,9 @@ Camera::Camera(glm::vec3 position, glm::vec3 up, float64 yaw, float64 pitch)
 }
 
 // Returns the view matrix calculated using Eular Angles and the LookAt Matrix
-glm::mat4 Camera::GetViewMatrix(float32 deltaTime)
+glm::mat4 Camera::UpdateViewMatrix(float32 deltaTime, float32 movementSpeed, bool groundedMovement)
 {
-  changePositioning(deltaTime);
+  changePositioning(deltaTime, movementSpeed, groundedMovement);
   return lookAt();
 }
 
@@ -50,15 +57,17 @@ glm::mat4 Camera::lookAt()
   return rotation * translation; // Remember to read from right to left (first translation then rotation)
 }
 
-void Camera::changePositioning(float32 deltaTime)
+void Camera::changePositioning(float32 deltaTime, float32 movementSpeed, bool groundedMovement)
 {
-  if (jumping)
+  if(groundedMovement) { deltaPosition.y = 0.0f; }
+
+  if (jumping && groundedMovement)
   {
-    jumpVal += JUMP_SPEED * deltaTime * 6;
+    jumpVal += DEFAULT_JUMP_SPEED * deltaTime * 6;
     float32 verticalOffset = sin(jumpVal) / 1.3f;
-    if (verticalOffset < 0.0f)
+    if (verticalOffset < GROUND_Y_VALUE)
     {
-      Position.y = 0.0f;
+      Position.y = GROUND_Y_VALUE;
       jumpVal = 0.0f;
       jumping = false;
     } else
@@ -73,7 +82,7 @@ void Camera::changePositioning(float32 deltaTime)
     // normalizing the deltaPosition helps:
     // - accommodate for slower movement when looking up or down
     //      due to the front.xz values creating a < 1 magnitude vector
-    float32 velocity = MovementSpeed * deltaTime;
+    float32 velocity = movementSpeed * CAMERA_SPEED_MULTIPLIER * deltaTime;
     Position += glm::normalize(deltaPosition) * velocity;
   }
   deltaPosition = glm::vec3(0.0f);
@@ -85,10 +94,10 @@ void Camera::ProcessInput(CameraMovement direction)
   switch (direction)
   {
     case FORWARD:
-      deltaPosition += groundedMovement ? glm::vec3(Front.x, 0.0f, Front.z) : Front;
+      deltaPosition += Front;
       break;
     case BACKWARD:
-      deltaPosition -= groundedMovement ? glm::vec3(Front.x, 0.0f, Front.z) : Front;
+      deltaPosition -= Front;
       break;
     case LEFT:
       deltaPosition -= Right;
@@ -97,7 +106,7 @@ void Camera::ProcessInput(CameraMovement direction)
       deltaPosition += Right;
       break;
     case JUMP:
-      jumping = groundedMovement;
+      jumping = true;
       break;
   }
 }
@@ -134,8 +143,8 @@ void Camera::ProcessMouseMovement(float64 xoffset, float64 yoffset, GLboolean co
 
 void Camera::ProcessRightAnalog(int16 stickX, int16 stickY, GLboolean constrainPitch)
 {
-  Yaw += (float32)stickX * stickSensitivity;;
-  Pitch += (float32)stickY * stickSensitivity;
+  Yaw += (float32)stickX * DEFAULT_STICK_SENSITIVITY;;
+  Pitch += (float32)stickY * DEFAULT_STICK_SENSITIVITY;
 
   // Make sure that when pitch is out of bounds, screen doesn't get flipped
   if (constrainPitch)

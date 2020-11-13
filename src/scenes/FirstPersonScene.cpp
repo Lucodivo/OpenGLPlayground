@@ -19,9 +19,9 @@ void FirstPersonScene::inputStatesUpdated()
   {
     // Camera movement speed
     if(hotPress(KeyboardInput_Shift_Left)) {
-      camera.MovementSpeed = CAMERA_SPEED * 2;
+      cameraMovementSpeed = 2.0;
     } else if(hotRelease(KeyboardInput_Shift_Left)) {
-      camera.MovementSpeed = CAMERA_SPEED;
+      cameraMovementSpeed = 1.0;
     }
 
     // Camera movement direction

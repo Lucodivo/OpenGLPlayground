@@ -120,7 +120,7 @@ void InfiniteCubeScene::drawFrame()
   // bind default frame buffer
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-  glm::mat4 viewMat = camera.GetViewMatrix(deltaTime);
+  glm::mat4 viewMat = camera.UpdateViewMatrix(deltaTime, cameraMovementSpeed);
 
   glBindBuffer(GL_UNIFORM_BUFFER, globalVSUniformBufferID);
   // update global view matrix uniform

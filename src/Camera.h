@@ -20,13 +20,8 @@ enum CameraMovement
   JUMP
 };
 
-const float64 PITCH = 0.0f;
-const float64 YAW = -90.0f;
-const float32 CAMERA_SPEED = 2.5f;
-const float32 SENSITIVITY = 0.1f;
-const float32 ZOOM = 45.0f;
-const float32 JUMP_SPEED = 1;
-const float32 stickSensitivity = 0.00007f;
+#define DEFAULT_INIT_PITCH 0.0f
+#define DEFAULT_INIT_YAW -90.0f
 
 class Camera
 {
@@ -34,34 +29,23 @@ public:
   // Camera Attributes
   glm::vec3 Position;
   glm::vec3 Front;
-  glm::vec3 Up;
-  glm::vec3 Right;
-  glm::vec3 WorldUp;
-
-  // Eular Angles
-  float64 Yaw;
-  float64 Pitch;
 
   // Camera options
-  float32 MovementSpeed;
   float32 MouseSensitivity;
   float32 Zoom;
-  glm::vec3 deltaPosition = glm::vec3(0.0f, 0.0f, 0.0f);
-
-  // Jump values
-  bool jumping = false;
-  float32 jumpVal = 0.0f;
-  bool groundedMovement = true;
 
   // Constructor with vectors
   Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 3.0f),
           glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f),
-          float64 yaw = YAW,
-          float64 pitch = PITCH);
+          float64 yaw = DEFAULT_INIT_YAW,
+          float64 pitch = DEFAULT_INIT_PITCH);
 
   // Returns the view matrix calculated using Eular Angles and the LookAt Matrix
-  glm::mat4 GetViewMatrix(float32 deltaTime);
+  glm::mat4 UpdateViewMatrix(float32 deltaTime, float32 movementSpeed = 1.0, bool groundedMovement = true);
   glm::mat4 lookAt();
+
+
+  // TODO:
   // Processes input received from any keyboard-like input system. Accepts input parameter in the form of camera defined ENUM (to abstract it from windowing systems)
   void ProcessInput(CameraMovement direction);
   void ProcessLeftAnalog(int16 stickX, int16 stickY, GLboolean constrainPitch = true);
@@ -72,7 +56,22 @@ public:
   void ProcessMouseScroll(float32 yoffset);
 
 private:
+
+  glm::vec3 Up;
+  glm::vec3 Right;
+  glm::vec3 WorldUp;
+
+  // Eular Angles
+  float64 Yaw;
+  float64 Pitch;
+
+  // Jump values
+  bool jumping = false;
+  float32 jumpVal = 0.0f;
+
+  glm::vec3 deltaPosition = glm::vec3(0.0f, 0.0f, 0.0f);
+
   // Calculates the front vector from the Camera's (updated) Eular Angles
   void updateCameraVectors();
-  void changePositioning(float32 deltaTime);
+  void changePositioning(float32 deltaTime, float32 movementSpeed, bool groundedMovement);
 };

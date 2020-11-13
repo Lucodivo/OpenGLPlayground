@@ -6,10 +6,9 @@
 const uint32 SHADOW_MAP_WIDTH = 2048;
 const uint32 SHADOW_MAP_HEIGHT = 2048;
 
-MoonScene::MoonScene() : GodModeScene()
+MoonScene::MoonScene() : FirstPersonScene()
 {
   camera = Camera({-25.0f, 10.0f, -25.0f}, {0.0f, 1.0f, 0.0f}, 45.0f, -12.0f);
-  camera.groundedMovement = false;
 }
 
 const char* MoonScene::title()
@@ -19,7 +18,7 @@ const char* MoonScene::title()
 
 void MoonScene::init(uint32 windowWidth, uint32 windowHeight)
 {
-  GodModeScene::init(windowWidth, windowHeight);
+  FirstPersonScene::init(windowWidth, windowHeight);
 
   directionalLightShader = new Shader(lightSpaceVertexShaderFileLoc, directionalLightShadowMapFragmentShaderFileLoc, tbnGeometryShaderFileLoc);
   quadTextureShader = new Shader(billboardPosTexVertexShaderFileLoc, textureFragmentShaderFileLoc);
@@ -135,7 +134,7 @@ void MoonScene::init(uint32 windowWidth, uint32 windowHeight)
 
 void MoonScene::deinit()
 {
-  GodModeScene::deinit();
+  FirstPersonScene::deinit();
 
   directionalLightShader->deleteShaderResources();
   quadTextureShader->deleteShaderResources();
@@ -161,12 +160,12 @@ void MoonScene::deinit()
 
 void MoonScene::drawFrame()
 {
-  GodModeScene::drawFrame();
+  FirstPersonScene::drawFrame();
   float32 t = (float32)glfwGetTime() - startTime;
   deltaTime = t - lastFrame;
   lastFrame = t;
 
-  glm::mat4 viewMat = camera.GetViewMatrix(deltaTime);
+  glm::mat4 viewMat = camera.UpdateViewMatrix(deltaTime, cameraMovementSpeed * 4.0f, false);
 
   glBindBuffer(GL_UNIFORM_BUFFER, globalVSUniformBuffer);
   // update global view matrix uniform

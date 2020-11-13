@@ -9,10 +9,10 @@
 #include "../../common/ObjectData.h"
 #include "../../Shader.h"
 
-class NessCubesScene final : public FirstPersonScene
+class KernelScene final : public FirstPersonScene
 {
 public:
-  NessCubesScene();
+  KernelScene();
 
   // FrameBufferSizeConsumer override
   void init(uint32 windowWidth, uint32 windowHeight);

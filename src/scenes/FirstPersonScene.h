@@ -39,6 +39,7 @@ public:
 
 protected:
   Camera camera = Camera();
+  float32 cameraMovementSpeed = 1.0f;
   bool mouseCameraMovementEnabled = true;
   bool keyboardCameraMovementEnabled = true;
 };

@@ -7,7 +7,7 @@
 #include "../../common/ObjectData.h"
 #include "../../common/Util.h"
 
-RayTracingSphereScene::RayTracingSphereScene() : GodModeScene()
+RayTracingSphereScene::RayTracingSphereScene() : FirstPersonScene()
 {
   camera.Position = glm::vec3(0.0f, 0.0f, 10.0f);
 }
@@ -19,7 +19,7 @@ const char* RayTracingSphereScene::title()
 
 void RayTracingSphereScene::init(uint32 windowWidth, uint32 windowHeight)
 {
-  GodModeScene::init(windowWidth, windowHeight);
+  FirstPersonScene::init(windowWidth, windowHeight);
   rayTracingSphereShader = new Shader(UVCoordVertexShaderFileLoc, RayTracingSphereFragmentShaderFileLoc);
   rayTracingSphereShader->use();
   rayTracingSphereShader->setUniform("viewPortResolution", glm::vec2(windowWidth, windowHeight));
@@ -37,7 +37,7 @@ void RayTracingSphereScene::init(uint32 windowWidth, uint32 windowHeight)
 
 void RayTracingSphereScene::deinit()
 {
-  GodModeScene::deinit();
+  FirstPersonScene::deinit();
 
   rayTracingSphereShader->deleteShaderResources();
   delete rayTracingSphereShader;
@@ -47,7 +47,7 @@ void RayTracingSphereScene::deinit()
 
 void RayTracingSphereScene::drawFrame()
 {
-  GodModeScene::drawFrame();
+  FirstPersonScene::drawFrame();
 
   // NOTE: uncomment for real time testing of fragment shader
 //  if(rayTracingSphereShader->updateShadersWhenOutdated(FragmentShaderFlag)) {
@@ -61,7 +61,7 @@ void RayTracingSphereScene::drawFrame()
 
   glClear(GL_COLOR_BUFFER_BIT);
 
-  glm::mat4 cameraRotationMatrix = camera.GetViewMatrix(deltaTime);
+  glm::mat4 cameraRotationMatrix = camera.UpdateViewMatrix(deltaTime, cameraMovementSpeed * 4.0f, false);
   rayTracingSphereShader->setUniform("rayOrigin", camera.Position);
   rayTracingSphereShader->setUniform("elapsedTime", t);
   rayTracingSphereShader->setUniform("viewRotationMat", reverseZMat4 * cameraRotationMatrix);
@@ -73,7 +73,7 @@ void RayTracingSphereScene::drawFrame()
 
 
 void RayTracingSphereScene::inputStatesUpdated() {
-  GodModeScene::inputStatesUpdated();
+  FirstPersonScene::inputStatesUpdated();
 
   if(isActive(WindowInput_SizeChange)) {
     Extent2D windowExtent = getWindowExtent();

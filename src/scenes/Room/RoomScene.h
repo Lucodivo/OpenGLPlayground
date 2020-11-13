@@ -1,9 +1,9 @@
 #pragma once
 
-#include "../GodModeScene.h"
+#include "../FirstPersonScene.h"
 #include "../../common/ObjectData.h"
 
-class RoomScene : public GodModeScene
+class RoomScene : public FirstPersonScene
 {
 public:
   RoomScene();

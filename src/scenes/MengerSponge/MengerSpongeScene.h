@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "../GodModeScene.h"
+#include "../FirstPersonScene.h"
 #include "../../common/ObjectData.h"
 
 struct resolution {
@@ -21,7 +21,7 @@ const resolution screenResolutions[] = {
         {3840, 2160}
 };
 
-class MengerSpongeScene final : public GodModeScene {
+class MengerSpongeScene final : public FirstPersonScene {
 public:
   MengerSpongeScene(GLFWwindow* window);
 

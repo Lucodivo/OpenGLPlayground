@@ -184,7 +184,7 @@ void ReflectRefractScene::drawFrame()
   deltaTime = currTime - lastFrame;
   lastFrame = currTime;
 
-  glm::mat4 viewMat = camera.GetViewMatrix(deltaTime);
+  glm::mat4 viewMat = camera.UpdateViewMatrix(deltaTime, cameraMovementSpeed);
 
   // draw cube
   Shader* cubeShader = currMode == Exploding ? exploding10InstanceReflectionShader : reflection10InstanceShader;

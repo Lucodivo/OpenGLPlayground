@@ -6,7 +6,7 @@
 #include "../TextDebugShader.h"
 #include "../common/Input.h"
 
-#include "NessCube/NessCubesScene.h"
+#include "Kernel/KernelScene.h"
 #include "InfiniteCube/InfiniteCubeScene.h"
 #include "ReflectRefract/ReflectRefractScene.h"
 #include "AsteroidBelt/AsteroidBeltScene.h"
@@ -41,7 +41,7 @@ void runScenes(GLFWwindow* window) {
   TextDebugShader textDebugShader = TextDebugShader(windowExtent.x, windowExtent.y);
 
   EmptyScene emptyScene = EmptyScene();
-  NessCubesScene nessCubeScene = NessCubesScene();
+  KernelScene nessCubeScene = KernelScene();
   InfiniteCapsulesScene infiniteCapsulesScene = InfiniteCapsulesScene();
   InfiniteCubeScene infiniteCubeScene = InfiniteCubeScene();
   AsteroidBeltScene asteroidBeltScene = AsteroidBeltScene();
