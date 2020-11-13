@@ -2,6 +2,7 @@
 
 #include <imgui/imgui_impl_opengl3.h>
 #include <imgui/imgui_impl_glfw.h>
+#include <fstream>
 
 #include "../TextDebugShader.h"
 #include "../common/Input.h"
@@ -19,9 +20,13 @@
 #include "RayTracingSphere/RayTracingSphereScene.h"
 #include "Pixel2D/Pixel2DScene.h"
 
+#define SAVE_FILE_RELATIVE_PATH "build/save.txt"
+
 file_access bool sceneManagerIsActive = true;
 
 void toggleWindowSize(GLFWwindow* window, const uint32 width, const uint32 height);
+void saveLastSceneIndex(uint32 sceneIndex);
+void loadLastSceneIndex(uint32* sceneIndex);
 
 class EmptyScene : public Scene
 {
@@ -41,7 +46,7 @@ void runScenes(GLFWwindow* window) {
   TextDebugShader textDebugShader = TextDebugShader(windowExtent.x, windowExtent.y);
 
   EmptyScene emptyScene = EmptyScene();
-  KernelScene nessCubeScene = KernelScene();
+  KernelScene kernelScene = KernelScene();
   InfiniteCapsulesScene infiniteCapsulesScene = InfiniteCapsulesScene();
   InfiniteCubeScene infiniteCubeScene = InfiniteCubeScene();
   AsteroidBeltScene asteroidBeltScene = AsteroidBeltScene();
@@ -53,10 +58,11 @@ void runScenes(GLFWwindow* window) {
   ReflectRefractScene reflectRefractScene = ReflectRefractScene();
   GUIScene guiScene = GUIScene(window);
   Pixel2DScene pixel2DScene = Pixel2DScene();
-  Scene* scenes[] = { &mengerSpongeScene, &rayTracingSphereScene, &mandelbrotScene, &infiniteCubeScene,
-                      &infiniteCapsulesScene, &roomScene, &guiScene, &moonScene, &asteroidBeltScene,
-                      &reflectRefractScene, &nessCubeScene, &pixel2DScene, &emptyScene };
+  Scene* scenes[] = {&mengerSpongeScene, &rayTracingSphereScene, &mandelbrotScene, &infiniteCubeScene,
+                     &infiniteCapsulesScene, &roomScene, &guiScene, &moonScene, &asteroidBeltScene,
+                     &reflectRefractScene, &kernelScene, &pixel2DScene, &emptyScene };
   uint32 sceneIndex = 0;
+  loadLastSceneIndex(&sceneIndex);
   uint32 sceneCount = ArrayCount(scenes);
   bool sceneCursorMode = false;
 
@@ -154,6 +160,7 @@ void runScenes(GLFWwindow* window) {
   }
   scenes[sceneIndex]->deinit();
   deinitializeInput(window);
+  saveLastSceneIndex(sceneIndex);
 
   glfwTerminate(); // clean up gl resources
 }
@@ -167,4 +174,26 @@ void toggleWindowSize(GLFWwindow* window, const uint32 width, const uint32 heigh
     toWindowedMode(window, width, height);
   }
   windowMode = !windowMode;
+}
+
+void loadLastSceneIndex(uint32* sceneIndex)
+{
+  std::string line;
+  std::ifstream myfile (SAVE_FILE_RELATIVE_PATH);
+  if (myfile.is_open())
+  {
+    getline (myfile,line);
+    *sceneIndex = std::atoi(line.c_str());
+    myfile.close();
+  }  else {
+    std::cout << "Unable to open file\n";
+  }
+}
+
+void saveLastSceneIndex(uint32 sceneIndex)
+{
+  std::ofstream saveFile;
+  saveFile.open (SAVE_FILE_RELATIVE_PATH);
+  saveFile << std::to_string(sceneIndex).c_str()  << "\n";
+  saveFile.close();
 }

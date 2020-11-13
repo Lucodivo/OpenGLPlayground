@@ -92,6 +92,7 @@ GLFWwindow* createWindow()
   }
 
   glfwMakeContextCurrent(window);
+  enableCursor(window, false);
 
   return window;
 }
