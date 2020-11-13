@@ -4,6 +4,59 @@
 #include <glad/glad.h>
 #include <iostream>
 #include <windows.h>
+#include <time.h>
+
+#define SNAPSHOT_NAME_FORMAT "build/SaveData/snapshot_%Y%m%d_%H%M%S.bmp"
+#define SNAPSHOT_NAME_SIZE 44
+
+void snapshot(int width, int height, uint32 frameBuffer)
+{
+  const uint32 bytesPerPixel = 3;
+  uint32 bmpSize = width * height * bytesPerPixel;
+  char* bmpBuffer = (char*)malloc(bmpSize);
+  if (!bmpBuffer) return;
+
+  char fileName[SNAPSHOT_NAME_SIZE];
+  time_t now = time(0);
+  strftime(fileName, sizeof(fileName), SNAPSHOT_NAME_FORMAT, localtime(&now));
+  FILE *filePtr = fopen(fileName, "wb"); // mode w: Create an empty file for output operations, mode b: Open as binary file
+  if (!filePtr) { return; }
+
+  BITMAPFILEHEADER bitmapFileHeader = {0};
+  bitmapFileHeader.bfType = 0x4D42; //"BM"
+  bitmapFileHeader.bfSize = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER) + bmpSize;
+  bitmapFileHeader.bfReserved1 = 0;
+  bitmapFileHeader.bfReserved2 = 0;
+  bitmapFileHeader.bfOffBits = (DWORD)sizeof(BITMAPFILEHEADER) + (DWORD)sizeof(BITMAPINFOHEADER);
+
+  BITMAPINFOHEADER bitmapInfoHeader = {0};
+  bitmapInfoHeader.biSize = sizeof(BITMAPINFOHEADER);
+  bitmapInfoHeader.biWidth = width;
+  bitmapInfoHeader.biHeight = height;
+  bitmapInfoHeader.biPlanes = 1;
+  bitmapInfoHeader.biBitCount = 24;
+  bitmapInfoHeader.biCompression = BI_RGB;
+  bitmapInfoHeader.biSizeImage = 0;
+  bitmapInfoHeader.biXPelsPerMeter = 0;
+  bitmapInfoHeader.biYPelsPerMeter = 0;
+  bitmapInfoHeader.biClrUsed = 0;
+  bitmapInfoHeader.biClrImportant = 0;
+
+  GLint originalReadFramebuffer;
+  glGetIntegerv(GL_READ_FRAMEBUFFER_BINDING, &originalReadFramebuffer);
+  glBindFramebuffer(GL_READ_FRAMEBUFFER, frameBuffer);
+  glReadPixels((GLint)0, (GLint)0,
+               (GLint)width, (GLint)height,
+               GL_BGR, GL_UNSIGNED_BYTE, bmpBuffer);
+  glBindFramebuffer(GL_READ_FRAMEBUFFER, originalReadFramebuffer);
+
+  fwrite(&bitmapFileHeader, sizeof(BITMAPFILEHEADER), 1, filePtr);
+  fwrite(&bitmapInfoHeader, sizeof(BITMAPINFOHEADER), 1, filePtr);
+  fwrite(bmpBuffer, bmpSize, 1, filePtr);
+  fclose(filePtr);
+
+  free(bmpBuffer);
+}
 
 void load2DTexture(const char* imgLocation, uint32& textureId, bool flipImageVert, bool inputSRGB, uint32* width, uint32* height)
 {
@@ -85,48 +138,6 @@ void loadCubeMapTexture(const char* const imgLocations[6], uint32& textureId, bo
     }
     stbi_image_free(data);
   }
-}
-
-void snapshot(int windowWidth, int windowHeight, char* filename, uint32 frameBuffer)
-{
-  char* bmpBuffer = (char*)malloc(windowWidth*windowHeight*3);
-  if (!bmpBuffer) return;
-
-  glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
-  glReadPixels((GLint)0, (GLint)0,
-               (GLint)windowWidth, (GLint)windowHeight,
-               GL_BGR, GL_UNSIGNED_BYTE, bmpBuffer);
-
-  FILE *filePtr = fopen(filename, "wb");
-  if (!filePtr)
-    return;
-
-  BITMAPFILEHEADER bitmapFileHeader = {0};
-  bitmapFileHeader.bfType = 0x4D42; //"BM"
-  bitmapFileHeader.bfSize = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER) + windowWidth * windowHeight * 3;
-  bitmapFileHeader.bfReserved1 = 0;
-  bitmapFileHeader.bfReserved2 = 0;
-  bitmapFileHeader.bfOffBits = (DWORD)sizeof(BITMAPFILEHEADER) + (DWORD)sizeof(BITMAPINFOHEADER);
-
-  BITMAPINFOHEADER bitmapInfoHeader = {0};
-  bitmapInfoHeader.biSize = sizeof(BITMAPINFOHEADER);
-  bitmapInfoHeader.biWidth = windowWidth;
-  bitmapInfoHeader.biHeight = windowHeight;
-  bitmapInfoHeader.biPlanes = 1;
-  bitmapInfoHeader.biBitCount = 24;
-  bitmapInfoHeader.biCompression = BI_RGB;
-  bitmapInfoHeader.biSizeImage = 0;
-  bitmapInfoHeader.biXPelsPerMeter = 0;
-  bitmapInfoHeader.biYPelsPerMeter = 0;
-  bitmapInfoHeader.biClrUsed = 0;
-  bitmapInfoHeader.biClrImportant = 0;
-
-  fwrite(&bitmapFileHeader, sizeof(BITMAPFILEHEADER), 1, filePtr);
-  fwrite(&bitmapInfoHeader, sizeof(BITMAPINFOHEADER), 1, filePtr);
-  fwrite(bmpBuffer, windowWidth*windowHeight*3, 1, filePtr);
-  fclose(filePtr);
-
-  free(bmpBuffer);
 }
 
 void swap(float32* a, float32* b)

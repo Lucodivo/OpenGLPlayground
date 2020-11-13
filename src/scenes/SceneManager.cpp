@@ -20,7 +20,7 @@
 #include "RayTracingSphere/RayTracingSphereScene.h"
 #include "Pixel2D/Pixel2DScene.h"
 
-#define SAVE_FILE_RELATIVE_PATH "build/save.txt"
+#define SAVE_FILE_RELATIVE_PATH "build/SaveData/save.bin"
 
 file_access bool sceneManagerIsActive = true;
 
@@ -117,6 +117,12 @@ void runScenes(GLFWwindow* window) {
     ImGui::NewFrame();
 
     scenes[sceneIndex]->drawFrame();
+
+    // We want to take a screen shot before rendering GUI
+    if(isActive(KeyboardInput_Alt_Left) && hotPress(KeyboardInput_Backtick))
+    {
+      snapshot(windowExtent.x, windowExtent.y, 0);
+    }
 
     if(!sceneManagerIsActive) { // if scene manager isn't active, draw GUI for scene
       scenes[sceneIndex]->drawGui();

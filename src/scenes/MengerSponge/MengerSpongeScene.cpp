@@ -167,6 +167,7 @@ void MengerSpongeScene::drawFrame()
 
   glBindVertexArray(cubeVertexAtt.arrayObject);
 
+  // TODO: supply the camera position in cube model space to avoid requiring computation of inverse matrix
   uint32 cubeAttrIndices[ArrayCount(cubeAttributeIndices)];
   cubeAttributeIndicesBackToFront(camera.Position, cubeModel, cubeAttrIndices);
 

@@ -10,7 +10,7 @@ void load2DTexture(const char* imgLocation, uint32& textureId, bool flipImageVer
 void loadCubeMapTexture(const char* const imgLocations[6], uint32& textureId, bool flipImageVert = false);
 void toFullScreenMode(GLFWwindow* window);
 void toWindowedMode(GLFWwindow* window, const uint32 width, const uint32 height);
-void snapshot(int windowWidth, int windowHeight, char* filename, uint32 frameBuffer = 0);
+void snapshot(int width, int height, uint32 frameBuffer = 0);
 void swap(float32* a, float32* b);
 
 // Special Matrices

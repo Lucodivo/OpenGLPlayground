@@ -150,13 +150,11 @@ void InfiniteCubeScene::drawFrame()
                  GL_UNSIGNED_INT,
                  0);
 
-  // bind our frame buffer
-  glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+  // bind our frame buffer as the draw buffer (the frame buffer we drew too will still be under the read buffer)
   glBindFramebuffer(GL_DRAW_FRAMEBUFFER, framebuffer.id);
   uint32 xOffset = (windowWidth - framebufferDimen) / 2;
   uint32 yOffset = (windowHeight - framebufferDimen) / 2;
   glBlitFramebuffer(xOffset, yOffset, framebufferDimen + xOffset, framebufferDimen + yOffset, 0, 0, framebufferDimen, framebufferDimen, GL_COLOR_BUFFER_BIT, GL_NEAREST);
-
   glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 }
 
