@@ -38,6 +38,11 @@ private:
   uint32 cubeSpecTextureId;
   uint32 skyboxTextureId;
 
+  const uint32 skyboxTextureIndex = 0;
+  const uint32 nessCubeDiffuseTextureIndex = 1;
+  const uint32 nessCubeSpecularTextureIndex = 2;
+  const uint32 framebufferTextureIndex = 3;
+
   Model* nanoSuitModel;
 
   const float32 modelScale = 0.2f;

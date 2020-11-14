@@ -75,6 +75,8 @@ void KernelScene::init(uint32 windowWidth, uint32 windowHeight)
   // background clear color
   glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 
+  glEnable(GL_DEPTH_TEST);
+  glDepthFunc(GL_LEQUAL);
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   glEnable(GL_CULL_FACE);
@@ -127,14 +129,14 @@ void KernelScene::init(uint32 windowWidth, uint32 windowHeight)
   cubeShader->bindBlockIndex("globalBlockFS", globalFSBufferBindIndex);
   modelShader->bindBlockIndex("globalBlockFS", globalFSBufferBindIndex);
 
-  glBindBuffer(GL_UNIFORM_BUFFER, 0); // unbind uniform buffers
-
   nanoSuitModelMatrix = glm::scale(glm::mat4(), glm::vec3(modelScale));  // it's a bit too big for our scene, so scale it down
   nanoSuitModelMatrix = glm::translate(nanoSuitModelMatrix, glm::vec3(0.0f, -6.0f, 0.0f)); // translate it down so it's at the center of the scene
 
   cubeShader->use();
   setConstantLightUniforms(cubeShader);
   cubeShader->setUniform("material.shininess", 32.0f);
+  cubeShader->setUniform("material.diffTexture1", nessCubeDiffuseTextureIndex);
+  cubeShader->setUniform("material.specTexture1", nessCubeSpecularTextureIndex);
 
   modelShader->use();
   setConstantLightUniforms(modelShader);
@@ -143,10 +145,19 @@ void KernelScene::init(uint32 windowWidth, uint32 windowHeight)
 
   skyboxShader->use();
   skyboxShader->setUniform("projection", projectionMat);
+  skyboxShader->setUniform("skybox", skyboxTextureIndex);
 
   frameBufferShader->use();
   frameBufferShader->setUniform("textureWidth", (float32)windowWidth);
   frameBufferShader->setUniform("textureHeight", (float32)windowHeight);
+  frameBufferShader->setUniform("tex", framebufferTextureIndex);
+
+  glBindBuffer(GL_UNIFORM_BUFFER, globalVSUniformBuffer);
+  
+  glEnable(GL_STENCIL_TEST);
+  glStencilOp(GL_KEEP, // Keep current stencil value when stencil test fails
+              GL_KEEP, // Keep current stencil value when stencil test passes but depth fails
+              GL_REPLACE); // Set the stencil value to 'ref' as specified by glStencilFunc when stencil & depth pass
 }
 
 void KernelScene::initializeTextures(uint32& diffTextureId, uint32& specTextureId, uint32& skyboxTextureId)
@@ -182,8 +193,11 @@ void KernelScene::deinit(){
 
   delete nanoSuitModel;
 
+  glBindBuffer(GL_UNIFORM_BUFFER, 0); // unbind uniform buffers
   uint32 deleteBuffers[] = { globalVSUniformBuffer, globalFSUniformBuffer };
   glDeleteBuffers(ArrayCount(deleteBuffers), deleteBuffers);
+
+  glDisable(GL_STENCIL_TEST);
 }
 
 void KernelScene::drawFrame(){
@@ -192,24 +206,10 @@ void KernelScene::drawFrame(){
   // bind our frame buffer
   glBindFramebuffer(GL_FRAMEBUFFER, framebuffer.id);
 
-  glEnable(GL_DEPTH_TEST);
-  glDepthFunc(GL_LEQUAL);
-
-  glEnable(GL_STENCIL_TEST);
-  glStencilOp(GL_KEEP, // when stencil fails
-              GL_KEEP, // when stencil passes but depth fails
-              GL_REPLACE); // when stencil passes and depth passes
-  glStencilFunc(GL_ALWAYS, // stencil function
-                1, // reference value for stencil test
-                0xFF); // mask that is ANDed with stencil value and reference value before the test compares them
-  glStencilMask(0xFF); // mask that is ANDed with the stencil value that is about to be written to stencil buffer
-
-#if 0
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);           // OpenGL state-using function
-#else
-  // FUN MODE - WINDOWS XP
-    glClear(GL_DEPTH_BUFFER_BIT);
-#endif
+  // NOTE: glClear(GL_STENCIL_BUFFER_BIT) counts as writing to the stencil buffer, so the stencil mask needs to give us access to edit all bits
+  glStencilMask(0xFF);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+  glStencilMask(0x00); // Disable writing to the stencil buffer for now
 
   // if flashlight is off, simply remove all color from light
   glm::vec3 flashLightColor = flashLightOn ? glm::vec3(1.0f, 1.0f, 1.0f) : glm::vec3(0.0f);
@@ -225,10 +225,8 @@ void KernelScene::drawFrame(){
 
   glm::mat4 viewMat = camera.UpdateViewMatrix(deltaTime, cameraMovementSpeed);
 
-  glBindBuffer(GL_UNIFORM_BUFFER, globalVSUniformBuffer);
   // update global view matrix uniform
   glBufferSubData(GL_UNIFORM_BUFFER, globalVSBufferViewMatOffset, sizeof(glm::mat4), glm::value_ptr(viewMat));
-  glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
   // oscillate with time
   const glm::vec3 lightPosition = glm::vec3(lightOrbitRadius * sinf(t * lightOrbitSpeed), sineVal, lightOrbitRadius * cosf(t * lightOrbitSpeed));
@@ -238,16 +236,26 @@ void KernelScene::drawFrame(){
   lightModelMat = glm::scale(lightModelMat, glm::vec3(lightScale));
 
   // draw positional light
-  lightShader->use();
   glBindVertexArray(lightVertexAtt.arrayObject);
-
+  lightShader->use();
   lightShader->setUniform("model", lightModelMat);
   lightShader->setUniform("color", positionalLightColor);
   glDrawElements(GL_TRIANGLES, // drawing mode
                  cubePosNormTexNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
                  GL_UNSIGNED_INT, // type of the indices
                  0); // offset in the EBO
-  glBindVertexArray(0);
+
+  // draw skybox
+  glBindVertexArray(skyboxVertexAtt.arrayObject);
+  glm::mat4 viewMinusTranslation = glm::mat4(glm::mat3(viewMat));
+  glActiveTexture(GL_TEXTURE0 + skyboxTextureIndex);
+  glBindTexture(GL_TEXTURE_CUBE_MAP, skyboxTextureId);
+  skyboxShader->use();
+  skyboxShader->setUniform("view", viewMinusTranslation);
+  glDrawElements(GL_TRIANGLES, // drawing mode
+                 36, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
+                 GL_UNSIGNED_INT, // type of the indices
+                 0); // offset in the EBO
 
   auto setDynamicLightUniforms = [&](Shader* shader)
   {
@@ -265,63 +273,38 @@ void KernelScene::drawFrame(){
     shader->setUniform("spotLight.color.specular", flashLightColor * 0.5f);
   };
 
-  // draw skybox
-  skyboxShader->use();
-
-  glBindVertexArray(skyboxVertexAtt.arrayObject);
-
-  glEnable(GL_DEPTH_TEST);
-  //glStencilMask(0xFF); // mask that is ANDed with the stencil value that is about to be written to stencil buffer
-  glActiveTexture(GL_TEXTURE0);
-  glBindTexture(GL_TEXTURE_CUBE_MAP, skyboxTextureId);
-  skyboxShader->setUniform("skybox", 0);
-
-  glm::mat4 viewMinusTranslation = glm::mat4(glm::mat3(viewMat));
-  skyboxShader->setUniform("view", viewMinusTranslation);
-
-  glDrawElements(GL_TRIANGLES, // drawing mode
-                 36, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
-                 GL_UNSIGNED_INT, // type of the indices
-                 0); // offset in the EBO
-
   // draw cubes
-  cubeShader->use();
   glBindVertexArray(cubeVertexAtt.arrayObject);
-
-  setDynamicLightUniforms(cubeShader);
-
-  // switch between two images over time
-  bool animSwitch = sin(8 * t) > 0;
-
-  glActiveTexture(GL_TEXTURE0);
+  bool animSwitch = sin(8 * t) > 0; // switch between two images over time
+  glActiveTexture(GL_TEXTURE0 + nessCubeDiffuseTextureIndex);
   glBindTexture(GL_TEXTURE_2D, cubeDiffTextureId);
-  glActiveTexture(GL_TEXTURE1);
+  glActiveTexture(GL_TEXTURE0 + nessCubeSpecularTextureIndex);
   glBindTexture(GL_TEXTURE_2D, cubeSpecTextureId);
-  cubeShader->setUniform("material.diffTexture1", 0);
-  cubeShader->setUniform("material.specTexture1", 1);
+  cubeShader->use();
+  setDynamicLightUniforms(cubeShader);
   cubeShader->setUniform("animSwitch", animSwitch);
   cubeShader->setUniform("viewPos", camera.Position);
   cubeShader->setUniform("view", viewMat);
 
-  glm::mat4 cubeModelMat[ArrayCount(cubePositions)];
-  for (uint32 i = 0; i < ArrayCount(cubeModelMat); i++)
+  glm::mat4 cubeModelMats[ArrayCount(cubePositions)];
+  for (uint32 i = 0; i < ArrayCount(cubeModelMats); i++)
   {
     float32 angularSpeed = 7.3f * (i + 1);
 
     // orbit around the specified axis from the translated distance
-    cubeModelMat[i] = glm::rotate(glm::mat4(), t * glm::radians(angularSpeed), glm::vec3(50.0f - (i * 10), 100.0f, -50.0f + (i * 10)));
+    cubeModelMats[i] = glm::rotate(glm::mat4(), t * glm::radians(angularSpeed), glm::vec3(50.0f - (i * 10), 100.0f, -50.0f + (i * 10)));
     // translate to position in world
-    cubeModelMat[i] = glm::translate(cubeModelMat[i], cubePositions[i]);
+    cubeModelMats[i] = glm::translate(cubeModelMats[i], cubePositions[i]);
     // rotate with time
-    cubeModelMat[i] = glm::rotate(cubeModelMat[i], t * glm::radians(angularSpeed), glm::vec3(1.0f, 0.3f, 0.5f));
+    cubeModelMats[i] = glm::rotate(cubeModelMats[i], t * glm::radians(angularSpeed), glm::vec3(1.0f, 0.3f, 0.5f));
     // scale object
-    cubeModelMat[i] = glm::scale(cubeModelMat[i], glm::vec3(cubeScales[i]));
+    cubeModelMats[i] = glm::scale(cubeModelMats[i], glm::vec3(cubeScales[i]));
   }
 
   // TODO: Sort cube models by distance to camera position and draw back to front
-  for (uint32 i = 0; i < ArrayCount(cubeModelMat); i++)
+  for (uint32 i = 0; i < ArrayCount(cubeModelMats); i++)
   {
-    cubeShader->setUniform("model", cubeModelMat[i]);
+    cubeShader->setUniform("model", cubeModelMats[i]);
     glCullFace(GL_FRONT);
     glDrawElements(GL_TRIANGLES, // drawing mode
                    cubePosNormTexNumElements *
@@ -336,31 +319,22 @@ void KernelScene::drawFrame(){
                    0); // offset in the EBO
   }
 
-  // draw cube stencil outlines
-  stencilShader->use();
-  stencilShader->setUniform("color", glm::vec3(1.0f, 1.0f, 1.0f));
-  stencilShader->setUniform("view", viewMat);
-  for (uint32 i = 0; i < ArrayCount(cubeModelMat); i++)
+  // draw model
   {
-    stencilShader->setUniform("model", cubeModelMat[i]);
-    glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
-    glStencilMask(0x00);
-    glDisable(GL_DEPTH_TEST);
-    glDrawElements(GL_TRIANGLES, // drawing mode
-                   cubePosNormTexNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
-                   GL_UNSIGNED_INT, // type of the indices
-                   0); // offset in the EBO
-    glEnable(GL_DEPTH_TEST);
-  }
+    // NOTE: The reference is the value that will be written to the stencil buffer when glStencilOp uses GL_REPLACE
+    // NOTE: The mask gets ANDed with both the reference value and the stored value before the test is ran
+    // NOTE: Example - if we are using GL_EQUAL with a reference value of 1 and mask of 0xFF...
+    // NOTE: the test passes if ( ref & 0xFF ) == ( stencil & 0xFF ) and if it passes the value specified by glStencilOp
+    // NOTE:: is stored in the stencil buffer [in our case we use GL_KEEP and it is the reference value of 1 that is stored]
+    glStencilFunc(GL_ALWAYS, // Under what circumstances does the stencil function pass
+                  1, // reference value for stencil test
+                  0xFF); // mask that is ANDed with stencil value and reference value before the test compares them
 
-  glStencilFunc(GL_ALWAYS, // stencil function
-                1, // reference value for stencil test
-                0xFF); // mask that is ANDed with stencil value and reference value before the test compares them
-  glStencilMask(0xFF); // mask that is ANDed with the stencil value that is about to be written to stencil buffer
-  glClear(GL_STENCIL_BUFFER_BIT); // NOTE: glClear(GL_STENCIL_BUFFER_BIT) counts as writing to the stencil buffer and will be directly ANDed with the stencil mask
+    // NOTE: Specify the bitmask that enables or disables the writing of individual bits in the stencil plane
+    // NOTE: 0xFF is all 1s, leaving the value unaffected. 0x00 is all 0s, zeroing out all values written to stencil buffer (disabling writes)
+    // NOTE: THIS IS NOT THE SAME AS THE MASK PASSED INTO glStencilFunc
+    glStencilMask(0xFF);
 
-  // draw models
-  {
     // Drawing the model
     modelShader->use();
     setDynamicLightUniforms(modelShader);
@@ -368,28 +342,29 @@ void KernelScene::drawFrame(){
     modelShader->setUniform("view", viewMat);
     nanoSuitModel->Draw(*modelShader);
 
-    //  Wall Hack Stencil For Model
+    // Wall Hack Stencil For Model
+    // NOTE: the test passes if ( ref & 0xFF ) != ( stencil & 0xFF )
+    // NOTE: we want to disable depth testing, as the stencil will only be active when the model is behind something
+    glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+    glDisable(GL_DEPTH_TEST);
     stencilShader->use();
     stencilShader->setUniform("color", glm::vec3(0.5f, 0.0f, 0.0f));
     stencilShader->setUniform("view", viewMat);
     stencilShader->setUniform("model", nanoSuitModelMatrix);
-    glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
-    glStencilMask(0x00);
-    glDisable(GL_DEPTH_TEST);
     nanoSuitModel->Draw(*stencilShader);
+    glEnable(GL_DEPTH_TEST);
   }
 
   // bind default frame buffer
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
-  glClear(GL_COLOR_BUFFER_BIT);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+  glStencilMask(0x00); // disable writing to the stencil buffer
 
-  frameBufferShader->use();
   glBindVertexArray(quadVertexAtt.arrayObject);
-  glActiveTexture(GL_TEXTURE2);
+  glActiveTexture(GL_TEXTURE0 + framebufferTextureIndex);
   glBindTexture(GL_TEXTURE_2D, framebuffer.colorAttachment);
-  frameBufferShader->setUniform("tex", 2);
+  frameBufferShader->use();
   frameBufferShader->setUniform("kernel", kernels5x5[selectedKernelIndex], ArrayCount(kernels5x5[selectedKernelIndex]));
-  glDisable(GL_DEPTH_TEST);
   glDrawElements(GL_TRIANGLES, // drawing mode
                  6, // number of elements to draw (3 vertices per triangle * 2 triangles per quad)
                  GL_UNSIGNED_INT, // type of the indices
