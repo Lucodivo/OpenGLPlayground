@@ -7,6 +7,8 @@
 
 file_access void setKeyState(GLFWwindow* window, uint32 glfwKey, InputType keyboardInput);
 file_access void setMouseState(GLFWwindow* window, uint32 glfwKey, InputType mouseInput);
+file_access void setControllerState(int16 gamepadFlags, uint32 xInputButtonFlag, InputType controllerInput);
+file_access void loadXInput();
 
 void mouse_scroll_callback(GLFWwindow* window, float64 xOffset, float64 yOffset);
 void window_size_callback(GLFWwindow* window, int32 width, int32 height);
@@ -14,21 +16,35 @@ void window_size_callback(GLFWwindow* window, int32 width, int32 height);
 file_access bool globalWindowSizeChange;
 file_access bool cursorModeChange;
 file_access Extent2D globalWindowExtent;
-file_access MouseCoord globalMouseScroll;
-file_access MouseCoord mousePosition = {0.0f, 0.0f };
-file_access MouseCoord mouseDelta = {0.0f, 0.0f };
+file_access MouseCoord globalMouseScroll = MouseCoord{ 0.0f, 0.0f };
+file_access MouseCoord mousePosition = { 0.0f, 0.0f };
+file_access MouseCoord mouseDelta = { 0.0f, 0.0f };
+file_access ControllerAnalogStick analogStickLeft = { 0, 0 };
+file_access ControllerAnalogStick analogStickRight = { 0, 0 };
 file_access float32 mouseScrollY = 0.0f;
 file_access std::map<InputType, InputState>* inputState = NULL;
 
+// NOTE: Casey Muratori's efficient way of handling function pointers, Handmade Hero episode 6 @ 22:06 & 1:00:21
+// NOTE: Allows us to quickly change the function parameters & return type in one place and cascade throughout the rest
+// NOTE: of the code if need be.
+#define X_INPUT_GET_STATE(name) DWORD WINAPI name(DWORD dwUserIndex, XINPUT_STATE *pState) // succinct way to define function of this type in future
+typedef X_INPUT_GET_STATE(x_input_get_state); // succinct way to define function pointer of type above in the future
+X_INPUT_GET_STATE(XInputGetStateStub) // create stub function of type above
+{
+  return (ERROR_DEVICE_NOT_CONNECTED);
+}
+file_access x_input_get_state* XInputGetState_ = XInputGetStateStub; // Create a function pointer of type above to point to stub
+#define XInputGetState XInputGetState_ // Allow us to use XInputGetState method name without conflicting with definition in Xinput.h
+
 void initializeInput(GLFWwindow* window, Extent2D windowExtent)
 {
-  globalMouseScroll = MouseCoord{0.0f, 0.0f};
   globalWindowSizeChange = true;
   cursorModeChange = false;
   globalWindowExtent = windowExtent;
   inputState = new std::map<InputType, InputState>();
   glfwSetScrollCallback(window, mouse_scroll_callback);
   glfwSetFramebufferSizeCallback(window, window_size_callback);
+  loadXInput();
 }
 
 void deinitializeInput(GLFWwindow* window)
@@ -71,6 +87,13 @@ Extent2D getWindowExtent() {
   return globalWindowExtent;
 }
 
+ControllerAnalogStick getControllerAnalogStickLeft(){
+  return analogStickLeft;
+}
+ControllerAnalogStick getControllerAnalogStickRight() {
+  return analogStickRight;
+}
+
 void setKeyState(GLFWwindow* window, uint32 glfwKey, InputType keyboardInput)
 {
   std::map<InputType, InputState>::iterator keyIterator = inputState->find(keyboardInput);
@@ -104,6 +127,29 @@ void setMouseState(GLFWwindow* window, uint32 glfwKey, InputType mouseInput)
     (*inputState)[mouseInput] = INPUT_HOT_RELEASE;
   } else if(oldMouseInputState & INPUT_HOT_RELEASE) { // only erase if there is something to be erased
     inputState->erase(mouseInputIterator);
+  }
+}
+
+void setControllerState(int16 gamepadFlags, uint32 xInputButtonFlag, InputType controllerInput)
+{
+  std::map<InputType, InputState>::iterator controllerInputIterator = inputState->find(controllerInput);
+  InputState oldControllerInputState =
+          controllerInputIterator != inputState->end() ? controllerInputIterator->second : INPUT_INACTIVE;
+  if (gamepadFlags & xInputButtonFlag)
+  {
+    if (oldControllerInputState & INPUT_HOT_PRESS)
+    {
+      (*inputState)[controllerInput] = INPUT_ACTIVE;
+    } else if (oldControllerInputState ^ INPUT_ACTIVE)
+    {
+      (*inputState)[controllerInput] = INPUT_HOT_PRESS;
+    }
+  } else if (oldControllerInputState & (INPUT_HOT_PRESS | INPUT_ACTIVE))
+  {
+    (*inputState)[controllerInput] = INPUT_HOT_RELEASE;
+  } else if (oldControllerInputState & INPUT_HOT_RELEASE)
+  { // only erase if there is something to be erased
+    inputState->erase(controllerInputIterator);
   }
 }
 
@@ -204,6 +250,65 @@ void loadInputStateForFrame(GLFWwindow* window) {
       }
     }
   }
+
+  // TODO: Add support for multiple controllers?
+  const uint32 controllerIndex = 0;
+  XINPUT_STATE controllerState;
+  if (XInputGetState(controllerIndex, &controllerState) == ERROR_SUCCESS)
+  {
+    // the controller is plugged in
+    int16 gamepadFlags = controllerState.Gamepad.wButtons;
+    setControllerState(gamepadFlags, XINPUT_GAMEPAD_A, Controller1Input_A);
+    setControllerState(gamepadFlags, XINPUT_GAMEPAD_B, Controller1Input_B);
+    setControllerState(gamepadFlags, XINPUT_GAMEPAD_X, Controller1Input_X);
+    setControllerState(gamepadFlags, XINPUT_GAMEPAD_Y, Controller1Input_Y);
+    setControllerState(gamepadFlags, XINPUT_GAMEPAD_DPAD_UP, Controller1Input_DPad_Up);
+    setControllerState(gamepadFlags, XINPUT_GAMEPAD_DPAD_DOWN, Controller1Input_DPad_Down);
+    setControllerState(gamepadFlags, XINPUT_GAMEPAD_DPAD_LEFT, Controller1Input_DPad_Left);
+    setControllerState(gamepadFlags, XINPUT_GAMEPAD_DPAD_RIGHT, Controller1Input_DPad_Right);
+    setControllerState(gamepadFlags, XINPUT_GAMEPAD_LEFT_SHOULDER, Controller1Input_L1);
+    setControllerState(gamepadFlags, XINPUT_GAMEPAD_RIGHT_SHOULDER, Controller1Input_R1);
+    setControllerState(gamepadFlags, XINPUT_GAMEPAD_START, Controller1Input_Start);
+    setControllerState(gamepadFlags, XINPUT_GAMEPAD_BACK, Controller1Input_Select);
+
+    bool analogStickLeftWasActive = analogStickLeft.x != 0 || analogStickLeft.y != 0;
+    analogStickLeft = { controllerState.Gamepad.sThumbLX, controllerState.Gamepad.sThumbLY };
+    if(analogStickLeft.x > -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE && analogStickLeft.x < XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE)
+    {
+      analogStickLeft.x = 0; // deadzone
+    }
+    if(analogStickLeft.y > -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE && analogStickLeft.y < XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE)
+    {
+      analogStickLeft.y = 0; // deadzone
+    }
+    bool analogStickLeftIsActive = analogStickLeft.x != 0 || analogStickLeft.y != 0;
+    if (!analogStickLeftWasActive && analogStickLeftIsActive)
+    {
+      (*inputState)[Controller1Input_Analog_Left] = INPUT_ACTIVE;
+    } else if (analogStickLeftWasActive && !analogStickLeftIsActive)
+    {
+      inputState->erase(Controller1Input_Analog_Left);
+    }
+
+    bool analogStickRightWasActive = analogStickRight.x != 0 || analogStickRight.y != 0;
+    analogStickRight = { controllerState.Gamepad.sThumbRX, controllerState.Gamepad.sThumbRY };
+    if(analogStickRight.x > -XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE && analogStickRight.x < XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE)
+    {
+      analogStickRight.x = 0; // deadzone
+    }
+    if(analogStickRight.y > -XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE && analogStickRight.y < XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE)
+    {
+      analogStickRight.y = 0; // deadzone
+    }
+    bool analogStickRightIsActive = analogStickRight.x != 0 || analogStickRight.y != 0;
+    if (!analogStickRightWasActive && analogStickRightIsActive)
+    {
+      (*inputState)[Controller1Input_Analog_Right] = INPUT_ACTIVE;
+    } else if (analogStickRightWasActive && !analogStickRightIsActive)
+    {
+      inputState->erase(Controller1Input_Analog_Right);
+    }
+  }
 }
 
 // Callback function for when user scrolls with mouse wheel
@@ -230,25 +335,6 @@ bool isCursorEnabled(GLFWwindow* window)
   return glfwGetInputMode(window, GLFW_CURSOR) == GLFW_CURSOR_NORMAL;
 }
 
-
-
-
-
-
-// TODO: reintroduce xinput controller logic to new input code
-
-// NOTE: Casey Muratori's efficient way of handling function pointers, Handmade Hero episode 6 @ 22:06 & 1:00:21
-// NOTE: Allows us to quickly change the function parameters & return type in one place and cascade throughout the rest
-// NOTE: of the code if need be.
-#define X_INPUT_GET_STATE(name) DWORD WINAPI name(DWORD dwUserIndex, XINPUT_STATE *pState) // succinct way to define function of this type in future
-typedef X_INPUT_GET_STATE(x_input_get_state); // succinct way to define function pointer of type above in the future
-X_INPUT_GET_STATE(XInputGetStateStub) // create stub function of type above
-{
-  return (ERROR_DEVICE_NOT_CONNECTED);
-}
-file_access x_input_get_state* XInputGetState_ = XInputGetStateStub; // Create a function pointer of type above to point to stub
-#define XInputGetState XInputGetState_ // Allow us to use XInputGetState method name without conflicting with definition in Xinput.h
-
 file_access void loadXInput()
 {
   HMODULE XInputLibrary = LoadLibraryA("xinput1_4.dll");
@@ -271,219 +357,5 @@ file_access void loadXInput()
   {
     std::cout << "Failed to load XInput" << std::endl;
     exit(-1);
-  }
-}
-
-void initializeXInput()
-{
-  loadXInput();
-}
-
-void processXInput(ControllerConsumer** consumers, uint32 consumerCount)
-{
-  for (DWORD controllerIndex = 0; controllerIndex < XUSER_MAX_COUNT; ++controllerIndex)
-  {
-    XINPUT_STATE controllerState;
-    if (XInputGetState(controllerIndex, &controllerState) == ERROR_SUCCESS)
-    {
-      // the controller is plugged in
-      XINPUT_GAMEPAD* pad = &controllerState.Gamepad;
-
-      bool dPadUp = (pad->wButtons & XINPUT_GAMEPAD_DPAD_UP);
-      bool dPadDown = (pad->wButtons & XINPUT_GAMEPAD_DPAD_DOWN);
-      bool dPadLeft = (pad->wButtons & XINPUT_GAMEPAD_DPAD_LEFT);
-      bool dPadRight = (pad->wButtons & XINPUT_GAMEPAD_DPAD_RIGHT);
-      bool leftShoulder = (pad->wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER);
-      bool rightShoulder = (pad->wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER);
-      bool start = (pad->wButtons & XINPUT_GAMEPAD_START);
-      bool select = (pad->wButtons & XINPUT_GAMEPAD_BACK);
-      bool a = (pad->wButtons & XINPUT_GAMEPAD_A);
-      bool b = (pad->wButtons & XINPUT_GAMEPAD_B);
-      bool x = (pad->wButtons & XINPUT_GAMEPAD_X);
-      bool y = (pad->wButtons & XINPUT_GAMEPAD_Y);
-
-      if (dPadUp)
-      {
-        for(uint32 i = 0; i < consumerCount; ++i) {
-          consumers[i]->button_dPadUp_pressed();;
-        }
-      }
-
-      if (dPadDown)
-      {
-        for(uint32 i = 0; i < consumerCount; ++i) {
-          consumers[i]->button_dPadDown_pressed();;
-        }
-      }
-
-      if (dPadLeft)
-      {
-        for(uint32 i = 0; i < consumerCount; ++i) {
-          consumers[i]->button_dPadLeft_pressed();;
-        }
-      }
-
-      if (dPadRight)
-      {
-        for(uint32 i = 0; i < consumerCount; ++i) {
-          consumers[i]->button_dPadRight_pressed();;
-        }
-      }
-
-      if (leftShoulder)
-      {
-        for(uint32 i = 0; i < consumerCount; ++i) {
-          consumers[i]->button_leftShoulder_pressed();;
-        }
-      }
-
-      if (rightShoulder)
-      {
-        for(uint32 i = 0; i < consumerCount; ++i) {
-          consumers[i]->button_rightShoulder_pressed();;
-        }
-      }
-
-      if (start)
-      {
-        for(uint32 i = 0; i < consumerCount; ++i) {
-          consumers[i]->button_start_pressed();;
-        }
-      }
-
-
-      local_access bool selectWasDown = false;
-      if (select)
-      {
-        if (!selectWasDown)
-        {
-          selectWasDown = true;
-          for(uint32 i = 0; i < consumerCount; ++i) {
-            consumers[i]->button_select_pressed();;
-          }
-        }
-      } else if (selectWasDown)
-      {
-        selectWasDown = false;
-        for(uint32 i = 0; i < consumerCount; ++i) {
-          consumers[i]->button_select_released();;
-        }
-      }
-
-      local_access bool aWasDown = false;
-      if (a)
-      {
-        if (!aWasDown)
-        {
-          aWasDown = true;
-          for(uint32 i = 0; i < consumerCount; ++i) {
-            consumers[i]->button_A_pressed();;
-          }
-        }
-      } else if (aWasDown)
-      {
-        aWasDown = false;
-        for(uint32 i = 0; i < consumerCount; ++i) {
-          consumers[i]->button_A_released();;
-        }
-      }
-
-      local_access bool bWasDown = false;
-      if (b)
-      {
-        if (!bWasDown)
-        {
-          bWasDown = true;
-          for(uint32 i = 0; i < consumerCount; ++i) {
-            consumers[i]->button_B_pressed();;
-          }
-        }
-      } else if (bWasDown)
-      {
-        bWasDown = false;
-        for(uint32 i = 0; i < consumerCount; ++i) {
-          consumers[i]->button_B_released();;
-        }
-      }
-
-      local_access bool xWasDown = false;
-      if (x)
-      {
-        if (!xWasDown)
-        {
-          xWasDown = true;
-          for(uint32 i = 0; i < consumerCount; ++i) {
-            consumers[i]->button_X_pressed();;
-          }
-        }
-      } else if (xWasDown)
-      {
-        xWasDown = false;
-        for(uint32 i = 0; i < consumerCount; ++i) {
-          consumers[i]->button_X_released();;
-        }
-      }
-
-      local_access bool yWasDown = false;
-      if (y)
-      {
-        if (!yWasDown)
-        {
-          yWasDown = true;
-          for(uint32 i = 0; i < consumerCount; ++i) {
-            consumers[i]->button_Y_pressed();;
-          }
-        }
-      } else if (yWasDown)
-      {
-        yWasDown = false;
-        for(uint32 i = 0; i < consumerCount; ++i) {
-          consumers[i]->button_Y_released();;
-        }
-      }
-
-      int16 leftStickX = pad->sThumbLX;
-      int16 leftStickY = pad->sThumbLY;
-
-      if (leftStickX < XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE &&
-          leftStickX > -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE)
-      {
-        leftStickX = 0;
-      }
-      if (leftStickY < XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE &&
-          leftStickY > -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE)
-      {
-        leftStickY = 0;
-      }
-      if (leftStickX != 0 && leftStickY != 0)
-      {
-        for(uint32 i = 0; i < consumerCount; ++i) {
-          consumers[i]->leftAnalog(leftStickX, leftStickY);
-        }
-      }
-
-      int16 rightStickX = pad->sThumbRX;
-      int16 rightStickY = pad->sThumbRY;
-
-      if (rightStickX < XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE &&
-          rightStickX > -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE)
-      {
-        rightStickX = 0;
-      }
-      if (rightStickY < XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE &&
-          rightStickY > -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE)
-      {
-        rightStickY = 0;
-      }
-      if (rightStickX != 0 && rightStickY != 0)
-      {
-        for(uint32 i = 0; i < consumerCount; ++i) {
-          consumers[i]->rightAnalog(rightStickX, rightStickY);
-        }
-      }
-    } else
-    {
-      // the controller is not available
-    }
   }
 }

@@ -101,10 +101,11 @@ void MandelbrotScene::inputStatesUpdated() {
     }
   }
 
-  if(hotPress(MouseInput_Left)) {
+  InputState mouseLeftState = getInputState(MouseInput_Left);
+  if(mouseLeftState == INPUT_HOT_PRESS) {
     mouseDownTime = (float32)glfwGetTime();
     mouseDown = true;
-  } else if(hotRelease(MouseInput_Left)) {
+  } else if(mouseLeftState == INPUT_HOT_RELEASE) {
     if((float32)glfwGetTime() - mouseDownTime < MOUSE_ACTION_TIME_SECONDS) {
       currentColorFavorIndex++;
       if(currentColorFavorIndex >= ArrayCount(colorFavors)) currentColorFavorIndex = 0;
@@ -120,9 +121,10 @@ void MandelbrotScene::inputStatesUpdated() {
     }
   }
 
-  if(hotPress(KeyboardInput_Shift_Left)) {
+  InputState leftShiftState = getInputState(KeyboardInput_Shift_Left);
+  if(leftShiftState == INPUT_HOT_PRESS) {
     zoomSpeed = ZOOM_SPEED_FAST;
-  } else if (hotRelease(KeyboardInput_Shift_Left)) {
+  } else if (leftShiftState == INPUT_HOT_RELEASE) {
     zoomSpeed = ZOOM_SPEED_NORMAL;
   }
 }

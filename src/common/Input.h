@@ -20,6 +20,12 @@ struct Extent2D
   int32 y;
 };
 
+struct ControllerAnalogStick
+{
+  int16 x;
+  int16 y;
+};
+
 enum InputType
 {
   KeyboardInput_Q, KeyboardInput_W, KeyboardInput_E, KeyboardInput_R,
@@ -31,7 +37,11 @@ enum InputType
   KeyboardInput_Up, KeyboardInput_Down, KeyboardInput_Left, KeyboardInput_Right, KeyboardInput_Space,
   MouseInput_Left, MouseInput_Right, MouseInput_Middle, MouseInput_Back, MouseInput_Forward,
   MouseInput_Scroll, MouseInput_Movement,
-  WindowInput_SizeChange
+  WindowInput_SizeChange,
+  Controller1Input_A, Controller1Input_B, Controller1Input_X, Controller1Input_Y,
+  Controller1Input_DPad_Up, Controller1Input_DPad_Down, Controller1Input_DPad_Left, Controller1Input_DPad_Right,
+  Controller1Input_L1, Controller1Input_L2, Controller1Input_R1, Controller1Input_R2,
+  Controller1Input_Start, Controller1Input_Select, Controller1Input_Analog_Left, Controller1Input_Analog_Right
 };
 
 enum InputState
@@ -60,42 +70,8 @@ MouseCoord getMousePosition();
 MouseCoord getMouseDelta();
 float32 getMouseScrollY();
 Extent2D getWindowExtent();
+ControllerAnalogStick getControllerAnalogStickLeft();
+ControllerAnalogStick getControllerAnalogStickRight();
 
 void enableCursor(GLFWwindow* window, bool enable);
 bool isCursorEnabled(GLFWwindow* window);
-
-
-
-
-
-
-
-
-// TODO: reintroduce xinput controller logic to new input code
-
-class ControllerConsumer
-{
-public:
-  virtual void leftAnalog(int16 stickX, int16 stickY) {};
-  virtual void rightAnalog(int16 stickX, int16 stickY) {};
-  virtual void button_A_pressed() {};
-  virtual void button_A_released() {};
-  virtual void button_B_pressed() {};
-  virtual void button_B_released() {};
-  virtual void button_X_pressed() {};
-  virtual void button_X_released() {};
-  virtual void button_Y_pressed() {};
-  virtual void button_Y_released() {};
-  virtual void button_dPadUp_pressed() {};
-  virtual void button_dPadDown_pressed() {};
-  virtual void button_dPadLeft_pressed() {};
-  virtual void button_dPadRight_pressed() {};
-  virtual void button_leftShoulder_pressed() {};
-  virtual void button_rightShoulder_pressed() {};
-  virtual void button_start_pressed() {};
-  virtual void button_select_pressed() {};
-  virtual void button_select_released() {};
-};
-
-void initializeXInput();
-void processXInput(ControllerConsumer** consumers, uint32 consumerCount);

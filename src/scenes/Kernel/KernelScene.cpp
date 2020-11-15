@@ -153,7 +153,7 @@ void KernelScene::init(uint32 windowWidth, uint32 windowHeight)
   frameBufferShader->setUniform("tex", framebufferTextureIndex);
 
   glBindBuffer(GL_UNIFORM_BUFFER, globalVSUniformBuffer);
-  
+
   glEnable(GL_STENCIL_TEST);
   glStencilOp(GL_KEEP, // Keep current stencil value when stencil test fails
               GL_KEEP, // Keep current stencil value when stencil test passes but depth fails

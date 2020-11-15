@@ -68,7 +68,7 @@ void runScenes(GLFWwindow* window) {
 
   auto handleInputForFrame = [&scenes, &sceneIndex, sceneCount, &window, &windowExtent, &textDebugShader, &sceneCursorMode]()
   {
-    if(hotPress(KeyboardInput_Tab)) {
+    if(hotPress(KeyboardInput_Tab) || hotPress(Controller1Input_Start)) {
       sceneManagerIsActive = !sceneManagerIsActive;
       if(sceneManagerIsActive) {
         sceneCursorMode = isCursorEnabled(window);
@@ -83,7 +83,7 @@ void runScenes(GLFWwindow* window) {
       glfwSetWindowShouldClose(window, GL_TRUE);
     }
 
-    if(isActive(KeyboardInput_Alt_Right) && hotPress(KeyboardInput_Enter))
+    if((isActive(KeyboardInput_Alt_Right) && hotPress(KeyboardInput_Enter)) || hotPress(Controller1Input_Select))
     {
       toggleWindowSize(window, VIEWPORT_INIT_WIDTH, VIEWPORT_INIT_HEIGHT);
     }

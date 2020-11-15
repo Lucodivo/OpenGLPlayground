@@ -1,5 +1,7 @@
 #include "FirstPersonScene.h"
 
+#define INIT_CAMERA_SPEED 1.0
+
 FirstPersonScene::FirstPersonScene() : Scene(){}
 
 void FirstPersonScene::init(uint32 windowWidth, uint32 windowHeight)
@@ -18,9 +20,10 @@ void FirstPersonScene::inputStatesUpdated()
   if(keyboardCameraMovementEnabled)
   {
     // Camera movement speed
-    if(hotPress(KeyboardInput_Shift_Left)) {
+    InputState leftShiftState = getInputState(KeyboardInput_Shift_Left);
+    if(leftShiftState == INPUT_HOT_PRESS) {
       cameraMovementSpeed = 2.0;
-    } else if(hotRelease(KeyboardInput_Shift_Left)) {
+    } else if(leftShiftState == INPUT_HOT_RELEASE) {
       cameraMovementSpeed = 1.0;
     }
 
@@ -59,6 +62,54 @@ void FirstPersonScene::inputStatesUpdated()
       camera.ProcessMouseScroll(getMouseScrollY());
     }
   }
+
+  if(controllerCameraMovementEnabled)
+  {
+    if(hotPress(Controller1Input_A))
+    {
+      camera.ProcessInput(JUMP);
+    }
+
+    InputState bState = getInputState(Controller1Input_B);
+    if(bState == INPUT_HOT_PRESS)
+    {
+      cameraMovementSpeed = INIT_CAMERA_SPEED * 2;
+    } else if(bState == INPUT_HOT_RELEASE) {
+      cameraMovementSpeed = INIT_CAMERA_SPEED;
+    }
+
+    if(isActive(Controller1Input_Analog_Left))
+    {
+      ControllerAnalogStick leftAnalogStick = getControllerAnalogStickLeft();
+      camera.ProcessLeftAnalog(leftAnalogStick.x, leftAnalogStick.y);
+    }
+
+    if(isActive(Controller1Input_Analog_Right))
+    {
+      ControllerAnalogStick rightAnalogStick = getControllerAnalogStickRight();
+      camera.ProcessRightAnalog(rightAnalogStick.x, rightAnalogStick.y);
+    }
+
+    if(isActive(Controller1Input_DPad_Up))
+    {
+      camera.ProcessInput(FORWARD);
+    }
+
+    if(isActive(Controller1Input_DPad_Down))
+    {
+      camera.ProcessInput(BACKWARD);
+    }
+
+    if(isActive(Controller1Input_DPad_Left))
+    {
+      camera.ProcessInput(LEFT);
+    }
+
+    if(isActive(Controller1Input_DPad_Right))
+    {
+      camera.ProcessInput(RIGHT);
+    }
+  }
 }
 
 void FirstPersonScene::enableDefaultMouseCameraMovement(bool enable)
@@ -71,50 +122,7 @@ void FirstPersonScene::enableDefaultKeyboardCameraMovement(bool enable)
   mouseCameraMovementEnabled = enable;
 }
 
-//// TODO: handle Xinput
-//// +++ CONTROLLER CONSUMER IMPLEMETNATION - START +++
-//void FirstPersonScene::leftAnalog(int16 stickX, int16 stickY)
-//{
-//  camera.ProcessLeftAnalog(stickX, stickY);
-//}
-//
-//void FirstPersonScene::rightAnalog(int16 stickX, int16 stickY)
-//{
-//  camera.ProcessRightAnalog(stickX, stickY);
-//}
-//
-//void FirstPersonScene::button_A_pressed() {
-//  camera.ProcessInput(JUMP);
-//}
-//
-//void FirstPersonScene::button_B_pressed()
-//{
-//  camera.MovementSpeed = CAMERA_SPEED * 2;
-//}
-//
-//void FirstPersonScene::button_B_released()
-//{
-//  camera.MovementSpeed = CAMERA_SPEED;
-//}
-//
-//void FirstPersonScene::button_dPadUp_pressed()
-//{
-//  camera.ProcessInput(FORWARD);
-//}
-//
-//void FirstPersonScene::button_dPadDown_pressed()
-//{
-//  camera.ProcessInput(BACKWARD);
-//}
-//
-//void FirstPersonScene::button_dPadLeft_pressed()
-//{
-//  camera.ProcessInput(LEFT);
-//}
-//
-//void FirstPersonScene::button_dPadRight_pressed()
-//{
-//  camera.ProcessInput(RIGHT);
-//}
-//
-
+void FirstPersonScene::enableDefaultControllerCameraMovement(bool enable)
+{
+  controllerCameraMovementEnabled = enable;
+}

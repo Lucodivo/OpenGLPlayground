@@ -19,7 +19,6 @@ int main()
   loadGLFW();
   GLFWwindow* window = createWindow();
   initializeGLAD();
-  initializeXInput();
   initImgui(window);
   runScenes(window);
   return 0;
