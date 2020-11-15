@@ -7,6 +7,7 @@
 #include "../FirstPersonScene.h"
 #include "../../common/ObjectData.h"
 #include "../../Shader.h"
+#include "../../common/Util.h"
 
 const glm::vec3 colors[] = {
         glm::vec3(1.0f, 0.0f, 0.0f),

@@ -6,6 +6,7 @@
 
 #include "../FirstPersonScene.h"
 #include "../../common/ObjectData.h"
+#include "../../common/Util.h"
 
 struct resolution {
   uint32 width;

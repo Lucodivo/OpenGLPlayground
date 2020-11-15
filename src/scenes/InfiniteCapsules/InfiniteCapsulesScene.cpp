@@ -59,7 +59,7 @@ void InfiniteCapsulesScene::drawFrame() {
   glm::mat4 cameraRotationMatrix = camera.UpdateViewMatrix(deltaTime, cameraMovementSpeed * 4.0f, false);
   rayMarchingShader->setUniform("rayOrigin", camera.Position);
   rayMarchingShader->setUniform("elapsedTime", t);
-  rayMarchingShader->setUniform("viewRotationMat", reverseZMat4 * cameraRotationMatrix);
+  rayMarchingShader->setUniform("viewRotationMat", reverseZ(cameraRotationMatrix));
   if(lightAlive) {
     rayMarchingShader->setUniform("lightPos", lightPosition);
     glm::vec3 lightDelta = lightMoveDir * deltaTime * 25.0f;

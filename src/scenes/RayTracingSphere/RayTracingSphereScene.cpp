@@ -64,7 +64,7 @@ void RayTracingSphereScene::drawFrame()
   glm::mat4 cameraRotationMatrix = camera.UpdateViewMatrix(deltaTime, cameraMovementSpeed * 4.0f, false);
   rayTracingSphereShader->setUniform("rayOrigin", camera.Position);
   rayTracingSphereShader->setUniform("elapsedTime", t);
-  rayTracingSphereShader->setUniform("viewRotationMat", reverseZMat4 * cameraRotationMatrix);
+  rayTracingSphereShader->setUniform("viewRotationMat", reverseZ(cameraRotationMatrix));
   glDrawElements(GL_TRIANGLES, // drawing mode
                  6, // number of elements to draw (3 vertices per triangle * 2 triangles per quad)
                  GL_UNSIGNED_INT, // type of the indices
