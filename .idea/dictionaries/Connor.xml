@@ -3,7 +3,9 @@
     <words>
       <w>bitangent</w>
       <w>bitmask</w>
+      <w>dimen</w>
       <w>eular</w>
+      <w>framebuffers</w>
       <w>glsl</w>
       <w>gpu</w>
       <w>rasterization</w>

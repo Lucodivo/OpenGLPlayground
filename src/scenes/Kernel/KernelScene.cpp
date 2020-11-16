@@ -55,17 +55,18 @@ void KernelScene::init(uint32 windowWidth, uint32 windowHeight)
   lightShader = new Shader(posGlobalBlockVertexShaderFileLoc, SingleColorFragmentShaderFileLoc);
   modelShader = new Shader(posNormTexVertexShaderFileLoc, dirPosSpotLightModelFragmentShaderFileLoc);
   stencilShader = new Shader(posNormTexVertexShaderFileLoc, SingleColorFragmentShaderFileLoc);
-  frameBufferShader = new Shader(frameBufferVertexShaderFileLoc, kernel5x5TextureFragmentShaderFileLoc);
+  framebufferShader = new Shader(framebufferVertexShaderFileLoc, kernel5x5TextureFragmentShaderFileLoc);
   skyboxShader = new Shader(skyboxVertexShaderFileLoc, skyboxFragmentShaderFileLoc);
 
   lightVertexAtt = initializeCubePositionVertexAttBuffers();
   cubeVertexAtt = initializeCubePosNormTexVertexAttBuffers();
-  quadVertexAtt = initializeFrameBufferQuadVertexAttBuffers();
+  quadVertexAtt = initializeFramebufferQuadVertexAttBuffers();
   skyboxVertexAtt = initializeCubePositionVertexAttBuffers();
 
   initializeTextures(cubeDiffTextureId, cubeSpecTextureId, skyboxTextureId);
 
-  framebuffer = initializeFrameBuffer(windowWidth, windowHeight);
+  preprocessFramebuffer = initializeFramebuffer(windowWidth, windowHeight);
+  postprocessFramebuffer = initializeFramebuffer(windowWidth, windowHeight, false);
 
   nanoSuitModel = new Model(nanoSuitModelLoc);
 
@@ -147,10 +148,10 @@ void KernelScene::init(uint32 windowWidth, uint32 windowHeight)
   skyboxShader->setUniform("projection", projectionMat);
   skyboxShader->setUniform("skybox", skyboxTextureIndex);
 
-  frameBufferShader->use();
-  frameBufferShader->setUniform("textureWidth", (float32)windowWidth);
-  frameBufferShader->setUniform("textureHeight", (float32)windowHeight);
-  frameBufferShader->setUniform("tex", framebufferTextureIndex);
+  framebufferShader->use();
+  framebufferShader->setUniform("textureWidth", (float32)windowWidth);
+  framebufferShader->setUniform("textureHeight", (float32)windowHeight);
+  framebufferShader->setUniform("tex", framebufferTextureIndex);
 
   glBindBuffer(GL_UNIFORM_BUFFER, globalVSUniformBuffer);
 
@@ -174,13 +175,13 @@ void KernelScene::deinit(){
   lightShader->deleteShaderResources();
   modelShader->deleteShaderResources();
   stencilShader->deleteShaderResources();
-  frameBufferShader->deleteShaderResources();
+  framebufferShader->deleteShaderResources();
   skyboxShader->deleteShaderResources();
   delete cubeShader;
   delete lightShader;
   delete modelShader;
   delete stencilShader;
-  delete frameBufferShader;
+  delete framebufferShader;
   delete skyboxShader;
 
   VertexAtt deleteVertexAttributes[] = { lightVertexAtt, cubeVertexAtt, quadVertexAtt, skyboxVertexAtt };
@@ -189,7 +190,8 @@ void KernelScene::deinit(){
   uint32 deleteTextures[] = { cubeDiffTextureId, cubeSpecTextureId, skyboxTextureId };
   glDeleteTextures(ArrayCount(deleteTextures), deleteTextures);
 
-  deleteFrameBuffer(framebuffer);
+  Framebuffer* framebuffers[] = { &preprocessFramebuffer, &postprocessFramebuffer };
+  deleteFramebuffers(ArrayCount(framebuffers), framebuffers);
 
   delete nanoSuitModel;
 
@@ -204,7 +206,7 @@ void KernelScene::drawFrame(){
   FirstPersonScene::drawFrame();
 
   // bind our frame buffer
-  glBindFramebuffer(GL_FRAMEBUFFER, framebuffer.id);
+  glBindFramebuffer(GL_FRAMEBUFFER, preprocessFramebuffer.id);
 
   // NOTE: glClear(GL_STENCIL_BUFFER_BIT) counts as writing to the stencil buffer, so the stencil mask needs to give us access to edit all bits
   glStencilMask(0xFF);
@@ -356,15 +358,15 @@ void KernelScene::drawFrame(){
   }
 
   // bind default frame buffer
-  glBindFramebuffer(GL_FRAMEBUFFER, 0);
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+  glBindFramebuffer(GL_FRAMEBUFFER, postprocessFramebuffer.id);
+  glClear(GL_COLOR_BUFFER_BIT);
   glStencilMask(0x00); // disable writing to the stencil buffer
 
   glBindVertexArray(quadVertexAtt.arrayObject);
   glActiveTexture(GL_TEXTURE0 + framebufferTextureIndex);
-  glBindTexture(GL_TEXTURE_2D, framebuffer.colorAttachment);
-  frameBufferShader->use();
-  frameBufferShader->setUniform("kernel", kernels5x5[selectedKernelIndex], ArrayCount(kernels5x5[selectedKernelIndex]));
+  glBindTexture(GL_TEXTURE_2D, preprocessFramebuffer.colorAttachment);
+  framebufferShader->use();
+  framebufferShader->setUniform("kernel", kernels5x5[selectedKernelIndex], ArrayCount(kernels5x5[selectedKernelIndex]));
   glDrawElements(GL_TRIANGLES, // drawing mode
                  6, // number of elements to draw (3 vertices per triangle * 2 triangles per quad)
                  GL_UNSIGNED_INT, // type of the indices
@@ -374,50 +376,36 @@ void KernelScene::drawFrame(){
 void KernelScene::inputStatesUpdated() {
   FirstPersonScene::inputStatesUpdated();
 
-  if(hotPress(KeyboardInput_E))
+  if(hotPress(KeyboardInput_E) || hotPress(Controller1Input_R1))
   {
     nextImageKernel();
   }
 
-  if(hotPress(KeyboardInput_Q))
+  if(hotPress(KeyboardInput_Q) || hotPress(Controller1Input_L1))
   {
     prevImageKernel();
   }
 
-  if(hotPress(MouseInput_Left))
+  if(hotPress(MouseInput_Left) || hotPress(Controller1Input_X))
   {
     toggleFlashlight();
   }
 
   if(isActive(WindowInput_SizeChange)) {
     Extent2D windowExtent = getWindowExtent();
-    deleteFrameBuffer(framebuffer);
-    framebuffer = initializeFrameBuffer(windowExtent.x, windowExtent.y);
-    frameBufferShader->setUniform("textureWidth", (float32)windowExtent.x);
-    frameBufferShader->setUniform("textureHeight", (float32)windowExtent.y);
+    Framebuffer* framebuffers[] = { &preprocessFramebuffer, &postprocessFramebuffer };
+    deleteFramebuffers(ArrayCount(framebuffers), framebuffers);
+    preprocessFramebuffer = initializeFramebuffer(windowExtent.x, windowExtent.y);
+    postprocessFramebuffer = initializeFramebuffer(windowExtent.x, windowExtent.y, false);
+    framebufferShader->setUniform("textureWidth", (float32)windowExtent.x);
+    framebufferShader->setUniform("textureHeight", (float32)windowExtent.y);
   }
 }
 
-// TODO: reintroduce when controller input is added
-//void KernelScene::key_LeftMouseButton_pressed(float32 xPos, float32 yPos)
-//{
-//  toggleFlashlight();
-//}
-//
-//void KernelScene::button_X_pressed()
-//{
-//  toggleFlashlight();
-//}
-//
-//void KernelScene::button_dPadUp_pressed()
-//{
-//  nextImageKernel();
-//}
-//
-//void KernelScene::button_dPadDown_pressed()
-//{
-//  prevImageKernel();
-//}
+Framebuffer KernelScene::getDrawFramebuffer()
+{
+  return postprocessFramebuffer;
+}
 
 void KernelScene::toggleFlashlight()
 {

@@ -11,7 +11,7 @@ file_access void setControllerState(int16 gamepadFlags, uint32 xInputButtonFlag,
 file_access void loadXInput();
 
 void mouse_scroll_callback(GLFWwindow* window, float64 xOffset, float64 yOffset);
-void window_size_callback(GLFWwindow* window, int32 width, int32 height);
+void framebuffer_size_callback(GLFWwindow* window, int32 width, int32 height);
 
 file_access bool globalWindowSizeChange;
 file_access bool cursorModeChange;
@@ -43,7 +43,7 @@ void initializeInput(GLFWwindow* window, Extent2D windowExtent)
   globalWindowExtent = windowExtent;
   inputState = new std::map<InputType, InputState>();
   glfwSetScrollCallback(window, mouse_scroll_callback);
-  glfwSetFramebufferSizeCallback(window, window_size_callback);
+  glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
   loadXInput();
 }
 
@@ -318,8 +318,9 @@ void mouse_scroll_callback(GLFWwindow* window, float64 xOffset, float64 yOffset)
 }
 
 // NOTE: returns (0,0) when no longer on screen
-void window_size_callback(GLFWwindow* window, int32 width, int32 height)
+void framebuffer_size_callback(GLFWwindow* window, int32 width, int32 height)
 {
+  if(width == globalWindowExtent.x && height == globalWindowExtent.y) return; // TODO: does this ever happen?
   globalWindowSizeChange = true;
   globalWindowExtent = { width, height };
 }

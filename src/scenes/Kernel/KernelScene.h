@@ -13,11 +13,10 @@ class KernelScene final : public FirstPersonScene
 {
 public:
   KernelScene();
-
-  // FrameBufferSizeConsumer override
   void init(uint32 windowWidth, uint32 windowHeight);
   void deinit();
   void drawFrame();
+  Framebuffer getDrawFramebuffer();
   void inputStatesUpdated();
   const char* title();
 
@@ -26,7 +25,7 @@ private:
   Shader* lightShader = NULL;
   Shader* modelShader = NULL;
   Shader* stencilShader = NULL;
-  Shader* frameBufferShader = NULL;
+  Shader* framebufferShader = NULL;
   Shader* skyboxShader = NULL;
 
   VertexAtt lightVertexAtt;
@@ -67,7 +66,8 @@ private:
 
   bool flashLightOn = false;
 
-  Framebuffer framebuffer = {};
+  Framebuffer preprocessFramebuffer;
+  Framebuffer postprocessFramebuffer;
 
   uint32 selectedKernelIndex = 0;
 

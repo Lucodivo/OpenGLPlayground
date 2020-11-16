@@ -6,7 +6,6 @@
 
 #include "../FirstPersonScene.h"
 #include "../../common/ObjectData.h"
-#include "../../common/Util.h"
 
 struct resolution {
   uint32 width;
@@ -29,6 +28,7 @@ public:
   void init(uint32 windowWidth, uint32 windowHeight);
   void deinit();
   void drawFrame();
+  Framebuffer getDrawFramebuffer();
   void inputStatesUpdated();
   void drawGui();
   const char* title();
@@ -63,7 +63,7 @@ private:
   float32 lastShaderFileUpdateCheck = 0;
   const float32 shaderFileCheckIntervalInSeconds = 2.0f;
 
-  uint32 currentResolutionIndex = 1;
+  uint32 currentResolutionIndex = 0;
   resolution currentResolution = screenResolutions[currentResolutionIndex];
 
   int32 numSamples = 1;

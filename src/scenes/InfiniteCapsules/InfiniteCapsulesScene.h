@@ -14,6 +14,7 @@ public:
   void drawFrame();
   void deinit();
   virtual void inputStatesUpdated();
+  Framebuffer getDrawFramebuffer();
   const char* title();
 
 private:
@@ -24,6 +25,8 @@ private:
   float32 lastFrame = 0;
 
   VertexAtt quadVertexAtt;
+
+  Framebuffer drawFramebuffer;
 
   glm::vec3 lightPosition = { 0.0f, 0.0f, 0.0f };
   bool lightAlive = false;

@@ -73,6 +73,8 @@ void ReflectRefractScene::init(uint32 windowWidth, uint32 windowHeight)
   cubeVertexAtt = initializeCubePosNormVertexAttBuffers();
   skyboxVertexAtt = initializeCubePositionVertexAttBuffers();
 
+  drawFramebuffer = initializeFramebuffer(windowWidth, windowHeight);
+
   loadCubeMapTexture(skyboxInterstellarFaceLocations, skyboxTextureId);
 
   // load models
@@ -170,6 +172,8 @@ void ReflectRefractScene::deinit()
   VertexAtt vertexAttributes[] = {cubeVertexAtt, skyboxVertexAtt };
   deleteVertexAtts(ArrayCount(vertexAttributes), vertexAttributes);
 
+  deleteFramebuffer(&drawFramebuffer);
+
   glDeleteTextures(1, &skyboxTextureId);
 
   delete nanoSuitModel;
@@ -178,6 +182,8 @@ void ReflectRefractScene::deinit()
 void ReflectRefractScene::drawFrame()
 {
   FirstPersonScene::drawFrame();
+
+  glBindFramebuffer(GL_FRAMEBUFFER, drawFramebuffer.id);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   float32 currTime = (float32)glfwGetTime() - initTime;
@@ -282,43 +288,28 @@ void ReflectRefractScene::drawFrame()
 void ReflectRefractScene::inputStatesUpdated() {
   FirstPersonScene::inputStatesUpdated();
 
-  if(hotPress(KeyboardInput_Up)) {
+  if(hotPress(KeyboardInput_Up) || hotPress(Controller1Input_L1)) {
     nextModelReflaction();
   }
 
-  if(hotPress(KeyboardInput_Down)) {
+  if(hotPress(KeyboardInput_Down) || hotPress(Controller1Input_R1)) {
     prevModelReflaction();
   }
 
-  if(hotPress(KeyboardInput_Left)) {
+  if(hotPress(KeyboardInput_Left) || hotPress(Controller1Input_X)) {
     prevMode();
   }
 
-  if(hotPress(KeyboardInput_Right)) {
+  if(hotPress(KeyboardInput_Right) || hotPress(Controller1Input_Y)) {
     nextMode();
   }
-}
 
-// TODO: reintroduce when controller input is complete
-//void ReflectRefractScene::button_dPadUp_pressed()
-//{
-//  nextModelReflaction();
-//}
-//
-//void ReflectRefractScene::button_dPadDown_pressed()
-//{
-//  prevModelReflaction();
-//}
-//
-//void ReflectRefractScene::button_dPadLeft_pressed()
-//{
-//  prevMode();
-//}
-//
-//void ReflectRefractScene::button_dPadRight_pressed()
-//{
-//  nextMode();
-//}
+  if(isActive(WindowInput_SizeChange))
+  {
+    deleteFramebuffer(&drawFramebuffer);
+    drawFramebuffer = initializeFramebuffer(windowWidth, windowHeight);
+  }
+}
 
 void ReflectRefractScene::nextModelReflaction()
 {
@@ -362,4 +353,9 @@ void ReflectRefractScene::prevMode()
     else if (currMode == NormalVisualization) currMode = Exploding;
     modeSwitchTimer = currentTime;
   }
+}
+
+Framebuffer ReflectRefractScene::getDrawFramebuffer()
+{
+  return drawFramebuffer;
 }

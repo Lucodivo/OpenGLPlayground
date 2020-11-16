@@ -10,6 +10,8 @@ public:
   AsteroidBeltScene();
   void init(uint32 windowWidth, uint32 windowHeight);
   void deinit();
+  Framebuffer getDrawFramebuffer();
+  void inputStatesUpdated();
   void drawFrame();
   const char* title();
 
@@ -22,6 +24,8 @@ private:
 
   Model* planetModel = NULL;
   Model* asteroidModel = NULL;
+
+  Framebuffer drawFramebuffer;
 
   VertexAtt skyboxVertexAtt = {};
 

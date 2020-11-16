@@ -20,7 +20,9 @@ void Pixel2DScene::init(uint32 windowWidth, uint32 windowHeight)
 
   pixel2DShader = new Shader(pixel2DVertexShaderFileLoc, textureFragmentShaderFileLoc);
           
-  quadVertexAtt = initializeFrameBufferQuadVertexAttBuffers();
+  quadVertexAtt = initializeFramebufferQuadVertexAttBuffers();
+
+  drawFramebuffer = initializeFramebuffer(windowWidth, windowHeight);
 
   // background clear color
   glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -57,6 +59,8 @@ void Pixel2DScene::deinit()
   
   deleteVertexAtt(quadVertexAtt);
 
+  deleteFramebuffer(&drawFramebuffer);
+
   glDeleteTextures(1, &textureId);
 
   glDisable(GL_FRAMEBUFFER_SRGB);
@@ -70,6 +74,7 @@ void Pixel2DScene::drawFrame()
   deltaTime = t - lastFrame;
   lastFrame = t;
 
+  glBindFramebuffer(GL_FRAMEBUFFER, drawFramebuffer.id);
   glClear(GL_COLOR_BUFFER_BIT);
 
   glDrawElements(GL_TRIANGLES, // drawing mode
@@ -83,6 +88,9 @@ void Pixel2DScene::inputStatesUpdated() {
 
   if(isActive(WindowInput_SizeChange))
   {
+    deleteFramebuffer(&drawFramebuffer);
+    drawFramebuffer = initializeFramebuffer(windowWidth, windowHeight);
+
     uint32 widthOffset = (windowWidth / 2) - (textureWidth / 2);
     uint32 heightOffset = (windowHeight / 2) - (textureHeight / 2);
 
@@ -90,4 +98,9 @@ void Pixel2DScene::inputStatesUpdated() {
     pixel2DShader->setUniform("windowDimens", glm::vec2(windowWidth, windowHeight));
     pixel2DShader->setUniform("lowerLeftOffset", glm::vec2(widthOffset, heightOffset));
   }
+}
+
+Framebuffer Pixel2DScene::getDrawFramebuffer()
+{
+  return drawFramebuffer;
 }

@@ -22,7 +22,9 @@ void InfiniteCapsulesScene::init(uint32 windowWidth, uint32 windowHeight)
 
   rayMarchingShader = new Shader(UVCoordVertexShaderFileLoc, InfiniteCapsulesFragmentShaderFileLoc);
 
-  quadVertexAtt = initializeFrameBufferQuadVertexAttBuffers();
+  quadVertexAtt = initializeFramebufferQuadVertexAttBuffers();
+
+  drawFramebuffer = initializeFramebuffer(windowWidth, windowHeight, false);
 
   rayMarchingShader->use();
   rayMarchingShader->setUniform("viewPortResolution", glm::vec2(windowWidth, windowHeight));
@@ -45,6 +47,8 @@ void InfiniteCapsulesScene::deinit() {
   delete rayMarchingShader;
 
   deleteVertexAtt(quadVertexAtt);
+
+  deleteFramebuffer(&drawFramebuffer);
 }
 
 void InfiniteCapsulesScene::drawFrame() {
@@ -54,6 +58,7 @@ void InfiniteCapsulesScene::drawFrame() {
   deltaTime = t - lastFrame;
   lastFrame = t;
 
+  glBindFramebuffer(GL_FRAMEBUFFER, drawFramebuffer.id);
   glClear(GL_COLOR_BUFFER_BIT);
 
   glm::mat4 cameraRotationMatrix = camera.UpdateViewMatrix(deltaTime, cameraMovementSpeed * 4.0f, false);
@@ -85,7 +90,16 @@ void InfiniteCapsulesScene::inputStatesUpdated() {
 
   if(isActive(WindowInput_SizeChange)) {
     Extent2D extent2D = getWindowExtent();
+
+    deleteFramebuffer(&drawFramebuffer);
+    drawFramebuffer = initializeFramebuffer(windowWidth, windowHeight, false);
+
     rayMarchingShader->use();
     rayMarchingShader->setUniform("viewPortResolution", glm::vec2(extent2D.x, extent2D.y));
   }
+}
+
+Framebuffer InfiniteCapsulesScene::getDrawFramebuffer()
+{
+  return drawFramebuffer;
 }

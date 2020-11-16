@@ -10,6 +10,8 @@ public:
   void init(uint32 windowWidth, uint32 windowHeight);
   void deinit();
   void drawFrame();
+  Framebuffer getDrawFramebuffer();
+  void inputStatesUpdated();
   const char* title();
 
 private:
@@ -20,6 +22,8 @@ private:
 
   VertexAtt cubeVertexAtt;
   VertexAtt invertedNormCubeVertexAtt;
+
+  Framebuffer drawFramebuffer;
 
   uint32 depthCubeMapId, depthMapFBO;
   uint32 wallpaperTextureId, cubeTextureId;

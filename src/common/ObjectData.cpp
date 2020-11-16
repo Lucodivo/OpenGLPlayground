@@ -344,7 +344,7 @@ VertexAtt initializeQuadPosNormTexTanBiVertexAttBuffers() {
   return vertexAtt;
 }
 
-VertexAtt initializeFrameBufferQuadVertexAttBuffers() {
+VertexAtt initializeFramebufferQuadVertexAttBuffers() {
   VertexAtt vertexAtt;
   glGenVertexArrays(1, &vertexAtt.arrayObject);
   glGenBuffers(1, &vertexAtt.bufferObject);

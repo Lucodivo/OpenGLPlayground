@@ -15,6 +15,7 @@ public:
   void init(uint32 windowWidth, uint32 windowHeight);
   void deinit();
   void drawFrame();
+  Framebuffer getDrawFramebuffer();
   void inputStatesUpdated();
   const char* title();
 
@@ -31,6 +32,8 @@ private:
 
   VertexAtt cubeVertexAtt;
   VertexAtt skyboxVertexAtt;
+
+  Framebuffer drawFramebuffer;
 
   Model* nanoSuitModel;
   glm::mat4 nanoSuitModelMat;

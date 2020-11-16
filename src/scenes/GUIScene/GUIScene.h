@@ -22,6 +22,7 @@ public:
   void init(uint32 windowWidth, uint32 windowHeight);
   void deinit();
   void drawFrame();
+  Framebuffer getDrawFramebuffer();
   void inputStatesUpdated();
   const char* title();
 
@@ -33,6 +34,8 @@ private:
   Shader* cubeShader;
 
   VertexAtt cubeVertexAtt;
+
+  Framebuffer drawFramebuffer;
 
   float32 startTime = 0;
   float32 deltaTime = 0;

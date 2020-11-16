@@ -27,6 +27,8 @@ void RoomScene::init(uint32 windowWidth, uint32 windowHeight)
   cubeVertexAtt = initializeCubePosNormTexVertexAttBuffers();
   invertedNormCubeVertexAtt = initializeCubePosNormTexVertexAttBuffers(true);
 
+  drawFramebuffer = initializeFramebuffer(windowWidth, windowHeight);
+
   load2DTexture(hardwoodTextureLoc, wallpaperTextureId, false, true);
   load2DTexture(cementAlbedoTextureLoc, cubeTextureId, false, true);
   generateDepthCubeMap();
@@ -118,6 +120,8 @@ void RoomScene::deinit()
   
   VertexAtt deleteVertexAttributes[] = { cubeVertexAtt, invertedNormCubeVertexAtt };
   deleteVertexAtts(ArrayCount(deleteVertexAttributes), deleteVertexAttributes);
+
+  deleteFramebuffer(&drawFramebuffer);
   
   uint32 deleteTextures[] = { wallpaperTextureId, cubeTextureId, depthCubeMapId };
   glDeleteTextures(ArrayCount(deleteTextures), deleteTextures);
@@ -193,7 +197,7 @@ void RoomScene::drawFrame()
                  0); // offset in the EBO
 
   // bind default frame buffer
-  glBindFramebuffer(GL_FRAMEBUFFER, 0);
+  glBindFramebuffer(GL_FRAMEBUFFER, drawFramebuffer.id);
   // render scene using the depth cube map for shadows
   glViewport(0, 0, windowWidth, windowHeight);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -268,4 +272,20 @@ void RoomScene::generateDepthCubeMap()
   glDrawBuffer(GL_NONE);
   glReadBuffer(GL_NONE);
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+Framebuffer RoomScene::getDrawFramebuffer()
+{
+  return drawFramebuffer;
+}
+
+void RoomScene::inputStatesUpdated()
+{
+  FirstPersonScene::inputStatesUpdated();
+
+  if(isActive(WindowInput_SizeChange))
+  {
+    deleteFramebuffer(&drawFramebuffer);
+    drawFramebuffer = initializeFramebuffer(windowWidth, windowHeight);
+  }
 }

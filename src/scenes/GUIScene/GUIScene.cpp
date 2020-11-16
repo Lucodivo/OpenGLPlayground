@@ -29,6 +29,8 @@ void GUIScene::init(uint32 windowWidth, uint32 windowHeight)
   cubeShader = new Shader(posVertexShaderFileLoc, SingleColorFragmentShaderFileLoc);
 
   cubeVertexAtt = initializeCubePositionVertexAttBuffers();
+
+  drawFramebuffer = initializeFramebuffer(windowWidth, windowHeight);
   
   projectionMat = glm::perspective(glm::radians(camera.Zoom), (float32)windowWidth / (float32)windowHeight, 0.1f, 100.0f);
 
@@ -74,6 +76,8 @@ void GUIScene::deinit()
   delete cubeShader;
   
   deleteVertexAtt(cubeVertexAtt);
+
+  deleteFramebuffer(&drawFramebuffer);
 }
 
 void GUIScene::drawFrame()
@@ -84,6 +88,7 @@ void GUIScene::drawFrame()
   deltaTime = t - lastFrame;
   lastFrame = t;
 
+  glBindFramebuffer(GL_FRAMEBUFFER, drawFramebuffer.id);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   viewMat = camera.UpdateViewMatrix(deltaTime, cameraMovementSpeed);
@@ -137,6 +142,12 @@ void GUIScene::inputStatesUpdated() {
     cursorModeEnabled = !cursorModeEnabled;
     enableDefaultMouseCameraMovement(!cursorModeEnabled); // if cursor mode, disable defauly mouse camera control
     enableCursor(window, cursorModeEnabled);
+  }
+
+  if(isActive(WindowInput_SizeChange))
+  {
+    deleteFramebuffer(&drawFramebuffer);
+    drawFramebuffer = initializeFramebuffer(windowWidth, windowHeight);
   }
 }
 
@@ -204,4 +215,9 @@ bool GUIScene::checkCubeCollision(glm::vec3* worldRay, glm::vec3* rayOrigin, Cub
   // If the time of the collisions is negative, an intersection happened "behind" the origin and we don't consider the intersection
   return tmin > 0.0f || tmax > 0.0f;
 
+}
+
+Framebuffer GUIScene::getDrawFramebuffer()
+{
+  return drawFramebuffer;
 }

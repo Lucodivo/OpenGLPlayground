@@ -24,6 +24,8 @@ void MandelbrotScene::init(uint32 windowWidth, uint32 windowHeight)
     centerOffset *= glm::vec2(widthRatio, heightRatio);
   }
 
+  drawFramebuffer = initializeFramebuffer(windowWidth, windowHeight, false);
+
   oldWindowExtent = { (int32)windowWidth, (int32)windowHeight };
 
   mandelbrotShader = new Shader(UVCoordVertexShaderFileLoc, MandelbrotFragmentShaderFileLoc);
@@ -32,7 +34,7 @@ void MandelbrotScene::init(uint32 windowWidth, uint32 windowHeight)
 
   enableCursor(window, true);
 
-  quadVertexAtt = initializeFrameBufferQuadVertexAttBuffers();
+  quadVertexAtt = initializeFramebufferQuadVertexAttBuffers();
 
   glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
   glDisable(GL_DEPTH_TEST);
@@ -46,6 +48,8 @@ void MandelbrotScene::init(uint32 windowWidth, uint32 windowHeight)
 void MandelbrotScene::deinit()
 {
   Scene::deinit();
+
+  deleteFramebuffer(&drawFramebuffer);
 
   mandelbrotShader->deleteShaderResources();
   delete mandelbrotShader;
@@ -61,6 +65,7 @@ void MandelbrotScene::drawFrame()
   deltaTime = t - lastFrame;
   lastFrame = t;
 
+  glBindFramebuffer(GL_FRAMEBUFFER, drawFramebuffer.id);
   glClear(GL_COLOR_BUFFER_BIT);
 
   mandelbrotShader->setUniform("elapsedTime", t); // used with HexagonPlayground, NOT mandelbrot shader
@@ -79,7 +84,10 @@ void MandelbrotScene::inputStatesUpdated() {
   Scene::inputStatesUpdated();
 
   if(isActive(WindowInput_SizeChange)) {
-    Extent2D extent2D = getWindowExtent();\
+    Extent2D extent2D = getWindowExtent();
+
+    deleteFramebuffer(&drawFramebuffer);
+    drawFramebuffer = initializeFramebuffer(windowWidth, windowHeight, false);
 
     mandelbrotShader->use();
     mandelbrotShader->setUniform("viewPortResolution", glm::vec2(extent2D.x, extent2D.y));
@@ -127,4 +135,9 @@ void MandelbrotScene::inputStatesUpdated() {
   } else if (leftShiftState == INPUT_HOT_RELEASE) {
     zoomSpeed = ZOOM_SPEED_NORMAL;
   }
+}
+
+Framebuffer MandelbrotScene::getDrawFramebuffer()
+{
+  return drawFramebuffer;
 }

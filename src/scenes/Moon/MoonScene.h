@@ -10,6 +10,8 @@ public:
   void init(uint32 windowWidth, uint32 windowHeight);
   void deinit();
   void drawFrame();
+  Framebuffer getDrawFramebuffer();
+  void inputStatesUpdated();
   const char* title();
 
 private:
@@ -27,7 +29,8 @@ private:
   uint32 cube3AlbedoTextureId, cube3NormalTextureId, cube3HeightTextureId;
   uint32 lightTextureId;
 
-  uint32 depthMapTextureId, depthMapFBO;
+  Framebuffer drawFramebuffer;
+  Framebuffer depthMapFramebuffer;
   uint32 depthMap2DSamplerIndex;
 
   float32 startTime = 0.0f;

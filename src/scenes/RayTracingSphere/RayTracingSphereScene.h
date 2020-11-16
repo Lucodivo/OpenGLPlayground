@@ -14,6 +14,7 @@ public:
   void init(uint32 windowWidth, uint32 windowHeight);
   void deinit();
   void drawFrame();
+  Framebuffer getDrawFramebuffer();
   void inputStatesUpdated();
   const char* title();
 
@@ -22,6 +23,8 @@ private:
   Shader* rayTracingSphereShader = NULL;
 
   VertexAtt quadVertexAtt = {};
+
+  Framebuffer drawFramebuffer;
 
   float32 deltaTime = 0;
   float32 lastFrame = 0;

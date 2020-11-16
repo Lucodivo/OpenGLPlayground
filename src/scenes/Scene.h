@@ -5,6 +5,7 @@
 #include "../LearnOpenGLPlatform.h"
 #include "../common/Input.h"
 #include "../Shader.h"
+#include "../common/Util.h"
 
 class Scene : public InputConsumer
 {
@@ -16,6 +17,7 @@ public:
   virtual void drawFrame() {} // draws scene to back buffer
   virtual void drawGui() {};
   virtual void inputStatesUpdated();
+  virtual Framebuffer getDrawFramebuffer() = 0;
   virtual const char* title();
 
 protected:

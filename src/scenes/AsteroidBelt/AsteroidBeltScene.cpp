@@ -20,6 +20,8 @@ void AsteroidBeltScene::init(uint32 windowWidth, uint32 windowHeight)
 
   skyboxVertexAtt = initializeCubePositionVertexAttBuffers();
 
+  drawFramebuffer = initializeFramebuffer(windowWidth, windowHeight);
+
   modelShader = new Shader(posNormalVertexShaderFileLoc, skyboxReflectionFragmentShaderFileLoc);
   modelInstanceShader = new Shader(AsteroidVertexShaderFileLoc, textureModelFragmentShaderFileLoc);
   reflectModelInstanceShader = new Shader(AsteroidVertexShaderFileLoc, skyboxReflectionFragmentShaderFileLoc);
@@ -133,6 +135,8 @@ void AsteroidBeltScene::deinit()
 
   deleteVertexAtt(skyboxVertexAtt);
 
+  deleteFramebuffer(&drawFramebuffer);
+
   modelShader->deleteShaderResources();
   modelInstanceShader->deleteShaderResources();
   reflectModelInstanceShader->deleteShaderResources();
@@ -154,6 +158,7 @@ void AsteroidBeltScene::deinit()
 void AsteroidBeltScene::drawFrame()
 {
   FirstPersonScene::drawFrame();
+  glBindFramebuffer(GL_FRAMEBUFFER, drawFramebuffer.id);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);           // OpenGL state-using function
 
   float32 t = (float32)glfwGetTime();
@@ -186,15 +191,30 @@ void AsteroidBeltScene::drawFrame()
   }
 
   // draw skybox
-  skyboxShader->use();
-
   glBindVertexArray(skyboxVertexAtt.arrayObject);
-
+  skyboxShader->use();
   glm::mat4 viewMinusTranslation = glm::mat4(glm::mat3(viewMat));
   skyboxShader->setUniform("view", viewMinusTranslation);
-
   glDrawElements(GL_TRIANGLES, // drawing mode
                  36, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
                  GL_UNSIGNED_INT, // type of the indices
                  0); // offset in the EBO
+}
+
+
+
+Framebuffer AsteroidBeltScene::getDrawFramebuffer()
+{
+  return drawFramebuffer;
+}
+
+void AsteroidBeltScene::inputStatesUpdated()
+{
+  FirstPersonScene::inputStatesUpdated();
+
+  if(isActive(WindowInput_SizeChange))
+  {
+    deleteFramebuffer(&drawFramebuffer);
+    drawFramebuffer = initializeFramebuffer(windowWidth, windowHeight);
+  }
 }

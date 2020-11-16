@@ -20,16 +20,20 @@ const char* RayTracingSphereScene::title()
 void RayTracingSphereScene::init(uint32 windowWidth, uint32 windowHeight)
 {
   FirstPersonScene::init(windowWidth, windowHeight);
-  rayTracingSphereShader = new Shader(UVCoordVertexShaderFileLoc, RayTracingSphereFragmentShaderFileLoc);
-  rayTracingSphereShader->use();
-  rayTracingSphereShader->setUniform("viewPortResolution", glm::vec2(windowWidth, windowHeight));
-  VertexAtt quadVertexAtt = initializeFrameBufferQuadVertexAttBuffers();
+
+  quadVertexAtt = initializeFramebufferQuadVertexAttBuffers();
+
+  drawFramebuffer = initializeFramebuffer(windowWidth, windowHeight);
 
   glBindVertexArray(quadVertexAtt.arrayObject);
 
   glDisable(GL_DEPTH_TEST);
 
   glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+
+  rayTracingSphereShader = new Shader(UVCoordVertexShaderFileLoc, RayTracingSphereFragmentShaderFileLoc);
+  rayTracingSphereShader->use();
+  rayTracingSphereShader->setUniform("viewPortResolution", glm::vec2(windowWidth, windowHeight));
 
   lastFrame = (float32)glfwGetTime();
   startTime = lastFrame;
@@ -43,6 +47,8 @@ void RayTracingSphereScene::deinit()
   delete rayTracingSphereShader;
 
   deleteVertexAtt(quadVertexAtt);
+
+  deleteFramebuffer(&drawFramebuffer);
 }
 
 void RayTracingSphereScene::drawFrame()
@@ -59,6 +65,7 @@ void RayTracingSphereScene::drawFrame()
   deltaTime = t - lastFrame;
   lastFrame = t;
 
+  glBindFramebuffer(GL_FRAMEBUFFER, drawFramebuffer.id);
   glClear(GL_COLOR_BUFFER_BIT);
 
   glm::mat4 cameraRotationMatrix = camera.UpdateViewMatrix(deltaTime, cameraMovementSpeed * 4.0f, false);
@@ -77,7 +84,16 @@ void RayTracingSphereScene::inputStatesUpdated() {
 
   if(isActive(WindowInput_SizeChange)) {
     Extent2D windowExtent = getWindowExtent();
+
+    deleteFramebuffer(&drawFramebuffer);
+    drawFramebuffer = initializeFramebuffer(windowWidth, windowHeight);
+
     rayTracingSphereShader->use();
     rayTracingSphereShader->setUniform("viewPortResolution", glm::vec2(windowExtent.x, windowExtent.y));
   }
+}
+
+Framebuffer RayTracingSphereScene::getDrawFramebuffer()
+{
+  return drawFramebuffer;
 }

@@ -9,7 +9,7 @@
 #define SNAPSHOT_NAME_FORMAT "build/SaveData/snapshot_%Y%m%d_%H%M%S.bmp"
 #define SNAPSHOT_NAME_SIZE 44
 
-void snapshot(int width, int height, uint32 frameBuffer)
+void snapshot(int width, int height, uint32 framebuffer)
 {
   const uint32 bytesPerPixel = 3;
   uint32 bmpSize = width * height * bytesPerPixel;
@@ -44,7 +44,7 @@ void snapshot(int width, int height, uint32 frameBuffer)
 
   GLint originalReadFramebuffer;
   glGetIntegerv(GL_READ_FRAMEBUFFER_BINDING, &originalReadFramebuffer);
-  glBindFramebuffer(GL_READ_FRAMEBUFFER, frameBuffer);
+  glBindFramebuffer(GL_READ_FRAMEBUFFER, framebuffer);
   glReadPixels((GLint)0, (GLint)0,
                (GLint)width, (GLint)height,
                GL_BGR, GL_UNSIGNED_BYTE, bmpBuffer);
@@ -140,27 +140,32 @@ void loadCubeMapTexture(const char* const imgLocations[6], uint32& textureId, bo
   }
 }
 
-Framebuffer initializeFrameBuffer(uint32 width, uint32 height)
+Framebuffer initializeFramebuffer(uint32 width, uint32 height, bool depthStencil)
 {
   Framebuffer resultBuffer;
+  resultBuffer.width = width;
+  resultBuffer.height = height;
+
+  GLint originalDrawFramebuffer, originalReadFramebuffer, originalActiveTexture, originalTexture0;
 
   // creating frame buffer
   glGenFramebuffers(1, &resultBuffer.id);
+  glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &originalDrawFramebuffer);
+  glGetIntegerv(GL_READ_FRAMEBUFFER_BINDING, &originalReadFramebuffer);
   glBindFramebuffer(GL_FRAMEBUFFER, resultBuffer.id);
 
   // creating frame buffer color texture
   glGenTextures(1, &resultBuffer.colorAttachment);
+  glGetIntegerv(GL_ACTIVE_TEXTURE, &originalActiveTexture);
   // NOTE: Binding the texture to the GL_TEXTURE_2D target, means that
   // NOTE: gl operations on the GL_TEXTURE_2D target will affect our texture
   // NOTE: while it is remains bound to that target
   glActiveTexture(GL_TEXTURE0);
-  GLint originalTexture;
-  glGetIntegerv(GL_ACTIVE_TEXTURE, &originalTexture);
+  glGetIntegerv(GL_TEXTURE_BINDING_2D, &originalTexture0);
   glBindTexture(GL_TEXTURE_2D, resultBuffer.colorAttachment);
   glTexImage2D(GL_TEXTURE_2D, 0/*LoD*/, GL_RGB, width, height, 0/*border*/, GL_RGB, GL_UNSIGNED_BYTE, NULL);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  glBindTexture(GL_TEXTURE_2D, originalTexture); // re-bind original texture
 
   // attach texture w/ color to frame buffer
   glFramebufferTexture2D(GL_FRAMEBUFFER, // frame buffer we're targeting (draw, read, or both)
@@ -169,46 +174,64 @@ Framebuffer initializeFrameBuffer(uint32 width, uint32 height)
                          resultBuffer.colorAttachment, // texture
                          0); // mipmap level
 
-  // creating render buffer to be depth/stencil buffer
-  glGenRenderbuffers(1, &resultBuffer.depthStencilAttachment);
-  glBindRenderbuffer(GL_RENDERBUFFER, resultBuffer.depthStencilAttachment);
-  glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
-  glBindRenderbuffer(GL_RENDERBUFFER, 0); // unbind
-  // attach render buffer w/ depth & stencil to frame buffer
-  glFramebufferRenderbuffer(GL_FRAMEBUFFER, // frame buffer target
-                            GL_DEPTH_STENCIL_ATTACHMENT, // attachment point of frame buffer
-                            GL_RENDERBUFFER, // render buffer target
-                            resultBuffer.depthStencilAttachment);  // render buffer
+   if(depthStencil)
+   {
+     // creating render buffer to be depth/stencil buffer
+     glGenRenderbuffers(1, &resultBuffer.depthStencilAttachment);
+     glBindRenderbuffer(GL_RENDERBUFFER, resultBuffer.depthStencilAttachment);
+     glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
+     glBindRenderbuffer(GL_RENDERBUFFER, 0); // unbind
+     // attach render buffer w/ depth & stencil to frame buffer
+     glFramebufferRenderbuffer(GL_FRAMEBUFFER, // frame buffer target
+                               GL_DEPTH_STENCIL_ATTACHMENT, // attachment point of frame buffer
+                               GL_RENDERBUFFER, // render buffer target
+                               resultBuffer.depthStencilAttachment);  // render buffer
+   } else {
+     resultBuffer.depthStencilAttachment = NO_FRAMEBUFFER_ATTACHMENT;
+   }
 
   if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
   {
     std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
   }
-  glBindFramebuffer(GL_FRAMEBUFFER, 0);
+  glBindFramebuffer(GL_DRAW_FRAMEBUFFER, originalDrawFramebuffer);
+  glBindFramebuffer(GL_READ_FRAMEBUFFER, originalReadFramebuffer);
+  glBindTexture(GL_TEXTURE_2D, originalTexture0); // re-bind original texture
+  glActiveTexture(originalActiveTexture);
   return resultBuffer;
 }
 
-void deleteFrameBuffer(Framebuffer framebuffer)
+void deleteFramebuffer(Framebuffer* framebuffer)
 {
-  glDeleteFramebuffers(1, &framebuffer.id);
-  glDeleteTextures(1, &framebuffer.colorAttachment);
-  glDeleteRenderbuffers(1, &framebuffer.depthStencilAttachment);
+  glDeleteFramebuffers(1, &framebuffer->id);
+  glDeleteTextures(1, &framebuffer->colorAttachment);
+  if(framebuffer->depthStencilAttachment != NO_FRAMEBUFFER_ATTACHMENT){
+    glDeleteRenderbuffers(1, &framebuffer->depthStencilAttachment);
+  }
+  *framebuffer = { 0, 0, 0, 0, 0 };
 }
 
-void deleteFrameBuffers(uint32 count, Framebuffer* framebuffer)
+void deleteFramebuffers(uint32 count, Framebuffer** framebuffer)
 {
   uint32* deleteFramebufferObjects = new uint32[count * 3];
   uint32* deleteColorAttachments = deleteFramebufferObjects + count;
   uint32* deleteDepthStencilAttachments = deleteColorAttachments + count;
+  uint32 depthStencilCount = 0;
   for(uint32 i = 0; i < count; i++) {
-    deleteFramebufferObjects[i] = framebuffer[i].id;
-    deleteColorAttachments[i] = framebuffer[i].colorAttachment;
-    deleteDepthStencilAttachments[i] = framebuffer[i].depthStencilAttachment;
+    deleteFramebufferObjects[i] = framebuffer[i]->id;
+    deleteColorAttachments[i] = framebuffer[i]->colorAttachment;
+    if(framebuffer[i]->depthStencilAttachment != NO_FRAMEBUFFER_ATTACHMENT)
+    {
+      deleteDepthStencilAttachments[depthStencilCount++] = framebuffer[i]->depthStencilAttachment;
+      *(framebuffer[i]) = { 0, 0, 0, 0, 0 };
+    }
   }
 
   glDeleteFramebuffers(count, deleteFramebufferObjects);
   glDeleteTextures(count, deleteColorAttachments);
-  glDeleteRenderbuffers(count, deleteDepthStencilAttachments);
+  if(depthStencilCount != 0) {
+    glDeleteRenderbuffers(depthStencilCount, deleteDepthStencilAttachments);
+  }
 
   delete[] deleteFramebufferObjects;
 }

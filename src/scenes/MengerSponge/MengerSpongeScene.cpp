@@ -29,11 +29,11 @@ void MengerSpongeScene::init(uint32 windowWidth, uint32 windowHeight)
   pixel2DShader = new Shader(pixel2DVertexShaderFileLoc, textureFragmentShaderFileLoc);
   cubeShader = new Shader(CubePosNormTexVertexShaderFileLoc, CubeTextureFragmentShaderFileLoc);
 
-  quadVertexAtt = initializeFrameBufferQuadVertexAttBuffers();
+  quadVertexAtt = initializeFramebufferQuadVertexAttBuffers();
   cubeVertexAtt = initializeCubePosNormTexVertexAttBuffers();
 
   resolution largestResolution = screenResolutions[ArrayCount(screenResolutions) - 1];
-  dynamicResolutionFBO = initializeFrameBuffer(largestResolution.width, largestResolution.height);
+  dynamicResolutionFBO = initializeFramebuffer(largestResolution.width, largestResolution.height);
 
   // NOTE: This is helps maintain same projection for both the ray marching and rasterization
   // If how we shoot rays change, this must change. If this changes, how we shoot rays must change.
@@ -105,7 +105,7 @@ void MengerSpongeScene::deinit()
   VertexAtt deleteVertexAttributes[] = { quadVertexAtt, cubeVertexAtt };
   deleteVertexAtts(ArrayCount(deleteVertexAttributes), deleteVertexAttributes);
 
-  deleteFrameBuffer(dynamicResolutionFBO);
+  deleteFramebuffer(&dynamicResolutionFBO);
 
   uint32 deleteTextures[] = { textureDiff1Id, textureSpec1Id, textureDiff2Id, textureSpec2Id };
   glDeleteTextures(ArrayCount(deleteTextures), deleteTextures);
@@ -192,12 +192,17 @@ void MengerSpongeScene::drawFrame()
 //                   6, // number of elements to draw (3 vertices per triangle * 2 triangles per quad)
 //                   GL_UNSIGNED_INT, // type of the indices
 //                   0); // offset in the EBO
+}
 
-  // bind our frame buffer
-  //NOTE: dynamicResolutionFBO is already bound to GL_READ_FRAMEBUFFER
-  glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-  glBlitFramebuffer(0, 0, currentResolution.width, currentResolution.height, 0, 0, windowWidth, windowHeight, GL_COLOR_BUFFER_BIT, GL_NEAREST);
-  glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+Framebuffer MengerSpongeScene::getDrawFramebuffer() {
+  Framebuffer returnFramebuffer = {
+          dynamicResolutionFBO.id,
+          dynamicResolutionFBO.colorAttachment,
+          dynamicResolutionFBO.depthStencilAttachment,
+          currentResolution.width,
+          currentResolution.height
+  };
+  return returnFramebuffer;
 }
 
 void MengerSpongeScene::drawGui()

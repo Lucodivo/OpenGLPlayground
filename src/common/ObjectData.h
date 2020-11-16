@@ -16,7 +16,7 @@ void cubeAttributeIndicesBackToFront(glm::vec3 viewPosCubeSpace, uint32* cubeAtt
 void cubeAttributeIndicesBackToFront(glm::vec3 viewPos, glm::mat3 cubeModel, uint32* cubeAttrIndices);
 VertexAtt initializeQuadPosNormTexVertexAttBuffers();
 VertexAtt initializeQuadPosNormTexTanBiVertexAttBuffers();
-VertexAtt initializeFrameBufferQuadVertexAttBuffers();
+VertexAtt initializeFramebufferQuadVertexAttBuffers();
 void deleteVertexAtt(VertexAtt vertexAtt);
 void deleteVertexAtts(uint32 count, VertexAtt* vertexAtts);
 

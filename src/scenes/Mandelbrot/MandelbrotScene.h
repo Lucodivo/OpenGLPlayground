@@ -17,12 +17,15 @@ public:
   void init(uint32 windowWidth, uint32 windowHeight);
   void deinit();
   void drawFrame();
+  Framebuffer getDrawFramebuffer();
   void inputStatesUpdated();
   const char* title();
 
 private:
 
   Extent2D oldWindowExtent = { 0, 0 };
+
+  Framebuffer drawFramebuffer;
 
   GLFWwindow* window = NULL;
 

@@ -43,6 +43,7 @@ public:
   void init(uint32 windowWidth, uint32 windowHeight);
   void deinit();
   void drawFrame();
+  Framebuffer getDrawFramebuffer();
   void inputStatesUpdated();
   const char* title();
 
@@ -63,7 +64,7 @@ private:
   float32 deltaTime = 0.0f;  // Time between current frame and last frame
   float32 lastFrame = 0.0f; // Time of last frame
 
-  Framebuffer framebuffer;
-  uint32 framebufferDimen;
+  Framebuffer drawFramebuffer;
+  Framebuffer infiniteCubeTextureFramebuffer;
   uint32 colorIndex = 0;
 };

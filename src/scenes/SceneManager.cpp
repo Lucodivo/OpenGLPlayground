@@ -30,13 +30,19 @@ void loadLastSceneIndex(uint32* sceneIndex);
 
 class EmptyScene : public Scene
 {
+  Framebuffer drawFramebuffer;
   void init(uint32 windowWidth, uint32 windowHeight) {
     Scene::init(windowWidth, windowHeight);
+    drawFramebuffer = { 0, 0, 0, 1, 1 };
     glClearColor( 0.0f, 0.0f, 0.0f, 0.0f );
   }
   const char* title() { return "Empty Scene"; }
   void drawFrame() {
+    glBindFramebuffer(GL_FRAMEBUFFER, drawFramebuffer.id);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+  }
+  Framebuffer getDrawFramebuffer() {
+    return drawFramebuffer;
   }
 };
 
@@ -117,6 +123,11 @@ void runScenes(GLFWwindow* window) {
     ImGui::NewFrame();
 
     scenes[sceneIndex]->drawFrame();
+
+    Framebuffer sceneFramebuffer = scenes[sceneIndex]->getDrawFramebuffer();
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+    glBindFramebuffer(GL_READ_FRAMEBUFFER, sceneFramebuffer.id);
+    glBlitFramebuffer(0, 0, sceneFramebuffer.width, sceneFramebuffer.height, 0, 0, windowExtent.x, windowExtent.y, GL_COLOR_BUFFER_BIT, GL_NEAREST);
 
     // We want to take a screen shot before rendering GUI
     if(isActive(KeyboardInput_Alt_Left) && hotPress(KeyboardInput_Backtick))

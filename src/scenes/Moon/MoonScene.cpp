@@ -44,8 +44,9 @@ void MoonScene::init(uint32 windowWidth, uint32 windowHeight)
   load2DTexture(whiteSpruceHeightTextureLoc, cube3HeightTextureId, false, false);
   
   load2DTexture(moonTextureAlbedoLoc, lightTextureId, false, true);
-  
+
   generateDepthMap();
+  drawFramebuffer = initializeFramebuffer(windowWidth, windowHeight);
 
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, floorAlbedoTextureId);
@@ -151,11 +152,13 @@ void MoonScene::deinit()
                               cube2AlbedoTextureId, cube2NormalTextureId, cube2HeightTextureId,
                               cube3AlbedoTextureId, cube3NormalTextureId, cube3HeightTextureId,
                               lightTextureId,
-                              depthMapTextureId };
+                              depthMapFramebuffer.depthStencilAttachment };
   glDeleteTextures(ArrayCount(deleteTextures), deleteTextures);
 
   glDeleteBuffers(1, &globalVSUniformBuffer);
-  glDeleteFramebuffers(1, &depthMapFBO);
+  glDeleteFramebuffers(1, &depthMapFramebuffer.id);
+  deleteFramebuffer(&drawFramebuffer);
+  depthMapFramebuffer = { 0, 0, 0, 0, 0 };
 }
 
 void MoonScene::drawFrame()
@@ -206,7 +209,7 @@ void MoonScene::drawFrame()
   depthMapShader->use();
   depthMapShader->setUniform("lightSpaceMatrix", lightSpaceMatrix);
   glViewport(0, 0, SHADOW_MAP_WIDTH, SHADOW_MAP_HEIGHT);
-  glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+  glBindFramebuffer(GL_FRAMEBUFFER, depthMapFramebuffer.id);
   glClear(GL_DEPTH_BUFFER_BIT);
 
   // depth map for floor
@@ -237,14 +240,13 @@ void MoonScene::drawFrame()
                  GL_UNSIGNED_INT, // type of the indices
                  0); // offset in the EBO
 
-  glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
   // render scene using the depth map for shadows (using depth map)
+  glBindFramebuffer(GL_FRAMEBUFFER, drawFramebuffer.id);
   glViewport(0, 0, windowWidth, windowHeight);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   glActiveTexture(GL_TEXTURE0 + depthMap2DSamplerIndex);
-  glBindTexture(GL_TEXTURE_2D, depthMapTextureId);
+  glBindTexture(GL_TEXTURE_2D, depthMapFramebuffer.depthStencilAttachment);
 
   // draw moon billboard (directional light representation)
   quadTextureShader->use();
@@ -298,17 +300,17 @@ void MoonScene::drawFrame()
                  cubePosNormTexNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
                  GL_UNSIGNED_INT, // type of the indices
                  0); // offset in the EBO
-  glBindVertexArray(0);
 }
 
 void MoonScene::generateDepthMap()
 {
-  glGenFramebuffers(1, &depthMapFBO);
+  glGenFramebuffers(1, &depthMapFramebuffer.id);
+  glBindFramebuffer(GL_FRAMEBUFFER, depthMapFramebuffer.id);
 
-  glGenTextures(1, &depthMapTextureId);
-  glBindTexture(GL_TEXTURE_2D, depthMapTextureId);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT,
-               SHADOW_MAP_WIDTH, SHADOW_MAP_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+  glGenTextures(1, &depthMapFramebuffer.depthStencilAttachment);
+  glActiveTexture(GL_TEXTURE0);
+  glBindTexture(GL_TEXTURE_2D, depthMapFramebuffer.depthStencilAttachment);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SHADOW_MAP_WIDTH, SHADOW_MAP_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
   // ensure that areas outside of the shadow map are NEVER determined to be in shadow
@@ -316,11 +318,33 @@ void MoonScene::generateDepthMap()
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
   float32 borderColor[] = {1.0f, 1.0f, 1.0f, 1.0f};
   glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
+  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMapFramebuffer.depthStencilAttachment, 0);
+  glBindTexture(GL_TEXTURE_2D, 0);
 
-  glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
-  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMapTextureId, 0);
   // The following two calls tell OpenGL that we are not trying to output any kind of color
   glDrawBuffer(GL_NONE);
   glReadBuffer(GL_NONE);
-  glBindFramebuffer(GL_FRAMEBUFFER, 0);
+  glBindFramebuffer(GL_FRAMEBUFFER, drawFramebuffer.id);
+
+
+  depthMapFramebuffer.colorAttachment = NO_FRAMEBUFFER_ATTACHMENT;
+  depthMapFramebuffer.width = SHADOW_MAP_WIDTH;
+  depthMapFramebuffer.height = SHADOW_MAP_HEIGHT;
+}
+
+Framebuffer MoonScene::getDrawFramebuffer()
+{
+  return drawFramebuffer;
+}
+
+void MoonScene::inputStatesUpdated()
+{
+  FirstPersonScene::inputStatesUpdated();
+
+  if(isActive(WindowInput_SizeChange))
+  {
+    deleteFramebuffer(&drawFramebuffer);
+    drawFramebuffer = initializeFramebuffer(windowWidth, windowHeight);
+    // NOTE: depth map framebuffer is fine as is
+  }
 }
