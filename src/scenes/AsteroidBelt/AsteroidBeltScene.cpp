@@ -155,9 +155,8 @@ void AsteroidBeltScene::deinit()
   glDeleteBuffers(1, &asteroidModelMatrixBuffer);
 }
 
-void AsteroidBeltScene::drawFrame()
+Framebuffer AsteroidBeltScene::drawFrame()
 {
-  FirstPersonScene::drawFrame();
   glBindFramebuffer(GL_FRAMEBUFFER, drawFramebuffer.id);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);           // OpenGL state-using function
 
@@ -199,12 +198,7 @@ void AsteroidBeltScene::drawFrame()
                  36, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
                  GL_UNSIGNED_INT, // type of the indices
                  0); // offset in the EBO
-}
 
-
-
-Framebuffer AsteroidBeltScene::getDrawFramebuffer()
-{
   return drawFramebuffer;
 }
 

@@ -13,9 +13,8 @@ class ReflectRefractScene final : public FirstPersonScene
 public:
   ReflectRefractScene();
   void init(uint32 windowWidth, uint32 windowHeight);
+  Framebuffer drawFrame();
   void deinit();
-  void drawFrame();
-  Framebuffer getDrawFramebuffer();
   void inputStatesUpdated();
   const char* title();
 

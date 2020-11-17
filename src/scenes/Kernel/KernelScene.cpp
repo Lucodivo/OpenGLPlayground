@@ -202,9 +202,7 @@ void KernelScene::deinit(){
   glDisable(GL_STENCIL_TEST);
 }
 
-void KernelScene::drawFrame(){
-  FirstPersonScene::drawFrame();
-
+Framebuffer KernelScene::drawFrame(){
   // bind our frame buffer
   glBindFramebuffer(GL_FRAMEBUFFER, preprocessFramebuffer.id);
 
@@ -371,6 +369,8 @@ void KernelScene::drawFrame(){
                  6, // number of elements to draw (3 vertices per triangle * 2 triangles per quad)
                  GL_UNSIGNED_INT, // type of the indices
                  (void*)0); // offset in the EBO
+
+   return postprocessFramebuffer;
 }
 
 void KernelScene::inputStatesUpdated() {
@@ -400,11 +400,6 @@ void KernelScene::inputStatesUpdated() {
     framebufferShader->setUniform("textureWidth", (float32)windowExtent.x);
     framebufferShader->setUniform("textureHeight", (float32)windowExtent.y);
   }
-}
-
-Framebuffer KernelScene::getDrawFramebuffer()
-{
-  return postprocessFramebuffer;
 }
 
 void KernelScene::toggleFlashlight()

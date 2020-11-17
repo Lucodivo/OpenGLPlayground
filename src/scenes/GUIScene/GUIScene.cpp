@@ -80,10 +80,8 @@ void GUIScene::deinit()
   deleteFramebuffer(&drawFramebuffer);
 }
 
-void GUIScene::drawFrame()
+Framebuffer GUIScene::drawFrame()
 {
-  FirstPersonScene::drawFrame();
-  
   float32 t = (float32) glfwGetTime() - startTime;
   deltaTime = t - lastFrame;
   lastFrame = t;
@@ -126,6 +124,8 @@ void GUIScene::drawFrame()
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
   glEnable(GL_DEPTH_TEST);
   glEnable(GL_CULL_FACE);
+
+  return drawFramebuffer;
 }
 
 void GUIScene::inputStatesUpdated() {
@@ -215,9 +215,4 @@ bool GUIScene::checkCubeCollision(glm::vec3* worldRay, glm::vec3* rayOrigin, Cub
   // If the time of the collisions is negative, an intersection happened "behind" the origin and we don't consider the intersection
   return tmin > 0.0f || tmax > 0.0f;
 
-}
-
-Framebuffer GUIScene::getDrawFramebuffer()
-{
-  return drawFramebuffer;
 }

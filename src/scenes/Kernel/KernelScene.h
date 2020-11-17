@@ -14,9 +14,8 @@ class KernelScene final : public FirstPersonScene
 public:
   KernelScene();
   void init(uint32 windowWidth, uint32 windowHeight);
+  Framebuffer drawFrame();
   void deinit();
-  void drawFrame();
-  Framebuffer getDrawFramebuffer();
   void inputStatesUpdated();
   const char* title();
 
@@ -57,8 +56,6 @@ private:
   const float32 lightOrbitSpeed = 1.0f;
   const float32 lightOrbitRadius = 2.5f;
   const float32 lightScale = 0.2f;
-
-  const float32 cubRotAngle = 7.3f;
 
   // frame rate
   float32 deltaTime = 0.0f;  // Time between current frame and last frame

@@ -34,6 +34,13 @@ void MengerSpongeScene::init(uint32 windowWidth, uint32 windowHeight)
 
   resolution largestResolution = screenResolutions[ArrayCount(screenResolutions) - 1];
   dynamicResolutionFBO = initializeFramebuffer(largestResolution.width, largestResolution.height);
+  publicPseudoDrawFramebuffer = {
+          dynamicResolutionFBO.id,
+          dynamicResolutionFBO.colorAttachment,
+          dynamicResolutionFBO.depthStencilAttachment,
+          currentResolution.width,
+          currentResolution.height
+  };
 
   // NOTE: This is helps maintain same projection for both the ray marching and rasterization
   // If how we shoot rays change, this must change. If this changes, how we shoot rays must change.
@@ -111,10 +118,8 @@ void MengerSpongeScene::deinit()
   glDeleteTextures(ArrayCount(deleteTextures), deleteTextures);
 }
 
-void MengerSpongeScene::drawFrame()
+Framebuffer MengerSpongeScene::drawFrame()
 {
-  FirstPersonScene::drawFrame();
-
   float32 t = (float32)glfwGetTime() - startTime;
   deltaTime = t - lastFrame;
   lastFrame = t;
@@ -128,9 +133,9 @@ void MengerSpongeScene::drawFrame()
   }
 
   // Auto run forward
-//    glm::vec3 deltaCameraPos = camera.Front;
-//    deltaCameraPos *= 0.07;
-//    camera.Position += deltaCameraPos;
+  //    glm::vec3 deltaCameraPos = camera.Front;
+  //    deltaCameraPos *= 0.07;
+  //    camera.Position += deltaCameraPos;
   glm::mat4 cameraMat = camera.UpdateViewMatrix(deltaTime, cameraMovementSpeed * 4.0f, false);
 
   // bind our frame buffer
@@ -192,17 +197,8 @@ void MengerSpongeScene::drawFrame()
 //                   6, // number of elements to draw (3 vertices per triangle * 2 triangles per quad)
 //                   GL_UNSIGNED_INT, // type of the indices
 //                   0); // offset in the EBO
-}
 
-Framebuffer MengerSpongeScene::getDrawFramebuffer() {
-  Framebuffer returnFramebuffer = {
-          dynamicResolutionFBO.id,
-          dynamicResolutionFBO.colorAttachment,
-          dynamicResolutionFBO.depthStencilAttachment,
-          currentResolution.width,
-          currentResolution.height
-  };
-  return returnFramebuffer;
+  return publicPseudoDrawFramebuffer;
 }
 
 void MengerSpongeScene::drawGui()
@@ -230,6 +226,9 @@ void MengerSpongeScene::inputStatesUpdated() {
 
     glViewport(0, 0, currentResolution.width, currentResolution.height);
 
+    publicPseudoDrawFramebuffer.width = currentResolution.width;
+    publicPseudoDrawFramebuffer.height = currentResolution.height;
+
     mengerSpongeShader->use();
     mengerSpongeShader->setUniform("viewPortResolution", glm::vec2(currentResolution.width, currentResolution.height));
 
@@ -247,6 +246,9 @@ void MengerSpongeScene::inputStatesUpdated() {
     currentResolution = screenResolutions[currentResolutionIndex];
 
     glViewport(0, 0, currentResolution.width, currentResolution.height);
+
+    publicPseudoDrawFramebuffer.width = currentResolution.width;
+    publicPseudoDrawFramebuffer.height = currentResolution.height;
 
     mengerSpongeShader->use();
     mengerSpongeShader->setUniform("viewPortResolution", glm::vec2(currentResolution.width, currentResolution.height));

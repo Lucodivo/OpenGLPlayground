@@ -37,11 +37,9 @@ class EmptyScene : public Scene
     glClearColor( 0.0f, 0.0f, 0.0f, 0.0f );
   }
   const char* title() { return "Empty Scene"; }
-  void drawFrame() {
+  Framebuffer drawFrame() {
     glBindFramebuffer(GL_FRAMEBUFFER, drawFramebuffer.id);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-  }
-  Framebuffer getDrawFramebuffer() {
     return drawFramebuffer;
   }
 };
@@ -122,9 +120,7 @@ void runScenes(GLFWwindow* window) {
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 
-    scenes[sceneIndex]->drawFrame();
-
-    Framebuffer sceneFramebuffer = scenes[sceneIndex]->getDrawFramebuffer();
+    Framebuffer sceneFramebuffer = scenes[sceneIndex]->drawFrame();
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
     glBindFramebuffer(GL_READ_FRAMEBUFFER, sceneFramebuffer.id);
     glBlitFramebuffer(0, 0, sceneFramebuffer.width, sceneFramebuffer.height, 0, 0, windowExtent.x, windowExtent.y, GL_COLOR_BUFFER_BIT, GL_NEAREST);

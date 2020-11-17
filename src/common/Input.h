@@ -52,12 +52,6 @@ enum InputState
   INPUT_INACTIVE = 1 << 3
 };
 
-class InputConsumer
-{
-public:
-  virtual void inputStatesUpdated() = 0;
-};
-
 void initializeInput(GLFWwindow* window, Extent2D windowExtent);
 void deinitializeInput(GLFWwindow* window);
 void loadInputStateForFrame(GLFWwindow* window);

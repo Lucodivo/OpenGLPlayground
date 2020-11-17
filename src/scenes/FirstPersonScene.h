@@ -11,7 +11,6 @@ public:
   // Scene implementation required
   virtual void init(uint32 windowWidth, uint32 windowHeight);
   virtual void deinit();
-  virtual void drawFrame(){};
   virtual void inputStatesUpdated();
 
   void enableDefaultMouseCameraMovement(bool enable);

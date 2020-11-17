@@ -20,9 +20,8 @@ class GUIScene final : public FirstPersonScene {
 public:
   GUIScene(GLFWwindow* window);
   void init(uint32 windowWidth, uint32 windowHeight);
+  Framebuffer drawFrame();
   void deinit();
-  void drawFrame();
-  Framebuffer getDrawFramebuffer();
   void inputStatesUpdated();
   const char* title();
 

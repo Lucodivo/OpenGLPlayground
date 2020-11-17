@@ -51,9 +51,7 @@ void InfiniteCapsulesScene::deinit() {
   deleteFramebuffer(&drawFramebuffer);
 }
 
-void InfiniteCapsulesScene::drawFrame() {
-  FirstPersonScene::drawFrame();
-
+Framebuffer InfiniteCapsulesScene::drawFrame() {
   float32 t = (float32)glfwGetTime() - startTime;
   deltaTime = t - lastFrame;
   lastFrame = t;
@@ -76,6 +74,8 @@ void InfiniteCapsulesScene::drawFrame() {
                  6, // number of elements to draw (3 vertices per triangle * 2 triangles per quad)
                  GL_UNSIGNED_INT, // type of the indices
                  0); // offset in the EBO
+
+   return drawFramebuffer;
 }
 
 void InfiniteCapsulesScene::inputStatesUpdated() {
@@ -97,9 +97,4 @@ void InfiniteCapsulesScene::inputStatesUpdated() {
     rayMarchingShader->use();
     rayMarchingShader->setUniform("viewPortResolution", glm::vec2(extent2D.x, extent2D.y));
   }
-}
-
-Framebuffer InfiniteCapsulesScene::getDrawFramebuffer()
-{
-  return drawFramebuffer;
 }

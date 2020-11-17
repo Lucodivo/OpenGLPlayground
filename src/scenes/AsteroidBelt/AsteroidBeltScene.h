@@ -9,10 +9,9 @@ class AsteroidBeltScene : public FirstPersonScene
 public:
   AsteroidBeltScene();
   void init(uint32 windowWidth, uint32 windowHeight);
+  Framebuffer drawFrame();
   void deinit();
-  Framebuffer getDrawFramebuffer();
   void inputStatesUpdated();
-  void drawFrame();
   const char* title();
 
 private:

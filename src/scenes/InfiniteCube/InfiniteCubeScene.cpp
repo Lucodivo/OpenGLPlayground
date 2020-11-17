@@ -90,10 +90,8 @@ void InfiniteCubeScene::deinit()
   glDeleteBuffers(1, &globalVSUniformBufferID);
 }
 
-void InfiniteCubeScene::drawFrame()
+Framebuffer InfiniteCubeScene::drawFrame()
 {
-  FirstPersonScene::drawFrame();
-
   float32 t = (float32)glfwGetTime();
   deltaTime = t - lastFrame;
   lastFrame = t;
@@ -158,10 +156,7 @@ void InfiniteCubeScene::drawFrame()
   uint32 xOffset = (windowWidth - infiniteCubeTextureFramebuffer.width) / 2;
   uint32 yOffset = (windowHeight - infiniteCubeTextureFramebuffer.height) / 2;
   glBlitFramebuffer(xOffset, yOffset, infiniteCubeTextureFramebuffer.width + xOffset, infiniteCubeTextureFramebuffer.height + yOffset, 0, 0, infiniteCubeTextureFramebuffer.width, infiniteCubeTextureFramebuffer.height, GL_COLOR_BUFFER_BIT, GL_NEAREST);
-}
 
-Framebuffer InfiniteCubeScene::getDrawFramebuffer()
-{
   return drawFramebuffer;
 }
 

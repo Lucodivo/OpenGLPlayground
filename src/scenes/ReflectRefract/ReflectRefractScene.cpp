@@ -179,10 +179,8 @@ void ReflectRefractScene::deinit()
   delete nanoSuitModel;
 }
 
-void ReflectRefractScene::drawFrame()
+Framebuffer ReflectRefractScene::drawFrame()
 {
-  FirstPersonScene::drawFrame();
-
   glBindFramebuffer(GL_FRAMEBUFFER, drawFramebuffer.id);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -282,6 +280,8 @@ void ReflectRefractScene::drawFrame()
                  36, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
                  GL_UNSIGNED_INT, // type of the indices
                  0); // offset in the EBO
+
+   return drawFramebuffer;
 }
 
 
@@ -353,9 +353,4 @@ void ReflectRefractScene::prevMode()
     else if (currMode == NormalVisualization) currMode = Exploding;
     modeSwitchTimer = currentTime;
   }
-}
-
-Framebuffer ReflectRefractScene::getDrawFramebuffer()
-{
-  return drawFramebuffer;
 }

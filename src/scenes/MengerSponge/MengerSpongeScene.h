@@ -26,9 +26,8 @@ public:
   MengerSpongeScene(GLFWwindow* window);
 
   void init(uint32 windowWidth, uint32 windowHeight);
+  Framebuffer drawFrame();
   void deinit();
-  void drawFrame();
-  Framebuffer getDrawFramebuffer();
   void inputStatesUpdated();
   void drawGui();
   const char* title();
@@ -41,9 +40,10 @@ private:
   Shader* pixel2DShader = NULL;
   Shader* cubeShader = NULL;
 
-  VertexAtt quadVertexAtt = {};
-  VertexAtt cubeVertexAtt = {};
-  Framebuffer dynamicResolutionFBO = {};
+  VertexAtt quadVertexAtt;
+  VertexAtt cubeVertexAtt;
+  Framebuffer dynamicResolutionFBO;
+  Framebuffer publicPseudoDrawFramebuffer; // NOTE: this psuedo-framebuffer lets us hide the true size of our FBO to any caller
 
   uint32 textureDiff1Id;
   uint32 textureSpec1Id;

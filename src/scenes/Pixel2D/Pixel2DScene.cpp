@@ -66,10 +66,8 @@ void Pixel2DScene::deinit()
   glDisable(GL_FRAMEBUFFER_SRGB);
 }
 
-void Pixel2DScene::drawFrame()
+Framebuffer Pixel2DScene::drawFrame()
 {
-  Scene::drawFrame();
-
   float32 t = (float32)glfwGetTime() - startTime;
   deltaTime = t - lastFrame;
   lastFrame = t;
@@ -81,6 +79,8 @@ void Pixel2DScene::drawFrame()
                  6, // number of elements to draw (3 vertices per triangle * 2 triangles per quad)
                  GL_UNSIGNED_INT, // type of the indices
                  0 /*offset in the EBO */);
+
+  return drawFramebuffer;
 }
 
 void Pixel2DScene::inputStatesUpdated() {
@@ -98,9 +98,4 @@ void Pixel2DScene::inputStatesUpdated() {
     pixel2DShader->setUniform("windowDimens", glm::vec2(windowWidth, windowHeight));
     pixel2DShader->setUniform("lowerLeftOffset", glm::vec2(widthOffset, heightOffset));
   }
-}
-
-Framebuffer Pixel2DScene::getDrawFramebuffer()
-{
-  return drawFramebuffer;
 }

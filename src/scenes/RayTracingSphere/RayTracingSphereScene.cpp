@@ -51,10 +51,9 @@ void RayTracingSphereScene::deinit()
   deleteFramebuffer(&drawFramebuffer);
 }
 
-void RayTracingSphereScene::drawFrame()
-{
-  FirstPersonScene::drawFrame();
 
+Framebuffer RayTracingSphereScene::drawFrame()
+{
   // NOTE: uncomment for real time testing of fragment shader
 //  if(rayTracingSphereShader->updateShadersWhenOutdated(FragmentShaderFlag)) {
 //    rayTracingSphereShader->use();
@@ -76,6 +75,8 @@ void RayTracingSphereScene::drawFrame()
                  6, // number of elements to draw (3 vertices per triangle * 2 triangles per quad)
                  GL_UNSIGNED_INT, // type of the indices
                  0); // offset in the EBO
+
+   return drawFramebuffer;
 }
 
 
@@ -91,9 +92,4 @@ void RayTracingSphereScene::inputStatesUpdated() {
     rayTracingSphereShader->use();
     rayTracingSphereShader->setUniform("viewPortResolution", glm::vec2(windowExtent.x, windowExtent.y));
   }
-}
-
-Framebuffer RayTracingSphereScene::getDrawFramebuffer()
-{
-  return drawFramebuffer;
 }

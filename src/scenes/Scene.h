@@ -7,17 +7,16 @@
 #include "../Shader.h"
 #include "../common/Util.h"
 
-class Scene : public InputConsumer
+class Scene
 {
 public:
   Scene(){};
   // TODO: switch params to int32 due to GLFW returning signed integers?
   virtual void init(uint32 windowWidth, uint32 windowHeight);
-  virtual void deinit() {} // de-initializes scene
-  virtual void drawFrame() {} // draws scene to back buffer
+  virtual Framebuffer drawFrame() = 0; // draws scene to framebuffer and returns that framebuffer
+  virtual void deinit() {}
   virtual void drawGui() {};
   virtual void inputStatesUpdated();
-  virtual Framebuffer getDrawFramebuffer() = 0;
   virtual const char* title();
 
 protected:

@@ -161,9 +161,8 @@ void MoonScene::deinit()
   depthMapFramebuffer = { 0, 0, 0, 0, 0 };
 }
 
-void MoonScene::drawFrame()
+Framebuffer MoonScene::drawFrame()
 {
-  FirstPersonScene::drawFrame();
   float32 t = (float32)glfwGetTime() - startTime;
   deltaTime = t - lastFrame;
   lastFrame = t;
@@ -300,6 +299,8 @@ void MoonScene::drawFrame()
                  cubePosNormTexNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
                  GL_UNSIGNED_INT, // type of the indices
                  0); // offset in the EBO
+
+   return drawFramebuffer;
 }
 
 void MoonScene::generateDepthMap()
@@ -330,11 +331,6 @@ void MoonScene::generateDepthMap()
   depthMapFramebuffer.colorAttachment = NO_FRAMEBUFFER_ATTACHMENT;
   depthMapFramebuffer.width = SHADOW_MAP_WIDTH;
   depthMapFramebuffer.height = SHADOW_MAP_HEIGHT;
-}
-
-Framebuffer MoonScene::getDrawFramebuffer()
-{
-  return drawFramebuffer;
 }
 
 void MoonScene::inputStatesUpdated()

@@ -133,9 +133,8 @@ void RoomScene::deinit()
   glDisable(GL_FRAMEBUFFER_SRGB);
 }
 
-void RoomScene::drawFrame()
+Framebuffer RoomScene::drawFrame()
 {
-  FirstPersonScene::drawFrame();
   float32 t = (float32)glfwGetTime();
   deltaTime = t - lastFrame;
   lastFrame = t;
@@ -246,6 +245,8 @@ void RoomScene::drawFrame()
                  cubePosNormTexNumElements * 3, // number of elements to draw * 3 vertices per triangle
                  GL_UNSIGNED_INT, // type of the indices
                  0); // offset in the EBO
+
+   return drawFramebuffer;
 }
 
 void RoomScene::generateDepthCubeMap()
@@ -272,11 +273,6 @@ void RoomScene::generateDepthCubeMap()
   glDrawBuffer(GL_NONE);
   glReadBuffer(GL_NONE);
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
-}
-
-Framebuffer RoomScene::getDrawFramebuffer()
-{
-  return drawFramebuffer;
 }
 
 void RoomScene::inputStatesUpdated()

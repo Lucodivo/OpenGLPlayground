@@ -11,10 +11,9 @@ class InfiniteCapsulesScene final : public FirstPersonScene {
 public:
   InfiniteCapsulesScene();
   void init(uint32 windowWidth, uint32 windowHeight);
-  void drawFrame();
+  Framebuffer drawFrame();
   void deinit();
   virtual void inputStatesUpdated();
-  Framebuffer getDrawFramebuffer();
   const char* title();
 
 private:

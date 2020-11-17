@@ -57,10 +57,8 @@ void MandelbrotScene::deinit()
   deleteVertexAtt(quadVertexAtt);
 }
 
-void MandelbrotScene::drawFrame()
+Framebuffer MandelbrotScene::drawFrame()
 {
-  Scene::drawFrame();
-
   float32 t = (float32)glfwGetTime() - startTime;
   deltaTime = t - lastFrame;
   lastFrame = t;
@@ -76,9 +74,9 @@ void MandelbrotScene::drawFrame()
                  6, // number of elements to draw (3 vertices per triangle * 2 triangles per quad)
                  GL_UNSIGNED_INT, // type of the indices
                  0); // offset in the EBO
+
+   return drawFramebuffer;
 }
-
-
 
 void MandelbrotScene::inputStatesUpdated() {
   Scene::inputStatesUpdated();
@@ -135,9 +133,4 @@ void MandelbrotScene::inputStatesUpdated() {
   } else if (leftShiftState == INPUT_HOT_RELEASE) {
     zoomSpeed = ZOOM_SPEED_NORMAL;
   }
-}
-
-Framebuffer MandelbrotScene::getDrawFramebuffer()
-{
-  return drawFramebuffer;
 }
