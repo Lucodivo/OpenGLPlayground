@@ -128,7 +128,7 @@ void runScenes(GLFWwindow* window) {
     // We want to take a screen shot before rendering GUI
     if(isActive(KeyboardInput_Alt_Left) && hotPress(KeyboardInput_Backtick))
     {
-      snapshot(windowExtent.x, windowExtent.y, 0);
+      snapshot(&sceneFramebuffer);
     }
 
     if(!sceneManagerIsActive) { // if scene manager isn't active, draw GUI for scene

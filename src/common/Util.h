@@ -24,6 +24,6 @@ void deleteFramebuffer(Framebuffer* framebuffer);
 void deleteFramebuffers(uint32 count, Framebuffer** framebuffer);
 void toFullScreenMode(GLFWwindow* window);
 void toWindowedMode(GLFWwindow* window, const uint32 width, const uint32 height);
-void snapshot(int width, int height, uint32 framebuffer = 0);
+void snapshot(Framebuffer* framebuffer);
 void swap(float32* a, float32* b);
 glm::mat4& reverseZ(glm::mat4& mat);

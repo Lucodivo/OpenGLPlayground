@@ -93,6 +93,7 @@ void MengerSpongeScene::init(uint32 windowWidth, uint32 windowHeight)
   glEnable(GL_DEPTH_TEST);
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  glDisable(GL_CULL_FACE);
 
   // NOTE: the viewport dictates the area of the bound
   glViewport(0, 0, currentResolution.width, currentResolution.height);
@@ -184,7 +185,6 @@ Framebuffer MengerSpongeScene::drawFrame()
   cubeShader->setUniform("model", cubeModel);
   cubeShader->setUniform("view", cameraMat);
   cubeShader->setUniform("cameraPos", camera.Position);
-
   glDrawElements(GL_TRIANGLES, // drawing mode
                  cubePosNormTexNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
                  GL_UNSIGNED_INT, // type of the indices

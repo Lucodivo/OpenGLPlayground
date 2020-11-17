@@ -9,10 +9,10 @@
 #define SNAPSHOT_NAME_FORMAT "build/SaveData/snapshot_%Y%m%d_%H%M%S.bmp"
 #define SNAPSHOT_NAME_SIZE 44
 
-void snapshot(int width, int height, uint32 framebuffer)
+void snapshot(Framebuffer* framebuffer)
 {
   const uint32 bytesPerPixel = 3;
-  uint32 bmpSize = width * height * bytesPerPixel;
+  uint32 bmpSize = framebuffer->width * framebuffer->height * bytesPerPixel;
   char* bmpBuffer = (char*)malloc(bmpSize);
   if (!bmpBuffer) return;
 
@@ -31,8 +31,8 @@ void snapshot(int width, int height, uint32 framebuffer)
 
   BITMAPINFOHEADER bitmapInfoHeader = {0};
   bitmapInfoHeader.biSize = sizeof(BITMAPINFOHEADER);
-  bitmapInfoHeader.biWidth = width;
-  bitmapInfoHeader.biHeight = height;
+  bitmapInfoHeader.biWidth = framebuffer->width;
+  bitmapInfoHeader.biHeight = framebuffer->height;
   bitmapInfoHeader.biPlanes = 1;
   bitmapInfoHeader.biBitCount = 24;
   bitmapInfoHeader.biCompression = BI_RGB;
@@ -44,9 +44,9 @@ void snapshot(int width, int height, uint32 framebuffer)
 
   GLint originalReadFramebuffer;
   glGetIntegerv(GL_READ_FRAMEBUFFER_BINDING, &originalReadFramebuffer);
-  glBindFramebuffer(GL_READ_FRAMEBUFFER, framebuffer);
+  glBindFramebuffer(GL_READ_FRAMEBUFFER, framebuffer->id);
   glReadPixels((GLint)0, (GLint)0,
-               (GLint)width, (GLint)height,
+               (GLint)framebuffer->width, (GLint)framebuffer->height,
                GL_BGR, GL_UNSIGNED_BYTE, bmpBuffer);
   glBindFramebuffer(GL_READ_FRAMEBUFFER, originalReadFramebuffer);
 
