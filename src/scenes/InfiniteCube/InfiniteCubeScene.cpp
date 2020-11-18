@@ -28,7 +28,7 @@ void InfiniteCubeScene::init(uint32 windowWidth, uint32 windowHeight)
 
   drawFramebuffer = initializeFramebuffer(windowWidth, windowHeight);
   uint32 framebufferDimen = windowWidth > windowHeight ? windowHeight : windowWidth;
-  infiniteCubeTextureFramebuffer = initializeFramebuffer(framebufferDimen, framebufferDimen, false);
+  infiniteCubeTextureFramebuffer = initializeFramebuffer(framebufferDimen, framebufferDimen, FramebufferCreate_NoDepthStencil);
 
   glActiveTexture(GL_TEXTURE0 + framebufferTextureIndex);
   glBindTexture(GL_TEXTURE_2D, infiniteCubeTextureFramebuffer.colorAttachment);
@@ -167,8 +167,8 @@ void InfiniteCubeScene::inputStatesUpdated() {
     uint32 framebufferDimen = windowWidth > windowHeight ? windowHeight : windowWidth;
     Framebuffer* framebuffers[] = { &infiniteCubeTextureFramebuffer, &drawFramebuffer };
     deleteFramebuffers(ArrayCount(framebuffers), framebuffers);
-    infiniteCubeTextureFramebuffer = initializeFramebuffer(framebufferDimen, framebufferDimen, false);
-    drawFramebuffer = initializeFramebuffer(windowWidth, windowHeight, true);
+    infiniteCubeTextureFramebuffer = initializeFramebuffer(framebufferDimen, framebufferDimen, FramebufferCreate_NoDepthStencil);
+    drawFramebuffer = initializeFramebuffer(windowWidth, windowHeight);
 
     glActiveTexture(GL_TEXTURE0 + framebufferTextureIndex);
     glBindTexture(GL_TEXTURE_2D, infiniteCubeTextureFramebuffer.colorAttachment);

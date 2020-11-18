@@ -97,7 +97,7 @@ void MoonScene::init(uint32 windowWidth, uint32 windowHeight)
 
   // set lighting 1
   directionalLightShader->setUniform("directionalLightColor.ambient", lightColor * 0.05f);
-  directionalLightShader->setUniform("directionalLightColor.diffuse", lightColor * 0.5f);
+  directionalLightShader->setUniform("directionalLightColor.diffuse", lightColor * 0.2f);
   directionalLightShader->setUniform("directionalLightColor.specular", lightColor * 0.1f);
   directionalLightShader->setUniform("shadowMap", depthMap2DSamplerIndex);
 
@@ -258,6 +258,14 @@ Framebuffer MoonScene::drawFrame()
                  0); // offset in the EBO
 
   glm::vec3 lightDir = glm::normalize(lightPosition);
+//  if(directionalLightShader->updateShadersWhenOutdated(FragmentShaderFlag)) {
+//    directionalLightShader->use();
+//    directionalLightShader->setUniform("directionalLightColor.ambient", lightColor * 0.00f);
+//    directionalLightShader->setUniform("directionalLightColor.diffuse", lightColor * 1.0f);
+//    directionalLightShader->setUniform("directionalLightColor.specular", lightColor * 0.0f);
+//    directionalLightShader->setUniform("shadowMap", depthMap2DSamplerIndex);
+//    directionalLightShader->bindBlockIndex("globalBlockVS", globalVSBufferBindIndex);
+//  }
   directionalLightShader->use();
   directionalLightShader->setUniform("viewPos", camera.Position);
   directionalLightShader->setUniform("lightSpaceMatrix", lightSpaceMatrix);

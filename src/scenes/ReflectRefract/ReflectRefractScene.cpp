@@ -75,7 +75,7 @@ void ReflectRefractScene::init(uint32 windowWidth, uint32 windowHeight)
 
   drawFramebuffer = initializeFramebuffer(windowWidth, windowHeight);
 
-  loadCubeMapTexture(skyboxInterstellarFaceLocations, skyboxTextureId);
+  loadCubeMapTexture(yellowCloudFaceLocations, skyboxTextureId);
 
   // load models
   nanoSuitModel = new Model(starmanModelLoc);

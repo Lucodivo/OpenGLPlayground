@@ -24,7 +24,7 @@ void InfiniteCapsulesScene::init(uint32 windowWidth, uint32 windowHeight)
 
   quadVertexAtt = initializeFramebufferQuadVertexAttBuffers();
 
-  drawFramebuffer = initializeFramebuffer(windowWidth, windowHeight, false);
+  drawFramebuffer = initializeFramebuffer(windowWidth, windowHeight, FramebufferCreate_NoDepthStencil);
 
   rayMarchingShader->use();
   rayMarchingShader->setUniform("viewPortResolution", glm::vec2(windowWidth, windowHeight));
@@ -92,7 +92,7 @@ void InfiniteCapsulesScene::inputStatesUpdated() {
     Extent2D extent2D = getWindowExtent();
 
     deleteFramebuffer(&drawFramebuffer);
-    drawFramebuffer = initializeFramebuffer(windowWidth, windowHeight, false);
+    drawFramebuffer = initializeFramebuffer(windowWidth, windowHeight, FramebufferCreate_NoDepthStencil);
 
     rayMarchingShader->use();
     rayMarchingShader->setUniform("viewPortResolution", glm::vec2(extent2D.x, extent2D.y));

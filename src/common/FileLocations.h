@@ -167,3 +167,4 @@ const char* const skyboxSpaceRed2FaceLocations[6] = skybox(space_red_2, png);
 const char* const skyboxSpaceRed3FaceLocations[6] = skybox(space_red_3, png);
 const char* const skyboxInterstellarFaceLocations[6] = skybox(interstellar, png);
 const char* const skyboxGloomyFaceLocations[6] = skybox(gloomy, png);
+const char* const yellowCloudFaceLocations[6] = skybox(yellow_cloud, jpg);

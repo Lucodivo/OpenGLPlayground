@@ -27,7 +27,7 @@ public:
   // This function takes in a bit flag of ShaderType enums
   // Returns true if shader was outdated
   // NOTE: This will require you to resupply any uniforms that aren't supplied in render loop
-  bool updateShadersWhenOutdated(uint32 shaderTypeFlag);
+  bool updateShadersWhenOutdated(ShaderTypeFlags shaderTypeFlag);
 
   // use/activate the shader
   void use();

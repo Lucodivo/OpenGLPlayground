@@ -13,7 +13,7 @@ void snapshot(Framebuffer* framebuffer)
 {
   const uint32 bytesPerPixel = 3;
   uint32 bmpSize = framebuffer->width * framebuffer->height * bytesPerPixel;
-  char* bmpBuffer = (char*)malloc(bmpSize);
+  char* bmpBuffer = (char*) malloc(bmpSize);
   if (!bmpBuffer) return;
 
   char fileName[SNAPSHOT_NAME_SIZE];
@@ -103,8 +103,8 @@ void load2DTexture(const char* imgLocation, uint32& textureId, bool flipImageVer
     // set texture options
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST); // disables bilinear filtering (creates sharp edges when magnifying texture)
 
-    if(width != NULL) *width = w;
-    if(height != NULL) *height = h;
+    if (width != NULL) *width = w;
+    if (height != NULL) *height = h;
   } else
   {
     std::cout << "Failed to load texture" << std::endl;
@@ -140,7 +140,7 @@ void loadCubeMapTexture(const char* const imgLocations[6], uint32& textureId, bo
   }
 }
 
-Framebuffer initializeFramebuffer(uint32 width, uint32 height, bool depthStencil)
+Framebuffer initializeFramebuffer(uint32 width, uint32 height, FramebufferCreationFlags flags)
 {
   Framebuffer resultBuffer;
   resultBuffer.width = width;
@@ -163,7 +163,8 @@ Framebuffer initializeFramebuffer(uint32 width, uint32 height, bool depthStencil
   glActiveTexture(GL_TEXTURE0);
   glGetIntegerv(GL_TEXTURE_BINDING_2D, &originalTexture0);
   glBindTexture(GL_TEXTURE_2D, resultBuffer.colorAttachment);
-  glTexImage2D(GL_TEXTURE_2D, 0/*LoD*/, GL_RGB, width, height, 0/*border*/, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+  GLint internalFormat = (flags & FramebufferCreate_color_sRGB) ? GL_SRGB : GL_RGB;
+  glTexImage2D(GL_TEXTURE_2D, 0/*LoD*/, internalFormat, width, height, 0/*border*/, GL_RGB, GL_UNSIGNED_BYTE, NULL);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
@@ -174,21 +175,21 @@ Framebuffer initializeFramebuffer(uint32 width, uint32 height, bool depthStencil
                          resultBuffer.colorAttachment, // texture
                          0); // mipmap level
 
-   if(depthStencil)
-   {
-     // creating render buffer to be depth/stencil buffer
-     glGenRenderbuffers(1, &resultBuffer.depthStencilAttachment);
-     glBindRenderbuffer(GL_RENDERBUFFER, resultBuffer.depthStencilAttachment);
-     glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
-     glBindRenderbuffer(GL_RENDERBUFFER, 0); // unbind
-     // attach render buffer w/ depth & stencil to frame buffer
-     glFramebufferRenderbuffer(GL_FRAMEBUFFER, // frame buffer target
-                               GL_DEPTH_STENCIL_ATTACHMENT, // attachment point of frame buffer
-                               GL_RENDERBUFFER, // render buffer target
-                               resultBuffer.depthStencilAttachment);  // render buffer
-   } else {
-     resultBuffer.depthStencilAttachment = NO_FRAMEBUFFER_ATTACHMENT;
-   }
+  if (flags & FramebufferCreate_NoDepthStencil)
+  {
+    resultBuffer.depthStencilAttachment = NO_FRAMEBUFFER_ATTACHMENT;
+  } else {
+    // creating render buffer to be depth/stencil buffer
+    glGenRenderbuffers(1, &resultBuffer.depthStencilAttachment);
+    glBindRenderbuffer(GL_RENDERBUFFER, resultBuffer.depthStencilAttachment);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
+    glBindRenderbuffer(GL_RENDERBUFFER, 0); // unbind
+    // attach render buffer w/ depth & stencil to frame buffer
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, // frame buffer target
+                              GL_DEPTH_STENCIL_ATTACHMENT, // attachment point of frame buffer
+                              GL_RENDERBUFFER, // render buffer target
+                              resultBuffer.depthStencilAttachment);  // render buffer
+  }
 
   if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
   {
@@ -205,10 +206,11 @@ void deleteFramebuffer(Framebuffer* framebuffer)
 {
   glDeleteFramebuffers(1, &framebuffer->id);
   glDeleteTextures(1, &framebuffer->colorAttachment);
-  if(framebuffer->depthStencilAttachment != NO_FRAMEBUFFER_ATTACHMENT){
+  if (framebuffer->depthStencilAttachment != NO_FRAMEBUFFER_ATTACHMENT)
+  {
     glDeleteRenderbuffers(1, &framebuffer->depthStencilAttachment);
   }
-  *framebuffer = { 0, 0, 0, 0, 0 };
+  *framebuffer = {0, 0, 0, 0, 0};
 }
 
 void deleteFramebuffers(uint32 count, Framebuffer** framebuffer)
@@ -217,19 +219,21 @@ void deleteFramebuffers(uint32 count, Framebuffer** framebuffer)
   uint32* deleteColorAttachments = deleteFramebufferObjects + count;
   uint32* deleteDepthStencilAttachments = deleteColorAttachments + count;
   uint32 depthStencilCount = 0;
-  for(uint32 i = 0; i < count; i++) {
+  for (uint32 i = 0; i < count; i++)
+  {
     deleteFramebufferObjects[i] = framebuffer[i]->id;
     deleteColorAttachments[i] = framebuffer[i]->colorAttachment;
-    if(framebuffer[i]->depthStencilAttachment != NO_FRAMEBUFFER_ATTACHMENT)
+    if (framebuffer[i]->depthStencilAttachment != NO_FRAMEBUFFER_ATTACHMENT)
     {
       deleteDepthStencilAttachments[depthStencilCount++] = framebuffer[i]->depthStencilAttachment;
-      *(framebuffer[i]) = { 0, 0, 0, 0, 0 };
+      *(framebuffer[i]) = {0, 0, 0, 0, 0};
     }
   }
 
   glDeleteFramebuffers(count, deleteFramebufferObjects);
   glDeleteTextures(count, deleteColorAttachments);
-  if(depthStencilCount != 0) {
+  if (depthStencilCount != 0)
+  {
     glDeleteRenderbuffers(depthStencilCount, deleteDepthStencilAttachments);
   }
 

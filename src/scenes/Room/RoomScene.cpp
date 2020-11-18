@@ -27,7 +27,7 @@ void RoomScene::init(uint32 windowWidth, uint32 windowHeight)
   cubeVertexAtt = initializeCubePosNormTexVertexAttBuffers();
   invertedNormCubeVertexAtt = initializeCubePosNormTexVertexAttBuffers(true);
 
-  drawFramebuffer = initializeFramebuffer(windowWidth, windowHeight);
+  drawFramebuffer = initializeFramebuffer(windowWidth, windowHeight, FramebufferCreate_color_sRGB);
 
   load2DTexture(hardwoodTextureLoc, wallpaperTextureId, false, true);
   load2DTexture(cementAlbedoTextureLoc, cubeTextureId, false, true);
@@ -282,6 +282,6 @@ void RoomScene::inputStatesUpdated()
   if(isActive(WindowInput_SizeChange))
   {
     deleteFramebuffer(&drawFramebuffer);
-    drawFramebuffer = initializeFramebuffer(windowWidth, windowHeight);
+    drawFramebuffer = initializeFramebuffer(windowWidth, windowHeight, FramebufferCreate_color_sRGB);
   }
 }

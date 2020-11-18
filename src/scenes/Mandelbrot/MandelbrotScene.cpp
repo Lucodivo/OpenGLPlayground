@@ -24,7 +24,7 @@ void MandelbrotScene::init(uint32 windowWidth, uint32 windowHeight)
     centerOffset *= glm::vec2(widthRatio, heightRatio);
   }
 
-  drawFramebuffer = initializeFramebuffer(windowWidth, windowHeight, false);
+  drawFramebuffer = initializeFramebuffer(windowWidth, windowHeight, FramebufferCreate_NoDepthStencil);
 
   oldWindowExtent = { (int32)windowWidth, (int32)windowHeight };
 
@@ -85,7 +85,7 @@ void MandelbrotScene::inputStatesUpdated() {
     Extent2D extent2D = getWindowExtent();
 
     deleteFramebuffer(&drawFramebuffer);
-    drawFramebuffer = initializeFramebuffer(windowWidth, windowHeight, false);
+    drawFramebuffer = initializeFramebuffer(windowWidth, windowHeight, FramebufferCreate_NoDepthStencil);
 
     mandelbrotShader->use();
     mandelbrotShader->setUniform("viewPortResolution", glm::vec2(extent2D.x, extent2D.y));

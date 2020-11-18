@@ -10,8 +10,8 @@ file_access void setMouseState(GLFWwindow* window, uint32 glfwKey, InputType mou
 file_access void setControllerState(int16 gamepadFlags, uint32 xInputButtonFlag, InputType controllerInput);
 file_access void loadXInput();
 
-void mouse_scroll_callback(GLFWwindow* window, float64 xOffset, float64 yOffset);
-void framebuffer_size_callback(GLFWwindow* window, int32 width, int32 height);
+file_access void glfw_mouse_scroll_callback(GLFWwindow* window, float64 xOffset, float64 yOffset);
+file_access void glfw_framebuffer_size_callback(GLFWwindow* window, int32 width, int32 height);
 
 file_access bool globalWindowSizeChange;
 file_access bool cursorModeChange;
@@ -42,8 +42,8 @@ void initializeInput(GLFWwindow* window, Extent2D windowExtent)
   cursorModeChange = false;
   globalWindowExtent = windowExtent;
   inputState = new std::map<InputType, InputState>();
-  glfwSetScrollCallback(window, mouse_scroll_callback);
-  glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+  glfwSetScrollCallback(window, glfw_mouse_scroll_callback);
+  glfwSetFramebufferSizeCallback(window, glfw_framebuffer_size_callback);
   loadXInput();
 }
 
@@ -312,13 +312,13 @@ void loadInputStateForFrame(GLFWwindow* window) {
 }
 
 // Callback function for when user scrolls with mouse wheel
-void mouse_scroll_callback(GLFWwindow* window, float64 xOffset, float64 yOffset)
+void glfw_mouse_scroll_callback(GLFWwindow* window, float64 xOffset, float64 yOffset)
 {
   globalMouseScroll.y = yOffset;
 }
 
 // NOTE: returns (0,0) when no longer on screen
-void framebuffer_size_callback(GLFWwindow* window, int32 width, int32 height)
+void glfw_framebuffer_size_callback(GLFWwindow* window, int32 width, int32 height)
 {
   if(width == globalWindowExtent.x && height == globalWindowExtent.y) return; // TODO: does this ever happen?
   globalWindowSizeChange = true;

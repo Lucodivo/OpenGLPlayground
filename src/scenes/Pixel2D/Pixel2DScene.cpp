@@ -22,7 +22,7 @@ void Pixel2DScene::init(uint32 windowWidth, uint32 windowHeight)
           
   quadVertexAtt = initializeFramebufferQuadVertexAttBuffers();
 
-  drawFramebuffer = initializeFramebuffer(windowWidth, windowHeight);
+  drawFramebuffer = initializeFramebuffer(windowWidth, windowHeight, FramebufferCreate_color_sRGB);
 
   // background clear color
   glClearColor(0.0f, 0.0f, 0.0f, 1.0f);

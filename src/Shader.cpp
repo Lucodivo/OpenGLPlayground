@@ -22,7 +22,7 @@ bool Shader::updateShaderWhenOutdated(GLuint* shaderId, const char* shaderFileLo
 }
 
 // TODO: Add cooldown so we don't check the file time for three shader files 60 times a second?
-bool Shader::updateShadersWhenOutdated(uint32 shaderTypeFlag) {
+bool Shader::updateShadersWhenOutdated(ShaderTypeFlags shaderTypeFlag) {
   bool shaderFileWasOutdated;
 
   shaderFileWasOutdated =

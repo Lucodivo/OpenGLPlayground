@@ -43,7 +43,7 @@ private:
   glm::mat4 floorModelMat;
   glm::mat4 lightProjMat;
 
-  const glm::vec3 lightColor = glm::vec3(0.15f);
+  const glm::vec3 lightColor = glm::vec3(1.0f);
   const float32 lightScale = 8.0f;
 
   const float32 floorScale = 16.0f;

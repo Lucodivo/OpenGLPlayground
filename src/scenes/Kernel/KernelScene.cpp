@@ -66,7 +66,7 @@ void KernelScene::init(uint32 windowWidth, uint32 windowHeight)
   initializeTextures(cubeDiffTextureId, cubeSpecTextureId, skyboxTextureId);
 
   preprocessFramebuffer = initializeFramebuffer(windowWidth, windowHeight);
-  postprocessFramebuffer = initializeFramebuffer(windowWidth, windowHeight, false);
+  postprocessFramebuffer = initializeFramebuffer(windowWidth, windowHeight, FramebufferCreate_NoDepthStencil);
 
   nanoSuitModel = new Model(nanoSuitModelLoc);
 
@@ -396,7 +396,7 @@ void KernelScene::inputStatesUpdated() {
     Framebuffer* framebuffers[] = { &preprocessFramebuffer, &postprocessFramebuffer };
     deleteFramebuffers(ArrayCount(framebuffers), framebuffers);
     preprocessFramebuffer = initializeFramebuffer(windowExtent.x, windowExtent.y);
-    postprocessFramebuffer = initializeFramebuffer(windowExtent.x, windowExtent.y, false);
+    postprocessFramebuffer = initializeFramebuffer(windowExtent.x, windowExtent.y, FramebufferCreate_NoDepthStencil);
     framebufferShader->setUniform("textureWidth", (float32)windowExtent.x);
     framebufferShader->setUniform("textureHeight", (float32)windowExtent.y);
   }

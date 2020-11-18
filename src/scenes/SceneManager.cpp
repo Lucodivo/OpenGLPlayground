@@ -34,7 +34,9 @@ class EmptyScene : public Scene
   void init(uint32 windowWidth, uint32 windowHeight) {
     Scene::init(windowWidth, windowHeight);
     drawFramebuffer = { 0, 0, 0, 1, 1 };
+    glBindFramebuffer(GL_FRAMEBUFFER, drawFramebuffer.id);
     glClearColor( 0.0f, 0.0f, 0.0f, 0.0f );
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
   }
   const char* title() { return "Empty Scene"; }
   Framebuffer drawFrame() {
