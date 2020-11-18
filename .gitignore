@@ -5,6 +5,7 @@ Debug/
 *.user
 src/fonts/
 build/
+samples/
 cmake-build-debug/
 src/dependencies/
 src/data/fun/
