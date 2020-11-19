@@ -75,6 +75,5 @@ private:
   const glm::vec3 directionalLightDiff = glm::vec3(0.6, 0.6, 0.6);
   const glm::vec3 directionalLightSpec = glm::vec3(0.8, 0.8, 0.8);
   const glm::vec3 directionalLightDir = glm::vec3(1.0, -1.0, -1.0);
-  const glm::vec3 cubePos = glm::vec3(0.0, 0.0, 0.0);
   const glm::vec3 cubeRotAxis = glm::vec3(1.0, 1.0, -1.0);
 };

@@ -5,13 +5,12 @@
 #include "../LearnOpenGLPlatform.h"
 #include "../common/Input.h"
 #include "../Shader.h"
-#include "../common/Util.h"
+#include "../common/OpenGLUtil.h"
 
 class Scene
 {
 public:
   Scene(){};
-  // TODO: switch params to int32 due to GLFW returning signed integers?
   virtual void init(uint32 windowWidth, uint32 windowHeight);
   virtual Framebuffer drawFrame() = 0; // draws scene to framebuffer and returns that framebuffer
   virtual void deinit() {}

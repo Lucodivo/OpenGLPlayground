@@ -52,10 +52,7 @@ void FirstPersonScene::inputStatesUpdated()
     // Camera orientation
     if(isActive(MouseInput_Movement)) {
       MouseCoord mouseMovementDelta = getMouseDelta();
-      // TODO: This needs to be better documented. Since the origin of our screen is the upper left
-      // TODO: moving the mouse down means that the vertical mouse delta is actually positive
-      // TODO: potentially handle it in the camera class?
-      camera.ProcessMouseMovement(mouseMovementDelta.x, -mouseMovementDelta.y);
+      camera.ProcessMouseMovement(mouseMovementDelta.x, mouseMovementDelta.y, true);
     }
 
     if(isActive(MouseInput_Scroll)) {

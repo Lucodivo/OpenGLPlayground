@@ -7,7 +7,7 @@
 #include <iostream>
 #include <glad/glad.h>
 
-// TODO: have function take in Extend2D
+// TODO: have function take in Extent2D
 void Scene::init(uint32 windowWidth, uint32 windowHeight) {
   Scene::framebufferSizeChange(windowWidth, windowHeight);
 }

@@ -167,15 +167,16 @@ Framebuffer MengerSpongeScene::drawFrame()
                  GL_UNSIGNED_INT, // type of the indices
                  0 /* offset in the EBO */);
 
+  // NOTE: Cube will be positioned at <0,0>
+  glm::mat4 rotateMatrix = glm::rotate(glm::mat4(), t * glm::radians(20.0f), cubeRotAxis);
   glm::mat4 cubeModel = glm::scale(glm::mat4(), glm::vec3(cubeScale)); // scale is uniform
-  cubeModel = glm::translate(cubeModel, cubePos);
-  cubeModel = glm::rotate(cubeModel, t * glm::radians(20.0f), cubeRotAxis);
+  cubeModel = cubeModel * rotateMatrix;
 
   glBindVertexArray(cubeVertexAtt.arrayObject);
 
-  // TODO: supply the camera position in cube model space to avoid requiring computation of inverse matrix
   uint32 cubeAttrIndices[ArrayCount(cubeAttributeIndices)];
-  cubeAttributeIndicesBackToFront(camera.Position, cubeModel, cubeAttrIndices);
+  glm::mat3 inverseCubeModelRotation = glm::transpose(glm::mat3(rotateMatrix));
+  cubeAttributeIndicesBackToFront(inverseCubeModelRotation * camera.Position, cubeAttrIndices);
 
   // bind element buffer object to give indices
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cubeVertexAtt.indexObject);

@@ -59,6 +59,8 @@ const char* ReflectRefractScene::title()
 void ReflectRefractScene::init(uint32 windowWidth, uint32 windowHeight)
 {
   FirstPersonScene::init(windowWidth, windowHeight);
+
+  windowRatio = (float32)windowWidth / (float32)windowHeight;
   
   explodingReflectionShader = new Shader(posNormalVertexShaderFileLoc, skyboxReflectionFragmentShaderFileLoc, explodeGeometryShaderFileLoc);
   exploding10InstanceReflectionShader = new Shader(posNormal10InstanceVertexShaderFileLoc, skyboxReflectionFragmentShaderFileLoc, explodeGeometryShaderFileLoc);
@@ -189,13 +191,15 @@ Framebuffer ReflectRefractScene::drawFrame()
   lastFrame = currTime;
 
   glm::mat4 viewMat = camera.UpdateViewMatrix(deltaTime, cameraMovementSpeed);
+  glm::mat4 projectionMat = glm::perspective(glm::radians(camera.Zoom), windowRatio, 0.1f, 100.0f);
 
   // draw cube
   Shader* cubeShader = currMode == Exploding ? exploding10InstanceReflectionShader : reflection10InstanceShader;
-  cubeShader->use();
 
   glBindVertexArray(cubeVertexAtt.arrayObject);
 
+  cubeShader->use();
+  cubeShader->setUniform("projection", projectionMat);
   cubeShader->setUniform("cameraPos", camera.Position);
   cubeShader->setUniform("view", viewMat);
   cubeShader->setUniform("time", currTime);
@@ -225,6 +229,7 @@ Framebuffer ReflectRefractScene::drawFrame()
   if (currMode == NormalVisualization)
   {
     normalVisualization10InstanceShader->use();
+    normalVisualization10InstanceShader->setUniform("projection", projectionMat);
     normalVisualization10InstanceShader->setUniform("view", viewMat);
     glDrawElementsInstanced(GL_TRIANGLES, // drawing mode
                             cubePosNormTexNumElements * 3, // number of elements to be rendered
@@ -256,6 +261,7 @@ Framebuffer ReflectRefractScene::drawFrame()
   }
 
   modelShader->use();
+  modelShader->setUniform("projection", projectionMat);
   modelShader->setUniform("cameraPos", camera.Position);
   modelShader->setUniform("view", viewMat);
   modelShader->setUniform("refractiveIndex", refractionIndexValues[selectedReflactionIndex]);
@@ -266,6 +272,7 @@ Framebuffer ReflectRefractScene::drawFrame()
   if (currMode == NormalVisualization)
   {
     normalVisualizationShader->use();
+    normalVisualizationShader->setUniform("projection", projectionMat);
     normalVisualizationShader->setUniform("view", viewMat);
     normalVisualizationShader->setUniform("model", nanoSuitModelMat);
     nanoSuitModel->Draw(*normalVisualizationShader);
@@ -275,6 +282,7 @@ Framebuffer ReflectRefractScene::drawFrame()
   skyboxShader->use();
   glm::mat4 viewMinusTranslation = glm::mat4(glm::mat3(viewMat));
   skyboxShader->setUniform("view", viewMinusTranslation);
+  skyboxShader->setUniform("projection", projectionMat);
   glBindVertexArray(skyboxVertexAtt.arrayObject);
   glDrawElements(GL_TRIANGLES, // drawing mode
                  36, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
@@ -308,6 +316,7 @@ void ReflectRefractScene::inputStatesUpdated() {
   {
     deleteFramebuffer(&drawFramebuffer);
     drawFramebuffer = initializeFramebuffer(windowWidth, windowHeight);
+    windowRatio = (float32)windowWidth / (float32)windowHeight;
   }
 }
 

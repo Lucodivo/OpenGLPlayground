@@ -57,6 +57,7 @@ void deinitializeInput(GLFWwindow* window);
 void loadInputStateForFrame(GLFWwindow* window);
 bool hotPress(InputType key); // returns true if input was just activated
 bool hotRelease(InputType key); // returns true if input was just deactivated
+// TODO: hotPressRelease(fun onPress, fun onRelease);
 bool isActive(InputType key); // returns true if key is pressed or held down
 
 InputState getInputState(InputType key); // Note: for special use cases (ex: double click), use hotPress/hotRelease/isActive in most cases

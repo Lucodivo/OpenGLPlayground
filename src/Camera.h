@@ -44,14 +44,12 @@ public:
   glm::mat4 UpdateViewMatrix(float32 deltaTime, float32 movementSpeed = 1.0, bool groundedMovement = true);
   glm::mat4 lookAt();
 
-
-  // TODO:
   // Processes input received from any keyboard-like input system. Accepts input parameter in the form of camera defined ENUM (to abstract it from windowing systems)
   void ProcessInput(CameraMovement direction);
-  void ProcessLeftAnalog(int16 stickX, int16 stickY, GLboolean constrainPitch = true);
+  void ProcessLeftAnalog(int16 stickX, int16 stickY);
   // Processes input received from a mouse input system. Expects the offset value in both the x and y direction.
-  void ProcessMouseMovement(float64 xoffset, float64 yoffset, GLboolean constrainPitch = true);
-  void ProcessRightAnalog(int16 stickX, int16 stickY, GLboolean constrainPitch = true);
+  void ProcessMouseMovement(float64 xOffset, float64 yOffset, bool invertedY = false);
+  void ProcessRightAnalog(int16 stickX, int16 stickY);
   // Processes input received from a mouse scroll-wheel event. Only requires input on the vertical wheel-axis
   void ProcessMouseScroll(float32 yoffset);
 

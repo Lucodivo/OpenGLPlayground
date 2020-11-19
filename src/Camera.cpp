@@ -111,7 +111,7 @@ void Camera::ProcessInput(CameraMovement direction)
   }
 }
 
-void Camera::ProcessLeftAnalog(int16 stickX, int16 stickY, GLboolean constrainPitch)
+void Camera::ProcessLeftAnalog(int16 stickX, int16 stickY)
 {
   if (stickY > 0) ProcessInput(FORWARD);
   else if (stickY < 0) ProcessInput(BACKWARD);
@@ -122,36 +122,30 @@ void Camera::ProcessLeftAnalog(int16 stickX, int16 stickY, GLboolean constrainPi
 
 // TODO: use MouseCoord?
 // Processes input received from a mouse input system. Expects the offset value in both the x and y direction.
-void Camera::ProcessMouseMovement(float64 xoffset, float64 yoffset, GLboolean constrainPitch)
+void Camera::ProcessMouseMovement(float64 xOffset, float64 yOffset, bool invertedY)
 {
-  xoffset *= MouseSensitivity;
-  yoffset *= MouseSensitivity;
+  xOffset *= MouseSensitivity;
+  yOffset *= MouseSensitivity;
 
-  Yaw += xoffset;
-  Pitch += yoffset;
+  Yaw += xOffset;
+  Pitch = invertedY ? Pitch - yOffset : Pitch + yOffset;
 
-  // Make sure that when pitch is out of bounds, screen doesn't get flipped
-  if (constrainPitch)
-  {
-    if (Pitch > 89.0f) Pitch = 89.0f;
-    if (Pitch < -89.0f) Pitch = -89.0f;
-  }
+  // Constrain pitch value
+  if (Pitch > 89.0f) { Pitch = 89.0f; };
+  if (Pitch < -89.0f) { Pitch = -89.0f; };
 
   // Update Front, Right and Up Vectors using the updated Eular angles
   updateCameraVectors();
 }
 
-void Camera::ProcessRightAnalog(int16 stickX, int16 stickY, GLboolean constrainPitch)
+void Camera::ProcessRightAnalog(int16 stickX, int16 stickY)
 {
   Yaw += (float32)stickX * DEFAULT_STICK_SENSITIVITY;;
   Pitch += (float32)stickY * DEFAULT_STICK_SENSITIVITY;
 
-  // Make sure that when pitch is out of bounds, screen doesn't get flipped
-  if (constrainPitch)
-  {
-    if (Pitch > 89.0f) Pitch = 89.0f;
-    if (Pitch < -89.0f) Pitch = -89.0f;
-  }
+  // Constrain pitch value
+  if (Pitch > 89.0f) { Pitch = 89.0f; };
+  if (Pitch < -89.0f) { Pitch = -89.0f; };
 
   // Update Front, Right and Up Vectors using the updated Eular angles
   updateCameraVectors();

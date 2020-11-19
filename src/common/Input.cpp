@@ -38,7 +38,7 @@ file_access x_input_get_state* XInputGetState_ = XInputGetStateStub; // Create a
 
 void initializeInput(GLFWwindow* window, Extent2D windowExtent)
 {
-  globalWindowSizeChange = true;
+  globalWindowSizeChange = false;
   cursorModeChange = false;
   globalWindowExtent = windowExtent;
   inputState = new std::map<InputType, InputState>();
@@ -320,7 +320,20 @@ void glfw_mouse_scroll_callback(GLFWwindow* window, float64 xOffset, float64 yOf
 // NOTE: returns (0,0) when no longer on screen
 void glfw_framebuffer_size_callback(GLFWwindow* window, int32 width, int32 height)
 {
-  if(width == globalWindowExtent.x && height == globalWindowExtent.y) return; // TODO: does this ever happen?
+  local_access bool globalWindowMinimized = false;
+  // NOTE: Currently just ignoring minimize.
+  if(width == 0 || height == 0) {
+    globalWindowMinimized = true;
+    return;
+  } else if(globalWindowMinimized) {
+    globalWindowMinimized = false;
+    // return if no change in size has been made to the framebuffer since minimization
+    if(globalWindowExtent.x == width && globalWindowExtent.y == height)
+    {
+      return;
+    }
+  }
+
   globalWindowSizeChange = true;
   globalWindowExtent = { width, height };
 }

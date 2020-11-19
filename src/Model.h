@@ -13,7 +13,7 @@
 
 #include "Mesh.h"
 #include "LearnOpenGLPlatform.h"
-#include "common/Util.h"
+#include "common/OpenGLUtil.h"
 
 class Model
 {

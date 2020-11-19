@@ -6,6 +6,7 @@
 
 #include "../TextDebugShader.h"
 #include "../common/Input.h"
+#include "../common/glfwUtil.h"
 
 #include "Kernel/KernelScene.h"
 #include "InfiniteCube/InfiniteCubeScene.h"

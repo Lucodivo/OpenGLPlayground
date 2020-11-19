@@ -50,6 +50,7 @@ private:
 
   double reflactionModeSwitchTimer = 0.0f;
   double modeSwitchTimer = 0.0f;
+  float32 windowRatio;
 
   void nextModelReflaction();
   void prevModelReflaction();

@@ -4,7 +4,6 @@ struct Material
 {
   sampler2D diffTexture1;
   sampler2D specTexture1;
-  float shininess;// TODO: Currently set manually, set in Mesh.h?
 };
 
 uniform Material material;
