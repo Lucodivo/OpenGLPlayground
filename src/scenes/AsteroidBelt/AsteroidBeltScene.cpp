@@ -22,10 +22,10 @@ void AsteroidBeltScene::init(Extent2D windowExtent)
 
   drawFramebuffer = initializeFramebuffer(windowExtent);
 
-  modelShader = new Shader(posNormalVertexShaderFileLoc, skyboxReflectionFragmentShaderFileLoc);
-  modelInstanceShader = new Shader(AsteroidVertexShaderFileLoc, textureModelFragmentShaderFileLoc);
-  reflectModelInstanceShader = new Shader(AsteroidVertexShaderFileLoc, skyboxReflectionFragmentShaderFileLoc);
-  skyboxShader = new Shader(skyboxVertexShaderFileLoc, skyboxFragmentShaderFileLoc);
+  modelShader = new ShaderProgram(posNormalVertexShaderFileLoc, skyboxReflectionFragmentShaderFileLoc);
+  modelInstanceShader = new ShaderProgram(AsteroidVertexShaderFileLoc, textureModelFragmentShaderFileLoc);
+  reflectModelInstanceShader = new ShaderProgram(AsteroidVertexShaderFileLoc, skyboxReflectionFragmentShaderFileLoc);
+  skyboxShader = new ShaderProgram(skyboxVertexShaderFileLoc, skyboxFragmentShaderFileLoc);
 
   loadCubeMapTexture(skyboxInterstellarFaceLocations, skyboxTextureId);
   loadCubeMapTexture(skyboxSpaceLightBlueFaceLocations, skybox2TextureId);

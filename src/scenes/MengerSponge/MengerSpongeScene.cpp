@@ -25,9 +25,9 @@ void MengerSpongeScene::init(Extent2D windowExtent)
 
   enableCursor(window, showDebugWindows);
 
-  mengerSpongeShader = new Shader(UVCoordVertexShaderFileLoc, MengerSpongeFragmentShaderFileLoc);
-  pixel2DShader = new Shader(pixel2DVertexShaderFileLoc, textureFragmentShaderFileLoc);
-  cubeShader = new Shader(CubePosNormTexVertexShaderFileLoc, CubeTextureFragmentShaderFileLoc);
+  mengerSpongeShader = new ShaderProgram(UVCoordVertexShaderFileLoc, MengerSpongeFragmentShaderFileLoc);
+  pixel2DShader = new ShaderProgram(pixel2DVertexShaderFileLoc, textureFragmentShaderFileLoc);
+  cubeShader = new ShaderProgram(CubePosNormTexVertexShaderFileLoc, CubeTextureFragmentShaderFileLoc);
 
   quadVertexAtt = initializeFramebufferQuadVertexAttBuffers();
   cubeVertexAtt = initializeCubePosNormTexVertexAttBuffers();

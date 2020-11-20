@@ -15,9 +15,9 @@ public:
 
 private:
 
-  Shader* positionalLightShader;
-  Shader* singleColorShader;
-  Shader* depthCubeMapShader;
+  ShaderProgram* positionalLightShader;
+  ShaderProgram* singleColorShader;
+  ShaderProgram* depthCubeMapShader;
 
   VertexAtt cubeVertexAtt;
   VertexAtt invertedNormCubeVertexAtt;

@@ -20,7 +20,7 @@ void InfiniteCapsulesScene::init(Extent2D windowExtent)
 {
   FirstPersonScene::init(windowExtent);
 
-  rayMarchingShader = new Shader(UVCoordVertexShaderFileLoc, InfiniteCapsulesFragmentShaderFileLoc);
+  rayMarchingShader = new ShaderProgram(UVCoordVertexShaderFileLoc, InfiniteCapsulesFragmentShaderFileLoc);
 
   quadVertexAtt = initializeFramebufferQuadVertexAttBuffers();
 

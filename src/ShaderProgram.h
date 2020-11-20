@@ -23,14 +23,14 @@ struct Timer {
 };
 
 // TODO: Convert to a simple structure?
-class Shader
+class ShaderProgram
 {
 public:
   // the program ID
   uint32 ID;
 
   // constructor reads and builds the shader
-  Shader(const char* vertexPath, const char* fragmentPath, const char* geometryPath = NULL);
+  ShaderProgram(const char* vertexPath, const char* fragmentPath, const char* geometryPath = NULL);
 
   // This function takes in a bit flag of ShaderType enums
   // Returns true if shader was outdated

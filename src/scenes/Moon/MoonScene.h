@@ -15,9 +15,9 @@ public:
 
 private:
 
-  Shader* directionalLightShader;
-  Shader* quadTextureShader;
-  Shader* depthMapShader;
+  ShaderProgram* directionalLightShader;
+  ShaderProgram* quadTextureShader;
+  ShaderProgram* depthMapShader;
 
   VertexAtt floorVertexAtt;
   VertexAtt cubeVertexAtt;

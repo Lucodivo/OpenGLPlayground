@@ -18,8 +18,8 @@ void InfiniteCubeScene::init(Extent2D windowExtent)
 {
   FirstPersonScene::init(windowExtent);
 
-  cubeShader = new Shader(posNormTexVertexShaderFileLoc, discardAlphaFragmentShaderFileLoc);
-  cubeOutlineShader = new Shader(posNormTexVertexShaderFileLoc, discardAlphaFragmentShaderFileLoc);
+  cubeShader = new ShaderProgram(posNormTexVertexShaderFileLoc, discardAlphaFragmentShaderFileLoc);
+  cubeOutlineShader = new ShaderProgram(posNormTexVertexShaderFileLoc, discardAlphaFragmentShaderFileLoc);
 
   cubeVertexAtt = initializeCubePosNormTexVertexAttBuffers();
   quadVertexAtt = initializeFramebufferQuadVertexAttBuffers();

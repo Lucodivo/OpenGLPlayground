@@ -30,7 +30,7 @@ private:
 
   bool cursorModeEnabled = false;
 
-  Shader* cubeShader;
+  ShaderProgram* cubeShader;
 
   VertexAtt cubeVertexAtt;
 

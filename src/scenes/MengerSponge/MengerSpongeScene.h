@@ -36,9 +36,9 @@ private:
 
   GLFWwindow* window = NULL;
 
-  Shader* mengerSpongeShader = NULL;
-  Shader* pixel2DShader = NULL;
-  Shader* cubeShader = NULL;
+  ShaderProgram* mengerSpongeShader = NULL;
+  ShaderProgram* pixel2DShader = NULL;
+  ShaderProgram* cubeShader = NULL;
 
   VertexAtt quadVertexAtt;
   VertexAtt cubeVertexAtt;

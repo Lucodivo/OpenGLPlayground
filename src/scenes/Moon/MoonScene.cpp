@@ -20,9 +20,9 @@ void MoonScene::init(Extent2D windowExtent)
 {
   FirstPersonScene::init(windowExtent);
 
-  directionalLightShader = new Shader(lightSpaceVertexShaderFileLoc, directionalLightShadowMapFragmentShaderFileLoc, tbnGeometryShaderFileLoc);
-  quadTextureShader = new Shader(billboardPosTexVertexShaderFileLoc, textureFragmentShaderFileLoc);
-  depthMapShader = new Shader(simpleDepthVertexShaderFileLoc, emptyFragmentShaderFileLoc);
+  directionalLightShader = new ShaderProgram(lightSpaceVertexShaderFileLoc, directionalLightShadowMapFragmentShaderFileLoc, tbnGeometryShaderFileLoc);
+  quadTextureShader = new ShaderProgram(billboardPosTexVertexShaderFileLoc, textureFragmentShaderFileLoc);
+  depthMapShader = new ShaderProgram(simpleDepthVertexShaderFileLoc, emptyFragmentShaderFileLoc);
 
   floorVertexAtt = initializeQuadPosNormTexVertexAttBuffers();
   cubeVertexAtt = initializeCubePosNormTexVertexAttBuffers();

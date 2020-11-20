@@ -7,7 +7,7 @@
 #include "../../common/Kernels.h"
 #include "../FirstPersonScene.h"
 #include "../../common/ObjectData.h"
-#include "../../Shader.h"
+#include "../../ShaderProgram.h"
 
 class KernelScene final : public FirstPersonScene
 {
@@ -20,12 +20,12 @@ public:
   const char* title();
 
 private:
-  Shader* cubeShader = NULL;
-  Shader* lightShader = NULL;
-  Shader* modelShader = NULL;
-  Shader* stencilShader = NULL;
-  Shader* framebufferShader = NULL;
-  Shader* skyboxShader = NULL;
+  ShaderProgram* cubeShader = NULL;
+  ShaderProgram* lightShader = NULL;
+  ShaderProgram* modelShader = NULL;
+  ShaderProgram* stencilShader = NULL;
+  ShaderProgram* framebufferShader = NULL;
+  ShaderProgram* skyboxShader = NULL;
 
   VertexAtt lightVertexAtt;
   VertexAtt cubeVertexAtt;

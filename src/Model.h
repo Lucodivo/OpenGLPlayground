@@ -30,7 +30,7 @@ public:
     for(Texture texture : texturesLoaded) { glDeleteTextures(1, &texture.id); }
   }
 
-  void Draw(Shader shader)
+  void Draw(ShaderProgram shader)
   {
     for (uint32 i = 0; i < meshes.size(); i++) meshes[i]->Draw(shader);
   }

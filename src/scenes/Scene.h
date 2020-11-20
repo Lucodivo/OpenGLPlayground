@@ -4,7 +4,7 @@
 
 #include "../LearnOpenGLPlatform.h"
 #include "../common/Input.h"
-#include "../Shader.h"
+#include "../ShaderProgram.h"
 #include "../common/OpenGLUtil.h"
 
 class Scene

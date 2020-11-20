@@ -17,7 +17,7 @@ public:
   const char* title();
 
 private:
-  Shader* rayMarchingShader = NULL;
+  ShaderProgram* rayMarchingShader = NULL;
 
   float32 startTime = 0;
   float32 deltaTime = 0;

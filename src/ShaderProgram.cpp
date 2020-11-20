@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Shader.h"
+#include "ShaderProgram.h"
 
 #include "common/WindowsFileHelper.h"
 
@@ -12,7 +12,7 @@
 
 #define NO_SHADER 0
 
-bool Shader::updateShaderWhenOutdated(GLuint* shaderId, const char* shaderFileLocation, uint32* lastUpdated, GLenum shaderType) {
+bool ShaderProgram::updateShaderWhenOutdated(GLuint* shaderId, const char* shaderFileLocation, uint32* lastUpdated, GLenum shaderType) {
   uint32 lastWriteTime = getFileLastWriteTime(shaderFileLocation);
   bool fileUpToDate = *lastUpdated == lastWriteTime;
   if(fileUpToDate) { return false; }
@@ -22,7 +22,7 @@ bool Shader::updateShaderWhenOutdated(GLuint* shaderId, const char* shaderFileLo
   return true;
 }
 
-bool Shader::updateShadersWhenOutdated(ShaderTypeFlags shaderTypeFlag, Timer& timer)
+bool ShaderProgram::updateShadersWhenOutdated(ShaderTypeFlags shaderTypeFlag, Timer& timer)
 {
   time_t currentTime = time(NULL);
 
@@ -37,7 +37,7 @@ bool Shader::updateShadersWhenOutdated(ShaderTypeFlags shaderTypeFlag, Timer& ti
   return updateShadersWhenOutdated(shaderTypeFlag);
 }
 
-bool Shader::updateShadersWhenOutdated(ShaderTypeFlags shaderTypeFlag) {
+bool ShaderProgram::updateShadersWhenOutdated(ShaderTypeFlags shaderTypeFlag) {
   bool shaderFileWasOutdated =
           ((shaderTypeFlag & VertexShaderFlag) && updateShaderWhenOutdated(&vertexShader, vertexShaderPath, &vertexShaderFileTime, GL_VERTEX_SHADER)) ||
           ((shaderTypeFlag & GeometryShaderFlag) && (geometryShader != NO_SHADER) && updateShaderWhenOutdated(&geometryShader, geometryShaderPath, &geometryShaderFileTime, GL_GEOMETRY_SHADER)) ||
@@ -67,7 +67,7 @@ bool Shader::updateShadersWhenOutdated(ShaderTypeFlags shaderTypeFlag) {
 }
 
 // constructor reads and builds the shader
-Shader::Shader(const char* vertexPath, const char* fragmentPath, const char* geometryPath)
+ShaderProgram::ShaderProgram(const char* vertexPath, const char* fragmentPath, const char* geometryPath)
 {
   vertexShaderPath = vertexPath;
   vertexShader = loadShader(vertexPath, GL_VERTEX_SHADER);
@@ -102,7 +102,7 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath, const char* geo
   if (geometryPath != NO_SHADER) glDetachShader(this->ID, geometryShader);
 }
 
-void Shader::deleteShaderResources()
+void ShaderProgram::deleteShaderResources()
 {
   // delete the shaders
   glDeleteShader(vertexShader);
@@ -112,48 +112,48 @@ void Shader::deleteShaderResources()
 }
 
 // use/activate the shader
-void Shader::use()
+void ShaderProgram::use()
 {
   glUseProgram(this->ID);
 }
 
 // utility uniform functions
-void Shader::setUniform(const std::string& name, bool value) const
+void ShaderProgram::setUniform(const std::string& name, bool value) const
 {
   glUniform1i(glGetUniformLocation(ID, name.c_str()), (int)value);
 }
 
-void Shader::setUniform(const std::string& name, int32 value) const
+void ShaderProgram::setUniform(const std::string& name, int32 value) const
 {
   glUniform1i(glGetUniformLocation(ID, name.c_str()), value);
 }
 
-void Shader::setUniform(const std::string& name, uint32 value) const
+void ShaderProgram::setUniform(const std::string& name, uint32 value) const
 {
   glUniform1i(glGetUniformLocation(ID, name.c_str()), value);
 }
 
-void Shader::setUniform(const std::string& name, float32 value) const
+void ShaderProgram::setUniform(const std::string& name, float32 value) const
 {
   glUniform1f(glGetUniformLocation(ID, name.c_str()), value);
 }
 
-void Shader::setUniform(const std::string& name, float32 value1, float32 value2) const
+void ShaderProgram::setUniform(const std::string& name, float32 value1, float32 value2) const
 {
   glUniform2f(glGetUniformLocation(ID, name.c_str()), value1, value2);
 }
 
-void Shader::setUniform(const std::string& name, float32 value1, float32 value2, float32 value3) const
+void ShaderProgram::setUniform(const std::string& name, float32 value1, float32 value2, float32 value3) const
 {
   glUniform3f(glGetUniformLocation(ID, name.c_str()), value1, value2, value3);
 }
 
-void Shader::setUniform(const std::string& name, float32 value1, float32 value2, float32 value3, float32 value4) const
+void ShaderProgram::setUniform(const std::string& name, float32 value1, float32 value2, float32 value3, float32 value4) const
 {
   glUniform4f(glGetUniformLocation(ID, name.c_str()), value1, value2, value3, value4);
 }
 
-void Shader::setUniform(const std::string& name, const glm::mat4& mat) const
+void ShaderProgram::setUniform(const std::string& name, const glm::mat4& mat) const
 {
   glUniformMatrix4fv(glGetUniformLocation(ID, name.c_str()),
                      1, // count
@@ -161,7 +161,7 @@ void Shader::setUniform(const std::string& name, const glm::mat4& mat) const
                      glm::value_ptr(mat)); // pointer to float values
 }
 
-void Shader::setUniform(const std::string& name, const glm::mat4* matArray, const uint32 arraySize)
+void ShaderProgram::setUniform(const std::string& name, const glm::mat4* matArray, const uint32 arraySize)
 {
   glUniformMatrix4fv(glGetUniformLocation(ID, name.c_str()),
                      arraySize, // count
@@ -169,27 +169,27 @@ void Shader::setUniform(const std::string& name, const glm::mat4* matArray, cons
                      glm::value_ptr(*matArray)); // pointer to float values
 }
 
-void Shader::setUniform(const std::string& name, const float* floatArray, const uint32 arraySize)
+void ShaderProgram::setUniform(const std::string& name, const float* floatArray, const uint32 arraySize)
 {
   glUniform1fv(glGetUniformLocation(ID, name.c_str()), arraySize, floatArray);
 }
 
-void Shader::setUniform(const std::string& name, const glm::vec2& vector2)
+void ShaderProgram::setUniform(const std::string& name, const glm::vec2& vector2)
 {
   setUniform(name, vector2.x, vector2.y);
 }
 
-void Shader::setUniform(const std::string& name, const glm::vec3& vector3)
+void ShaderProgram::setUniform(const std::string& name, const glm::vec3& vector3)
 {
   setUniform(name, vector3.x, vector3.y, vector3.z);
 }
 
-void Shader::setUniform(const std::string& name, const glm::vec4& vector4)
+void ShaderProgram::setUniform(const std::string& name, const glm::vec4& vector4)
 {
   setUniform(name, vector4.x, vector4.y, vector4.z, vector4.w);
 }
 
-void Shader::bindBlockIndex(const std::string& name, uint32 index)
+void ShaderProgram::bindBlockIndex(const std::string& name, uint32 index)
 {
   uint32 blockIndex = glGetUniformBlockIndex(ID, name.c_str());
   glUniformBlockBinding(ID, blockIndex, index);
@@ -199,7 +199,7 @@ void Shader::bindBlockIndex(const std::string& name, uint32 index)
  * parameters:
  * shaderType can be GL_VERTEX_SHADER, GL_FRAGMENT_SHADER, or GL_GEOMETRY_SHADER
  */
-uint32 Shader::loadShader(const char* shaderPath, GLenum shaderType) {
+uint32 ShaderProgram::loadShader(const char* shaderPath, GLenum shaderType) {
   std::string shaderTypeStr;
   if(shaderType == GL_VERTEX_SHADER) {
     shaderTypeStr = "VERTEX";
@@ -229,7 +229,7 @@ uint32 Shader::loadShader(const char* shaderPath, GLenum shaderType) {
   return shader;
 }
 
-void Shader::readShaderCodeAsString(const char* shaderPath, std::string* shaderCode)
+void ShaderProgram::readShaderCodeAsString(const char* shaderPath, std::string* shaderCode)
 {
   try
   {

@@ -8,7 +8,7 @@
 #include <iostream>
 
 #include "LearnOpenGLPlatform.h"
-#include "Shader.h"
+#include "ShaderProgram.h"
 #include "common/FileLocations.h"
 
 struct Glyph
@@ -29,7 +29,7 @@ public:
 private:
   std::map<GLchar, Glyph> Characters;
 
-  Shader shader;
+  ShaderProgram shader;
   uint32 vao, vbo;
   uint32 windowWidth, windowHeight;
   glm::mat4 projectionMat;

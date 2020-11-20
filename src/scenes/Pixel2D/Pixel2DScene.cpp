@@ -18,7 +18,7 @@ void Pixel2DScene::init(Extent2D windowExtent)
 {
   Scene::init(windowExtent);
 
-  pixel2DShader = new Shader(pixel2DVertexShaderFileLoc, textureFragmentShaderFileLoc);
+  pixel2DShader = new ShaderProgram(pixel2DVertexShaderFileLoc, textureFragmentShaderFileLoc);
           
   quadVertexAtt = initializeFramebufferQuadVertexAttBuffers();
 

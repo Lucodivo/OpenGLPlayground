@@ -6,7 +6,7 @@
 #include "../../common/Kernels.h"
 #include "../FirstPersonScene.h"
 #include "../../common/ObjectData.h"
-#include "../../Shader.h"
+#include "../../ShaderProgram.h"
 #include "../../common/Util.h"
 
 const glm::vec3 colors[] = {
@@ -47,8 +47,8 @@ public:
   const char* title();
 
 private:
-  Shader* cubeShader = NULL;
-  Shader* cubeOutlineShader = NULL;
+  ShaderProgram* cubeShader = NULL;
+  ShaderProgram* cubeOutlineShader = NULL;
 
   VertexAtt cubeVertexAtt;
   VertexAtt quadVertexAtt;

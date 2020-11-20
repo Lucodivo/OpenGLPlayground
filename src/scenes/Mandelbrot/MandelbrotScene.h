@@ -28,7 +28,7 @@ private:
 
   GLFWwindow* window = NULL;
 
-  Shader* mandelbrotShader = NULL;
+  ShaderProgram* mandelbrotShader = NULL;
 
   float zoomSpeed = ZOOM_SPEED_NORMAL;
 

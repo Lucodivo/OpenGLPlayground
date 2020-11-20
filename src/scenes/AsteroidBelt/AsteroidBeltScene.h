@@ -16,10 +16,10 @@ public:
 
 private:
 
-  Shader* modelShader;
-  Shader* modelInstanceShader;
-  Shader* reflectModelInstanceShader;
-  Shader* skyboxShader;
+  ShaderProgram* modelShader;
+  ShaderProgram* modelInstanceShader;
+  ShaderProgram* reflectModelInstanceShader;
+  ShaderProgram* skyboxShader;
 
   Model* planetModel = NULL;
   Model* asteroidModel = NULL;

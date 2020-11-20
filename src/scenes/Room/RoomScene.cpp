@@ -20,9 +20,9 @@ void RoomScene::init(Extent2D windowExtent)
 {
   FirstPersonScene::init(windowExtent);
   
-  positionalLightShader = new Shader(posNormTexVertexShaderFileLoc, positionalLightShadowMapFragmentShaderFileLoc);
-  singleColorShader = new Shader(posGlobalBlockVertexShaderFileLoc, SingleColorFragmentShaderFileLoc);
-  depthCubeMapShader = new Shader(modelMatVertexShaderFileLoc, linearDepthMapFragmentShaderFileLoc, cubeMapGeometryShaderFileLoc);
+  positionalLightShader = new ShaderProgram(posNormTexVertexShaderFileLoc, positionalLightShadowMapFragmentShaderFileLoc);
+  singleColorShader = new ShaderProgram(posGlobalBlockVertexShaderFileLoc, SingleColorFragmentShaderFileLoc);
+  depthCubeMapShader = new ShaderProgram(modelMatVertexShaderFileLoc, linearDepthMapFragmentShaderFileLoc, cubeMapGeometryShaderFileLoc);
   
   cubeVertexAtt = initializeCubePosNormTexVertexAttBuffers();
   invertedNormCubeVertexAtt = initializeCubePosNormTexVertexAttBuffers(true);

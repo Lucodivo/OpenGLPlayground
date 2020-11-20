@@ -6,7 +6,7 @@
 #include "../../common/Kernels.h"
 #include "../FirstPersonScene.h"
 #include "../../common/ObjectData.h"
-#include "../../Shader.h"
+#include "../../ShaderProgram.h"
 
 class ReflectRefractScene final : public FirstPersonScene
 {
@@ -19,15 +19,15 @@ public:
   const char* title();
 
 private:
-  Shader* explodingReflectionShader;
-  Shader* exploding10InstanceReflectionShader;
-  Shader* reflectionShader;
-  Shader* reflection10InstanceShader;
-  Shader* explodingRefractionShader;
-  Shader* refractionShader;
-  Shader* skyboxShader;
-  Shader* normalVisualizationShader;
-  Shader* normalVisualization10InstanceShader;
+  ShaderProgram* explodingReflectionShader;
+  ShaderProgram* exploding10InstanceReflectionShader;
+  ShaderProgram* reflectionShader;
+  ShaderProgram* reflection10InstanceShader;
+  ShaderProgram* explodingRefractionShader;
+  ShaderProgram* refractionShader;
+  ShaderProgram* skyboxShader;
+  ShaderProgram* normalVisualizationShader;
+  ShaderProgram* normalVisualization10InstanceShader;
 
   VertexAtt cubeVertexAtt;
   VertexAtt skyboxVertexAtt;

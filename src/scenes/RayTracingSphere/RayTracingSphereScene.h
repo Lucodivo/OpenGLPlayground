@@ -19,7 +19,7 @@ public:
 
 private:
 
-  Shader* rayTracingSphereShader = NULL;
+  ShaderProgram* rayTracingSphereShader = NULL;
 
   VertexAtt quadVertexAtt = {};
 

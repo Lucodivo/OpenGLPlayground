@@ -58,15 +58,15 @@ void ReflectRefractScene::init(Extent2D windowExtent)
 {
   FirstPersonScene::init(windowExtent);
   
-  explodingReflectionShader = new Shader(posNormalVertexShaderFileLoc, skyboxReflectionFragmentShaderFileLoc, explodeGeometryShaderFileLoc);
-  exploding10InstanceReflectionShader = new Shader(posNormal10InstanceVertexShaderFileLoc, skyboxReflectionFragmentShaderFileLoc, explodeGeometryShaderFileLoc);
-  reflectionShader = new Shader(posNormalVertexShaderFileLoc, skyboxReflectionFragmentShaderFileLoc);
-  reflection10InstanceShader = new Shader(posNormal10InstanceVertexShaderFileLoc, skyboxReflectionFragmentShaderFileLoc);
-  explodingRefractionShader = new Shader(posNormalVertexShaderFileLoc, skyboxRefractionFragmentShaderFileLoc, explodeGeometryShaderFileLoc);
-  refractionShader = new Shader(posNormalVertexShaderFileLoc, skyboxRefractionFragmentShaderFileLoc);
-  skyboxShader = new Shader(skyboxVertexShaderFileLoc, skyboxFragmentShaderFileLoc);
-  normalVisualizationShader = new Shader(normalVisualizerVertexShaderFileLoc, SingleColorFragmentShaderFileLoc, triangleNormalVisualizerGeometryShaderFileLoc);
-  normalVisualization10InstanceShader = new Shader(normalVisualizer10InstanceVertexShaderFileLoc, SingleColorFragmentShaderFileLoc, triangleNormalVisualizerGeometryShaderFileLoc);
+  explodingReflectionShader = new ShaderProgram(posNormalVertexShaderFileLoc, skyboxReflectionFragmentShaderFileLoc, explodeGeometryShaderFileLoc);
+  exploding10InstanceReflectionShader = new ShaderProgram(posNormal10InstanceVertexShaderFileLoc, skyboxReflectionFragmentShaderFileLoc, explodeGeometryShaderFileLoc);
+  reflectionShader = new ShaderProgram(posNormalVertexShaderFileLoc, skyboxReflectionFragmentShaderFileLoc);
+  reflection10InstanceShader = new ShaderProgram(posNormal10InstanceVertexShaderFileLoc, skyboxReflectionFragmentShaderFileLoc);
+  explodingRefractionShader = new ShaderProgram(posNormalVertexShaderFileLoc, skyboxRefractionFragmentShaderFileLoc, explodeGeometryShaderFileLoc);
+  refractionShader = new ShaderProgram(posNormalVertexShaderFileLoc, skyboxRefractionFragmentShaderFileLoc);
+  skyboxShader = new ShaderProgram(skyboxVertexShaderFileLoc, skyboxFragmentShaderFileLoc);
+  normalVisualizationShader = new ShaderProgram(normalVisualizerVertexShaderFileLoc, SingleColorFragmentShaderFileLoc, triangleNormalVisualizerGeometryShaderFileLoc);
+  normalVisualization10InstanceShader = new ShaderProgram(normalVisualizer10InstanceVertexShaderFileLoc, SingleColorFragmentShaderFileLoc, triangleNormalVisualizerGeometryShaderFileLoc);
 
   cubeVertexAtt = initializeCubePosNormVertexAttBuffers();
   skyboxVertexAtt = initializeCubePositionVertexAttBuffers();
@@ -191,7 +191,7 @@ Framebuffer ReflectRefractScene::drawFrame()
   glm::mat4 projectionMat = glm::perspective(glm::radians(camera.Zoom), windowAspectRatio, 0.1f, 100.0f);
 
   // draw cube
-  Shader* cubeShader = currMode == Exploding ? exploding10InstanceReflectionShader : reflection10InstanceShader;
+  ShaderProgram* cubeShader = currMode == Exploding ? exploding10InstanceReflectionShader : reflection10InstanceShader;
 
   glBindVertexArray(cubeVertexAtt.arrayObject);
 
@@ -236,7 +236,7 @@ Framebuffer ReflectRefractScene::drawFrame()
   }
 
   // draw model
-  Shader* modelShader;
+  ShaderProgram* modelShader;
   if (currMode == Exploding)
   {
     if (selectedReflactionIndex == reflectionIndex)

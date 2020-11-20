@@ -16,7 +16,7 @@ public:
 
 private:
 
-  Shader* pixel2DShader;
+  ShaderProgram* pixel2DShader;
 
   VertexAtt quadVertexAtt;
 

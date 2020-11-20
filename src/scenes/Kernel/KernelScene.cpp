@@ -51,12 +51,12 @@ void KernelScene::init(Extent2D windowExtent)
   const float32 aspectRatio = (float32)windowExtent.width / (float32)windowExtent.height;
   glm::mat4 projectionMat = glm::perspective(glm::radians(camera.Zoom), aspectRatio, 0.1f, 100.0f);
 
-  cubeShader = new Shader(posNormTexVertexShaderFileLoc, nessCubeFragmentShaderFileLoc);
-  lightShader = new Shader(posGlobalBlockVertexShaderFileLoc, SingleColorFragmentShaderFileLoc);
-  modelShader = new Shader(posNormTexVertexShaderFileLoc, dirPosSpotLightModelFragmentShaderFileLoc);
-  stencilShader = new Shader(posNormTexVertexShaderFileLoc, SingleColorFragmentShaderFileLoc);
-  framebufferShader = new Shader(framebufferVertexShaderFileLoc, kernel5x5TextureFragmentShaderFileLoc);
-  skyboxShader = new Shader(skyboxVertexShaderFileLoc, skyboxFragmentShaderFileLoc);
+  cubeShader = new ShaderProgram(posNormTexVertexShaderFileLoc, nessCubeFragmentShaderFileLoc);
+  lightShader = new ShaderProgram(posGlobalBlockVertexShaderFileLoc, SingleColorFragmentShaderFileLoc);
+  modelShader = new ShaderProgram(posNormTexVertexShaderFileLoc, dirPosSpotLightModelFragmentShaderFileLoc);
+  stencilShader = new ShaderProgram(posNormTexVertexShaderFileLoc, SingleColorFragmentShaderFileLoc);
+  framebufferShader = new ShaderProgram(framebufferVertexShaderFileLoc, kernel5x5TextureFragmentShaderFileLoc);
+  skyboxShader = new ShaderProgram(skyboxVertexShaderFileLoc, skyboxFragmentShaderFileLoc);
 
   lightVertexAtt = initializeCubePositionVertexAttBuffers();
   cubeVertexAtt = initializeCubePosNormTexVertexAttBuffers();
@@ -84,7 +84,7 @@ void KernelScene::init(Extent2D windowExtent)
   glFrontFace(GL_CCW);
   glCullFace(GL_BACK);
 
-  auto setConstantLightUniforms = [&](Shader* shader)
+  auto setConstantLightUniforms = [&](ShaderProgram* shader)
   {
     // positional light constants
     shader->setUniform("positionalLight.attenuation.constant", 1.0f);
@@ -257,7 +257,7 @@ Framebuffer KernelScene::drawFrame(){
                  GL_UNSIGNED_INT, // type of the indices
                  0); // offset in the EBO
 
-  auto setDynamicLightUniforms = [&](Shader* shader)
+  auto setDynamicLightUniforms = [&](ShaderProgram* shader)
   {
     // positional light (orbiting light)
     shader->setUniform("positionalLight.position", lightPosition);

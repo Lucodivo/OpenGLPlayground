@@ -31,7 +31,7 @@ void RayTracingSphereScene::init(Extent2D windowExtent)
 
   glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 
-  rayTracingSphereShader = new Shader(UVCoordVertexShaderFileLoc, RayTracingSphereFragmentShaderFileLoc);
+  rayTracingSphereShader = new ShaderProgram(UVCoordVertexShaderFileLoc, RayTracingSphereFragmentShaderFileLoc);
   rayTracingSphereShader->use();
   rayTracingSphereShader->setUniform("viewPortResolution", glm::vec2(windowExtent.width, windowExtent.height));
 

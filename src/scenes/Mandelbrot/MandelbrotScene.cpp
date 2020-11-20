@@ -28,7 +28,7 @@ void MandelbrotScene::init(Extent2D windowExtent)
 
   oldWindowExtent = { windowExtent.width, windowExtent.height };
 
-  mandelbrotShader = new Shader(UVCoordVertexShaderFileLoc, MandelbrotFragmentShaderFileLoc);
+  mandelbrotShader = new ShaderProgram(UVCoordVertexShaderFileLoc, MandelbrotFragmentShaderFileLoc);
   mandelbrotShader->use();
   mandelbrotShader->setUniform("viewPortResolution", glm::vec2( windowExtent.width, windowExtent.height ));
 

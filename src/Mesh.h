@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-#include "Shader.h"
+#include "ShaderProgram.h"
 #include "LearnOpenGLPlatform.h"
 
 struct Vertex
@@ -42,7 +42,7 @@ public:
     glDeleteVertexArrays(1, &VAO);
   }
 
-  void Draw(Shader shader)
+  void Draw(ShaderProgram shader)
   {
     uint32 diffuseNr = 1;
     uint32 specularNr = 1;
