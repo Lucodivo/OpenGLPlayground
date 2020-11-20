@@ -1,6 +1,5 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include <stb/stb_image.h>
 
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -45,11 +44,12 @@ const char* KernelScene::title()
   return "Image Kernel";
 }
 
-void KernelScene::init(uint32 windowWidth, uint32 windowHeight)
+void KernelScene::init(Extent2D windowExtent)
 {
-  FirstPersonScene::init(windowWidth, windowHeight);
+  FirstPersonScene::init(windowExtent);
 
-  glm::mat4 projectionMat = glm::perspective(glm::radians(camera.Zoom), (float32)windowWidth / (float32)windowHeight, 0.1f, 100.0f);
+  const float32 aspectRatio = (float32)windowExtent.width / (float32)windowExtent.height;
+  glm::mat4 projectionMat = glm::perspective(glm::radians(camera.Zoom), aspectRatio, 0.1f, 100.0f);
 
   cubeShader = new Shader(posNormTexVertexShaderFileLoc, nessCubeFragmentShaderFileLoc);
   lightShader = new Shader(posGlobalBlockVertexShaderFileLoc, SingleColorFragmentShaderFileLoc);
@@ -65,8 +65,8 @@ void KernelScene::init(uint32 windowWidth, uint32 windowHeight)
 
   initializeTextures(cubeDiffTextureId, cubeSpecTextureId, skyboxTextureId);
 
-  preprocessFramebuffer = initializeFramebuffer(windowWidth, windowHeight);
-  postprocessFramebuffer = initializeFramebuffer(windowWidth, windowHeight, FramebufferCreate_NoDepthStencil);
+  preprocessFramebuffer = initializeFramebuffer(windowExtent);
+  postprocessFramebuffer = initializeFramebuffer(windowExtent, FramebufferCreate_NoDepthStencil);
 
   nanoSuitModel = new Model(nanoSuitModelLoc);
 
@@ -149,8 +149,8 @@ void KernelScene::init(uint32 windowWidth, uint32 windowHeight)
   skyboxShader->setUniform("skybox", skyboxTextureIndex);
 
   framebufferShader->use();
-  framebufferShader->setUniform("textureWidth", (float32)windowWidth);
-  framebufferShader->setUniform("textureHeight", (float32)windowHeight);
+  framebufferShader->setUniform("textureWidth", (float32)windowExtent.width);
+  framebufferShader->setUniform("textureHeight", (float32)windowExtent.height);
   framebufferShader->setUniform("tex", framebufferTextureIndex);
 
   glBindBuffer(GL_UNIFORM_BUFFER, globalVSUniformBuffer);
@@ -395,10 +395,10 @@ void KernelScene::inputStatesUpdated() {
     Extent2D windowExtent = getWindowExtent();
     Framebuffer* framebuffers[] = { &preprocessFramebuffer, &postprocessFramebuffer };
     deleteFramebuffers(ArrayCount(framebuffers), framebuffers);
-    preprocessFramebuffer = initializeFramebuffer(windowExtent.x, windowExtent.y);
-    postprocessFramebuffer = initializeFramebuffer(windowExtent.x, windowExtent.y, FramebufferCreate_NoDepthStencil);
-    framebufferShader->setUniform("textureWidth", (float32)windowExtent.x);
-    framebufferShader->setUniform("textureHeight", (float32)windowExtent.y);
+    preprocessFramebuffer = initializeFramebuffer(windowExtent);
+    postprocessFramebuffer = initializeFramebuffer(windowExtent, FramebufferCreate_NoDepthStencil);
+    framebufferShader->setUniform("textureWidth", (float32)windowExtent.width);
+    framebufferShader->setUniform("textureHeight", (float32)windowExtent.height);
   }
 }
 

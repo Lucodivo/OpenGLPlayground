@@ -17,13 +17,13 @@ const char* RayTracingSphereScene::title()
   return "Ray Tracing Sphere";
 }
 
-void RayTracingSphereScene::init(uint32 windowWidth, uint32 windowHeight)
+void RayTracingSphereScene::init(Extent2D windowExtent)
 {
-  FirstPersonScene::init(windowWidth, windowHeight);
+  FirstPersonScene::init(windowExtent);
 
   quadVertexAtt = initializeFramebufferQuadVertexAttBuffers();
 
-  drawFramebuffer = initializeFramebuffer(windowWidth, windowHeight);
+  drawFramebuffer = initializeFramebuffer(windowExtent, FramebufferCreate_NoDepthStencil);
 
   glBindVertexArray(quadVertexAtt.arrayObject);
 
@@ -33,7 +33,7 @@ void RayTracingSphereScene::init(uint32 windowWidth, uint32 windowHeight)
 
   rayTracingSphereShader = new Shader(UVCoordVertexShaderFileLoc, RayTracingSphereFragmentShaderFileLoc);
   rayTracingSphereShader->use();
-  rayTracingSphereShader->setUniform("viewPortResolution", glm::vec2(windowWidth, windowHeight));
+  rayTracingSphereShader->setUniform("viewPortResolution", glm::vec2(windowExtent.width, windowExtent.height));
 
   lastFrame = (float32)glfwGetTime();
   startTime = lastFrame;
@@ -87,9 +87,9 @@ void RayTracingSphereScene::inputStatesUpdated() {
     Extent2D windowExtent = getWindowExtent();
 
     deleteFramebuffer(&drawFramebuffer);
-    drawFramebuffer = initializeFramebuffer(windowWidth, windowHeight);
+    drawFramebuffer = initializeFramebuffer(windowExtent, FramebufferCreate_NoDepthStencil);
 
     rayTracingSphereShader->use();
-    rayTracingSphereShader->setUniform("viewPortResolution", glm::vec2(windowExtent.x, windowExtent.y));
+    rayTracingSphereShader->setUniform("viewPortResolution", glm::vec2(windowExtent.width, windowExtent.height));
   }
 }

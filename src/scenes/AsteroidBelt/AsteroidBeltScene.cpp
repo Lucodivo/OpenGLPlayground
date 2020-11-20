@@ -14,13 +14,13 @@ const char* AsteroidBeltScene::title()
   return "Planet & Asteroid";
 }
 
-void AsteroidBeltScene::init(uint32 windowWidth, uint32 windowHeight)
+void AsteroidBeltScene::init(Extent2D windowExtent)
 {
-  FirstPersonScene::init(windowWidth, windowHeight);
+  FirstPersonScene::init(windowExtent);
 
   skyboxVertexAtt = initializeCubePositionVertexAttBuffers();
 
-  drawFramebuffer = initializeFramebuffer(windowWidth, windowHeight);
+  drawFramebuffer = initializeFramebuffer(windowExtent);
 
   modelShader = new Shader(posNormalVertexShaderFileLoc, skyboxReflectionFragmentShaderFileLoc);
   modelInstanceShader = new Shader(AsteroidVertexShaderFileLoc, textureModelFragmentShaderFileLoc);
@@ -33,7 +33,8 @@ void AsteroidBeltScene::init(uint32 windowWidth, uint32 windowHeight)
   planetModel = new Model(planetModelLoc);
   asteroidModel = new Model(asteroidModelLoc);
 
-  const glm::mat4 projectionMat = glm::perspective(glm::radians(camera.Zoom), (float32)windowWidth / (float32)windowHeight, 0.1f, 100.0f);
+  const float32 aspectRatio = (float32)windowExtent.width / (float32)windowExtent.height;
+  const glm::mat4 projectionMat = glm::perspective(glm::radians(camera.Zoom), aspectRatio, 0.1f, 100.0f);
 
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_CUBE_MAP, skyboxTextureId);
@@ -209,6 +210,6 @@ void AsteroidBeltScene::inputStatesUpdated()
   if(isActive(WindowInput_SizeChange))
   {
     deleteFramebuffer(&drawFramebuffer);
-    drawFramebuffer = initializeFramebuffer(windowWidth, windowHeight);
+    drawFramebuffer = initializeFramebuffer(windowExtent);
   }
 }

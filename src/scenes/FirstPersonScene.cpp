@@ -4,9 +4,9 @@
 
 FirstPersonScene::FirstPersonScene() : Scene(){}
 
-void FirstPersonScene::init(uint32 windowWidth, uint32 windowHeight)
+void FirstPersonScene::init(Extent2D windowExtent)
 {
-  Scene::init(windowWidth, windowHeight);
+  Scene::init(windowExtent);
 }
 
 void FirstPersonScene::deinit() {

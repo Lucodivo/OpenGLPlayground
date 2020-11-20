@@ -12,7 +12,7 @@ class ReflectRefractScene final : public FirstPersonScene
 {
 public:
   ReflectRefractScene();
-  void init(uint32 windowWidth, uint32 windowHeight);
+  void init(Extent2D windowExtent);
   Framebuffer drawFrame();
   void deinit();
   void inputStatesUpdated();
@@ -50,7 +50,7 @@ private:
 
   double reflactionModeSwitchTimer = 0.0f;
   double modeSwitchTimer = 0.0f;
-  float32 windowRatio;
+  float32 windowAspectRatio;
 
   void nextModelReflaction();
   void prevModelReflaction();

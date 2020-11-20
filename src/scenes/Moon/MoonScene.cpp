@@ -16,9 +16,9 @@ const char* MoonScene::title()
   return "Moon : Parallax : Bump";
 }
 
-void MoonScene::init(uint32 windowWidth, uint32 windowHeight)
+void MoonScene::init(Extent2D windowExtent)
 {
-  FirstPersonScene::init(windowWidth, windowHeight);
+  FirstPersonScene::init(windowExtent);
 
   directionalLightShader = new Shader(lightSpaceVertexShaderFileLoc, directionalLightShadowMapFragmentShaderFileLoc, tbnGeometryShaderFileLoc);
   quadTextureShader = new Shader(billboardPosTexVertexShaderFileLoc, textureFragmentShaderFileLoc);
@@ -46,7 +46,7 @@ void MoonScene::init(uint32 windowWidth, uint32 windowHeight)
   load2DTexture(moonTextureAlbedoLoc, lightTextureId, false, true);
 
   generateDepthMap();
-  drawFramebuffer = initializeFramebuffer(windowWidth, windowHeight);
+  drawFramebuffer = initializeFramebuffer(windowExtent);
 
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, floorAlbedoTextureId);
@@ -76,7 +76,8 @@ void MoonScene::init(uint32 windowWidth, uint32 windowHeight)
   glBindTexture(GL_TEXTURE_2D, lightTextureId);
   depthMap2DSamplerIndex = 13;
 
-  const glm::mat4 cameraProjMat = glm::perspective(glm::radians(camera.Zoom), (float32)windowWidth / (float32)windowHeight, 0.1f, 120.0f);
+  const float32 aspectRatio = (float32)windowExtent.width / (float32)windowExtent.height;
+  const glm::mat4 cameraProjMat = glm::perspective(glm::radians(camera.Zoom), aspectRatio, 0.1f, 120.0f);
   const float32 nearPlane = 1.0f;
   const float32 farPlane = 70.0f;
   const float32 projectionDimens = 12.0f;
@@ -241,7 +242,7 @@ Framebuffer MoonScene::drawFrame()
 
   // render scene using the depth map for shadows (using depth map)
   glBindFramebuffer(GL_FRAMEBUFFER, drawFramebuffer.id);
-  glViewport(0, 0, windowWidth, windowHeight);
+  glViewport(0, 0, windowExtent.width, windowExtent.height);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   glActiveTexture(GL_TEXTURE0 + depthMap2DSamplerIndex);
@@ -337,8 +338,8 @@ void MoonScene::generateDepthMap()
 
 
   depthMapFramebuffer.colorAttachment = NO_FRAMEBUFFER_ATTACHMENT;
-  depthMapFramebuffer.width = SHADOW_MAP_WIDTH;
-  depthMapFramebuffer.height = SHADOW_MAP_HEIGHT;
+  depthMapFramebuffer.extent.width = SHADOW_MAP_WIDTH;
+  depthMapFramebuffer.extent.height = SHADOW_MAP_HEIGHT;
 }
 
 void MoonScene::inputStatesUpdated()
@@ -348,7 +349,7 @@ void MoonScene::inputStatesUpdated()
   if(isActive(WindowInput_SizeChange))
   {
     deleteFramebuffer(&drawFramebuffer);
-    drawFramebuffer = initializeFramebuffer(windowWidth, windowHeight);
+    drawFramebuffer = initializeFramebuffer(windowExtent);
     // NOTE: depth map framebuffer is fine as is
   }
 }

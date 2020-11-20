@@ -40,7 +40,7 @@ class InfiniteCubeScene final : public FirstPersonScene
 {
 public:
   InfiniteCubeScene();
-  void init(uint32 windowWidth, uint32 windowHeight);
+  void init(Extent2D windowExtent);
   Framebuffer drawFrame();
   void deinit();
   void inputStatesUpdated();

@@ -12,7 +12,7 @@
 void snapshot(Framebuffer* framebuffer)
 {
   const uint32 bytesPerPixel = 3;
-  uint32 bmpSize = framebuffer->width * framebuffer->height * bytesPerPixel;
+  uint32 bmpSize = framebuffer->extent.width * framebuffer->extent.height * bytesPerPixel;
   char* bmpBuffer = (char*) malloc(bmpSize);
   if (!bmpBuffer) return;
 
@@ -31,8 +31,8 @@ void snapshot(Framebuffer* framebuffer)
 
   BITMAPINFOHEADER bitmapInfoHeader = {0};
   bitmapInfoHeader.biSize = sizeof(BITMAPINFOHEADER);
-  bitmapInfoHeader.biWidth = framebuffer->width;
-  bitmapInfoHeader.biHeight = framebuffer->height;
+  bitmapInfoHeader.biWidth = framebuffer->extent.width;
+  bitmapInfoHeader.biHeight = framebuffer->extent.height;
   bitmapInfoHeader.biPlanes = 1;
   bitmapInfoHeader.biBitCount = 24;
   bitmapInfoHeader.biCompression = BI_RGB;
@@ -46,7 +46,7 @@ void snapshot(Framebuffer* framebuffer)
   glGetIntegerv(GL_READ_FRAMEBUFFER_BINDING, &originalReadFramebuffer);
   glBindFramebuffer(GL_READ_FRAMEBUFFER, framebuffer->id);
   glReadPixels((GLint)0, (GLint)0,
-               (GLint)framebuffer->width, (GLint)framebuffer->height,
+               (GLint)framebuffer->extent.width, (GLint)framebuffer->extent.height,
                GL_BGR, GL_UNSIGNED_BYTE, bmpBuffer);
   glBindFramebuffer(GL_READ_FRAMEBUFFER, originalReadFramebuffer);
 
@@ -140,11 +140,10 @@ void loadCubeMapTexture(const char* const imgLocations[6], uint32& textureId, bo
   }
 }
 
-Framebuffer initializeFramebuffer(uint32 width, uint32 height, FramebufferCreationFlags flags)
+Framebuffer initializeFramebuffer(Extent2D framebufferExtent, FramebufferCreationFlags flags)
 {
   Framebuffer resultBuffer;
-  resultBuffer.width = width;
-  resultBuffer.height = height;
+  resultBuffer.extent = framebufferExtent;
 
   GLint originalDrawFramebuffer, originalReadFramebuffer, originalActiveTexture, originalTexture0;
 
@@ -164,7 +163,7 @@ Framebuffer initializeFramebuffer(uint32 width, uint32 height, FramebufferCreati
   glGetIntegerv(GL_TEXTURE_BINDING_2D, &originalTexture0);
   glBindTexture(GL_TEXTURE_2D, resultBuffer.colorAttachment);
   GLint internalFormat = (flags & FramebufferCreate_color_sRGB) ? GL_SRGB : GL_RGB;
-  glTexImage2D(GL_TEXTURE_2D, 0/*LoD*/, internalFormat, width, height, 0/*border*/, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+  glTexImage2D(GL_TEXTURE_2D, 0/*LoD*/, internalFormat, framebufferExtent.width, framebufferExtent.height, 0/*border*/, GL_RGB, GL_UNSIGNED_BYTE, NULL);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
@@ -182,7 +181,7 @@ Framebuffer initializeFramebuffer(uint32 width, uint32 height, FramebufferCreati
     // creating render buffer to be depth/stencil buffer
     glGenRenderbuffers(1, &resultBuffer.depthStencilAttachment);
     glBindRenderbuffer(GL_RENDERBUFFER, resultBuffer.depthStencilAttachment);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, framebufferExtent.width, framebufferExtent.height);
     glBindRenderbuffer(GL_RENDERBUFFER, 0); // unbind
     // attach render buffer w/ depth & stencil to frame buffer
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, // frame buffer target

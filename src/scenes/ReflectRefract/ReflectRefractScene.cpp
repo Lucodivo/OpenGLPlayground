@@ -1,12 +1,10 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include <stb/stb_image.h>
 
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "../../Model.h"
 #include "../../common/FileLocations.h"
-#include "../../common/Util.h"
 
 #include "ReflectRefractScene.h"
 
@@ -56,11 +54,9 @@ const char* ReflectRefractScene::title()
   return "Reflect & Refract";
 }
 
-void ReflectRefractScene::init(uint32 windowWidth, uint32 windowHeight)
+void ReflectRefractScene::init(Extent2D windowExtent)
 {
-  FirstPersonScene::init(windowWidth, windowHeight);
-
-  windowRatio = (float32)windowWidth / (float32)windowHeight;
+  FirstPersonScene::init(windowExtent);
   
   explodingReflectionShader = new Shader(posNormalVertexShaderFileLoc, skyboxReflectionFragmentShaderFileLoc, explodeGeometryShaderFileLoc);
   exploding10InstanceReflectionShader = new Shader(posNormal10InstanceVertexShaderFileLoc, skyboxReflectionFragmentShaderFileLoc, explodeGeometryShaderFileLoc);
@@ -75,7 +71,7 @@ void ReflectRefractScene::init(uint32 windowWidth, uint32 windowHeight)
   cubeVertexAtt = initializeCubePosNormVertexAttBuffers();
   skyboxVertexAtt = initializeCubePositionVertexAttBuffers();
 
-  drawFramebuffer = initializeFramebuffer(windowWidth, windowHeight);
+  drawFramebuffer = initializeFramebuffer(windowExtent);
 
   loadCubeMapTexture(yellowCloudFaceLocations, skyboxTextureId);
 
@@ -83,7 +79,8 @@ void ReflectRefractScene::init(uint32 windowWidth, uint32 windowHeight)
   nanoSuitModel = new Model(starmanModelLoc);
   //nanoSuitModel = new Model(superMario64LogoModelLoc);
 
-  const glm::mat4 projectionMat = glm::perspective(glm::radians(camera.Zoom), (float32)windowWidth / (float32)windowHeight, 0.1f, 100.0f);
+  windowAspectRatio = (float32)windowExtent.width / (float32)windowExtent.height;
+  const glm::mat4 projectionMat = glm::perspective(glm::radians(camera.Zoom), windowAspectRatio, 0.1f, 100.0f);
 
   glEnable(GL_CULL_FACE);
   glCullFace(GL_BACK);
@@ -191,7 +188,7 @@ Framebuffer ReflectRefractScene::drawFrame()
   lastFrame = currTime;
 
   glm::mat4 viewMat = camera.UpdateViewMatrix(deltaTime, cameraMovementSpeed);
-  glm::mat4 projectionMat = glm::perspective(glm::radians(camera.Zoom), windowRatio, 0.1f, 100.0f);
+  glm::mat4 projectionMat = glm::perspective(glm::radians(camera.Zoom), windowAspectRatio, 0.1f, 100.0f);
 
   // draw cube
   Shader* cubeShader = currMode == Exploding ? exploding10InstanceReflectionShader : reflection10InstanceShader;
@@ -315,8 +312,8 @@ void ReflectRefractScene::inputStatesUpdated() {
   if(isActive(WindowInput_SizeChange))
   {
     deleteFramebuffer(&drawFramebuffer);
-    drawFramebuffer = initializeFramebuffer(windowWidth, windowHeight);
-    windowRatio = (float32)windowWidth / (float32)windowHeight;
+    drawFramebuffer = initializeFramebuffer(windowExtent);
+    windowAspectRatio = (float32)windowExtent.width / (float32)windowExtent.height;
   }
 }
 

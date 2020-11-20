@@ -13,24 +13,24 @@ const char* MandelbrotScene::title()
   return "Mandelbrot";
 }
 
-void MandelbrotScene::init(uint32 windowWidth, uint32 windowHeight)
+void MandelbrotScene::init(Extent2D windowExtent)
 {
-  Scene::init(windowWidth, windowHeight);
+  Scene::init(windowExtent);
 
-  if(oldWindowExtent.x != 0) // Adjust the center offset in the event that the window size has changed since last init
+  if(oldWindowExtent.width != 0) // Adjust the center offset in the event that the window size has changed since last init
   {
-    float32 widthRatio = (float32)windowWidth / oldWindowExtent.x;
-    float32 heightRatio = (float32)windowHeight / oldWindowExtent.y;
+    float32 widthRatio = (float32)windowExtent.width / oldWindowExtent.width;
+    float32 heightRatio = (float32)windowExtent.height / oldWindowExtent.height;
     centerOffset *= glm::vec2(widthRatio, heightRatio);
   }
 
-  drawFramebuffer = initializeFramebuffer(windowWidth, windowHeight, FramebufferCreate_NoDepthStencil);
+  drawFramebuffer = initializeFramebuffer(windowExtent, FramebufferCreate_NoDepthStencil);
 
-  oldWindowExtent = { (int32)windowWidth, (int32)windowHeight };
+  oldWindowExtent = { windowExtent.width, windowExtent.height };
 
   mandelbrotShader = new Shader(UVCoordVertexShaderFileLoc, MandelbrotFragmentShaderFileLoc);
   mandelbrotShader->use();
-  mandelbrotShader->setUniform("viewPortResolution", glm::vec2(windowWidth, windowHeight));
+  mandelbrotShader->setUniform("viewPortResolution", glm::vec2( windowExtent.width, windowExtent.height ));
 
   enableCursor(window, true);
 
@@ -85,14 +85,14 @@ void MandelbrotScene::inputStatesUpdated() {
     Extent2D extent2D = getWindowExtent();
 
     deleteFramebuffer(&drawFramebuffer);
-    drawFramebuffer = initializeFramebuffer(windowWidth, windowHeight, FramebufferCreate_NoDepthStencil);
+    drawFramebuffer = initializeFramebuffer(windowExtent, FramebufferCreate_NoDepthStencil);
 
     mandelbrotShader->use();
-    mandelbrotShader->setUniform("viewPortResolution", glm::vec2(extent2D.x, extent2D.y));
+    mandelbrotShader->setUniform("viewPortResolution", glm::vec2(extent2D.width, extent2D.height));
 
     // The center needs to be adjusted when the viewport size changes in order to maintain the same position
-    float32 widthRatio = (float32)windowWidth / oldWindowExtent.x;
-    float32 heightRatio = (float32)windowHeight / oldWindowExtent.y;
+    float32 widthRatio = (float32)windowExtent.width / oldWindowExtent.width;
+    float32 heightRatio = (float32)windowExtent.height / oldWindowExtent.height;
     oldWindowExtent = extent2D;
     centerOffset *= glm::vec2(widthRatio, heightRatio);
   }

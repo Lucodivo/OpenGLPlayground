@@ -10,7 +10,7 @@
 class InfiniteCapsulesScene final : public FirstPersonScene {
 public:
   InfiniteCapsulesScene();
-  void init(uint32 windowWidth, uint32 windowHeight);
+  void init(Extent2D windowExtent);
   Framebuffer drawFrame();
   void deinit();
   virtual void inputStatesUpdated();

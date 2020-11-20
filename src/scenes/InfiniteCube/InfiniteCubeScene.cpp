@@ -14,9 +14,9 @@ const char* InfiniteCubeScene::title()
   return "Infinite Cube";
 }
 
-void InfiniteCubeScene::init(uint32 windowWidth, uint32 windowHeight)
+void InfiniteCubeScene::init(Extent2D windowExtent)
 {
-  FirstPersonScene::init(windowWidth, windowHeight);
+  FirstPersonScene::init(windowExtent);
 
   cubeShader = new Shader(posNormTexVertexShaderFileLoc, discardAlphaFragmentShaderFileLoc);
   cubeOutlineShader = new Shader(posNormTexVertexShaderFileLoc, discardAlphaFragmentShaderFileLoc);
@@ -26,9 +26,9 @@ void InfiniteCubeScene::init(uint32 windowWidth, uint32 windowHeight)
 
   load2DTexture(outlineTextureLoc, outlineTexture);
 
-  drawFramebuffer = initializeFramebuffer(windowWidth, windowHeight);
-  uint32 framebufferDimen = windowWidth > windowHeight ? windowHeight : windowWidth;
-  infiniteCubeTextureFramebuffer = initializeFramebuffer(framebufferDimen, framebufferDimen, FramebufferCreate_NoDepthStencil);
+  drawFramebuffer = initializeFramebuffer(windowExtent);
+  uint32 framebufferDimen = windowExtent.width > windowExtent.height ? windowExtent.height : windowExtent.width;
+  infiniteCubeTextureFramebuffer = initializeFramebuffer(Extent2D{ framebufferDimen, framebufferDimen }, FramebufferCreate_NoDepthStencil);
 
   glActiveTexture(GL_TEXTURE0 + framebufferTextureIndex);
   glBindTexture(GL_TEXTURE_2D, infiniteCubeTextureFramebuffer.colorAttachment);
@@ -42,7 +42,8 @@ void InfiniteCubeScene::init(uint32 windowWidth, uint32 windowHeight)
   cubeOutlineShader->use();
   cubeOutlineShader->setUniform("diffTexture", outlineTextureIndex);
 
-  const glm::mat4 projectionMat = glm::perspective(glm::radians(camera.Zoom), (float32)windowWidth / (float32)windowHeight, 0.1f, 100.0f);
+  const float32 aspectRatio = (float32)windowExtent.width / (float32)windowExtent.height;
+  const glm::mat4 projectionMat = glm::perspective(glm::radians(camera.Zoom), aspectRatio, 0.1f, 100.0f);
 
   glEnable(GL_CULL_FACE);
   glCullFace(GL_BACK);
@@ -153,9 +154,9 @@ Framebuffer InfiniteCubeScene::drawFrame()
 
   // bind our frame buffer as the draw buffer (the frame buffer we drew too will still be under the read buffer)
   glBindFramebuffer(GL_DRAW_FRAMEBUFFER, infiniteCubeTextureFramebuffer.id);
-  uint32 xOffset = (windowWidth - infiniteCubeTextureFramebuffer.width) / 2;
-  uint32 yOffset = (windowHeight - infiniteCubeTextureFramebuffer.height) / 2;
-  glBlitFramebuffer(xOffset, yOffset, infiniteCubeTextureFramebuffer.width + xOffset, infiniteCubeTextureFramebuffer.height + yOffset, 0, 0, infiniteCubeTextureFramebuffer.width, infiniteCubeTextureFramebuffer.height, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+  uint32 xOffset = (windowExtent.width - infiniteCubeTextureFramebuffer.extent.width) / 2;
+  uint32 yOffset = (windowExtent.height - infiniteCubeTextureFramebuffer.extent.height) / 2;
+  glBlitFramebuffer(xOffset, yOffset, infiniteCubeTextureFramebuffer.extent.width + xOffset, infiniteCubeTextureFramebuffer.extent.height + yOffset, 0, 0, infiniteCubeTextureFramebuffer.extent.width, infiniteCubeTextureFramebuffer.extent.height, GL_COLOR_BUFFER_BIT, GL_NEAREST);
 
   return drawFramebuffer;
 }
@@ -164,11 +165,11 @@ void InfiniteCubeScene::inputStatesUpdated() {
   FirstPersonScene::inputStatesUpdated();
 
   if(isActive(WindowInput_SizeChange)) {
-    uint32 framebufferDimen = windowWidth > windowHeight ? windowHeight : windowWidth;
+    uint32 framebufferDimen = windowExtent.width > windowExtent.height ? windowExtent.height : windowExtent.width;
     Framebuffer* framebuffers[] = { &infiniteCubeTextureFramebuffer, &drawFramebuffer };
     deleteFramebuffers(ArrayCount(framebuffers), framebuffers);
-    infiniteCubeTextureFramebuffer = initializeFramebuffer(framebufferDimen, framebufferDimen, FramebufferCreate_NoDepthStencil);
-    drawFramebuffer = initializeFramebuffer(windowWidth, windowHeight);
+    infiniteCubeTextureFramebuffer = initializeFramebuffer(Extent2D{ framebufferDimen, framebufferDimen });
+    drawFramebuffer = initializeFramebuffer(windowExtent, FramebufferCreate_NoDepthStencil);
 
     glActiveTexture(GL_TEXTURE0 + framebufferTextureIndex);
     glBindTexture(GL_TEXTURE_2D, infiniteCubeTextureFramebuffer.colorAttachment);

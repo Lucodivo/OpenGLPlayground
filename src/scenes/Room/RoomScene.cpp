@@ -16,9 +16,9 @@ const char* RoomScene::title()
   return "Room w/ Dynamic Point Light";
 }
 
-void RoomScene::init(uint32 windowWidth, uint32 windowHeight)
+void RoomScene::init(Extent2D windowExtent)
 {
-  FirstPersonScene::init(windowWidth, windowHeight);
+  FirstPersonScene::init(windowExtent);
   
   positionalLightShader = new Shader(posNormTexVertexShaderFileLoc, positionalLightShadowMapFragmentShaderFileLoc);
   singleColorShader = new Shader(posGlobalBlockVertexShaderFileLoc, SingleColorFragmentShaderFileLoc);
@@ -27,7 +27,7 @@ void RoomScene::init(uint32 windowWidth, uint32 windowHeight)
   cubeVertexAtt = initializeCubePosNormTexVertexAttBuffers();
   invertedNormCubeVertexAtt = initializeCubePosNormTexVertexAttBuffers(true);
 
-  drawFramebuffer = initializeFramebuffer(windowWidth, windowHeight, FramebufferCreate_color_sRGB);
+  drawFramebuffer = initializeFramebuffer(windowExtent, FramebufferCreate_color_sRGB);
 
   load2DTexture(hardwoodTextureLoc, wallpaperTextureId, false, true);
   load2DTexture(cementAlbedoTextureLoc, cubeTextureId, false, true);
@@ -40,7 +40,7 @@ void RoomScene::init(uint32 windowWidth, uint32 windowHeight)
   glActiveTexture(GL_TEXTURE2);
   glBindTexture(GL_TEXTURE_CUBE_MAP, depthCubeMapId);
 
-  float32 cameraAspectRatio = (float32)windowWidth / (float32)windowHeight;
+  float32 cameraAspectRatio = (float32)windowExtent.width / (float32)windowExtent.height;
   const float32 cameraNearPlane = 0.1f;
   const float32 cameraFarPlane = 120.f;
   const glm::mat4 cameraProjMat = glm::perspective(glm::radians(camera.Zoom), cameraAspectRatio, cameraNearPlane, cameraFarPlane);
@@ -198,7 +198,7 @@ Framebuffer RoomScene::drawFrame()
   // bind default frame buffer
   glBindFramebuffer(GL_FRAMEBUFFER, drawFramebuffer.id);
   // render scene using the depth cube map for shadows
-  glViewport(0, 0, windowWidth, windowHeight);
+  glViewport(0, 0, windowExtent.width, windowExtent.height);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   // draw positional light
@@ -282,6 +282,6 @@ void RoomScene::inputStatesUpdated()
   if(isActive(WindowInput_SizeChange))
   {
     deleteFramebuffer(&drawFramebuffer);
-    drawFramebuffer = initializeFramebuffer(windowWidth, windowHeight, FramebufferCreate_color_sRGB);
+    drawFramebuffer = initializeFramebuffer(windowExtent, FramebufferCreate_color_sRGB);
   }
 }

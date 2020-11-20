@@ -8,8 +8,7 @@ struct Framebuffer {
   uint32 id;
   uint32 colorAttachment;
   uint32 depthStencilAttachment;
-  uint32 width;
-  uint32 height;
+  Extent2D extent;
 };
 
 enum FramebufferCreationFlags {
@@ -20,7 +19,7 @@ enum FramebufferCreationFlags {
 
 void load2DTexture(const char* imgLocation, uint32& textureId, bool flipImageVert = false, bool inputSRGB = false, uint32* width = NULL, uint32* height = NULL);
 void loadCubeMapTexture(const char* const imgLocations[6], uint32& textureId, bool flipImageVert = false);
-Framebuffer initializeFramebuffer(uint32 width, uint32 height, FramebufferCreationFlags flags = FramebufferCreate_NoValue);
+Framebuffer initializeFramebuffer(Extent2D framebufferExtent, FramebufferCreationFlags flags = FramebufferCreate_NoValue);
 void deleteFramebuffer(Framebuffer* framebuffer);
 void deleteFramebuffers(uint32 count, Framebuffer** framebuffer);
 void snapshot(Framebuffer* framebuffer);

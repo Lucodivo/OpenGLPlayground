@@ -14,12 +14,6 @@ struct MouseCoord
   float64 y;
 };
 
-struct Extent2D
-{
-  int32 x;
-  int32 y;
-};
-
 struct ControllerAnalogStick
 {
   int16 x;

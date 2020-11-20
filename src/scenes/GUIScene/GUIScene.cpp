@@ -20,9 +20,9 @@ const char* GUIScene::title()
   return "Select A Box";
 }
 
-void GUIScene::init(uint32 windowWidth, uint32 windowHeight)
+void GUIScene::init(Extent2D windowExtent)
 {
-  FirstPersonScene::init(windowWidth, windowHeight);
+  FirstPersonScene::init(windowExtent);
 
   enableCursor(window, cursorModeEnabled);
   
@@ -30,9 +30,10 @@ void GUIScene::init(uint32 windowWidth, uint32 windowHeight)
 
   cubeVertexAtt = initializeCubePositionVertexAttBuffers();
 
-  drawFramebuffer = initializeFramebuffer(windowWidth, windowHeight);
-  
-  projectionMat = glm::perspective(glm::radians(camera.Zoom), (float32)windowWidth / (float32)windowHeight, 0.1f, 100.0f);
+  drawFramebuffer = initializeFramebuffer(windowExtent);
+
+  const float32 aspectRatio = (float32)windowExtent.width / (float32)windowExtent.height;
+  projectionMat = glm::perspective(glm::radians(camera.Zoom), aspectRatio, 0.1f, 100.0f);
 
   cubes[0].worldPos = glm::vec3(3.0f, 0.0f, 0.0f);
   cubes[0].boundingBoxMin = startingBoundingBoxMin + cubes[0].worldPos;
@@ -147,15 +148,15 @@ void GUIScene::inputStatesUpdated() {
   if(isActive(WindowInput_SizeChange))
   {
     deleteFramebuffer(&drawFramebuffer);
-    drawFramebuffer = initializeFramebuffer(windowWidth, windowHeight);
+    drawFramebuffer = initializeFramebuffer(windowExtent);
   }
 }
 
 void GUIScene::checkMouseClickCollision(float32 mouseX, float32 mouseY)
 {
   // to 3D Normal Device Coordinates
-  float32 ndcX = ((2.0f * mouseX) / windowWidth) - 1.0f;
-  float32 ndcY = 1.0f - ((2.0f * mouseY) / windowHeight);
+  float32 ndcX = ((2.0f * mouseX) / windowExtent.width) - 1.0f;
+  float32 ndcY = 1.0f - ((2.0f * mouseY) / windowExtent.height);
   const float32 ndcZ = 1.0f;
   glm::vec3 rayNormalDeviceCoords = glm::vec3(ndcX, ndcY, ndcZ);
 

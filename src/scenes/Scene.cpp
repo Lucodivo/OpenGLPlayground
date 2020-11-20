@@ -8,8 +8,9 @@
 #include <glad/glad.h>
 
 // TODO: have function take in Extent2D
-void Scene::init(uint32 windowWidth, uint32 windowHeight) {
-  Scene::framebufferSizeChange(windowWidth, windowHeight);
+void Scene::init(Extent2D windowExtent)
+{
+  Scene::framebufferSizeChange(windowExtent);
 }
 
 const char* Scene::title()
@@ -22,14 +23,13 @@ void Scene::inputStatesUpdated()
   if(isActive(WindowInput_SizeChange))
   {
     Extent2D extent = getWindowExtent();
-    framebufferSizeChange(extent.x, extent.y);
+    framebufferSizeChange(windowExtent);
   }
 }
 
 // Callback function for when user resizes our window
-void Scene::framebufferSizeChange(uint32 width, uint32 height)
+void Scene::framebufferSizeChange(Extent2D windowExtent)
 {
-  glViewport(0, 0, width, height);
-  windowHeight = height;
-  windowWidth = width;
+  glViewport(0, 0, windowExtent.width, windowExtent.height);
+  this->windowExtent = windowExtent;
 }

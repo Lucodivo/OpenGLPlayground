@@ -328,14 +328,15 @@ void glfw_framebuffer_size_callback(GLFWwindow* window, int32 width, int32 heigh
   } else if(globalWindowMinimized) {
     globalWindowMinimized = false;
     // return if no change in size has been made to the framebuffer since minimization
-    if(globalWindowExtent.x == width && globalWindowExtent.y == height)
+    if(globalWindowExtent.width == width && globalWindowExtent.height == height)
     {
       return;
     }
+  } else if(width > 0 && height > 0) {
+    globalWindowSizeChange = true;
+    globalWindowExtent = { (uint32)width, (uint32)height };
   }
 
-  globalWindowSizeChange = true;
-  globalWindowExtent = { width, height };
 }
 
 void enableCursor(GLFWwindow* window, bool enable)

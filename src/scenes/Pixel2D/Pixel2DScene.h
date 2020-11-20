@@ -8,7 +8,7 @@ class Pixel2DScene : public Scene
 {
 public:
   Pixel2DScene();
-  void init(uint32 windowWidth, uint32 windowHeight);
+  void init(Extent2D windowExtent);
   Framebuffer drawFrame();
   void deinit();
   void inputStatesUpdated();

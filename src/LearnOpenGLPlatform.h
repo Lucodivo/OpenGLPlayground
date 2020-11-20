@@ -28,3 +28,9 @@ typedef double float64;
 #endif
 
 #define InvalidCodePath Assert(!"InvalidCodePath");
+
+struct Extent2D
+{
+  uint32 width;
+  uint32 height;
+};

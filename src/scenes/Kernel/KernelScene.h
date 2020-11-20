@@ -13,7 +13,7 @@ class KernelScene final : public FirstPersonScene
 {
 public:
   KernelScene();
-  void init(uint32 windowWidth, uint32 windowHeight);
+  void init(Extent2D windowExtent);
   Framebuffer drawFrame();
   void deinit();
   void inputStatesUpdated();

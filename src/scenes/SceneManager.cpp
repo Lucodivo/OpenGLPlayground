@@ -32,8 +32,9 @@ void loadLastSceneIndex(uint32* sceneIndex);
 class EmptyScene : public Scene
 {
   Framebuffer drawFramebuffer;
-  void init(uint32 windowWidth, uint32 windowHeight) {
-    Scene::init(windowWidth, windowHeight);
+  void init(Extent2D windowExtent)
+  {
+    Scene::init(windowExtent);
     drawFramebuffer = { 0, 0, 0, 1, 1 };
     glBindFramebuffer(GL_FRAMEBUFFER, drawFramebuffer.id);
     glClearColor( 0.0f, 0.0f, 0.0f, 0.0f );
@@ -50,7 +51,7 @@ class EmptyScene : public Scene
 void runScenes(GLFWwindow* window) {
   Extent2D windowExtent = { VIEWPORT_INIT_WIDTH, VIEWPORT_INIT_HEIGHT };
 
-  TextDebugShader textDebugShader = TextDebugShader(windowExtent.x, windowExtent.y);
+  TextDebugShader textDebugShader = TextDebugShader(windowExtent.width, windowExtent.height);
 
   EmptyScene emptyScene = EmptyScene();
   KernelScene kernelScene = KernelScene();
@@ -99,7 +100,7 @@ void runScenes(GLFWwindow* window) {
     if(windowSizeChange)
     {
       windowExtent = getWindowExtent();
-      textDebugShader.updateWindowDimens(windowExtent.x, windowExtent.y);
+      textDebugShader.updateWindowDimens(windowExtent.width, windowExtent.height);
     }
 
     if(!sceneManagerIsActive || windowSizeChange) { // if scene manager isn't active or we have a window size change, pass input to scene
@@ -108,7 +109,7 @@ void runScenes(GLFWwindow* window) {
   };
 
   initializeInput(window, windowExtent);
-  scenes[sceneIndex]->init(windowExtent.x, windowExtent.y);
+  scenes[sceneIndex]->init(windowExtent);
   sceneCursorMode = isCursorEnabled(window);
   enableCursor(window, true);
   float32 deltaTime = 1.0;
@@ -126,7 +127,7 @@ void runScenes(GLFWwindow* window) {
     Framebuffer sceneFramebuffer = scenes[sceneIndex]->drawFrame();
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
     glBindFramebuffer(GL_READ_FRAMEBUFFER, sceneFramebuffer.id);
-    glBlitFramebuffer(0, 0, sceneFramebuffer.width, sceneFramebuffer.height, 0, 0, windowExtent.x, windowExtent.y, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+    glBlitFramebuffer(0, 0, sceneFramebuffer.extent.width, sceneFramebuffer.extent.height, 0, 0, windowExtent.width, windowExtent.height, GL_COLOR_BUFFER_BIT, GL_NEAREST);
 
     // We want to take a screen shot before rendering GUI
     if(isActive(KeyboardInput_Alt_Left) && hotPress(KeyboardInput_Backtick))
@@ -158,7 +159,7 @@ void runScenes(GLFWwindow* window) {
               scenes[sceneIndex]->deinit();
               enableCursor(window, false);
               sceneIndex = i;
-              scenes[sceneIndex]->init(windowExtent.x, windowExtent.y);
+              scenes[sceneIndex]->init(windowExtent);
             }
           }
           ImGui::EndMenu();

@@ -16,18 +16,18 @@ const char* InfiniteCapsulesScene::title()
   return "Infinite Capsules";
 }
 
-void InfiniteCapsulesScene::init(uint32 windowWidth, uint32 windowHeight)
+void InfiniteCapsulesScene::init(Extent2D windowExtent)
 {
-  FirstPersonScene::init(windowWidth, windowHeight);
+  FirstPersonScene::init(windowExtent);
 
   rayMarchingShader = new Shader(UVCoordVertexShaderFileLoc, InfiniteCapsulesFragmentShaderFileLoc);
 
   quadVertexAtt = initializeFramebufferQuadVertexAttBuffers();
 
-  drawFramebuffer = initializeFramebuffer(windowWidth, windowHeight, FramebufferCreate_NoDepthStencil);
+  drawFramebuffer = initializeFramebuffer(windowExtent, FramebufferCreate_NoDepthStencil);
 
   rayMarchingShader->use();
-  rayMarchingShader->setUniform("viewPortResolution", glm::vec2(windowWidth, windowHeight));
+  rayMarchingShader->setUniform("viewPortResolution", glm::vec2(windowExtent.width, windowExtent.height));
   rayMarchingShader->setUniform("lightColor", glm::vec3(0.5f, 0.5f, 0.5f));
   rayMarchingShader->setUniform("lightPos", lightPosition);
 
@@ -92,9 +92,9 @@ void InfiniteCapsulesScene::inputStatesUpdated() {
     Extent2D extent2D = getWindowExtent();
 
     deleteFramebuffer(&drawFramebuffer);
-    drawFramebuffer = initializeFramebuffer(windowWidth, windowHeight, FramebufferCreate_NoDepthStencil);
+    drawFramebuffer = initializeFramebuffer(windowExtent, FramebufferCreate_NoDepthStencil);
 
     rayMarchingShader->use();
-    rayMarchingShader->setUniform("viewPortResolution", glm::vec2(extent2D.x, extent2D.y));
+    rayMarchingShader->setUniform("viewPortResolution", glm::vec2(extent2D.width, extent2D.height));
   }
 }

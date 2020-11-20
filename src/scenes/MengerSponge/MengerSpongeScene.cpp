@@ -19,9 +19,9 @@ const char* MengerSpongeScene::title()
   return "Menger Prison SDF + Raster Cube";
 }
 
-void MengerSpongeScene::init(uint32 windowWidth, uint32 windowHeight)
+void MengerSpongeScene::init(Extent2D windowExtent)
 {
-  FirstPersonScene::init(windowWidth, windowHeight);
+  FirstPersonScene::init(windowExtent);
 
   enableCursor(window, showDebugWindows);
 
@@ -32,8 +32,7 @@ void MengerSpongeScene::init(uint32 windowWidth, uint32 windowHeight)
   quadVertexAtt = initializeFramebufferQuadVertexAttBuffers();
   cubeVertexAtt = initializeCubePosNormTexVertexAttBuffers();
 
-  resolution largestResolution = screenResolutions[ArrayCount(screenResolutions) - 1];
-  dynamicResolutionFBO = initializeFramebuffer(largestResolution.width, largestResolution.height);
+  dynamicResolutionFBO = initializeFramebuffer(windowExtent);
   publicPseudoDrawFramebuffer = {
           dynamicResolutionFBO.id,
           dynamicResolutionFBO.colorAttachment,
@@ -227,8 +226,8 @@ void MengerSpongeScene::inputStatesUpdated() {
 
     glViewport(0, 0, currentResolution.width, currentResolution.height);
 
-    publicPseudoDrawFramebuffer.width = currentResolution.width;
-    publicPseudoDrawFramebuffer.height = currentResolution.height;
+    publicPseudoDrawFramebuffer.extent.width = currentResolution.width;
+    publicPseudoDrawFramebuffer.extent.height = currentResolution.height;
 
     mengerSpongeShader->use();
     mengerSpongeShader->setUniform("viewPortResolution", glm::vec2(currentResolution.width, currentResolution.height));
@@ -248,8 +247,8 @@ void MengerSpongeScene::inputStatesUpdated() {
 
     glViewport(0, 0, currentResolution.width, currentResolution.height);
 
-    publicPseudoDrawFramebuffer.width = currentResolution.width;
-    publicPseudoDrawFramebuffer.height = currentResolution.height;
+    publicPseudoDrawFramebuffer.extent.width = currentResolution.width;
+    publicPseudoDrawFramebuffer.extent.height = currentResolution.height;
 
     mengerSpongeShader->use();
     mengerSpongeShader->setUniform("viewPortResolution", glm::vec2(currentResolution.width, currentResolution.height));

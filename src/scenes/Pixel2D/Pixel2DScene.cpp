@@ -14,15 +14,15 @@ const char* Pixel2DScene::title()
   return "2D Pixel";
 }
 
-void Pixel2DScene::init(uint32 windowWidth, uint32 windowHeight)
+void Pixel2DScene::init(Extent2D windowExtent)
 {
-  Scene::init(windowWidth, windowHeight);
+  Scene::init(windowExtent);
 
   pixel2DShader = new Shader(pixel2DVertexShaderFileLoc, textureFragmentShaderFileLoc);
           
   quadVertexAtt = initializeFramebufferQuadVertexAttBuffers();
 
-  drawFramebuffer = initializeFramebuffer(windowWidth, windowHeight, FramebufferCreate_color_sRGB);
+  drawFramebuffer = initializeFramebuffer(windowExtent, FramebufferCreate_color_sRGB);
 
   // background clear color
   glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -35,11 +35,11 @@ void Pixel2DScene::init(uint32 windowWidth, uint32 windowHeight)
   // Turn on free gamma correction for entire scene, only affects color attachments
   glEnable(GL_FRAMEBUFFER_SRGB);
 
-  uint32 widthOffset = (windowWidth / 2) - (textureWidth / 2);
-  uint32 heightOffset = (windowHeight / 2) - (textureHeight / 2);
+  uint32 widthOffset = (windowExtent.width / 2) - (textureWidth / 2);
+  uint32 heightOffset = (windowExtent.height / 2) - (textureHeight / 2);
 
   pixel2DShader->use();
-  pixel2DShader->setUniform("windowDimens", glm::vec2(windowWidth, windowHeight));
+  pixel2DShader->setUniform("windowDimens", glm::vec2(windowExtent.width, windowExtent.height));
   pixel2DShader->setUniform("lowerLeftOffset", glm::vec2(widthOffset, heightOffset));
   pixel2DShader->setUniform("spriteDimens", glm::vec2(textureWidth, textureHeight));
   pixel2DShader->setUniform("tex", 0);
@@ -89,13 +89,13 @@ void Pixel2DScene::inputStatesUpdated() {
   if(isActive(WindowInput_SizeChange))
   {
     deleteFramebuffer(&drawFramebuffer);
-    drawFramebuffer = initializeFramebuffer(windowWidth, windowHeight);
+    drawFramebuffer = initializeFramebuffer(windowExtent, FramebufferCreate_NoDepthStencil);
 
-    uint32 widthOffset = (windowWidth / 2) - (textureWidth / 2);
-    uint32 heightOffset = (windowHeight / 2) - (textureHeight / 2);
+    uint32 widthOffset = (windowExtent.width / 2) - (textureWidth / 2);
+    uint32 heightOffset = (windowExtent.height / 2) - (textureHeight / 2);
 
     pixel2DShader->use();
-    pixel2DShader->setUniform("windowDimens", glm::vec2(windowWidth, windowHeight));
+    pixel2DShader->setUniform("windowDimens", glm::vec2(windowExtent.width, windowExtent.height));
     pixel2DShader->setUniform("lowerLeftOffset", glm::vec2(widthOffset, heightOffset));
   }
 }
