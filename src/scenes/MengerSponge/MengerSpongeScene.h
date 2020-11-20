@@ -60,8 +60,7 @@ private:
   float32 startTime = 0;
   float32 deltaTime = 0;
   float32 lastFrame = 0;
-  float32 lastShaderFileUpdateCheck = 0;
-  const float32 shaderFileCheckIntervalInSeconds = 2.0f;
+  Timer timer;
 
   uint32 currentResolutionIndex = 0;
   resolution currentResolution = screenResolutions[currentResolutionIndex];

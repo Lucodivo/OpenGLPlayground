@@ -8,10 +8,18 @@
 
 #include "LearnOpenGLPlatform.h"
 
+#define TIMER_LAST_CHECK_INIT_VALUE 0
+#define TIMER_LENGTH_IN_SECONDS_INIT_VALUE 1
+
 enum ShaderTypeFlags {
   VertexShaderFlag = 1 << 0,
   FragmentShaderFlag = 1 << 1,
   GeometryShaderFlag = 1 << 2
+};
+
+struct Timer {
+  time_t lastCheck = TIMER_LAST_CHECK_INIT_VALUE;
+  uint32 lengthInSeconds = TIMER_LENGTH_IN_SECONDS_INIT_VALUE;
 };
 
 // TODO: Convert to a simple structure?
@@ -28,6 +36,7 @@ public:
   // Returns true if shader was outdated
   // NOTE: This will require you to resupply any uniforms that aren't supplied in render loop
   bool updateShadersWhenOutdated(ShaderTypeFlags shaderTypeFlag);
+  bool updateShadersWhenOutdated(ShaderTypeFlags shaderTypeFlag, Timer& timer);
 
   // use/activate the shader
   void use();

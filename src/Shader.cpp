@@ -8,6 +8,7 @@
 #include <sstream>
 #include <iostream>
 #include <vector>
+#include <ctime>
 
 #define NO_SHADER 0
 
@@ -21,11 +22,23 @@ bool Shader::updateShaderWhenOutdated(GLuint* shaderId, const char* shaderFileLo
   return true;
 }
 
-// TODO: Add cooldown so we don't check the file time for three shader files 60 times a second?
-bool Shader::updateShadersWhenOutdated(ShaderTypeFlags shaderTypeFlag) {
-  bool shaderFileWasOutdated;
+bool Shader::updateShadersWhenOutdated(ShaderTypeFlags shaderTypeFlag, Timer& timer)
+{
+  time_t currentTime = time(NULL);
 
-  shaderFileWasOutdated =
+  const bool freshTimer = timer.lastCheck == TIMER_LAST_CHECK_INIT_VALUE;
+  time_t secondsSinceLastCheck = currentTime - timer.lastCheck;
+  if(!freshTimer && timer.lengthInSeconds > secondsSinceLastCheck)
+  {
+    return false;
+  }
+
+  timer.lastCheck = currentTime;
+  return updateShadersWhenOutdated(shaderTypeFlag);
+}
+
+bool Shader::updateShadersWhenOutdated(ShaderTypeFlags shaderTypeFlag) {
+  bool shaderFileWasOutdated =
           ((shaderTypeFlag & VertexShaderFlag) && updateShaderWhenOutdated(&vertexShader, vertexShaderPath, &vertexShaderFileTime, GL_VERTEX_SHADER)) ||
           ((shaderTypeFlag & GeometryShaderFlag) && (geometryShader != NO_SHADER) && updateShaderWhenOutdated(&geometryShader, geometryShaderPath, &geometryShaderFileTime, GL_GEOMETRY_SHADER)) ||
           ((shaderTypeFlag & FragmentShaderFlag) && updateShaderWhenOutdated(&fragmentShader, fragmentShaderPath, &fragmentShaderFileTime, GL_FRAGMENT_SHADER));

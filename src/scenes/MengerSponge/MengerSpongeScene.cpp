@@ -96,6 +96,8 @@ void MengerSpongeScene::init(Extent2D windowExtent)
 
   // NOTE: the viewport dictates the area of the bound
   glViewport(0, 0, currentResolution.width, currentResolution.height);
+
+  timer.lengthInSeconds = 5;
 }
 
 void MengerSpongeScene::deinit()
@@ -142,8 +144,7 @@ Framebuffer MengerSpongeScene::drawFrame()
   glBindFramebuffer(GL_FRAMEBUFFER, dynamicResolutionFBO.id);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-  bool checkShaderFiles = t - lastShaderFileUpdateCheck > shaderFileCheckIntervalInSeconds;
-  if(checkShaderFiles && mengerSpongeShader->updateShadersWhenOutdated(FragmentShaderFlag)) {
+  if(mengerSpongeShader->updateShadersWhenOutdated(FragmentShaderFlag, timer)) {
     mengerSpongeShader->use();
     mengerSpongeShader->setUniform("viewPortResolution", glm::vec2(currentResolution.width, currentResolution.height));
     mengerSpongeShader->setUniform("directionalLight.color.ambient", directionalLightAmb);
@@ -151,7 +152,6 @@ Framebuffer MengerSpongeScene::drawFrame()
     mengerSpongeShader->setUniform("directionalLight.color.specular", directionalLightSpec);
     mengerSpongeShader->setUniform("directionalLight.direction", directionalLightDir);
     mengerSpongeShader->setUniform("projection", projectionMat);
-    lastShaderFileUpdateCheck = t;
   }
 
   mengerSpongeShader->use();
