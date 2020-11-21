@@ -5,6 +5,8 @@
 #include "MandelbrotScene.h"
 #include "../../common/FileLocations.h"
 #include "../../common/ObjectData.h"
+#include "../../common/Input.h"
+#include "../../common/Util.h"
 
 MandelbrotScene::MandelbrotScene(GLFWwindow* window): Scene(), window(window) {}
 
@@ -38,10 +40,11 @@ void MandelbrotScene::init(Extent2D windowExtent)
 
   glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
   glDisable(GL_DEPTH_TEST);
+  glViewport(0, 0, windowExtent.width, windowExtent.height);
 
   glBindVertexArray(quadVertexAtt.arrayObject);
 
-  lastFrame = (float32)glfwGetTime();
+  lastFrame = getTime();
   startTime = lastFrame;
 }
 
@@ -59,7 +62,7 @@ void MandelbrotScene::deinit()
 
 Framebuffer MandelbrotScene::drawFrame()
 {
-  float32 t = (float32)glfwGetTime() - startTime;
+  float32 t = getTime() - startTime;
   deltaTime = t - lastFrame;
   lastFrame = t;
 
@@ -81,22 +84,6 @@ Framebuffer MandelbrotScene::drawFrame()
 void MandelbrotScene::inputStatesUpdated() {
   Scene::inputStatesUpdated();
 
-  if(isActive(WindowInput_SizeChange)) {
-    Extent2D extent2D = getWindowExtent();
-
-    deleteFramebuffer(&drawFramebuffer);
-    drawFramebuffer = initializeFramebuffer(windowExtent, FramebufferCreate_NoDepthStencil);
-
-    mandelbrotShader->use();
-    mandelbrotShader->setUniform("viewPortResolution", glm::vec2(extent2D.width, extent2D.height));
-
-    // The center needs to be adjusted when the viewport size changes in order to maintain the same position
-    float32 widthRatio = (float32)windowExtent.width / oldWindowExtent.width;
-    float32 heightRatio = (float32)windowExtent.height / oldWindowExtent.height;
-    oldWindowExtent = extent2D;
-    centerOffset *= glm::vec2(widthRatio, heightRatio);
-  }
-
   if(isActive(MouseInput_Scroll)) {
     float32 yOffset = getMouseScrollY();
     float zoomDelta = zoom * 0.03f * zoomSpeed;
@@ -109,10 +96,10 @@ void MandelbrotScene::inputStatesUpdated() {
 
   InputState mouseLeftState = getInputState(MouseInput_Left);
   if(mouseLeftState == INPUT_HOT_PRESS) {
-    mouseDownTime = (float32)glfwGetTime();
+    mouseDownTime = getTime();
     mouseDown = true;
   } else if(mouseLeftState == INPUT_HOT_RELEASE) {
-    if((float32)glfwGetTime() - mouseDownTime < MOUSE_ACTION_TIME_SECONDS) {
+    if(getTime() - mouseDownTime < MOUSE_ACTION_TIME_SECONDS) {
       currentColorFavorIndex++;
       if(currentColorFavorIndex >= ArrayCount(colorFavors)) currentColorFavorIndex = 0;
     }
@@ -133,4 +120,23 @@ void MandelbrotScene::inputStatesUpdated() {
   } else if (leftShiftState == INPUT_HOT_RELEASE) {
     zoomSpeed = ZOOM_SPEED_NORMAL;
   }
+}
+
+void MandelbrotScene::framebufferSizeChangeRequest(Extent2D windowExtent)
+{
+  Scene::framebufferSizeChangeRequest(windowExtent);
+
+  glViewport(0, 0, windowExtent.width, windowExtent.height);
+
+  deleteFramebuffer(&drawFramebuffer);
+  drawFramebuffer = initializeFramebuffer(windowExtent, FramebufferCreate_NoDepthStencil);
+
+  mandelbrotShader->use();
+  mandelbrotShader->setUniform("viewPortResolution", glm::vec2(windowExtent.width, windowExtent.height));
+
+  // The center needs to be adjusted when the viewport size changes in order to maintain the same position
+  float32 widthRatio = (float32)windowExtent.width / oldWindowExtent.width;
+  float32 heightRatio = (float32)windowExtent.height / oldWindowExtent.height;
+  oldWindowExtent = windowExtent;
+  centerOffset *= glm::vec2(widthRatio, heightRatio);
 }

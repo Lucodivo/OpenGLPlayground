@@ -1,4 +1,5 @@
 #include "Input.h"
+#include "Util.h"
 
 #include <Windows.h>
 #include <Xinput.h>
@@ -13,9 +14,8 @@ file_access void loadXInput();
 file_access void glfw_mouse_scroll_callback(GLFWwindow* window, float64 xOffset, float64 yOffset);
 file_access void glfw_framebuffer_size_callback(GLFWwindow* window, int32 width, int32 height);
 
-file_access bool globalWindowSizeChange;
-file_access bool cursorModeChange;
-file_access Extent2D globalWindowExtent;
+file_access Consumabool windowModeChangeTossNextInput = Consumabool(false);
+file_access Extent2D globalWindowExtent = Extent2D{ 0, 0 };
 file_access MouseCoord globalMouseScroll = MouseCoord{ 0.0f, 0.0f };
 file_access MouseCoord mousePosition = { 0.0f, 0.0f };
 file_access MouseCoord mouseDelta = { 0.0f, 0.0f };
@@ -23,6 +23,7 @@ file_access ControllerAnalogStick analogStickLeft = { 0, 0 };
 file_access ControllerAnalogStick analogStickRight = { 0, 0 };
 file_access float32 mouseScrollY = 0.0f;
 file_access std::map<InputType, InputState>* inputState = NULL;
+file_access WindowSizeCallback windowSizeCallback = NULL;
 
 // NOTE: Casey Muratori's efficient way of handling function pointers, Handmade Hero episode 6 @ 22:06 & 1:00:21
 // NOTE: Allows us to quickly change the function parameters & return type in one place and cascade throughout the rest
@@ -38,20 +39,36 @@ file_access x_input_get_state* XInputGetState_ = XInputGetStateStub; // Create a
 
 void initializeInput(GLFWwindow* window, Extent2D windowExtent)
 {
-  globalWindowSizeChange = false;
-  cursorModeChange = false;
-  globalWindowExtent = windowExtent;
-  inputState = new std::map<InputType, InputState>();
   glfwSetScrollCallback(window, glfw_mouse_scroll_callback);
   glfwSetFramebufferSizeCallback(window, glfw_framebuffer_size_callback);
+
+  inputState = new std::map<InputType, InputState>();
+
+  int32 framebufferWidth, framebufferHeight;
+  glfwGetFramebufferSize(window, &framebufferWidth, &framebufferHeight);
+  framebufferWidth = max(0, framebufferWidth);
+  framebufferHeight = max(0, framebufferHeight);
+  globalWindowExtent = Extent2D{ (uint32)framebufferWidth, (uint32)framebufferHeight};
+
   loadXInput();
 }
 
 void deinitializeInput(GLFWwindow* window)
 {
-  delete inputState;
   glfwSetScrollCallback(window, NULL);
   glfwSetFramebufferSizeCallback(window, NULL);
+  windowSizeCallback = NULL;
+
+  delete inputState;
+
+  windowModeChangeTossNextInput.consume();
+  globalWindowExtent = Extent2D{ 0, 0 };
+  globalMouseScroll = MouseCoord{ 0.0f, 0.0f };
+  mousePosition = { 0.0f, 0.0f };
+  mouseDelta = { 0.0f, 0.0f };
+  analogStickLeft = { 0, 0 };
+  analogStickRight = { 0, 0 };
+  mouseScrollY = 0.0f;
 }
 
 InputState getInputState(InputType key) {
@@ -203,8 +220,7 @@ void loadInputStateForFrame(GLFWwindow* window) {
       glfwGetCursorPos(window, &newMouseCoord.x, &newMouseCoord.y);
 
       // NOTE: We do not consume mouse input on window size changes as it results in unwanted values
-      mouseDelta = (globalWindowSizeChange || cursorModeChange) ? MouseCoord{0.0f, 0.0f} : MouseCoord{newMouseCoord.x - mousePosition.x, newMouseCoord.y - mousePosition.y};
-      cursorModeChange = false; // The above essentially consumers the
+      mouseDelta = windowModeChangeTossNextInput.consume() ? MouseCoord{0.0f, 0.0f} : MouseCoord{newMouseCoord.x - mousePosition.x, newMouseCoord.y - mousePosition.y};
       mousePosition = newMouseCoord;
 
       std::map<InputType, InputState>::iterator movementIterator = inputState->find(MouseInput_Movement);
@@ -232,21 +248,6 @@ void loadInputStateForFrame(GLFWwindow* window) {
       } else if (scrollWasActive) // scroll no longer active
       {
         inputState->erase(scrollIterator);
-      }
-    }
-
-    // window size change management
-    {
-      local_access bool windowInputSizeChangeReportedLastFrame = false;
-      if(globalWindowSizeChange)
-      {
-        (*inputState)[WindowInput_SizeChange] = INPUT_ACTIVE;
-        globalWindowSizeChange = false; // NOTE: Set to false to signify that the result has been consumed
-        windowInputSizeChangeReportedLastFrame = true;
-      } else if(windowInputSizeChangeReportedLastFrame)
-      {
-        inputState->erase(WindowInput_SizeChange);
-        windowInputSizeChangeReportedLastFrame = false;
       }
     }
   }
@@ -317,12 +318,17 @@ void glfw_mouse_scroll_callback(GLFWwindow* window, float64 xOffset, float64 yOf
   globalMouseScroll.y = yOffset;
 }
 
+void subscribeWindowSizeCallback(WindowSizeCallback callback)
+{
+  windowSizeCallback = callback;
+}
+
 // NOTE: returns (0,0) when no longer on screen
 void glfw_framebuffer_size_callback(GLFWwindow* window, int32 width, int32 height)
 {
   local_access bool globalWindowMinimized = false;
   // NOTE: Currently just ignoring minimize.
-  if(width == 0 || height == 0) {
+  if(width <= 0 || height <= 0) {
     globalWindowMinimized = true;
     return;
   } else if(globalWindowMinimized) {
@@ -332,17 +338,20 @@ void glfw_framebuffer_size_callback(GLFWwindow* window, int32 width, int32 heigh
     {
       return;
     }
-  } else if(width > 0 && height > 0) {
-    globalWindowSizeChange = true;
-    globalWindowExtent = { (uint32)width, (uint32)height };
   }
 
+  windowModeChangeTossNextInput.set();
+  globalWindowExtent = { (uint32)width, (uint32)height };
+
+  if(windowSizeCallback != NULL) {
+    windowSizeCallback();
+  }
 }
 
 void enableCursor(GLFWwindow* window, bool enable)
 {
   glfwSetInputMode(window, GLFW_CURSOR, enable ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED);
-  cursorModeChange = true;
+  windowModeChangeTossNextInput.set();
 }
 
 bool isCursorEnabled(GLFWwindow* window)

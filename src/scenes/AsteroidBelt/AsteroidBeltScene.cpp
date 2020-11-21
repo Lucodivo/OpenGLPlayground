@@ -58,7 +58,7 @@ void AsteroidBeltScene::init(Extent2D windowExtent)
   reflectModelInstanceShader->setUniform("skybox", 0);
 
   glm::mat4* asteroidModelMatrices = new glm::mat4[numAsteroids];
-  srand((uint32)glfwGetTime()); // initialize random seed
+  srand((uint32)getTime()); // initialize random seed
   float32 radius = 30.0;
   auto randDisplacement = []() -> float32 { return ((rand() % 2000) / 100.0f) - 10.0f; };
   glm::mat4 identityMat = glm::mat4(1.0);
@@ -126,6 +126,7 @@ void AsteroidBeltScene::init(Extent2D windowExtent)
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
   glDisable(GL_CULL_FACE);
+  glViewport(0, 0, windowExtent.width, windowExtent.height);
 
   delete[] asteroidModelMatrices;
 }
@@ -161,7 +162,7 @@ Framebuffer AsteroidBeltScene::drawFrame()
   glBindFramebuffer(GL_FRAMEBUFFER, drawFramebuffer.id);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);           // OpenGL state-using function
 
-  float32 t = (float32)glfwGetTime();
+  float32 t = getTime();
   deltaTime = t - lastFrame;
   lastFrame = t;
 
@@ -203,13 +204,11 @@ Framebuffer AsteroidBeltScene::drawFrame()
   return drawFramebuffer;
 }
 
-void AsteroidBeltScene::inputStatesUpdated()
+void AsteroidBeltScene::framebufferSizeChangeRequest(Extent2D windowExtent)
 {
-  FirstPersonScene::inputStatesUpdated();
+  Scene::framebufferSizeChangeRequest(windowExtent);
 
-  if(isActive(WindowInput_SizeChange))
-  {
-    deleteFramebuffer(&drawFramebuffer);
-    drawFramebuffer = initializeFramebuffer(windowExtent);
-  }
+  glViewport(0, 0, windowExtent.width, windowExtent.height);
+  deleteFramebuffer(&drawFramebuffer);
+  drawFramebuffer = initializeFramebuffer(windowExtent);
 }

@@ -6,6 +6,7 @@
 #include "../../common/FileLocations.h"
 #include "../../common/ObjectData.h"
 #include "../../common/Util.h"
+#include "../../common/Input.h"
 
 const glm::vec3 startingBoundingBoxMin = glm::vec3(-1.0f, -1.0f, -1.0f);
 const glm::vec3 startingBoundingBoxMax = glm::vec3(1.0f, 1.0f, 1.0f);
@@ -65,8 +66,9 @@ void GUIScene::init(Extent2D windowExtent)
   glCullFace(GL_BACK);
   
   glBindVertexArray(cubeVertexAtt.arrayObject);
+  glViewport(0, 0, windowExtent.width, windowExtent.height);
 
-  startTime = (float32)glfwGetTime();
+  startTime = getTime();
 }
 
 void GUIScene::deinit()
@@ -83,7 +85,7 @@ void GUIScene::deinit()
 
 Framebuffer GUIScene::drawFrame()
 {
-  float32 t = (float32) glfwGetTime() - startTime;
+  float32 t = (float32) getTime() - startTime;
   deltaTime = t - lastFrame;
   lastFrame = t;
 
@@ -143,12 +145,6 @@ void GUIScene::inputStatesUpdated() {
     cursorModeEnabled = !cursorModeEnabled;
     enableDefaultMouseCameraMovement(!cursorModeEnabled); // if cursor mode, disable defauly mouse camera control
     enableCursor(window, cursorModeEnabled);
-  }
-
-  if(isActive(WindowInput_SizeChange))
-  {
-    deleteFramebuffer(&drawFramebuffer);
-    drawFramebuffer = initializeFramebuffer(windowExtent);
   }
 }
 
@@ -216,4 +212,13 @@ bool GUIScene::checkCubeCollision(glm::vec3* worldRay, glm::vec3* rayOrigin, Cub
   // If the time of the collisions is negative, an intersection happened "behind" the origin and we don't consider the intersection
   return tmin > 0.0f || tmax > 0.0f;
 
+}
+
+void GUIScene::framebufferSizeChangeRequest(Extent2D windowExtent)
+{
+  Scene::framebufferSizeChangeRequest(windowExtent);
+
+  glViewport(0, 0, windowExtent.width, windowExtent.height);
+  deleteFramebuffer(&drawFramebuffer);
+  drawFramebuffer = initializeFramebuffer(windowExtent);
 }

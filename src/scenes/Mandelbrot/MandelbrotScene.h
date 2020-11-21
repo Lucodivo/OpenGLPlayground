@@ -4,8 +4,12 @@
 
 #pragma once
 
+#define GLFW_INCLUDE_NONE // ensure GLFW doesn't load OpenGL headers
+#include <GLFW/glfw3.h>
+
 #include "../FirstPersonScene.h"
 #include "../../common/ObjectData.h"
+#include "../../ShaderProgram.h"
 
 #define ZOOM_SPEED_NORMAL 1.0f
 #define ZOOM_SPEED_FAST 3.0f
@@ -18,6 +22,7 @@ public:
   Framebuffer drawFrame();
   void deinit();
   void inputStatesUpdated();
+  virtual void framebufferSizeChangeRequest(Extent2D windowExtent);
   const char* title();
 
 private:

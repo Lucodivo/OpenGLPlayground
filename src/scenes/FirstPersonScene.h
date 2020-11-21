@@ -6,10 +6,6 @@
 class FirstPersonScene : public Scene
 {
 public:
-  FirstPersonScene();
-
-  virtual void init(Extent2D windowExtent);
-  virtual void deinit();
   virtual void inputStatesUpdated();
 
   void enableDefaultMouseCameraMovement(bool enable);

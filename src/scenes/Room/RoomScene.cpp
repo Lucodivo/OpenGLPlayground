@@ -135,7 +135,7 @@ void RoomScene::deinit()
 
 Framebuffer RoomScene::drawFrame()
 {
-  float32 t = (float32)glfwGetTime();
+  float32 t = getTime();
   deltaTime = t - lastFrame;
   lastFrame = t;
 
@@ -275,13 +275,10 @@ void RoomScene::generateDepthCubeMap()
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void RoomScene::inputStatesUpdated()
+void RoomScene::framebufferSizeChangeRequest(Extent2D windowExtent)
 {
-  FirstPersonScene::inputStatesUpdated();
+  Scene::framebufferSizeChangeRequest(windowExtent);
 
-  if(isActive(WindowInput_SizeChange))
-  {
-    deleteFramebuffer(&drawFramebuffer);
-    drawFramebuffer = initializeFramebuffer(windowExtent, FramebufferCreate_color_sRGB);
-  }
+  deleteFramebuffer(&drawFramebuffer);
+  drawFramebuffer = initializeFramebuffer(windowExtent, FramebufferCreate_color_sRGB);
 }

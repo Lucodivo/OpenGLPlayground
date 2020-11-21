@@ -7,6 +7,8 @@
 #include "../../common/FileLocations.h"
 
 #include "ReflectRefractScene.h"
+#include "../../common/Util.h"
+#include "../../common/Input.h"
 
 const float32 startDist = 2.5f;
 const float32 sqr2over2 = 0.70710678118f;
@@ -103,6 +105,8 @@ void ReflectRefractScene::init(Extent2D windowExtent)
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_CUBE_MAP, skyboxTextureId);
 
+  glViewport(0, 0, windowExtent.width, windowExtent.height);
+
   nanoSuitModelMat = glm::scale(glm::mat4(), glm::vec3(modelScale));  // it's a bit too big for our scene, so scale it down
   nanoSuitModelMat = glm::translate(nanoSuitModelMat, modelPosition); // translate it down so it's at the center of the scene
 
@@ -142,7 +146,7 @@ void ReflectRefractScene::init(Extent2D windowExtent)
   normalVisualization10InstanceShader->setUniform("projection", projectionMat);
   normalVisualization10InstanceShader->setUniform("color", glm::vec3(1.0f, 1.0f, 0.0f));
 
-  initTime = (float32)glfwGetTime();
+  initTime = getTime();
 }
 
 void ReflectRefractScene::deinit()
@@ -183,7 +187,7 @@ Framebuffer ReflectRefractScene::drawFrame()
   glBindFramebuffer(GL_FRAMEBUFFER, drawFramebuffer.id);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-  float32 currTime = (float32)glfwGetTime() - initTime;
+  float32 currTime = getTime() - initTime;
   deltaTime = currTime - lastFrame;
   lastFrame = currTime;
 
@@ -308,18 +312,11 @@ void ReflectRefractScene::inputStatesUpdated() {
   if(hotPress(KeyboardInput_Right) || hotPress(Controller1Input_Y)) {
     nextMode();
   }
-
-  if(isActive(WindowInput_SizeChange))
-  {
-    deleteFramebuffer(&drawFramebuffer);
-    drawFramebuffer = initializeFramebuffer(windowExtent);
-    windowAspectRatio = (float32)windowExtent.width / (float32)windowExtent.height;
-  }
 }
 
 void ReflectRefractScene::nextModelReflaction()
 {
-  double currentTime = glfwGetTime();
+  double currentTime = getTime();
   if (currentTime - reflactionModeSwitchTimer > 0.5f)
   {
     selectedReflactionIndex = (selectedReflactionIndex + 1) % reflactiveValCount;
@@ -329,7 +326,7 @@ void ReflectRefractScene::nextModelReflaction()
 
 void ReflectRefractScene::prevModelReflaction()
 {
-  double currentTime = glfwGetTime();
+  double currentTime = getTime();
   if (currentTime - reflactionModeSwitchTimer > 0.5f)
   {
     selectedReflactionIndex = selectedReflactionIndex != 0 ? ((selectedReflactionIndex - 1) % reflactiveValCount) : (reflactiveValCount - 1);
@@ -339,7 +336,7 @@ void ReflectRefractScene::prevModelReflaction()
 
 void ReflectRefractScene::nextMode()
 {
-  double currentTime = glfwGetTime();
+  double currentTime = getTime();
   if (currentTime - modeSwitchTimer > 0.5f)
   {
     if (currMode == None) currMode = Exploding;
@@ -351,7 +348,7 @@ void ReflectRefractScene::nextMode()
 
 void ReflectRefractScene::prevMode()
 {
-  double currentTime = glfwGetTime();
+  double currentTime = getTime();
   if (currentTime - modeSwitchTimer > 0.5f)
   {
     if (currMode == None) currMode = NormalVisualization;
@@ -359,4 +356,15 @@ void ReflectRefractScene::prevMode()
     else if (currMode == NormalVisualization) currMode = Exploding;
     modeSwitchTimer = currentTime;
   }
+}
+
+void ReflectRefractScene::framebufferSizeChangeRequest(Extent2D windowExtent)
+{
+  Scene::framebufferSizeChangeRequest(windowExtent);
+
+  glViewport(0, 0, windowExtent.width, windowExtent.height);
+
+  deleteFramebuffer(&drawFramebuffer);
+  drawFramebuffer = initializeFramebuffer(windowExtent);
+  windowAspectRatio = (float32)windowExtent.width / (float32)windowExtent.height;
 }

@@ -2,11 +2,11 @@
 // Created by Connor on 11/21/2019.
 //
 
-#ifndef LEARNOPENGL_RAYTRACINGSPHERESCENE_H
-#define LEARNOPENGL_RAYTRACINGSPHERESCENE_H
+#pragma once
 
 #include "../FirstPersonScene.h"
 #include "../../common/ObjectData.h"
+#include "../../ShaderProgram.h"
 
 class RayTracingSphereScene final : public FirstPersonScene {
 public:
@@ -14,7 +14,7 @@ public:
   void init(Extent2D windowExtent);
   Framebuffer drawFrame();
   void deinit();
-  void inputStatesUpdated();
+  virtual void framebufferSizeChangeRequest(Extent2D windowExtent);
   const char* title();
 
 private:
@@ -29,6 +29,3 @@ private:
   float32 lastFrame = 0;
   float32 startTime = 0;
 };
-
-
-#endif //LEARNOPENGL_RAYTRACINGSPHERESCENE_H

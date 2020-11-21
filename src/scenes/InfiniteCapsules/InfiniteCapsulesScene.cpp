@@ -5,6 +5,7 @@
 #include "InfiniteCapsulesScene.h"
 #include "../../common/FileLocations.h"
 #include "../../common/Util.h"
+#include "../../common/Input.h"
 
 InfiniteCapsulesScene::InfiniteCapsulesScene(): FirstPersonScene()
 {
@@ -33,10 +34,11 @@ void InfiniteCapsulesScene::init(Extent2D windowExtent)
 
   glDisable(GL_DEPTH_TEST);
   glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+  glViewport(0, 0, windowExtent.width, windowExtent.height);
 
   glBindVertexArray(quadVertexAtt.arrayObject);
 
-  lastFrame = (float32)glfwGetTime();
+  lastFrame = getTime();
   startTime = lastFrame;
 }
 
@@ -52,7 +54,7 @@ void InfiniteCapsulesScene::deinit() {
 }
 
 Framebuffer InfiniteCapsulesScene::drawFrame() {
-  float32 t = (float32)glfwGetTime() - startTime;
+  float32 t = getTime() - startTime;
   deltaTime = t - lastFrame;
   lastFrame = t;
 
@@ -87,14 +89,17 @@ void InfiniteCapsulesScene::inputStatesUpdated() {
     lightMoveDir = camera.Front;
     lightPosition = camera.Position + lightMoveDir;
   }
+}
 
-  if(isActive(WindowInput_SizeChange)) {
-    Extent2D extent2D = getWindowExtent();
+void InfiniteCapsulesScene::framebufferSizeChangeRequest(Extent2D windowExtent)
+{
+  Scene::framebufferSizeChangeRequest(windowExtent);
 
-    deleteFramebuffer(&drawFramebuffer);
-    drawFramebuffer = initializeFramebuffer(windowExtent, FramebufferCreate_NoDepthStencil);
+  glViewport(0, 0, windowExtent.width, windowExtent.height);
 
-    rayMarchingShader->use();
-    rayMarchingShader->setUniform("viewPortResolution", glm::vec2(extent2D.width, extent2D.height));
-  }
+  deleteFramebuffer(&drawFramebuffer);
+  drawFramebuffer = initializeFramebuffer(windowExtent, FramebufferCreate_NoDepthStencil);
+
+  rayMarchingShader->use();
+  rayMarchingShader->setUniform("viewPortResolution", glm::vec2(windowExtent.width, windowExtent.height));
 }

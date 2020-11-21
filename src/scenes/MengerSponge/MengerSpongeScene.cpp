@@ -8,6 +8,7 @@
 #include "../../common/FileLocations.h"
 #include "../../common/ObjectData.h"
 #include "../../common/Util.h"
+#include "../../common/Input.h"
 
 MengerSpongeScene::MengerSpongeScene(GLFWwindow* window): FirstPersonScene(), window(window)
 {
@@ -84,7 +85,7 @@ void MengerSpongeScene::init(Extent2D windowExtent)
 
   glBindVertexArray(quadVertexAtt.arrayObject);
 
-  lastFrame = (float32)glfwGetTime();
+  lastFrame = getTime();
   startTime = lastFrame;
 
   // background clear color
@@ -122,7 +123,7 @@ void MengerSpongeScene::deinit()
 
 Framebuffer MengerSpongeScene::drawFrame()
 {
-  float32 t = (float32)glfwGetTime() - startTime;
+  float32 t = getTime() - startTime;
   deltaTime = t - lastFrame;
   lastFrame = t;
 
@@ -263,12 +264,6 @@ void MengerSpongeScene::inputStatesUpdated() {
     showDebugWindows = !showDebugWindows;
     enableDefaultMouseCameraMovement(!showDebugWindows);
     enableCursor(window, showDebugWindows);
-  }
-
-  // TODO: Overriding viewport changes in Scenes class. Should we simply not call glViewport in parent classes?
-  if(isActive(WindowInput_SizeChange)) {
-    // NOTE: We need our viewport extent to match specified resolution instead of matching out window extent
-    glViewport(0, 0, currentResolution.width, currentResolution.height);
   }
 }
 

@@ -21,30 +21,27 @@ struct Glyph
 
 class TextDebugShader {
 public:
-  TextDebugShader(uint32 windowWidth, uint32 windowHeight);
+  TextDebugShader(Extent2D windowExtent);
   ~TextDebugShader();
   void renderText(std::string text, GLfloat x, GLfloat y, GLfloat scale, glm::vec3 color);
-  void updateWindowDimens(uint32 windowWidth, uint32 windowHeight);
+  void updateWindowDimens(Extent2D windowExtent);
 
 private:
   std::map<GLchar, Glyph> Characters;
 
   ShaderProgram shader;
   uint32 vao, vbo;
-  uint32 windowWidth, windowHeight;
+  Extent2D windowExtent;
   glm::mat4 projectionMat;
 
   void initDebugTextCharacters();
   void initDebugTextBuffers();
-  void updateTextDebugProjectionMat(uint32 windowWidth, uint32 windowHeight);
 };
 
-TextDebugShader::TextDebugShader(uint32 windowWidth, uint32 windowHeight): shader(textVertexShaderFileLoc, textFragmentShaderFileLoc) {
-  this->windowWidth = windowWidth;
-  this->windowHeight = windowHeight;
+TextDebugShader::TextDebugShader(Extent2D windowExtent): shader(textVertexShaderFileLoc, textFragmentShaderFileLoc) {
+  updateWindowDimens(windowExtent);
   initDebugTextCharacters();
   initDebugTextBuffers();
-  updateTextDebugProjectionMat(windowWidth, windowHeight);
 }
 
 TextDebugShader::~TextDebugShader() {
@@ -121,14 +118,10 @@ void TextDebugShader::initDebugTextBuffers()
   glBindVertexArray(0);
 }
 
-void TextDebugShader::updateWindowDimens(uint32 windowWidth, uint32 windowHeight)
+void TextDebugShader::updateWindowDimens(Extent2D windowExtent)
 {
-  updateTextDebugProjectionMat(windowWidth, windowHeight);
-}
-
-void TextDebugShader::updateTextDebugProjectionMat(uint32 windowWidth, uint32 windowHeight)
-{
-  projectionMat = glm::ortho(0.0f, (float)windowWidth, 0.0f, (float)windowHeight);
+  this->windowExtent = windowExtent;
+  projectionMat = glm::ortho(0.0f, (float)windowExtent.width, 0.0f, (float)windowExtent.height);
   shader.use();
   shader.setUniform("projection", projectionMat);
 }
@@ -154,7 +147,7 @@ void TextDebugShader::renderText(std::string text, GLfloat x, GLfloat y, GLfloat
   glActiveTexture(GL_TEXTURE0); // We will only be using GL_TEXTURE0 to render text
   glGetIntegerv(GL_TEXTURE_BINDING_2D, &originalTexture0);
 
-  glViewport(0, 0, windowWidth, windowHeight);
+  glViewport(0, 0, windowExtent.width, windowExtent.height);
 
   // turn on blend values to render text
   glEnable(GL_BLEND);

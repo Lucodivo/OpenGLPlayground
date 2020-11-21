@@ -6,6 +6,7 @@
 
 #include "../FirstPersonScene.h"
 #include "../../common/ObjectData.h"
+#include "../../ShaderProgram.h"
 
 class InfiniteCapsulesScene final : public FirstPersonScene {
 public:
@@ -14,6 +15,7 @@ public:
   Framebuffer drawFrame();
   void deinit();
   virtual void inputStatesUpdated();
+  virtual void framebufferSizeChangeRequest(Extent2D windowExtent);
   const char* title();
 
 private:

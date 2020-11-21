@@ -131,7 +131,7 @@ void MoonScene::init(Extent2D windowExtent)
   glFrontFace(GL_CCW);
   glCullFace(GL_BACK);
 
-  startTime = (float32)glfwGetTime();
+  startTime = getTime();
 }
 
 void MoonScene::deinit()
@@ -164,7 +164,7 @@ void MoonScene::deinit()
 
 Framebuffer MoonScene::drawFrame()
 {
-  float32 t = (float32)glfwGetTime() - startTime;
+  float32 t = getTime() - startTime;
   deltaTime = t - lastFrame;
   lastFrame = t;
 
@@ -342,14 +342,11 @@ void MoonScene::generateDepthMap()
   depthMapFramebuffer.extent.height = SHADOW_MAP_HEIGHT;
 }
 
-void MoonScene::inputStatesUpdated()
+void MoonScene::framebufferSizeChangeRequest(Extent2D windowExtent)
 {
-  FirstPersonScene::inputStatesUpdated();
+  Scene::framebufferSizeChangeRequest(windowExtent);
 
-  if(isActive(WindowInput_SizeChange))
-  {
-    deleteFramebuffer(&drawFramebuffer);
-    drawFramebuffer = initializeFramebuffer(windowExtent);
-    // NOTE: depth map framebuffer is fine as is
-  }
+  deleteFramebuffer(&drawFramebuffer);
+  drawFramebuffer = initializeFramebuffer(windowExtent);
+  // NOTE: depth map framebuffer is fine as is
 }

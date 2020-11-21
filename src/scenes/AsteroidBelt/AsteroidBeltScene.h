@@ -11,7 +11,7 @@ public:
   void init(Extent2D windowExtent);
   Framebuffer drawFrame();
   void deinit();
-  void inputStatesUpdated();
+  virtual void framebufferSizeChangeRequest(Extent2D windowExtent);
   const char* title();
 
 private:

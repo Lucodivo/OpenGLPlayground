@@ -1,17 +1,7 @@
 #include "FirstPersonScene.h"
+#include "../common/Input.h"
 
 #define INIT_CAMERA_SPEED 1.0
-
-FirstPersonScene::FirstPersonScene() : Scene(){}
-
-void FirstPersonScene::init(Extent2D windowExtent)
-{
-  Scene::init(windowExtent);
-}
-
-void FirstPersonScene::deinit() {
-  Scene::deinit();
-}
 
 void FirstPersonScene::inputStatesUpdated()
 {

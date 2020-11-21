@@ -46,7 +46,9 @@ void Pixel2DScene::init(Extent2D windowExtent)
 
   glBindVertexArray(quadVertexAtt.arrayObject);
 
-  lastFrame = (float32)glfwGetTime();
+  glViewport(0, 0, windowExtent.width, windowExtent.height);
+
+  lastFrame = getTime();
   startTime = lastFrame;
 }
 
@@ -68,7 +70,7 @@ void Pixel2DScene::deinit()
 
 Framebuffer Pixel2DScene::drawFrame()
 {
-  float32 t = (float32)glfwGetTime() - startTime;
+  float32 t = getTime() - startTime;
   deltaTime = t - lastFrame;
   lastFrame = t;
 
@@ -83,19 +85,19 @@ Framebuffer Pixel2DScene::drawFrame()
   return drawFramebuffer;
 }
 
-void Pixel2DScene::inputStatesUpdated() {
-  Scene::inputStatesUpdated();
+void Pixel2DScene::framebufferSizeChangeRequest(Extent2D windowExtent)
+{
+  Scene::framebufferSizeChangeRequest(windowExtent);
 
-  if(isActive(WindowInput_SizeChange))
-  {
-    deleteFramebuffer(&drawFramebuffer);
-    drawFramebuffer = initializeFramebuffer(windowExtent, FramebufferCreate_NoDepthStencil);
+  glViewport(0, 0, windowExtent.width, windowExtent.height);
 
-    uint32 widthOffset = (windowExtent.width / 2) - (textureWidth / 2);
-    uint32 heightOffset = (windowExtent.height / 2) - (textureHeight / 2);
+  deleteFramebuffer(&drawFramebuffer);
+  drawFramebuffer = initializeFramebuffer(windowExtent, FramebufferCreate_NoDepthStencil);
 
-    pixel2DShader->use();
-    pixel2DShader->setUniform("windowDimens", glm::vec2(windowExtent.width, windowExtent.height));
-    pixel2DShader->setUniform("lowerLeftOffset", glm::vec2(widthOffset, heightOffset));
-  }
+  uint32 widthOffset = (windowExtent.width / 2) - (textureWidth / 2);
+  uint32 heightOffset = (windowExtent.height / 2) - (textureHeight / 2);
+
+  pixel2DShader->use();
+  pixel2DShader->setUniform("windowDimens", glm::vec2(windowExtent.width, windowExtent.height));
+  pixel2DShader->setUniform("lowerLeftOffset", glm::vec2(widthOffset, heightOffset));
 }

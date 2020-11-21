@@ -28,6 +28,8 @@ file_access bool sceneManagerIsActive = true;
 void toggleWindowSize(GLFWwindow* window, const uint32 width, const uint32 height);
 void saveLastSceneIndex(uint32 sceneIndex);
 void loadLastSceneIndex(uint32* sceneIndex);
+void windowSizeCallback();
+Consumabool windowSizeChange = Consumabool(false);
 
 class EmptyScene : public Scene
 {
@@ -51,7 +53,7 @@ class EmptyScene : public Scene
 void runScenes(GLFWwindow* window) {
   Extent2D windowExtent = { VIEWPORT_INIT_WIDTH, VIEWPORT_INIT_HEIGHT };
 
-  TextDebugShader textDebugShader = TextDebugShader(windowExtent.width, windowExtent.height);
+  TextDebugShader textDebugShader = TextDebugShader(windowExtent);
 
   EmptyScene emptyScene = EmptyScene();
   KernelScene kernelScene = KernelScene();
@@ -96,26 +98,26 @@ void runScenes(GLFWwindow* window) {
       toggleWindowSize(window, VIEWPORT_INIT_WIDTH, VIEWPORT_INIT_HEIGHT);
     }
 
-    bool windowSizeChange = isActive(WindowInput_SizeChange);
-    if(windowSizeChange)
-    {
-      windowExtent = getWindowExtent();
-      textDebugShader.updateWindowDimens(windowExtent.width, windowExtent.height);
-    }
-
-    if(!sceneManagerIsActive || windowSizeChange) { // if scene manager isn't active or we have a window size change, pass input to scene
+    if(!sceneManagerIsActive) { // if scene manager isn't active or we have a window size change, pass input to scene
       scenes[sceneIndex]->inputStatesUpdated();
     }
   };
 
   initializeInput(window, windowExtent);
+  subscribeWindowSizeCallback(windowSizeCallback);
   scenes[sceneIndex]->init(windowExtent);
   sceneCursorMode = isCursorEnabled(window);
   enableCursor(window, true);
   float32 deltaTime = 1.0;
-  float32 lastFrame = (float32)glfwGetTime();
+  float32 lastFrame = getTime();
   while (glfwWindowShouldClose(window) == GL_FALSE)
   {
+    if(windowSizeChange.consume()) {
+      windowExtent = getWindowExtent();
+      textDebugShader.updateWindowDimens(windowExtent);
+      scenes[sceneIndex]->framebufferSizeChangeRequest(windowExtent);
+    }
+
     loadInputStateForFrame(window);
     handleInputForFrame();
 
@@ -141,7 +143,7 @@ void runScenes(GLFWwindow* window) {
       // debug text
       uint32 numFrames = (uint32)(1 / deltaTime);
       textDebugShader.renderText(std::to_string(numFrames) + " FPS", 25.0f, 25.0f, 1.0f, glm::vec3(1.0f, 0.0f, 0.0f));
-      float32 t = (float32)glfwGetTime();
+      float32 t = getTime();
       deltaTime = t - lastFrame;
       lastFrame = t;
 
@@ -180,6 +182,10 @@ void runScenes(GLFWwindow* window) {
   saveLastSceneIndex(sceneIndex);
 
   glfwTerminate(); // clean up gl resources
+}
+
+void windowSizeCallback() {
+  windowSizeChange.set();
 }
 
 void toggleWindowSize(GLFWwindow* window, const uint32 width, const uint32 height)

@@ -8,6 +8,8 @@
 
 #include "../LearnOpenGLPlatform.h"
 
+typedef void (*WindowSizeCallback)(void);
+
 struct MouseCoord
 {
   float64 x;
@@ -31,10 +33,9 @@ enum InputType
   KeyboardInput_Up, KeyboardInput_Down, KeyboardInput_Left, KeyboardInput_Right, KeyboardInput_Space,
   MouseInput_Left, MouseInput_Right, MouseInput_Middle, MouseInput_Back, MouseInput_Forward,
   MouseInput_Scroll, MouseInput_Movement,
-  WindowInput_SizeChange,
   Controller1Input_A, Controller1Input_B, Controller1Input_X, Controller1Input_Y,
   Controller1Input_DPad_Up, Controller1Input_DPad_Down, Controller1Input_DPad_Left, Controller1Input_DPad_Right,
-  Controller1Input_L1, Controller1Input_L2, Controller1Input_R1, Controller1Input_R2,
+  Controller1Input_L1, Controller1Input_L2, Controller1Input_R1, Controller1Input_R2, // TODO: Get L2/R2 values
   Controller1Input_Start, Controller1Input_Select, Controller1Input_Analog_Left, Controller1Input_Analog_Right
 };
 
@@ -64,3 +65,6 @@ ControllerAnalogStick getControllerAnalogStickRight();
 
 void enableCursor(GLFWwindow* window, bool enable);
 bool isCursorEnabled(GLFWwindow* window);
+
+// NOTE: Call with NULL to unsubscribe
+void subscribeWindowSizeCallback(WindowSizeCallback callback);

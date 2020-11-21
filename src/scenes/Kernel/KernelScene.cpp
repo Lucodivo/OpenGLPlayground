@@ -7,6 +7,7 @@
 #include "../../common/Util.h"
 
 #include "KernelScene.h"
+#include "../../common/Input.h"
 
 // ===== cube values =====
 const glm::vec3 cubePositions[] = {
@@ -159,6 +160,8 @@ void KernelScene::init(Extent2D windowExtent)
   glStencilOp(GL_KEEP, // Keep current stencil value when stencil test fails
               GL_KEEP, // Keep current stencil value when stencil test passes but depth fails
               GL_REPLACE); // Set the stencil value to 'ref' as specified by glStencilFunc when stencil & depth pass
+
+  glViewport(0, 0, windowExtent.width, windowExtent.height);
 }
 
 void KernelScene::initializeTextures(uint32& diffTextureId, uint32& specTextureId, uint32& skyboxTextureId)
@@ -214,7 +217,7 @@ Framebuffer KernelScene::drawFrame(){
   // if flashlight is off, simply remove all color from light
   glm::vec3 flashLightColor = flashLightOn ? glm::vec3(1.0f, 1.0f, 1.0f) : glm::vec3(0.0f);
 
-  float32 t = (float32)glfwGetTime();
+  float32 t = getTime();
   deltaTime = t - lastFrame;
   lastFrame = t;
   float32 sineVal = sinf(t);
@@ -390,16 +393,20 @@ void KernelScene::inputStatesUpdated() {
   {
     toggleFlashlight();
   }
+}
 
-  if(isActive(WindowInput_SizeChange)) {
-    Extent2D windowExtent = getWindowExtent();
-    Framebuffer* framebuffers[] = { &preprocessFramebuffer, &postprocessFramebuffer };
-    deleteFramebuffers(ArrayCount(framebuffers), framebuffers);
-    preprocessFramebuffer = initializeFramebuffer(windowExtent);
-    postprocessFramebuffer = initializeFramebuffer(windowExtent, FramebufferCreate_NoDepthStencil);
-    framebufferShader->setUniform("textureWidth", (float32)windowExtent.width);
-    framebufferShader->setUniform("textureHeight", (float32)windowExtent.height);
-  }
+void KernelScene::framebufferSizeChangeRequest(Extent2D windowExtent)
+{
+  Scene::framebufferSizeChangeRequest(windowExtent);
+
+  glViewport(0, 0, windowExtent.width, windowExtent.height);
+
+  Framebuffer* framebuffers[] = { &preprocessFramebuffer, &postprocessFramebuffer };
+  deleteFramebuffers(ArrayCount(framebuffers), framebuffers);
+  preprocessFramebuffer = initializeFramebuffer(windowExtent);
+  postprocessFramebuffer = initializeFramebuffer(windowExtent, FramebufferCreate_NoDepthStencil);
+  framebufferShader->setUniform("textureWidth", (float32)windowExtent.width);
+  framebufferShader->setUniform("textureHeight", (float32)windowExtent.height);
 }
 
 void KernelScene::toggleFlashlight()
@@ -409,7 +416,7 @@ void KernelScene::toggleFlashlight()
 
 void KernelScene::nextImageKernel()
 {
-  double currentTime = glfwGetTime();
+  double currentTime = getTime();
   if (currentTime - kernelModeSwitchTimer > 0.5f)
   {
     selectedKernelIndex = (selectedKernelIndex + 1) % kernelCount;
@@ -419,7 +426,7 @@ void KernelScene::nextImageKernel()
 
 void KernelScene::prevImageKernel()
 {
-  double currentTime = glfwGetTime();
+  double currentTime = getTime();
   if (currentTime - kernelModeSwitchTimer > 0.5f)
   {
     selectedKernelIndex = selectedKernelIndex != 0 ? ((selectedKernelIndex - 1) % kernelCount) : (kernelCount - 1);

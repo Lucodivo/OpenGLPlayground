@@ -21,6 +21,9 @@ typedef double float64;
 #define file_access static
 #define class_access static
 
+#define min(x,y) x < y ? x : y
+#define max(x,y) x > y ? x : y
+
 #ifdef NOT_DEBUG
 #define Assert(Expression)
 #else
