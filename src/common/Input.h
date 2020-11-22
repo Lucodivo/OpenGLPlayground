@@ -35,7 +35,7 @@ enum InputType
   MouseInput_Scroll, MouseInput_Movement,
   Controller1Input_A, Controller1Input_B, Controller1Input_X, Controller1Input_Y,
   Controller1Input_DPad_Up, Controller1Input_DPad_Down, Controller1Input_DPad_Left, Controller1Input_DPad_Right,
-  Controller1Input_L1, Controller1Input_L2, Controller1Input_R1, Controller1Input_R2, // TODO: Get L2/R2 values
+  Controller1Input_Shoulder_Left, Controller1Input_Trigger_Left, Controller1Input_Shoulder_Right, Controller1Input_Trigger_Right,
   Controller1Input_Start, Controller1Input_Select, Controller1Input_Analog_Left, Controller1Input_Analog_Right
 };
 
@@ -59,6 +59,8 @@ InputState getInputState(InputType key); // Note: for special use cases (ex: dou
 MouseCoord getMousePosition();
 MouseCoord getMouseDelta();
 float32 getMouseScrollY();
+float32 getControllerL2(); // NOTE: values range from 31 - 255
+float32 getControllerR2(); // NOTE: values range from 31 - 255;
 Extent2D getWindowExtent();
 ControllerAnalogStick getControllerAnalogStickLeft();
 ControllerAnalogStick getControllerAnalogStickRight();

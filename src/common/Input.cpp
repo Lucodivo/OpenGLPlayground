@@ -22,6 +22,8 @@ file_access MouseCoord mouseDelta = { 0.0f, 0.0f };
 file_access ControllerAnalogStick analogStickLeft = { 0, 0 };
 file_access ControllerAnalogStick analogStickRight = { 0, 0 };
 file_access float32 mouseScrollY = 0.0f;
+file_access int8 controller1L2Value = 0;
+file_access int8 controller1R2Value = 0;
 file_access std::map<InputType, InputState>* inputState = NULL;
 file_access WindowSizeCallback windowSizeCallback = NULL;
 
@@ -150,8 +152,7 @@ void setMouseState(GLFWwindow* window, uint32 glfwKey, InputType mouseInput)
 void setControllerState(int16 gamepadFlags, uint32 xInputButtonFlag, InputType controllerInput)
 {
   std::map<InputType, InputState>::iterator controllerInputIterator = inputState->find(controllerInput);
-  InputState oldControllerInputState =
-          controllerInputIterator != inputState->end() ? controllerInputIterator->second : INPUT_INACTIVE;
+  InputState oldControllerInputState = controllerInputIterator != inputState->end() ? controllerInputIterator->second : INPUT_INACTIVE;
   if (gamepadFlags & xInputButtonFlag)
   {
     if (oldControllerInputState & INPUT_HOT_PRESS)
@@ -258,19 +259,19 @@ void loadInputStateForFrame(GLFWwindow* window) {
   if (XInputGetState(controllerIndex, &controllerState) == ERROR_SUCCESS)
   {
     // the controller is plugged in
-    int16 gamepadFlags = controllerState.Gamepad.wButtons;
-    setControllerState(gamepadFlags, XINPUT_GAMEPAD_A, Controller1Input_A);
-    setControllerState(gamepadFlags, XINPUT_GAMEPAD_B, Controller1Input_B);
-    setControllerState(gamepadFlags, XINPUT_GAMEPAD_X, Controller1Input_X);
-    setControllerState(gamepadFlags, XINPUT_GAMEPAD_Y, Controller1Input_Y);
-    setControllerState(gamepadFlags, XINPUT_GAMEPAD_DPAD_UP, Controller1Input_DPad_Up);
-    setControllerState(gamepadFlags, XINPUT_GAMEPAD_DPAD_DOWN, Controller1Input_DPad_Down);
-    setControllerState(gamepadFlags, XINPUT_GAMEPAD_DPAD_LEFT, Controller1Input_DPad_Left);
-    setControllerState(gamepadFlags, XINPUT_GAMEPAD_DPAD_RIGHT, Controller1Input_DPad_Right);
-    setControllerState(gamepadFlags, XINPUT_GAMEPAD_LEFT_SHOULDER, Controller1Input_L1);
-    setControllerState(gamepadFlags, XINPUT_GAMEPAD_RIGHT_SHOULDER, Controller1Input_R1);
-    setControllerState(gamepadFlags, XINPUT_GAMEPAD_START, Controller1Input_Start);
-    setControllerState(gamepadFlags, XINPUT_GAMEPAD_BACK, Controller1Input_Select);
+    int16 gamepadButtonFlags = controllerState.Gamepad.wButtons;
+    setControllerState(gamepadButtonFlags, XINPUT_GAMEPAD_A, Controller1Input_A);
+    setControllerState(gamepadButtonFlags, XINPUT_GAMEPAD_B, Controller1Input_B);
+    setControllerState(gamepadButtonFlags, XINPUT_GAMEPAD_X, Controller1Input_X);
+    setControllerState(gamepadButtonFlags, XINPUT_GAMEPAD_Y, Controller1Input_Y);
+    setControllerState(gamepadButtonFlags, XINPUT_GAMEPAD_DPAD_UP, Controller1Input_DPad_Up);
+    setControllerState(gamepadButtonFlags, XINPUT_GAMEPAD_DPAD_DOWN, Controller1Input_DPad_Down);
+    setControllerState(gamepadButtonFlags, XINPUT_GAMEPAD_DPAD_LEFT, Controller1Input_DPad_Left);
+    setControllerState(gamepadButtonFlags, XINPUT_GAMEPAD_DPAD_RIGHT, Controller1Input_DPad_Right);
+    setControllerState(gamepadButtonFlags, XINPUT_GAMEPAD_LEFT_SHOULDER, Controller1Input_Shoulder_Left);
+    setControllerState(gamepadButtonFlags, XINPUT_GAMEPAD_RIGHT_SHOULDER, Controller1Input_Shoulder_Right);
+    setControllerState(gamepadButtonFlags, XINPUT_GAMEPAD_START, Controller1Input_Start);
+    setControllerState(gamepadButtonFlags, XINPUT_GAMEPAD_BACK, Controller1Input_Select);
 
     bool analogStickLeftWasActive = analogStickLeft.x != 0 || analogStickLeft.y != 0;
     analogStickLeft = { controllerState.Gamepad.sThumbLX, controllerState.Gamepad.sThumbLY };
@@ -308,6 +309,36 @@ void loadInputStateForFrame(GLFWwindow* window) {
     } else if (analogStickRightWasActive && !analogStickRightIsActive)
     {
       inputState->erase(Controller1Input_Analog_Right);
+    }
+
+    std::map<InputType, InputState>::iterator l2Iterator = inputState->find(Controller1Input_Trigger_Left);
+    InputState oldL2State = l2Iterator != inputState->end() ? l2Iterator->second : INPUT_INACTIVE;
+    if (controllerState.Gamepad.bLeftTrigger > XINPUT_GAMEPAD_TRIGGER_THRESHOLD)
+    {
+      if(oldL2State & INPUT_HOT_PRESS) {
+        (*inputState)[Controller1Input_Trigger_Left] = INPUT_ACTIVE;
+      } else if(oldL2State ^ INPUT_ACTIVE) {
+        (*inputState)[Controller1Input_Trigger_Left] = INPUT_HOT_PRESS;
+      }
+    } else if(oldL2State & (INPUT_HOT_PRESS | INPUT_ACTIVE)) {
+      (*inputState)[Controller1Input_Trigger_Left] = INPUT_HOT_RELEASE;
+    } else if(oldL2State & INPUT_HOT_RELEASE) { // only erase if there is something to be erased
+      inputState->erase(l2Iterator);
+    }
+
+    std::map<InputType, InputState>::iterator r2Iterator = inputState->find(Controller1Input_Trigger_Right);
+    InputState oldR2State = r2Iterator != inputState->end() ? r2Iterator->second : INPUT_INACTIVE;
+    if (controllerState.Gamepad.bRightTrigger > XINPUT_GAMEPAD_TRIGGER_THRESHOLD)
+    {
+      if(oldR2State & INPUT_HOT_PRESS) {
+        (*inputState)[Controller1Input_Trigger_Right] = INPUT_ACTIVE;
+      } else if(oldR2State ^ INPUT_ACTIVE) {
+        (*inputState)[Controller1Input_Trigger_Right] = INPUT_HOT_PRESS;
+      }
+    } else if(oldR2State & (INPUT_HOT_PRESS | INPUT_ACTIVE)) {
+      (*inputState)[Controller1Input_Trigger_Right] = INPUT_HOT_RELEASE;
+    } else if(oldR2State & INPUT_HOT_RELEASE) { // only erase if there is something to be erased
+      inputState->erase(r2Iterator);
     }
   }
 }
