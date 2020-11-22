@@ -32,14 +32,14 @@ void InfiniteCapsulesScene::init(Extent2D windowExtent)
   rayMarchingShader->setUniform("lightColor", glm::vec3(0.5f, 0.5f, 0.5f));
   rayMarchingShader->setUniform("lightPos", lightPosition);
 
+  lastFrame = getTime();
+  startTime = lastFrame;
+
   glDisable(GL_DEPTH_TEST);
   glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
   glViewport(0, 0, windowExtent.width, windowExtent.height);
 
   glBindVertexArray(quadVertexAtt.arrayObject);
-
-  lastFrame = getTime();
-  startTime = lastFrame;
 }
 
 void InfiniteCapsulesScene::deinit() {

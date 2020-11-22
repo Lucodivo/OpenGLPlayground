@@ -38,6 +38,8 @@ const uint32 reflactiveValCount = ArrayCount(refractionIndexValues) + 1;
 uint32 selectedReflactionIndex = ArrayCount(refractionIndexValues);
 const uint32 reflectionIndex = selectedReflactionIndex;
 
+const uint32 skyboxTextureIndex = 0;
+
 enum Mode
 {
   None = 0,
@@ -84,29 +86,6 @@ void ReflectRefractScene::init(Extent2D windowExtent)
   windowAspectRatio = (float32)windowExtent.width / (float32)windowExtent.height;
   const glm::mat4 projectionMat = glm::perspective(glm::radians(camera.Zoom), windowAspectRatio, 0.1f, 100.0f);
 
-  glEnable(GL_CULL_FACE);
-  glCullFace(GL_BACK);
-  glFrontFace(GL_CCW);
-
-  // background clear color
-  glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-
-  glEnable(GL_BLEND);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-  glEnable(GL_DEPTH_TEST);
-  glDepthFunc(GL_LEQUAL);
-
-#if 0
-  // draw in wireframe
-  glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-#endif
-
-  glActiveTexture(GL_TEXTURE0);
-  glBindTexture(GL_TEXTURE_CUBE_MAP, skyboxTextureId);
-
-  glViewport(0, 0, windowExtent.width, windowExtent.height);
-
   nanoSuitModelMat = glm::scale(glm::mat4(), glm::vec3(modelScale));  // it's a bit too big for our scene, so scale it down
   nanoSuitModelMat = glm::translate(nanoSuitModelMat, modelPosition); // translate it down so it's at the center of the scene
 
@@ -147,6 +126,24 @@ void ReflectRefractScene::init(Extent2D windowExtent)
   normalVisualization10InstanceShader->setUniform("color", glm::vec3(1.0f, 1.0f, 0.0f));
 
   initTime = getTime();
+
+  glEnable(GL_CULL_FACE);
+  glCullFace(GL_BACK);
+  glFrontFace(GL_CCW);
+
+  // background clear color
+  glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+  glEnable(GL_DEPTH_TEST);
+  glDepthFunc(GL_LEQUAL);
+
+  glActiveTexture(GL_TEXTURE0 + skyboxTextureIndex);
+  glBindTexture(GL_TEXTURE_CUBE_MAP, skyboxTextureId);
+
+  glViewport(0, 0, windowExtent.width, windowExtent.height);
 }
 
 void ReflectRefractScene::deinit()
@@ -297,11 +294,11 @@ Framebuffer ReflectRefractScene::drawFrame()
 void ReflectRefractScene::inputStatesUpdated() {
   FirstPersonScene::inputStatesUpdated();
 
-  if(hotPress(KeyboardInput_Up) || hotPress(Controller1Input_L1)) {
+  if(hotPress(KeyboardInput_Up) || hotPress(Controller1Input_Shoulder_Left)) {
     nextModelReflaction();
   }
 
-  if(hotPress(KeyboardInput_Down) || hotPress(Controller1Input_R1)) {
+  if(hotPress(KeyboardInput_Down) || hotPress(Controller1Input_Shoulder_Right)) {
     prevModelReflaction();
   }
 

@@ -4,7 +4,7 @@
 #include "../../common/ObjectData.h"
 #include "../../common/Util.h"
 
-const uint32 framebufferTextureIndex = 0;
+const uint32 colorAttachmentTextureIndex = 0;
 const uint32 outlineTextureIndex = 1;
 
 InfiniteCubeScene::InfiniteCubeScene(): FirstPersonScene(){}
@@ -30,29 +30,15 @@ void InfiniteCubeScene::init(Extent2D windowExtent)
   uint32 framebufferDimen = windowExtent.width < windowExtent.height ? windowExtent.width : windowExtent.height;
   infiniteCubeTextureFramebuffer = initializeFramebuffer(Extent2D{ framebufferDimen, framebufferDimen }, FramebufferCreate_NoDepthStencil);
 
-  glActiveTexture(GL_TEXTURE0 + framebufferTextureIndex);
-  glBindTexture(GL_TEXTURE_2D, infiniteCubeTextureFramebuffer.colorAttachment);
-  glActiveTexture(GL_TEXTURE0 + outlineTextureIndex);
-  glBindTexture(GL_TEXTURE_2D, outlineTexture);
-
   // set texture uniforms
   cubeShader->use();
-  cubeShader->setUniform("diffTexture", framebufferTextureIndex);
+  cubeShader->setUniform("diffTexture", colorAttachmentTextureIndex);
 
   cubeOutlineShader->use();
   cubeOutlineShader->setUniform("diffTexture", outlineTextureIndex);
 
   const float32 aspectRatio = (float32)windowExtent.width / (float32)windowExtent.height;
   const glm::mat4 projectionMat = glm::perspective(glm::radians(camera.Zoom), aspectRatio, 0.1f, 100.0f);
-
-  glEnable(GL_CULL_FACE);
-  glCullFace(GL_BACK);
-  glFrontFace(GL_CCW);
-
-  glEnable(GL_DEPTH_TEST);
-  glDepthFunc(GL_LESS);
-
-  glViewport(0, 0, windowExtent.width, windowExtent.height);
 
   {
     glGenBuffers(1, &globalVSUniformBufferID);
@@ -71,6 +57,20 @@ void InfiniteCubeScene::init(Extent2D windowExtent)
     cubeShader->bindBlockIndex("globalBlockVS", globalVSBufferBindIndex);
     cubeOutlineShader->bindBlockIndex("globalBlockVS", globalVSBufferBindIndex);
   }
+
+  glViewport(0, 0, windowExtent.width, windowExtent.height);
+
+  glActiveTexture(GL_TEXTURE0 + colorAttachmentTextureIndex);
+  glBindTexture(GL_TEXTURE_2D, infiniteCubeTextureFramebuffer.colorAttachment);
+  glActiveTexture(GL_TEXTURE0 + outlineTextureIndex);
+  glBindTexture(GL_TEXTURE_2D, outlineTexture);
+
+  glEnable(GL_CULL_FACE);
+  glCullFace(GL_BACK);
+  glFrontFace(GL_CCW);
+
+  glEnable(GL_DEPTH_TEST);
+  glDepthFunc(GL_LESS);
 }
 
 void InfiniteCubeScene::deinit()
@@ -175,6 +175,6 @@ void InfiniteCubeScene::framebufferSizeChangeRequest(Extent2D windowExtent)
   infiniteCubeTextureFramebuffer = initializeFramebuffer(Extent2D{ framebufferDimen, framebufferDimen });
   drawFramebuffer = initializeFramebuffer(windowExtent);
 
-  glActiveTexture(GL_TEXTURE0 + framebufferTextureIndex);
+  glActiveTexture(GL_TEXTURE0 + colorAttachmentTextureIndex);
   glBindTexture(GL_TEXTURE_2D, infiniteCubeTextureFramebuffer.colorAttachment);
 }

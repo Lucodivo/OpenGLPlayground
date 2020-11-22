@@ -25,6 +25,13 @@ void RayTracingSphereScene::init(Extent2D windowExtent)
 
   drawFramebuffer = initializeFramebuffer(windowExtent, FramebufferCreate_NoDepthStencil);
 
+  rayTracingSphereShader = new ShaderProgram(UVCoordVertexShaderFileLoc, RayTracingSphereFragmentShaderFileLoc);
+  rayTracingSphereShader->use();
+  rayTracingSphereShader->setUniform("viewPortResolution", glm::vec2(windowExtent.width, windowExtent.height));
+
+  lastFrame = getTime();
+  startTime = lastFrame;
+
   glBindVertexArray(quadVertexAtt.arrayObject);
 
   glDisable(GL_DEPTH_TEST);
@@ -32,13 +39,6 @@ void RayTracingSphereScene::init(Extent2D windowExtent)
   glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 
   glViewport(0, 0, windowExtent.width, windowExtent.height);
-
-  rayTracingSphereShader = new ShaderProgram(UVCoordVertexShaderFileLoc, RayTracingSphereFragmentShaderFileLoc);
-  rayTracingSphereShader->use();
-  rayTracingSphereShader->setUniform("viewPortResolution", glm::vec2(windowExtent.width, windowExtent.height));
-
-  lastFrame = getTime();
-  startTime = lastFrame;
 }
 
 void RayTracingSphereScene::deinit()

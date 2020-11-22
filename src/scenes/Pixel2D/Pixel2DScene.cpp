@@ -7,6 +7,8 @@
 #include "../../common/ObjectData.h"
 #include "../../common/Util.h"
 
+const uint32 textureIndex = 0;
+
 Pixel2DScene::Pixel2DScene() : Scene() {}
 
 const char* Pixel2DScene::title()
@@ -24,16 +26,7 @@ void Pixel2DScene::init(Extent2D windowExtent)
 
   drawFramebuffer = initializeFramebuffer(windowExtent, FramebufferCreate_color_sRGB);
 
-  // background clear color
-  glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-  glDisable(GL_DEPTH_TEST);
-
   load2DTexture(flowerTextureLoc, textureId, true, true, &textureWidth, &textureHeight);
-  glActiveTexture(GL_TEXTURE0);
-  glBindTexture(GL_TEXTURE_2D, textureId);
-
-  // Turn on free gamma correction for entire scene, only affects color attachments
-  glEnable(GL_FRAMEBUFFER_SRGB);
 
   uint32 widthOffset = (windowExtent.width / 2) - (textureWidth / 2);
   uint32 heightOffset = (windowExtent.height / 2) - (textureHeight / 2);
@@ -44,12 +37,21 @@ void Pixel2DScene::init(Extent2D windowExtent)
   pixel2DShader->setUniform("spriteDimens", glm::vec2(textureWidth, textureHeight));
   pixel2DShader->setUniform("tex", 0);
 
-  glBindVertexArray(quadVertexAtt.arrayObject);
-
-  glViewport(0, 0, windowExtent.width, windowExtent.height);
-
   lastFrame = getTime();
   startTime = lastFrame;
+
+  glBindVertexArray(quadVertexAtt.arrayObject);
+  glActiveTexture(GL_TEXTURE0 + textureIndex);
+  glBindTexture(GL_TEXTURE_2D, textureId);
+
+  // background clear color
+  glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+  glDisable(GL_DEPTH_TEST);
+
+  // Turn on free gamma correction for entire scene, only affects color attachments
+  glEnable(GL_FRAMEBUFFER_SRGB);
+
+  glViewport(0, 0, windowExtent.width, windowExtent.height);
 }
 
 void Pixel2DScene::deinit()

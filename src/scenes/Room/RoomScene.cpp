@@ -6,6 +6,10 @@
 const uint32 SHADOW_MAP_WIDTH = 2048;
 const uint32 SHADOW_MAP_HEIGHT = 2048;
 
+const uint32 wallpaperTextureIndex = 0;
+const uint32 cubeTextureIndex = wallpaperTextureIndex + 1;
+const uint32 depthCubeMapIndex = cubeTextureIndex + 1;
+
 RoomScene::RoomScene() : FirstPersonScene()
 {
   camera.Position = glm::vec3(0.0f, 5.0f, 30.0f);
@@ -33,13 +37,6 @@ void RoomScene::init(Extent2D windowExtent)
   load2DTexture(cementAlbedoTextureLoc, cubeTextureId, false, true);
   generateDepthCubeMap();
 
-  glActiveTexture(GL_TEXTURE0);
-  glBindTexture(GL_TEXTURE_2D, wallpaperTextureId);
-  glActiveTexture(GL_TEXTURE1);
-  glBindTexture(GL_TEXTURE_2D, cubeTextureId);
-  glActiveTexture(GL_TEXTURE2);
-  glBindTexture(GL_TEXTURE_CUBE_MAP, depthCubeMapId);
-
   float32 cameraAspectRatio = (float32)windowExtent.width / (float32)windowExtent.height;
   const float32 cameraNearPlane = 0.1f;
   const float32 cameraFarPlane = 120.f;
@@ -49,15 +46,6 @@ void RoomScene::init(Extent2D windowExtent)
   const float32 lightNearPlane = 1.0f;
   const float32 lightFarPlane = 40.0f;
   lightProjMat = glm::perspective(glm::radians(90.0f), lightAspectRatio, lightNearPlane, lightFarPlane);
-
-  glEnable(GL_DEPTH_TEST);
-  glDepthFunc(GL_LEQUAL);
-
-  // background clear color
-  glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
-
-  // Turn on free gamma correction for entire scene, only affects color attachments
-  glEnable(GL_FRAMEBUFFER_SRGB);
 
   // set constant uniforms
   positionalLightShader->use();
@@ -105,6 +93,22 @@ void RoomScene::init(Extent2D windowExtent)
   glEnable(GL_CULL_FACE);
   glFrontFace(GL_CCW);
   glCullFace(GL_BACK);
+
+  glEnable(GL_DEPTH_TEST);
+  glDepthFunc(GL_LEQUAL);
+
+  // background clear color
+  glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
+
+  // Turn on free gamma correction for entire scene, only affects color attachments
+  glEnable(GL_FRAMEBUFFER_SRGB);
+
+  glActiveTexture(GL_TEXTURE0 + wallpaperTextureIndex);
+  glBindTexture(GL_TEXTURE_2D, wallpaperTextureId);
+  glActiveTexture(GL_TEXTURE0 + cubeTextureIndex);
+  glBindTexture(GL_TEXTURE_2D, cubeTextureId);
+  glActiveTexture(GL_TEXTURE0 + depthCubeMapIndex);
+  glBindTexture(GL_TEXTURE_CUBE_MAP, depthCubeMapId);
 }
 
 void RoomScene::deinit()

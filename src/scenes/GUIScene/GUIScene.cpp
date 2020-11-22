@@ -54,6 +54,8 @@ void GUIScene::init(Extent2D windowExtent)
   cubeShader->use();
   cubeShader->setUniform("projection", projectionMat);
 
+  startTime = getTime();
+
   glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 
   glEnable(GL_DEPTH_TEST);
@@ -67,8 +69,6 @@ void GUIScene::init(Extent2D windowExtent)
   
   glBindVertexArray(cubeVertexAtt.arrayObject);
   glViewport(0, 0, windowExtent.width, windowExtent.height);
-
-  startTime = getTime();
 }
 
 void GUIScene::deinit()

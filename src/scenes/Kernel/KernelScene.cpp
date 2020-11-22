@@ -9,6 +9,11 @@
 #include "KernelScene.h"
 #include "../../common/Input.h"
 
+const uint32 skyboxTextureIndex = 0;
+const uint32 nessCubeDiffuseTextureIndex = 1;
+const uint32 nessCubeSpecularTextureIndex = 2;
+const uint32 colorAttachmentTextureIndex = 3;
+
 // ===== cube values =====
 const glm::vec3 cubePositions[] = {
         glm::vec3(2.0f, 5.0f, -15.0f),
@@ -73,17 +78,6 @@ void KernelScene::init(Extent2D windowExtent)
 
   glm::vec3 directionalLightDir = glm::vec3(1.0f, -0.5f, 1.0f);
   glm::vec3 directionalLightColor = glm::vec3(1.0f);
-
-  // background clear color
-  glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-
-  glEnable(GL_DEPTH_TEST);
-  glDepthFunc(GL_LEQUAL);
-  glEnable(GL_BLEND);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-  glEnable(GL_CULL_FACE);
-  glFrontFace(GL_CCW);
-  glCullFace(GL_BACK);
 
   auto setConstantLightUniforms = [&](ShaderProgram* shader)
   {
@@ -152,7 +146,18 @@ void KernelScene::init(Extent2D windowExtent)
   framebufferShader->use();
   framebufferShader->setUniform("textureWidth", (float32)windowExtent.width);
   framebufferShader->setUniform("textureHeight", (float32)windowExtent.height);
-  framebufferShader->setUniform("tex", framebufferTextureIndex);
+  framebufferShader->setUniform("tex", colorAttachmentTextureIndex);
+
+  // background clear color
+  glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+
+  glEnable(GL_DEPTH_TEST);
+  glDepthFunc(GL_LEQUAL);
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  glEnable(GL_CULL_FACE);
+  glFrontFace(GL_CCW);
+  glCullFace(GL_BACK);
 
   glBindBuffer(GL_UNIFORM_BUFFER, globalVSUniformBuffer);
 
@@ -364,7 +369,7 @@ Framebuffer KernelScene::drawFrame(){
   glStencilMask(0x00); // disable writing to the stencil buffer
 
   glBindVertexArray(quadVertexAtt.arrayObject);
-  glActiveTexture(GL_TEXTURE0 + framebufferTextureIndex);
+  glActiveTexture(GL_TEXTURE0 + colorAttachmentTextureIndex);
   glBindTexture(GL_TEXTURE_2D, preprocessFramebuffer.colorAttachment);
   framebufferShader->use();
   framebufferShader->setUniform("kernel", kernels5x5[selectedKernelIndex], ArrayCount(kernels5x5[selectedKernelIndex]));
@@ -379,12 +384,12 @@ Framebuffer KernelScene::drawFrame(){
 void KernelScene::inputStatesUpdated() {
   FirstPersonScene::inputStatesUpdated();
 
-  if(hotPress(KeyboardInput_E) || hotPress(Controller1Input_R1))
+  if(hotPress(KeyboardInput_E) || hotPress(Controller1Input_Shoulder_Right))
   {
     nextImageKernel();
   }
 
-  if(hotPress(KeyboardInput_Q) || hotPress(Controller1Input_L1))
+  if(hotPress(KeyboardInput_Q) || hotPress(Controller1Input_Shoulder_Left))
   {
     prevImageKernel();
   }

@@ -38,14 +38,14 @@ void MandelbrotScene::init(Extent2D windowExtent)
 
   quadVertexAtt = initializeFramebufferQuadVertexAttBuffers();
 
+  lastFrame = getTime();
+  startTime = lastFrame;
+
   glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
   glDisable(GL_DEPTH_TEST);
   glViewport(0, 0, windowExtent.width, windowExtent.height);
 
   glBindVertexArray(quadVertexAtt.arrayObject);
-
-  lastFrame = getTime();
-  startTime = lastFrame;
 }
 
 void MandelbrotScene::deinit()

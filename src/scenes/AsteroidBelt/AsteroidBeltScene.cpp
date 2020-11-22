@@ -4,6 +4,9 @@
 #include "../../common/Util.h"
 #include "../../common/ObjectData.h"
 
+const uint32 skyboxTextureIndex = 0;
+const uint32 skybox2TextureIndex = skyboxTextureIndex + 1;
+
 AsteroidBeltScene::AsteroidBeltScene() : FirstPersonScene()
 {
   camera.Position = glm::vec3(0.0f, 0.0f, 50.0f);
@@ -35,12 +38,6 @@ void AsteroidBeltScene::init(Extent2D windowExtent)
 
   const float32 aspectRatio = (float32)windowExtent.width / (float32)windowExtent.height;
   const glm::mat4 projectionMat = glm::perspective(glm::radians(camera.Zoom), aspectRatio, 0.1f, 100.0f);
-
-  glActiveTexture(GL_TEXTURE0);
-  glBindTexture(GL_TEXTURE_CUBE_MAP, skyboxTextureId);
-
-  glActiveTexture(GL_TEXTURE1);
-  glBindTexture(GL_TEXTURE_CUBE_MAP, skybox2TextureId);
 
   modelShader->use();
   modelShader->setUniform("projection", projectionMat);
@@ -115,6 +112,11 @@ void AsteroidBeltScene::init(Extent2D windowExtent)
 
     glBindVertexArray(0);
   }
+
+  glActiveTexture(GL_TEXTURE0 + skyboxTextureIndex);
+  glBindTexture(GL_TEXTURE_CUBE_MAP, skyboxTextureId);
+  glActiveTexture(GL_TEXTURE0 + skybox2TextureIndex);
+  glBindTexture(GL_TEXTURE_CUBE_MAP, skybox2TextureId);
 
   // background clear color
   glClearColor(0.1f, 0.1f, 0.1f, 1.0f);

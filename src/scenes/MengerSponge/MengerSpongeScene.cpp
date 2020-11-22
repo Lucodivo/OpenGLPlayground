@@ -10,6 +10,11 @@
 #include "../../common/Util.h"
 #include "../../common/Input.h"
 
+const uint32 diff1TextureIndex = 0;
+const uint32 spec1TextureIndex = diff1TextureIndex + 1;
+const uint32 diff2TextureIndex = spec1TextureIndex + 1;
+const uint32 spec2TextureIndex = diff2TextureIndex + 1;
+
 MengerSpongeScene::MengerSpongeScene(GLFWwindow* window): FirstPersonScene(), window(window)
 {
   camera.Position = glm::vec3(0.0f, 1.0f, 30.0f);
@@ -51,14 +56,6 @@ void MengerSpongeScene::init(Extent2D windowExtent)
   load2DTexture(scarabWingsSpecTextureLoc, textureSpec1Id, true, false);
   load2DTexture(scarabTextureLoc, textureDiff2Id, true, true);
   load2DTexture(scarabSpecTextureLoc, textureSpec2Id, true, false);
-  glActiveTexture(GL_TEXTURE0);
-  glBindTexture(GL_TEXTURE_2D, textureDiff1Id);
-  glActiveTexture(GL_TEXTURE1);
-  glBindTexture(GL_TEXTURE_2D, textureSpec1Id);
-  glActiveTexture(GL_TEXTURE2);
-  glBindTexture(GL_TEXTURE_2D, textureDiff2Id);
-  glActiveTexture(GL_TEXTURE3);
-  glBindTexture(GL_TEXTURE_2D, textureSpec2Id);
 
   mengerSpongeShader->use();
   mengerSpongeShader->setUniform("viewPortResolution", glm::vec2(currentResolution.width, currentResolution.height));
@@ -83,10 +80,21 @@ void MengerSpongeScene::init(Extent2D windowExtent)
 //  pixel2DShader->setUniform("lowerLeftOffset", glm::vec2((currentResolution.width / 2) - 16.0, (currentResolution.height / 2) - 16.0));
 //  pixel2DShader->setUniform("spriteDimens", glm::vec2(textureWidth, textureHeight));
 
-  glBindVertexArray(quadVertexAtt.arrayObject);
+  timer.lengthInSeconds = 5;
 
   lastFrame = getTime();
   startTime = lastFrame;
+
+  glBindVertexArray(quadVertexAtt.arrayObject);
+
+  glActiveTexture(GL_TEXTURE0 + diff1TextureIndex);
+  glBindTexture(GL_TEXTURE_2D, textureDiff1Id);
+  glActiveTexture(GL_TEXTURE0 + spec1TextureIndex);
+  glBindTexture(GL_TEXTURE_2D, textureSpec1Id);
+  glActiveTexture(GL_TEXTURE0 + diff2TextureIndex);
+  glBindTexture(GL_TEXTURE_2D, textureDiff2Id);
+  glActiveTexture(GL_TEXTURE0 + spec2TextureIndex);
+  glBindTexture(GL_TEXTURE_2D, textureSpec2Id);
 
   // background clear color
   glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
@@ -97,8 +105,6 @@ void MengerSpongeScene::init(Extent2D windowExtent)
 
   // NOTE: the viewport dictates the area of the bound
   glViewport(0, 0, currentResolution.width, currentResolution.height);
-
-  timer.lengthInSeconds = 5;
 }
 
 void MengerSpongeScene::deinit()

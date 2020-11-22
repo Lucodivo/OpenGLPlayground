@@ -32,7 +32,6 @@ private:
 
   Framebuffer drawFramebuffer;
   Framebuffer depthMapFramebuffer;
-  uint32 depthMap2DSamplerIndex;
 
   float32 startTime = 0.0f;
   float32 deltaTime = 0.0f;  // Time between current frame and last frame

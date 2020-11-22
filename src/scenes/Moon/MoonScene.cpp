@@ -3,8 +3,23 @@
 #include "../../common/Util.h"
 #include "../../common/ObjectData.h"
 
-const uint32 SHADOW_MAP_WIDTH = 2048;
-const uint32 SHADOW_MAP_HEIGHT = 2048;
+#define SHADOW_MAP_WIDTH 2048
+#define SHADOW_MAP_HEIGHT 2048
+
+const uint32 floorAlbedoTextureIndex = 0;
+const uint32 floorNormalTextureIndex = floorAlbedoTextureIndex + 1;
+const uint32 floorHeightTextureIndex = floorNormalTextureIndex + 1;
+const uint32 cube1AlbedoTextureIndex = floorHeightTextureIndex + 1;
+const uint32 cube1NormalTextureIndex = cube1AlbedoTextureIndex + 1;
+const uint32 cube1HeightTextureIndex = cube1NormalTextureIndex + 1;
+const uint32 cube2AlbedoTextureIndex = cube1HeightTextureIndex + 1;
+const uint32 cube2NormalTextureIndex = cube2AlbedoTextureIndex + 1;
+const uint32 cube2HeightTextureIndex = cube2NormalTextureIndex + 1;
+const uint32 cube3AlbedoTextureIndex = cube2HeightTextureIndex + 1;
+const uint32 cube3NormalTextureIndex = cube3AlbedoTextureIndex + 1;
+const uint32 cube3HeightTextureIndex = cube3NormalTextureIndex + 1;
+const uint32 lightTextureIndex = cube3HeightTextureIndex + 1;
+const uint32 depthMap2DSamplerIndex = lightTextureIndex + 1;
 
 MoonScene::MoonScene() : FirstPersonScene()
 {
@@ -48,34 +63,6 @@ void MoonScene::init(Extent2D windowExtent)
   generateDepthMap();
   drawFramebuffer = initializeFramebuffer(windowExtent);
 
-  glActiveTexture(GL_TEXTURE0);
-  glBindTexture(GL_TEXTURE_2D, floorAlbedoTextureId);
-  glActiveTexture(GL_TEXTURE1);
-  glBindTexture(GL_TEXTURE_2D, cube1AlbedoTextureId);
-  glActiveTexture(GL_TEXTURE2);
-  glBindTexture(GL_TEXTURE_2D, cube2AlbedoTextureId);
-  glActiveTexture(GL_TEXTURE3);
-  glBindTexture(GL_TEXTURE_2D, cube3AlbedoTextureId);
-  glActiveTexture(GL_TEXTURE4);
-  glBindTexture(GL_TEXTURE_2D, floorNormalTextureId);
-  glActiveTexture(GL_TEXTURE5);
-  glBindTexture(GL_TEXTURE_2D, cube1NormalTextureId);
-  glActiveTexture(GL_TEXTURE6);
-  glBindTexture(GL_TEXTURE_2D, cube2NormalTextureId);
-  glActiveTexture(GL_TEXTURE7);
-  glBindTexture(GL_TEXTURE_2D, cube3NormalTextureId);
-  glActiveTexture(GL_TEXTURE8);
-  glBindTexture(GL_TEXTURE_2D, floorHeightTextureId);
-  glActiveTexture(GL_TEXTURE9);
-  glBindTexture(GL_TEXTURE_2D, cube1HeightTextureId);
-  glActiveTexture(GL_TEXTURE10);
-  glBindTexture(GL_TEXTURE_2D, cube2HeightTextureId);
-  glActiveTexture(GL_TEXTURE11);
-  glBindTexture(GL_TEXTURE_2D, cube3HeightTextureId);
-  glActiveTexture(GL_TEXTURE12);
-  glBindTexture(GL_TEXTURE_2D, lightTextureId);
-  depthMap2DSamplerIndex = 13;
-
   const float32 aspectRatio = (float32)windowExtent.width / (float32)windowExtent.height;
   const glm::mat4 cameraProjMat = glm::perspective(glm::radians(camera.Zoom), aspectRatio, 0.1f, 120.0f);
   const float32 nearPlane = 1.0f;
@@ -84,15 +71,9 @@ void MoonScene::init(Extent2D windowExtent)
   // Note: orthographic projection is used for directional lighting, as all light rays are parallel
   lightProjMat = glm::ortho(-projectionDimens, projectionDimens, -projectionDimens, projectionDimens, nearPlane, farPlane);
 
-  glEnable(GL_DEPTH_TEST);
-  glDepthFunc(GL_LEQUAL);
-
-  // background clear color
-  glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-
   quadTextureShader->use();
   quadTextureShader->setUniform("projection", cameraProjMat);
-  quadTextureShader->setUniform("tex", 12);
+  quadTextureShader->setUniform("tex", lightTextureIndex);
 
   directionalLightShader->use();
 
@@ -127,11 +108,44 @@ void MoonScene::init(Extent2D windowExtent)
   floorModelMat = glm::scale(floorModelMat, glm::vec3(floorScale, floorScale, floorScale));
   floorModelMat = glm::rotate(floorModelMat, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 
+  startTime = getTime();
+
+  glActiveTexture(GL_TEXTURE0 + floorAlbedoTextureIndex);
+  glBindTexture(GL_TEXTURE_2D, floorAlbedoTextureId);
+  glActiveTexture(GL_TEXTURE0 + floorNormalTextureIndex);
+  glBindTexture(GL_TEXTURE_2D, floorNormalTextureId);
+  glActiveTexture(GL_TEXTURE0 + floorHeightTextureIndex);
+  glBindTexture(GL_TEXTURE_2D, floorHeightTextureId);
+  glActiveTexture(GL_TEXTURE0 + cube1AlbedoTextureIndex);
+  glBindTexture(GL_TEXTURE_2D, cube1AlbedoTextureId);
+  glActiveTexture(GL_TEXTURE0 + cube1NormalTextureIndex);
+  glBindTexture(GL_TEXTURE_2D, cube1NormalTextureId);
+  glActiveTexture(GL_TEXTURE0 + cube1HeightTextureIndex);
+  glBindTexture(GL_TEXTURE_2D, cube1HeightTextureId);
+  glActiveTexture(GL_TEXTURE0 + cube2AlbedoTextureIndex);
+  glBindTexture(GL_TEXTURE_2D, cube2AlbedoTextureId);
+  glActiveTexture(GL_TEXTURE0 + cube2NormalTextureIndex);
+  glBindTexture(GL_TEXTURE_2D, cube2NormalTextureId);
+  glActiveTexture(GL_TEXTURE0 + cube2HeightTextureIndex);
+  glBindTexture(GL_TEXTURE_2D, cube2HeightTextureId);
+  glActiveTexture(GL_TEXTURE0 + cube3AlbedoTextureIndex);
+  glBindTexture(GL_TEXTURE_2D, cube3AlbedoTextureId);
+  glActiveTexture(GL_TEXTURE0 + cube3NormalTextureIndex);
+  glBindTexture(GL_TEXTURE_2D, cube3NormalTextureId);
+  glActiveTexture(GL_TEXTURE0 + cube3HeightTextureIndex);
+  glBindTexture(GL_TEXTURE_2D, cube3HeightTextureId);
+  glActiveTexture(GL_TEXTURE0 + lightTextureIndex);
+  glBindTexture(GL_TEXTURE_2D, lightTextureId);
+
   glEnable(GL_CULL_FACE);
   glFrontFace(GL_CCW);
   glCullFace(GL_BACK);
 
-  startTime = getTime();
+  glEnable(GL_DEPTH_TEST);
+  glDepthFunc(GL_LEQUAL);
+
+  // background clear color
+  glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 }
 
 void MoonScene::deinit()
@@ -274,9 +288,9 @@ Framebuffer MoonScene::drawFrame()
 
   // draw floor
   directionalLightShader->setUniform("model", floorModelMat);
-  directionalLightShader->setUniform("material.diffuse", 0);
-  directionalLightShader->setUniform("material.normal", 4);
-  directionalLightShader->setUniform("material.height", 8);
+  directionalLightShader->setUniform("material.diffuse", floorAlbedoTextureIndex);
+  directionalLightShader->setUniform("material.normal", floorNormalTextureIndex);
+  directionalLightShader->setUniform("material.height", floorHeightTextureIndex);
   glDrawElements(GL_TRIANGLES, // drawing mode
                  6, // number of elements to draw (3 vertices per triangle * 2 triangles per quad)
                  GL_UNSIGNED_INT, // type of the indices
@@ -285,25 +299,25 @@ Framebuffer MoonScene::drawFrame()
   // draw cubes
   glBindVertexArray(cubeVertexAtt.arrayObject);
   directionalLightShader->setUniform("model", cubeModelMat1);
-  directionalLightShader->setUniform("material.diffuse", 1);
-  directionalLightShader->setUniform("material.normal", 5);
-  directionalLightShader->setUniform("material.height", 9);
+  directionalLightShader->setUniform("material.diffuse", cube1AlbedoTextureIndex);
+  directionalLightShader->setUniform("material.normal", cube1NormalTextureIndex);
+  directionalLightShader->setUniform("material.height", cube1HeightTextureIndex);
   glDrawElements(GL_TRIANGLES, // drawing mode
                  cubePosNormTexNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
                  GL_UNSIGNED_INT, // type of the indices
                  0); // offset in the EBO
   directionalLightShader->setUniform("model", cubeModelMat2);
-  directionalLightShader->setUniform("material.diffuse", 2);
-  directionalLightShader->setUniform("material.normal", 6);
-  directionalLightShader->setUniform("material.height", 10);
+  directionalLightShader->setUniform("material.diffuse", cube2AlbedoTextureIndex);
+  directionalLightShader->setUniform("material.normal", cube2NormalTextureIndex);
+  directionalLightShader->setUniform("material.height", cube2HeightTextureIndex);
   glDrawElements(GL_TRIANGLES, // drawing mode
                  cubePosNormTexNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
                  GL_UNSIGNED_INT, // type of the indices
                  0); // offset in the EBO
   directionalLightShader->setUniform("model", cubeModelMat3);
-  directionalLightShader->setUniform("material.diffuse", 3);
-  directionalLightShader->setUniform("material.normal", 7);
-  directionalLightShader->setUniform("material.height", 11);
+  directionalLightShader->setUniform("material.diffuse", cube3AlbedoTextureIndex);
+  directionalLightShader->setUniform("material.normal", cube3NormalTextureIndex);
+  directionalLightShader->setUniform("material.height", cube3HeightTextureIndex);
   glDrawElements(GL_TRIANGLES, // drawing mode
                  cubePosNormTexNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
                  GL_UNSIGNED_INT, // type of the indices
@@ -335,7 +349,6 @@ void MoonScene::generateDepthMap()
   glDrawBuffer(GL_NONE);
   glReadBuffer(GL_NONE);
   glBindFramebuffer(GL_FRAMEBUFFER, drawFramebuffer.id);
-
 
   depthMapFramebuffer.colorAttachment = NO_FRAMEBUFFER_ATTACHMENT;
   depthMapFramebuffer.extent.width = SHADOW_MAP_WIDTH;
