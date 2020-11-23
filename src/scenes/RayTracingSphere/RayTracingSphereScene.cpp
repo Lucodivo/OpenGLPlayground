@@ -31,14 +31,6 @@ void RayTracingSphereScene::init(Extent2D windowExtent)
 
   lastFrame = getTime();
   startTime = lastFrame;
-
-  glBindVertexArray(quadVertexAtt.arrayObject);
-
-  glDisable(GL_DEPTH_TEST);
-
-  glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-
-  glViewport(0, 0, windowExtent.width, windowExtent.height);
 }
 
 void RayTracingSphereScene::deinit()
@@ -56,7 +48,13 @@ void RayTracingSphereScene::deinit()
 
 Framebuffer RayTracingSphereScene::drawFrame()
 {
-  // NOTE: uncomment for real time testing of fragment shader
+  glBindVertexArray(quadVertexAtt.arrayObject);
+  glDisable(GL_DEPTH_TEST);
+  glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+  glViewport(0, 0, windowExtent.width, windowExtent.height);
+  glBindFramebuffer(GL_FRAMEBUFFER, drawFramebuffer.id);
+  glClear(GL_COLOR_BUFFER_BIT);
+
 //  if(rayTracingSphereShader->updateShadersWhenOutdated(FragmentShaderFlag)) {
 //    rayTracingSphereShader->use();
 //    rayTracingSphereShader->setUniform("viewPortResolution", glm::vec2(windowWidth, windowHeight));
@@ -66,10 +64,8 @@ Framebuffer RayTracingSphereScene::drawFrame()
   deltaTime = t - lastFrame;
   lastFrame = t;
 
-  glBindFramebuffer(GL_FRAMEBUFFER, drawFramebuffer.id);
-  glClear(GL_COLOR_BUFFER_BIT);
-
   glm::mat4 cameraRotationMatrix = camera.UpdateViewMatrix(deltaTime, cameraMovementSpeed * 4.0f, false);
+  rayTracingSphereShader->use();
   rayTracingSphereShader->setUniform("rayOrigin", camera.Position);
   rayTracingSphereShader->setUniform("elapsedTime", t);
   rayTracingSphereShader->setUniform("viewRotationMat", reverseZ(cameraRotationMatrix));
@@ -84,8 +80,6 @@ Framebuffer RayTracingSphereScene::drawFrame()
 void RayTracingSphereScene::framebufferSizeChangeRequest(Extent2D windowExtent)
 {
   Scene::framebufferSizeChangeRequest(windowExtent);
-
-  glViewport(0, 0, windowExtent.width, windowExtent.height);
 
   deleteFramebuffer(&drawFramebuffer);
   drawFramebuffer = initializeFramebuffer(windowExtent, FramebufferCreate_NoDepthStencil);

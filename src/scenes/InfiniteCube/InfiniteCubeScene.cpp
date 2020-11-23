@@ -57,20 +57,6 @@ void InfiniteCubeScene::init(Extent2D windowExtent)
     cubeShader->bindBlockIndex("globalBlockVS", globalVSBufferBindIndex);
     cubeOutlineShader->bindBlockIndex("globalBlockVS", globalVSBufferBindIndex);
   }
-
-  glViewport(0, 0, windowExtent.width, windowExtent.height);
-
-  glActiveTexture(GL_TEXTURE0 + colorAttachmentTextureIndex);
-  glBindTexture(GL_TEXTURE_2D, infiniteCubeTextureFramebuffer.colorAttachment);
-  glActiveTexture(GL_TEXTURE0 + outlineTextureIndex);
-  glBindTexture(GL_TEXTURE_2D, outlineTexture);
-
-  glEnable(GL_CULL_FACE);
-  glCullFace(GL_BACK);
-  glFrontFace(GL_CCW);
-
-  glEnable(GL_DEPTH_TEST);
-  glDepthFunc(GL_LESS);
 }
 
 void InfiniteCubeScene::deinit()
@@ -95,6 +81,21 @@ void InfiniteCubeScene::deinit()
 
 Framebuffer InfiniteCubeScene::drawFrame()
 {
+
+  glViewport(0, 0, windowExtent.width, windowExtent.height);
+
+  glActiveTexture(GL_TEXTURE0 + colorAttachmentTextureIndex);
+  glBindTexture(GL_TEXTURE_2D, infiniteCubeTextureFramebuffer.colorAttachment);
+  glActiveTexture(GL_TEXTURE0 + outlineTextureIndex);
+  glBindTexture(GL_TEXTURE_2D, outlineTexture);
+
+  glEnable(GL_CULL_FACE);
+  glCullFace(GL_BACK);
+  glFrontFace(GL_CCW);
+
+  glEnable(GL_DEPTH_TEST);
+  glDepthFunc(GL_LESS);
+
   float32 t = getTime();
   deltaTime = t - lastFrame;
   lastFrame = t;
@@ -121,7 +122,7 @@ Framebuffer InfiniteCubeScene::drawFrame()
   glClearColor(lightR, lightG, lightB, 1.0f);
 #endif
 
-  glBindFramebuffer(GL_DRAW_FRAMEBUFFER, drawFramebuffer.id);
+  glBindFramebuffer(GL_FRAMEBUFFER, drawFramebuffer.id);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
   glm::mat4 viewMat = camera.UpdateViewMatrix(deltaTime, cameraMovementSpeed);
@@ -167,14 +168,9 @@ void InfiniteCubeScene::framebufferSizeChangeRequest(Extent2D windowExtent)
 {
   Scene::framebufferSizeChangeRequest(windowExtent);
 
-  glViewport(0, 0, windowExtent.width, windowExtent.height);
-
   uint32 framebufferDimen = windowExtent.width < windowExtent.height ? windowExtent.width : windowExtent.height;
   Framebuffer* framebuffers[] = { &infiniteCubeTextureFramebuffer, &drawFramebuffer };
   deleteFramebuffers(ArrayCount(framebuffers), framebuffers);
   infiniteCubeTextureFramebuffer = initializeFramebuffer(Extent2D{ framebufferDimen, framebufferDimen });
   drawFramebuffer = initializeFramebuffer(windowExtent);
-
-  glActiveTexture(GL_TEXTURE0 + colorAttachmentTextureIndex);
-  glBindTexture(GL_TEXTURE_2D, infiniteCubeTextureFramebuffer.colorAttachment);
 }

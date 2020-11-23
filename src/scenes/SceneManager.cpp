@@ -20,6 +20,7 @@
 #include "MengerSponge/MengerSpongeScene.h"
 #include "RayTracingSphere/RayTracingSphereScene.h"
 #include "Pixel2D/Pixel2DScene.h"
+#include "MultiScene.h"
 
 #define SAVE_FILE_RELATIVE_PATH "build/SaveData/save.bin"
 
@@ -68,9 +69,11 @@ void runScenes(GLFWwindow* window) {
   ReflectRefractScene reflectRefractScene = ReflectRefractScene();
   GUIScene guiScene = GUIScene(window);
   Pixel2DScene pixel2DScene = Pixel2DScene();
+  Scene* fourScenes[] = { &infiniteCubeScene, &infiniteCapsulesScene, &rayTracingSphereScene, &reflectRefractScene };
+  MultiScene multiScene = MultiScene(fourScenes);
   Scene* scenes[] = {&mengerSpongeScene, &rayTracingSphereScene, &mandelbrotScene, &infiniteCubeScene,
                      &infiniteCapsulesScene, &roomScene, &guiScene, &moonScene, &asteroidBeltScene,
-                     &reflectRefractScene, &kernelScene, &pixel2DScene, &emptyScene };
+                     &reflectRefractScene, &kernelScene, &multiScene, &pixel2DScene, &emptyScene };
   uint32 sceneIndex = 0;
   loadLastSceneIndex(&sceneIndex);
   uint32 sceneCount = ArrayCount(scenes);

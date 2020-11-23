@@ -34,12 +34,6 @@ void InfiniteCapsulesScene::init(Extent2D windowExtent)
 
   lastFrame = getTime();
   startTime = lastFrame;
-
-  glDisable(GL_DEPTH_TEST);
-  glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-  glViewport(0, 0, windowExtent.width, windowExtent.height);
-
-  glBindVertexArray(quadVertexAtt.arrayObject);
 }
 
 void InfiniteCapsulesScene::deinit() {
@@ -54,14 +48,19 @@ void InfiniteCapsulesScene::deinit() {
 }
 
 Framebuffer InfiniteCapsulesScene::drawFrame() {
+  glDisable(GL_DEPTH_TEST);
+  glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+  glViewport(0, 0, windowExtent.width, windowExtent.height);
+  glBindVertexArray(quadVertexAtt.arrayObject);
+  glBindFramebuffer(GL_FRAMEBUFFER, drawFramebuffer.id);
+  glClear(GL_COLOR_BUFFER_BIT);
+
   float32 t = getTime() - startTime;
   deltaTime = t - lastFrame;
   lastFrame = t;
 
-  glBindFramebuffer(GL_FRAMEBUFFER, drawFramebuffer.id);
-  glClear(GL_COLOR_BUFFER_BIT);
-
   glm::mat4 cameraRotationMatrix = camera.UpdateViewMatrix(deltaTime, cameraMovementSpeed * 4.0f, false);
+  rayMarchingShader->use();
   rayMarchingShader->setUniform("rayOrigin", camera.Position);
   rayMarchingShader->setUniform("elapsedTime", t);
   rayMarchingShader->setUniform("viewRotationMat", reverseZ(cameraRotationMatrix));
@@ -94,8 +93,6 @@ void InfiniteCapsulesScene::inputStatesUpdated() {
 void InfiniteCapsulesScene::framebufferSizeChangeRequest(Extent2D windowExtent)
 {
   Scene::framebufferSizeChangeRequest(windowExtent);
-
-  glViewport(0, 0, windowExtent.width, windowExtent.height);
 
   deleteFramebuffer(&drawFramebuffer);
   drawFramebuffer = initializeFramebuffer(windowExtent, FramebufferCreate_NoDepthStencil);

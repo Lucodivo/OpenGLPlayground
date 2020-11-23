@@ -126,24 +126,6 @@ void ReflectRefractScene::init(Extent2D windowExtent)
   normalVisualization10InstanceShader->setUniform("color", glm::vec3(1.0f, 1.0f, 0.0f));
 
   initTime = getTime();
-
-  glEnable(GL_CULL_FACE);
-  glCullFace(GL_BACK);
-  glFrontFace(GL_CCW);
-
-  // background clear color
-  glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-
-  glEnable(GL_BLEND);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-  glEnable(GL_DEPTH_TEST);
-  glDepthFunc(GL_LEQUAL);
-
-  glActiveTexture(GL_TEXTURE0 + skyboxTextureIndex);
-  glBindTexture(GL_TEXTURE_CUBE_MAP, skyboxTextureId);
-
-  glViewport(0, 0, windowExtent.width, windowExtent.height);
 }
 
 void ReflectRefractScene::deinit()
@@ -181,6 +163,25 @@ void ReflectRefractScene::deinit()
 
 Framebuffer ReflectRefractScene::drawFrame()
 {
+
+  glEnable(GL_CULL_FACE);
+  glCullFace(GL_BACK);
+  glFrontFace(GL_CCW);
+
+  // background clear color
+  glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+  glEnable(GL_DEPTH_TEST);
+  glDepthFunc(GL_LEQUAL);
+
+  glActiveTexture(GL_TEXTURE0 + skyboxTextureIndex);
+  glBindTexture(GL_TEXTURE_CUBE_MAP, skyboxTextureId);
+
+  glViewport(0, 0, windowExtent.width, windowExtent.height);
+
   glBindFramebuffer(GL_FRAMEBUFFER, drawFramebuffer.id);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -358,8 +359,6 @@ void ReflectRefractScene::prevMode()
 void ReflectRefractScene::framebufferSizeChangeRequest(Extent2D windowExtent)
 {
   Scene::framebufferSizeChangeRequest(windowExtent);
-
-  glViewport(0, 0, windowExtent.width, windowExtent.height);
 
   deleteFramebuffer(&drawFramebuffer);
   drawFramebuffer = initializeFramebuffer(windowExtent);

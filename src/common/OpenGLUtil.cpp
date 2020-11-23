@@ -146,16 +146,16 @@ Framebuffer initializeFramebuffer(Extent2D framebufferExtent, FramebufferCreatio
   resultBuffer.extent = framebufferExtent;
 
   GLint originalDrawFramebuffer, originalReadFramebuffer, originalActiveTexture, originalTexture0;
+  glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &originalDrawFramebuffer);
+  glGetIntegerv(GL_READ_FRAMEBUFFER_BINDING, &originalReadFramebuffer);
+  glGetIntegerv(GL_ACTIVE_TEXTURE, &originalActiveTexture);
 
   // creating frame buffer
   glGenFramebuffers(1, &resultBuffer.id);
-  glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &originalDrawFramebuffer);
-  glGetIntegerv(GL_READ_FRAMEBUFFER_BINDING, &originalReadFramebuffer);
   glBindFramebuffer(GL_FRAMEBUFFER, resultBuffer.id);
 
   // creating frame buffer color texture
   glGenTextures(1, &resultBuffer.colorAttachment);
-  glGetIntegerv(GL_ACTIVE_TEXTURE, &originalActiveTexture);
   // NOTE: Binding the texture to the GL_TEXTURE_2D target, means that
   // NOTE: gl operations on the GL_TEXTURE_2D target will affect our texture
   // NOTE: while it is remains bound to that target
