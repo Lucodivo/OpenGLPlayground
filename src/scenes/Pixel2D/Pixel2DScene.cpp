@@ -96,8 +96,6 @@ void Pixel2DScene::framebufferSizeChangeRequest(Extent2D windowExtent)
 {
   Scene::framebufferSizeChangeRequest(windowExtent);
 
-  glViewport(0, 0, windowExtent.width, windowExtent.height);
-
   deleteFramebuffer(&drawFramebuffer);
   drawFramebuffer = initializeFramebuffer(windowExtent, FramebufferCreate_NoDepthStencil);
 

@@ -1,7 +1,7 @@
 
 #include <glad/glad.h>
 #include "MultiScene.h"
-#include "../common/Input.h"
+#include "../../common/Input.h"
 
 // TODO: Currently only works with InfiniteCubeScene, RayTracingSphereScene, ReflectRefractScene, and InfiniteCapsule Scene
 // TODO: Other scenes need to ensure that gl state is set within drawFrame() and instead of in init()

@@ -17,7 +17,6 @@ public:
 private:
 
   ShaderProgram* modelShader;
-  ShaderProgram* modelInstanceShader;
   ShaderProgram* reflectModelInstanceShader;
   ShaderProgram* skyboxShader;
 

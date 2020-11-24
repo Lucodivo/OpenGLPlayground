@@ -405,8 +405,6 @@ void KernelScene::framebufferSizeChangeRequest(Extent2D windowExtent)
 {
   Scene::framebufferSizeChangeRequest(windowExtent);
 
-  glViewport(0, 0, windowExtent.width, windowExtent.height);
-
   Framebuffer* framebuffers[] = { &preprocessFramebuffer, &postprocessFramebuffer };
   deleteFramebuffers(ArrayCount(framebuffers), framebuffers);
   preprocessFramebuffer = initializeFramebuffer(windowExtent);

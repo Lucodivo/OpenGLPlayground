@@ -89,20 +89,21 @@ void main()
     normalize(vec3(pixelCoord.x + samplePixelOffsetStepTimes3, pixelCoord.y - samplePixelOffsetStepTimes3, -1.0))
   );
 
-  vec4 dist = vec4(0.0, 0.0, 0.0, 0.0);
+  vec4 averageDistanceResults = vec4(0.0, 0.0, 0.0, 0.0);
   for(int sampleIndex = 0; sampleIndex < numSamples; ++sampleIndex) {
     rayDirSamples[sampleIndex] = vec3(vec4(rayDirSamples[sampleIndex], 0.0) * view);
-    dist += distanceRayToScene(rayOrigin, rayDirSamples[sampleIndex]);
+    averageDistanceResults += distanceRayToScene(rayOrigin, rayDirSamples[sampleIndex]);
   }
-  dist /= numSamples;
+  averageDistanceResults /= numSamples;
+  vec3 worldPos = averageDistanceResults.xyz;
+  float numIterations = averageDistanceResults.w;
 
-  fragPos = dist.xyz;
-  estimateNormal(fragPos);
+  estimateNormal(worldPos);
 
-  if(dist.w < MAX_STEPS) { // hit
-    vec3 col = distColor(dist.w);
+  if(numIterations < MAX_STEPS) { // hit
+    vec3 col = distColor(numIterations);
     FragColor = vec4(gammaCorrectionToSRGB(col), 1.0);
-    vec4 clipPos = projection * view * vec4(dist.xyz, 1.0);
+    vec4 clipPos = projection * view * vec4(worldPos, 1.0);
     float ndcDepth = clipPos.z / clipPos.w;
     float far = gl_DepthRange.far;
     float near = gl_DepthRange.near;
@@ -200,16 +201,19 @@ float sdMengerPrison(vec3 rayPos) {
 }
 
 // NOTE: AKA one of the coolest things I ever accidentally created.
-// An absolute disaster for the poor GPU tho...
+// NOTE: An absolute disaster for the poor GPU tho...
+// NOTE: Disaster status seems more directly related to the undetermined distance and
+// NOTE: iterations that each ray takes and NOT simply the tripple sin calculations
+// NOTE: below (though I'm sure that doesn't help :()
 float sdMengerNoisePrison(vec3 rayPos) {
   // removing one creates a weird "light source" and "tubes" effect in the direction of the light
   // removing two creates a plane of light
-  float sintime = sin(20*rayPos.x)*sin(20*rayPos.y)*sin(20*rayPos.z);
+  float nosieVal = sin(20*rayPos.x)*sin(20*rayPos.y)*sin(20*rayPos.z);
 
   vec3 prisonRay = mod(rayPos, boxDimen * 2.0);
   prisonRay -= boxDimen;
 
-  float mengerPrisonDist = sdCross(prisonRay, vec3(halfBoxDimen)) + sintime;
+  float mengerPrisonDist = sdCross(prisonRay, vec3(halfBoxDimen));
 
   float scale = 1.0;;
   for(int i = 0; i < 3; ++i) {
@@ -223,7 +227,7 @@ float sdMengerNoisePrison(vec3 rayPos) {
     mengerPrisonDist = max(mengerPrisonDist, -crossesDist);
   }
 
-  return mengerPrisonDist + sintime;
+  return mengerPrisonDist + nosieVal;
 }
 
 float sdMengerJank(vec3 rayPos, int numIterations) {

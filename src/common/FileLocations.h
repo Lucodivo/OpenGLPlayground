@@ -28,7 +28,6 @@ const char* const textureFragmentShaderFileLoc = COMMON_BASE_FRAGMENT"TextureFra
 // Asteroid Belt Shaders
 #define ASTEROID_BELT_BASE "src/scenes/AsteroidBelt/"
 const char* const AsteroidVertexShaderFileLoc = ASTEROID_BELT_BASE"AsteroidVertexShader.glsl";
-const char* const textureModelFragmentShaderFileLoc = ASTEROID_BELT_BASE"TextureModelFragmentShader.glsl";
 
 // Moon Shaders
 #define MOON_BASE "src/scenes/Moon/"

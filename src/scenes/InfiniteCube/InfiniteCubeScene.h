@@ -48,10 +48,8 @@ public:
 
 private:
   ShaderProgram* cubeShader = NULL;
-  ShaderProgram* cubeOutlineShader = NULL;
 
   VertexAtt cubeVertexAtt;
-  VertexAtt quadVertexAtt;
 
   glm::mat4 projectionMat;
 

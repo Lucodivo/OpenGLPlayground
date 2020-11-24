@@ -26,7 +26,6 @@ void AsteroidBeltScene::init(Extent2D windowExtent)
   drawFramebuffer = initializeFramebuffer(windowExtent);
 
   modelShader = new ShaderProgram(posNormalVertexShaderFileLoc, skyboxReflectionFragmentShaderFileLoc);
-  modelInstanceShader = new ShaderProgram(AsteroidVertexShaderFileLoc, textureModelFragmentShaderFileLoc);
   reflectModelInstanceShader = new ShaderProgram(AsteroidVertexShaderFileLoc, skyboxReflectionFragmentShaderFileLoc);
   skyboxShader = new ShaderProgram(skyboxVertexShaderFileLoc, skyboxFragmentShaderFileLoc);
 
@@ -46,9 +45,6 @@ void AsteroidBeltScene::init(Extent2D windowExtent)
   skyboxShader->use();
   skyboxShader->setUniform("projection", projectionMat);
   skyboxShader->setUniform("skybox", 0);
-
-  modelInstanceShader->use();
-  modelInstanceShader->setUniform("projection", projectionMat);
 
   reflectModelInstanceShader->use();
   reflectModelInstanceShader->setUniform("projection", projectionMat);
@@ -102,13 +98,13 @@ void AsteroidBeltScene::init(Extent2D windowExtent)
 
     // For glVertexAttribDivisor, the default value is 0 which means that the attribute is updated once per
     // iteration of the vertex shader. Setting it to 1 means that the attribute is updated once per instance.
-    glVertexAttribDivisor(0, 0);
-    glVertexAttribDivisor(1, 0);
-    glVertexAttribDivisor(2, 0);
-    glVertexAttribDivisor(3, 1);
-    glVertexAttribDivisor(4, 1);
-    glVertexAttribDivisor(5, 1);
-    glVertexAttribDivisor(6, 1);
+    glVertexAttribDivisor(0, 0); // vec3 position
+    glVertexAttribDivisor(1, 0); // vec3 normal
+    glVertexAttribDivisor(2, 0); // vec2 texture coordinate
+    glVertexAttribDivisor(3, 1); //  \.
+    glVertexAttribDivisor(4, 1); //   \ mat4
+    glVertexAttribDivisor(5, 1); //   / model matrix
+    glVertexAttribDivisor(6, 1); //  /'
 
     glBindVertexArray(0);
   }
@@ -125,11 +121,9 @@ void AsteroidBeltScene::deinit()
   deleteFramebuffer(&drawFramebuffer);
 
   modelShader->deleteShaderResources();
-  modelInstanceShader->deleteShaderResources();
   reflectModelInstanceShader->deleteShaderResources();
   skyboxShader->deleteShaderResources();
   delete modelShader;
-  delete modelInstanceShader;
   delete reflectModelInstanceShader;
   delete skyboxShader;
 
@@ -211,7 +205,6 @@ void AsteroidBeltScene::framebufferSizeChangeRequest(Extent2D windowExtent)
 {
   Scene::framebufferSizeChangeRequest(windowExtent);
 
-  glViewport(0, 0, windowExtent.width, windowExtent.height);
   deleteFramebuffer(&drawFramebuffer);
   drawFramebuffer = initializeFramebuffer(windowExtent);
 }

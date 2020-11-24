@@ -19,23 +19,14 @@ void InfiniteCubeScene::init(Extent2D windowExtent)
   FirstPersonScene::init(windowExtent);
 
   cubeShader = new ShaderProgram(posNormTexVertexShaderFileLoc, discardAlphaFragmentShaderFileLoc);
-  cubeOutlineShader = new ShaderProgram(posNormTexVertexShaderFileLoc, discardAlphaFragmentShaderFileLoc);
 
   cubeVertexAtt = initializeCubePosNormTexVertexAttBuffers();
-  quadVertexAtt = initializeFramebufferQuadVertexAttBuffers();
 
   load2DTexture(outlineTextureLoc, outlineTexture);
 
   drawFramebuffer = initializeFramebuffer(windowExtent);
   uint32 framebufferDimen = windowExtent.width < windowExtent.height ? windowExtent.width : windowExtent.height;
   infiniteCubeTextureFramebuffer = initializeFramebuffer(Extent2D{ framebufferDimen, framebufferDimen }, FramebufferCreate_NoDepthStencil);
-
-  // set texture uniforms
-  cubeShader->use();
-  cubeShader->setUniform("diffTexture", colorAttachmentTextureIndex);
-
-  cubeOutlineShader->use();
-  cubeOutlineShader->setUniform("diffTexture", outlineTextureIndex);
 
   const float32 aspectRatio = (float32)windowExtent.width / (float32)windowExtent.height;
   projectionMat = glm::perspective(glm::radians(camera.Zoom), aspectRatio, 0.1f, 100.0f);
@@ -47,7 +38,6 @@ void InfiniteCubeScene::init(Extent2D windowExtent)
     glBufferData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4), NULL, GL_STATIC_DRAW);
 
     cubeShader->bindBlockIndex("globalBlockVS", globalVSBufferBindIndex);
-    cubeOutlineShader->bindBlockIndex("globalBlockVS", globalVSBufferBindIndex);
   }
 }
 
@@ -56,12 +46,9 @@ void InfiniteCubeScene::deinit()
   FirstPersonScene::deinit();
 
   cubeShader->deleteShaderResources();
-  cubeOutlineShader->deleteShaderResources();
   delete cubeShader;
-  delete cubeOutlineShader;
 
   deleteVertexAtt(cubeVertexAtt);
-  deleteVertexAtt(quadVertexAtt);
 
   glDeleteTextures(1, &outlineTexture);
 
@@ -73,7 +60,6 @@ void InfiniteCubeScene::deinit()
 
 Framebuffer InfiniteCubeScene::drawFrame()
 {
-
   glViewport(0, 0, windowExtent.width, windowExtent.height);
 
   glActiveTexture(GL_TEXTURE0 + colorAttachmentTextureIndex);
@@ -130,15 +116,16 @@ Framebuffer InfiniteCubeScene::drawFrame()
   glBufferSubData(GL_UNIFORM_BUFFER, globalVSBufferViewMatOffset, sizeof(glm::mat4), glm::value_ptr(viewMat));
   glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-  // draw cube outline
-  cubeOutlineShader->use();
+  // set texture uniforms
   glBindVertexArray(cubeVertexAtt.arrayObject);
 
   // rotate with time
   glm::mat4 cubeModelMatrix = glm::mat4();
   cubeModelMatrix = glm::rotate(cubeModelMatrix, t * glm::radians(cubeRotationAngle), glm::vec3(1.0f, 0.3f, 0.5f));
 
-  cubeOutlineShader->setUniform("model", cubeModelMatrix);
+  cubeShader->use();
+  cubeShader->setUniform("diffTexture", outlineTextureIndex);
+  cubeShader->setUniform("model", cubeModelMatrix);
 
   glDrawElements(GL_TRIANGLES,
                  cubePosNormTexNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
@@ -146,8 +133,7 @@ Framebuffer InfiniteCubeScene::drawFrame()
                  0);
 
   // draw cube
-  cubeShader->use();
-  cubeShader->setUniform("model", cubeModelMatrix);
+  cubeShader->setUniform("diffTexture", colorAttachmentTextureIndex);
   glDrawElements(GL_TRIANGLES,
                  cubePosNormTexNumElements * 3, // number of elements to draw (3 vertices per triangle * 2 triangles per face * 6 faces)
                  GL_UNSIGNED_INT,

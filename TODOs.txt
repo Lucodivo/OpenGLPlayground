@@ -1,4 +1,2 @@
 TODOs:
-- Sort cube faces to render transparent cube back to front
-- Have scenes render to framebuffer provided as opposed to directly to the back buffer
 - Remove images from repo

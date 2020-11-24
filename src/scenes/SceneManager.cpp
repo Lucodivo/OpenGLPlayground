@@ -20,7 +20,7 @@
 #include "MengerSponge/MengerSpongeScene.h"
 #include "RayTracingSphere/RayTracingSphereScene.h"
 #include "Pixel2D/Pixel2DScene.h"
-#include "MultiScene.h"
+#include "Multi/MultiScene.h"
 
 #define SAVE_FILE_RELATIVE_PATH "build/SaveData/save.bin"
 
