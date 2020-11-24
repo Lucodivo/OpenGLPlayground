@@ -3,12 +3,21 @@
     <words>
       <w>bitangent</w>
       <w>bitmask</w>
+      <w>blinn</w>
+      <w>blitting</w>
+      <w>brdf</w>
+      <w>cubemap</w>
       <w>dimen</w>
       <w>eular</w>
       <w>framebuffers</w>
       <w>glsl</w>
       <w>gpu</w>
+      <w>menger</w>
+      <w>microfacet</w>
+      <w>microfacets</w>
+      <w>phong</w>
       <w>rasterization</w>
+      <w>rasterized</w>
       <w>skybox</w>
       <w>wireframe</w>
     </words>
