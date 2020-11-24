@@ -38,21 +38,13 @@ void InfiniteCubeScene::init(Extent2D windowExtent)
   cubeOutlineShader->setUniform("diffTexture", outlineTextureIndex);
 
   const float32 aspectRatio = (float32)windowExtent.width / (float32)windowExtent.height;
-  const glm::mat4 projectionMat = glm::perspective(glm::radians(camera.Zoom), aspectRatio, 0.1f, 100.0f);
+  projectionMat = glm::perspective(glm::radians(camera.Zoom), aspectRatio, 0.1f, 100.0f);
 
   {
     glGenBuffers(1, &globalVSUniformBufferID);
 
     glBindBuffer(GL_UNIFORM_BUFFER, globalVSUniformBufferID);
     glBufferData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4), NULL, GL_STATIC_DRAW);
-
-    glBindBufferRange(GL_UNIFORM_BUFFER,    // target
-                      globalVSBufferBindIndex,  // index of binding point
-                      globalVSUniformBufferID,  // buffer id
-                      0,            // starting offset into buffer object
-                      4 * 16);        // size: 4 vec3's, 16 bits alignments
-
-    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(projectionMat));
 
     cubeShader->bindBlockIndex("globalBlockVS", globalVSBufferBindIndex);
     cubeOutlineShader->bindBlockIndex("globalBlockVS", globalVSBufferBindIndex);
@@ -129,6 +121,12 @@ Framebuffer InfiniteCubeScene::drawFrame()
 
   glBindBuffer(GL_UNIFORM_BUFFER, globalVSUniformBufferID);
   // update global view matrix uniform
+  glBindBufferRange(GL_UNIFORM_BUFFER,    // target
+                    globalVSBufferBindIndex,  // index of binding point
+                    globalVSUniformBufferID,  // buffer id
+                    0,            // starting offset into buffer object
+                    4 * 16);        // size: 4 vec3's, 16 bits alignments
+  glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(projectionMat));
   glBufferSubData(GL_UNIFORM_BUFFER, globalVSBufferViewMatOffset, sizeof(glm::mat4), glm::value_ptr(viewMat));
   glBindBuffer(GL_UNIFORM_BUFFER, 0);
 

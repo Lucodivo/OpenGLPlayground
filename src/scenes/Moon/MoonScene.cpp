@@ -64,7 +64,7 @@ void MoonScene::init(Extent2D windowExtent)
   drawFramebuffer = initializeFramebuffer(windowExtent);
 
   const float32 aspectRatio = (float32)windowExtent.width / (float32)windowExtent.height;
-  const glm::mat4 cameraProjMat = glm::perspective(glm::radians(camera.Zoom), aspectRatio, 0.1f, 120.0f);
+  cameraProjMat = glm::perspective(glm::radians(camera.Zoom), aspectRatio, 0.1f, 120.0f);
   const float32 nearPlane = 1.0f;
   const float32 farPlane = 70.0f;
   const float32 projectionDimens = 12.0f;
@@ -89,15 +89,6 @@ void MoonScene::init(Extent2D windowExtent)
     glBindBuffer(GL_UNIFORM_BUFFER, globalVSUniformBuffer);
     glBufferData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4), NULL, GL_STATIC_DRAW);
 
-    glBindBufferRange(GL_UNIFORM_BUFFER,    // target
-                      globalVSBufferBindIndex,  // index of binding point
-                      globalVSUniformBuffer,  // buffer id
-                      0,            // starting offset into buffer object
-                      4 * 16);        // size: 4 vec3's, 16 bits alignments
-
-    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(cameraProjMat));
-    glBindBuffer(GL_UNIFORM_BUFFER, 0);
-
     directionalLightShader->bindBlockIndex("globalBlockVS", globalVSBufferBindIndex);
     quadTextureShader->bindBlockIndex("globalBlockVS", globalVSBufferBindIndex);
   }
@@ -109,6 +100,39 @@ void MoonScene::init(Extent2D windowExtent)
   floorModelMat = glm::rotate(floorModelMat, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 
   startTime = getTime();
+}
+
+void MoonScene::deinit()
+{
+  FirstPersonScene::deinit();
+
+  directionalLightShader->deleteShaderResources();
+  quadTextureShader->deleteShaderResources();
+  depthMapShader->deleteShaderResources();
+  delete directionalLightShader;
+  delete quadTextureShader;
+  delete depthMapShader;
+
+  VertexAtt deleteVertexAttributes[] = { floorVertexAtt, cubeVertexAtt };
+  deleteVertexAtts(ArrayCount(deleteVertexAttributes), deleteVertexAttributes);
+
+  uint32 deleteTextures[] = { floorAlbedoTextureId, floorNormalTextureId, floorHeightTextureId,
+                              cube1AlbedoTextureId, cube1NormalTextureId, cube1HeightTextureId,
+                              cube2AlbedoTextureId, cube2NormalTextureId, cube2HeightTextureId,
+                              cube3AlbedoTextureId, cube3NormalTextureId, cube3HeightTextureId,
+                              lightTextureId,
+                              depthMapFramebuffer.depthStencilAttachment };
+  glDeleteTextures(ArrayCount(deleteTextures), deleteTextures);
+
+  glDeleteBuffers(1, &globalVSUniformBuffer);
+  glDeleteFramebuffers(1, &depthMapFramebuffer.id);
+  deleteFramebuffer(&drawFramebuffer);
+  depthMapFramebuffer = { 0, 0, 0, 0, 0 };
+}
+
+Framebuffer MoonScene::drawFrame()
+{
+
 
   glActiveTexture(GL_TEXTURE0 + floorAlbedoTextureIndex);
   glBindTexture(GL_TEXTURE_2D, floorAlbedoTextureId);
@@ -146,38 +170,7 @@ void MoonScene::init(Extent2D windowExtent)
 
   // background clear color
   glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-}
 
-void MoonScene::deinit()
-{
-  FirstPersonScene::deinit();
-
-  directionalLightShader->deleteShaderResources();
-  quadTextureShader->deleteShaderResources();
-  depthMapShader->deleteShaderResources();
-  delete directionalLightShader;
-  delete quadTextureShader;
-  delete depthMapShader;
-
-  VertexAtt deleteVertexAttributes[] = { floorVertexAtt, cubeVertexAtt };
-  deleteVertexAtts(ArrayCount(deleteVertexAttributes), deleteVertexAttributes);
-
-  uint32 deleteTextures[] = { floorAlbedoTextureId, floorNormalTextureId, floorHeightTextureId,
-                              cube1AlbedoTextureId, cube1NormalTextureId, cube1HeightTextureId,
-                              cube2AlbedoTextureId, cube2NormalTextureId, cube2HeightTextureId,
-                              cube3AlbedoTextureId, cube3NormalTextureId, cube3HeightTextureId,
-                              lightTextureId,
-                              depthMapFramebuffer.depthStencilAttachment };
-  glDeleteTextures(ArrayCount(deleteTextures), deleteTextures);
-
-  glDeleteBuffers(1, &globalVSUniformBuffer);
-  glDeleteFramebuffers(1, &depthMapFramebuffer.id);
-  deleteFramebuffer(&drawFramebuffer);
-  depthMapFramebuffer = { 0, 0, 0, 0, 0 };
-}
-
-Framebuffer MoonScene::drawFrame()
-{
   float32 t = getTime() - startTime;
   deltaTime = t - lastFrame;
   lastFrame = t;
@@ -186,6 +179,12 @@ Framebuffer MoonScene::drawFrame()
 
   glBindBuffer(GL_UNIFORM_BUFFER, globalVSUniformBuffer);
   // update global view matrix uniform
+  glBindBufferRange(GL_UNIFORM_BUFFER,    // target
+                    globalVSBufferBindIndex,  // index of binding point
+                    globalVSUniformBuffer,  // buffer id
+                    0,            // starting offset into buffer object
+                    4 * 16);        // size: 4 vec3's, 16 bits alignments
+  glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(cameraProjMat));
   glBufferSubData(GL_UNIFORM_BUFFER, globalVSBufferViewMatOffset, sizeof(glm::mat4), glm::value_ptr(viewMat));
   glBindBuffer(GL_UNIFORM_BUFFER, 0);
 

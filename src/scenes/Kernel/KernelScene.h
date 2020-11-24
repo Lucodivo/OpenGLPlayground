@@ -53,6 +53,11 @@ private:
   const float32 lightOrbitRadius = 2.5f;
   const float32 lightScale = 0.2f;
 
+  const glm::vec3 directionalLightDir = glm::vec3(1.0f, -0.5f, 1.0f);
+  const glm::vec3 directionalLightColor = glm::vec3(1.0f);
+
+  glm::mat4 projectionMat;
+
   // frame rate
   float32 deltaTime = 0.0f;  // Time between current frame and last frame
   float32 lastFrame = 0.0f; // Time of last frame

@@ -53,6 +53,8 @@ private:
   VertexAtt cubeVertexAtt;
   VertexAtt quadVertexAtt;
 
+  glm::mat4 projectionMat;
+
   uint32 outlineTexture;
   uint32 globalVSUniformBufferID;
   uint32 globalVSBufferBindIndex = 0;

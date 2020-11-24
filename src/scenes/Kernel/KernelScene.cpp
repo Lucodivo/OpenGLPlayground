@@ -55,7 +55,7 @@ void KernelScene::init(Extent2D windowExtent)
   FirstPersonScene::init(windowExtent);
 
   const float32 aspectRatio = (float32)windowExtent.width / (float32)windowExtent.height;
-  glm::mat4 projectionMat = glm::perspective(glm::radians(camera.Zoom), aspectRatio, 0.1f, 100.0f);
+  projectionMat = glm::perspective(glm::radians(camera.Zoom), aspectRatio, 0.1f, 100.0f);
 
   cubeShader = new ShaderProgram(posNormTexVertexShaderFileLoc, nessCubeFragmentShaderFileLoc);
   lightShader = new ShaderProgram(posGlobalBlockVertexShaderFileLoc, SingleColorFragmentShaderFileLoc);
@@ -76,9 +76,6 @@ void KernelScene::init(Extent2D windowExtent)
 
   nanoSuitModel = new Model(nanoSuitModelLoc);
 
-  glm::vec3 directionalLightDir = glm::vec3(1.0f, -0.5f, 1.0f);
-  glm::vec3 directionalLightColor = glm::vec3(1.0f);
-
   auto setConstantLightUniforms = [&](ShaderProgram* shader)
   {
     // positional light constants
@@ -97,12 +94,6 @@ void KernelScene::init(Extent2D windowExtent)
   glGenBuffers(1, &globalVSUniformBuffer);
   glBindBuffer(GL_UNIFORM_BUFFER, globalVSUniformBuffer);
   glBufferData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4), NULL, GL_STATIC_DRAW);
-  glBindBufferRange(GL_UNIFORM_BUFFER,    // target
-                    globalVSBufferBindIndex,  // index of binding point
-                    globalVSUniformBuffer,  // buffer id
-                    0,            // starting offset into buffer object
-                    4 * 16);        // size: 4 vec3's, 16 bits alignments
-  glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(projectionMat));
 
   cubeShader->bindBlockIndex("globalBlockVS", globalVSBufferBindIndex);
   modelShader->bindBlockIndex("globalBlockVS", globalVSBufferBindIndex);
@@ -112,15 +103,6 @@ void KernelScene::init(Extent2D windowExtent)
   glGenBuffers(1, &globalFSUniformBuffer);
   glBindBuffer(GL_UNIFORM_BUFFER, globalFSUniformBuffer);
   glBufferData(GL_UNIFORM_BUFFER, 64, NULL, GL_STATIC_DRAW);
-  glBindBufferRange(GL_UNIFORM_BUFFER,    // target
-                    globalFSBufferBindIndex,  // index of binding point
-                    globalFSUniformBuffer,  // buffer id
-                    0,            // starting offset into buffer object
-                    4 * 16);          // size: 4 vec3's, 16 bits alignments
-  glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::vec3), glm::value_ptr(directionalLightDir));
-  glBufferSubData(GL_UNIFORM_BUFFER, 16, sizeof(glm::vec3), glm::value_ptr(directionalLightColor * 0.1f)); // ambient
-  glBufferSubData(GL_UNIFORM_BUFFER, 32, sizeof(glm::vec3), glm::value_ptr(directionalLightColor * 0.3f)); // diffuse
-  glBufferSubData(GL_UNIFORM_BUFFER, 48, sizeof(glm::vec3), glm::value_ptr(directionalLightColor * 0.6f)); // specular
 
   cubeShader->bindBlockIndex("globalBlockFS", globalFSBufferBindIndex);
   modelShader->bindBlockIndex("globalBlockFS", globalFSBufferBindIndex);
@@ -147,26 +129,6 @@ void KernelScene::init(Extent2D windowExtent)
   framebufferShader->setUniform("textureWidth", (float32)windowExtent.width);
   framebufferShader->setUniform("textureHeight", (float32)windowExtent.height);
   framebufferShader->setUniform("tex", colorAttachmentTextureIndex);
-
-  // background clear color
-  glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-
-  glEnable(GL_DEPTH_TEST);
-  glDepthFunc(GL_LEQUAL);
-  glEnable(GL_BLEND);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-  glEnable(GL_CULL_FACE);
-  glFrontFace(GL_CCW);
-  glCullFace(GL_BACK);
-
-  glBindBuffer(GL_UNIFORM_BUFFER, globalVSUniformBuffer);
-
-  glEnable(GL_STENCIL_TEST);
-  glStencilOp(GL_KEEP, // Keep current stencil value when stencil test fails
-              GL_KEEP, // Keep current stencil value when stencil test passes but depth fails
-              GL_REPLACE); // Set the stencil value to 'ref' as specified by glStencilFunc when stencil & depth pass
-
-  glViewport(0, 0, windowExtent.width, windowExtent.height);
 }
 
 void KernelScene::initializeTextures(uint32& diffTextureId, uint32& specTextureId, uint32& skyboxTextureId)
@@ -211,6 +173,27 @@ void KernelScene::deinit(){
 }
 
 Framebuffer KernelScene::drawFrame(){
+
+  // background clear color
+  glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+
+  glEnable(GL_DEPTH_TEST);
+  glDepthFunc(GL_LEQUAL);
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  glEnable(GL_CULL_FACE);
+  glFrontFace(GL_CCW);
+  glCullFace(GL_BACK);
+
+  glBindBuffer(GL_UNIFORM_BUFFER, globalVSUniformBuffer);
+
+  glEnable(GL_STENCIL_TEST);
+  glStencilOp(GL_KEEP, // Keep current stencil value when stencil test fails
+              GL_KEEP, // Keep current stencil value when stencil test passes but depth fails
+              GL_REPLACE); // Set the stencil value to 'ref' as specified by glStencilFunc when stencil & depth pass
+
+  glViewport(0, 0, windowExtent.width, windowExtent.height);
+
   // bind our frame buffer
   glBindFramebuffer(GL_FRAMEBUFFER, preprocessFramebuffer.id);
 
@@ -233,8 +216,26 @@ Framebuffer KernelScene::drawFrame(){
 
   glm::mat4 viewMat = camera.UpdateViewMatrix(deltaTime, cameraMovementSpeed);
 
-  // update global view matrix uniform
+  // update global uniforms
+  glBindBuffer(GL_UNIFORM_BUFFER, globalVSUniformBuffer);
+  glBindBufferRange(GL_UNIFORM_BUFFER,    // target
+                    globalVSBufferBindIndex,  // index of binding point
+                    globalVSUniformBuffer,  // buffer id
+                    0,            // starting offset into buffer object
+                    4 * 16);        // size: 4 vec3's, 16 bits alignments
+  glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(projectionMat));
   glBufferSubData(GL_UNIFORM_BUFFER, globalVSBufferViewMatOffset, sizeof(glm::mat4), glm::value_ptr(viewMat));
+
+  glBindBuffer(GL_UNIFORM_BUFFER, globalFSUniformBuffer);
+  glBindBufferRange(GL_UNIFORM_BUFFER,    // target
+                    globalFSBufferBindIndex,  // index of binding point
+                    globalFSUniformBuffer,  // buffer id
+                    0,            // starting offset into buffer object
+                    4 * 16);          // size: 4 vec3's, 16 bits alignments
+  glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::vec3), glm::value_ptr(directionalLightDir));
+  glBufferSubData(GL_UNIFORM_BUFFER, 16, sizeof(glm::vec3), glm::value_ptr(directionalLightColor * 0.1f)); // ambient
+  glBufferSubData(GL_UNIFORM_BUFFER, 32, sizeof(glm::vec3), glm::value_ptr(directionalLightColor * 0.3f)); // diffuse
+  glBufferSubData(GL_UNIFORM_BUFFER, 48, sizeof(glm::vec3), glm::value_ptr(directionalLightColor * 0.6f)); // specular
 
   // oscillate with time
   const glm::vec3 lightPosition = glm::vec3(lightOrbitRadius * sinf(t * lightOrbitSpeed), sineVal, lightOrbitRadius * cosf(t * lightOrbitSpeed));

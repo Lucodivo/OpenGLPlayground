@@ -113,23 +113,6 @@ void AsteroidBeltScene::init(Extent2D windowExtent)
     glBindVertexArray(0);
   }
 
-  glActiveTexture(GL_TEXTURE0 + skyboxTextureIndex);
-  glBindTexture(GL_TEXTURE_CUBE_MAP, skyboxTextureId);
-  glActiveTexture(GL_TEXTURE0 + skybox2TextureIndex);
-  glBindTexture(GL_TEXTURE_CUBE_MAP, skybox2TextureId);
-
-  // background clear color
-  glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-
-  glEnable(GL_DEPTH_TEST);
-  glDepthFunc(GL_LEQUAL);
-
-  glEnable(GL_BLEND);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-  glDisable(GL_CULL_FACE);
-  glViewport(0, 0, windowExtent.width, windowExtent.height);
-
   delete[] asteroidModelMatrices;
 }
 
@@ -161,6 +144,24 @@ void AsteroidBeltScene::deinit()
 
 Framebuffer AsteroidBeltScene::drawFrame()
 {
+
+  glActiveTexture(GL_TEXTURE0 + skyboxTextureIndex);
+  glBindTexture(GL_TEXTURE_CUBE_MAP, skyboxTextureId);
+  glActiveTexture(GL_TEXTURE0 + skybox2TextureIndex);
+  glBindTexture(GL_TEXTURE_CUBE_MAP, skybox2TextureId);
+
+  // background clear color
+  glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+
+  glEnable(GL_DEPTH_TEST);
+  glDepthFunc(GL_LEQUAL);
+
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+  glDisable(GL_CULL_FACE);
+  glViewport(0, 0, windowExtent.width, windowExtent.height);
+
   glBindFramebuffer(GL_FRAMEBUFFER, drawFramebuffer.id);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);           // OpenGL state-using function
 

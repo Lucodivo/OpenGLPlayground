@@ -41,6 +41,7 @@ private:
   uint32 globalVSBufferBindIndex = 0;
   uint32 globalVSBufferViewMatOffset = sizeof(glm::mat4);
 
+  glm::mat4 cameraProjMat;
   glm::mat4 floorModelMat;
   glm::mat4 lightProjMat;
 

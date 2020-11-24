@@ -40,7 +40,7 @@ void RoomScene::init(Extent2D windowExtent)
   float32 cameraAspectRatio = (float32)windowExtent.width / (float32)windowExtent.height;
   const float32 cameraNearPlane = 0.1f;
   const float32 cameraFarPlane = 120.f;
-  const glm::mat4 cameraProjMat = glm::perspective(glm::radians(camera.Zoom), cameraAspectRatio, cameraNearPlane, cameraFarPlane);
+  cameraProjMat = glm::perspective(glm::radians(camera.Zoom), cameraAspectRatio, cameraNearPlane, cameraFarPlane);
 
   const float32 lightAspectRatio = (float32)SHADOW_MAP_WIDTH / (float32)SHADOW_MAP_HEIGHT;
   const float32 lightNearPlane = 1.0f;
@@ -68,12 +68,6 @@ void RoomScene::init(Extent2D windowExtent)
   glGenBuffers(1, &globalVSUniformBuffer);
   glBindBuffer(GL_UNIFORM_BUFFER, globalVSUniformBuffer);
   glBufferData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4), NULL, GL_STATIC_DRAW);
-  glBindBufferRange(GL_UNIFORM_BUFFER,    // target
-                    globalVSBufferBindIndex,  // index of binding point
-                    globalVSUniformBuffer,  // buffer id
-                    0,            // starting offset into buffer object
-                    4 * 16);        // size: 4 vec3's, 16 bits alignments
-  glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(cameraProjMat));
 
   positionalLightShader->bindBlockIndex("globalBlockVS", globalVSBufferBindIndex);
   singleColorShader->bindBlockIndex("globalBlockVS", globalVSBufferBindIndex);
@@ -89,26 +83,6 @@ void RoomScene::init(Extent2D windowExtent)
   cubeModelMat[1] = glm::scale(cubeModelMat[1], glm::vec3(cubeScales[1]));
   cubeModelMat[2] = glm::translate(glm::mat4(), cubePositions[2]);
   cubeModelMat[2] = glm::scale(cubeModelMat[2], glm::vec3(cubeScales[2]));
-
-  glEnable(GL_CULL_FACE);
-  glFrontFace(GL_CCW);
-  glCullFace(GL_BACK);
-
-  glEnable(GL_DEPTH_TEST);
-  glDepthFunc(GL_LEQUAL);
-
-  // background clear color
-  glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
-
-  // Turn on free gamma correction for entire scene, only affects color attachments
-  glEnable(GL_FRAMEBUFFER_SRGB);
-
-  glActiveTexture(GL_TEXTURE0 + wallpaperTextureIndex);
-  glBindTexture(GL_TEXTURE_2D, wallpaperTextureId);
-  glActiveTexture(GL_TEXTURE0 + cubeTextureIndex);
-  glBindTexture(GL_TEXTURE_2D, cubeTextureId);
-  glActiveTexture(GL_TEXTURE0 + depthCubeMapIndex);
-  glBindTexture(GL_TEXTURE_CUBE_MAP, depthCubeMapId);
 }
 
 void RoomScene::deinit()
@@ -139,6 +113,26 @@ void RoomScene::deinit()
 
 Framebuffer RoomScene::drawFrame()
 {
+  glEnable(GL_CULL_FACE);
+  glFrontFace(GL_CCW);
+  glCullFace(GL_BACK);
+
+  glEnable(GL_DEPTH_TEST);
+  glDepthFunc(GL_LEQUAL);
+
+  // background clear color
+  glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
+
+  // Turn on free gamma correction for entire scene, only affects color attachments
+  glEnable(GL_FRAMEBUFFER_SRGB);
+
+  glActiveTexture(GL_TEXTURE0 + wallpaperTextureIndex);
+  glBindTexture(GL_TEXTURE_2D, wallpaperTextureId);
+  glActiveTexture(GL_TEXTURE0 + cubeTextureIndex);
+  glBindTexture(GL_TEXTURE_2D, cubeTextureId);
+  glActiveTexture(GL_TEXTURE0 + depthCubeMapIndex);
+  glBindTexture(GL_TEXTURE_CUBE_MAP, depthCubeMapId);
+
   float32 t = getTime();
   deltaTime = t - lastFrame;
   lastFrame = t;
@@ -146,6 +140,13 @@ Framebuffer RoomScene::drawFrame()
   glm::mat4 viewMat = camera.UpdateViewMatrix(deltaTime, cameraMovementSpeed * 4.0f, false);
 
   // update global view matrix uniform
+  glBindBuffer(GL_UNIFORM_BUFFER, globalVSUniformBuffer);
+  glBindBufferRange(GL_UNIFORM_BUFFER,    // target
+                    globalVSBufferBindIndex,  // index of binding point
+                    globalVSUniformBuffer,  // buffer id
+                    0,            // starting offset into buffer object
+                    4 * 16);        // size: 4 vec3's, 16 bits alignments
+  glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(cameraProjMat));
   glBufferSubData(GL_UNIFORM_BUFFER, globalVSBufferViewMatOffset, sizeof(glm::mat4), glm::value_ptr(viewMat));
 
   // light data
@@ -249,6 +250,8 @@ Framebuffer RoomScene::drawFrame()
                  cubePosNormTexNumElements * 3, // number of elements to draw * 3 vertices per triangle
                  GL_UNSIGNED_INT, // type of the indices
                  0); // offset in the EBO
+
+   glDisable(GL_FRAMEBUFFER_SRGB);
 
    return drawFramebuffer;
 }

@@ -38,7 +38,8 @@ void MengerSpongeScene::init(Extent2D windowExtent)
   quadVertexAtt = initializeFramebufferQuadVertexAttBuffers();
   cubeVertexAtt = initializeCubePosNormTexVertexAttBuffers();
 
-  dynamicResolutionFBO = initializeFramebuffer(windowExtent);
+  // We want a framebuffer equal in size to our highest resolution
+  dynamicResolutionFBO = initializeFramebuffer(screenResolutions[ArrayCount(screenResolutions) - 1]);
   publicPseudoDrawFramebuffer = {
           dynamicResolutionFBO.id,
           dynamicResolutionFBO.colorAttachment,
@@ -84,27 +85,6 @@ void MengerSpongeScene::init(Extent2D windowExtent)
 
   lastFrame = getTime();
   startTime = lastFrame;
-
-  glBindVertexArray(quadVertexAtt.arrayObject);
-
-  glActiveTexture(GL_TEXTURE0 + diff1TextureIndex);
-  glBindTexture(GL_TEXTURE_2D, textureDiff1Id);
-  glActiveTexture(GL_TEXTURE0 + spec1TextureIndex);
-  glBindTexture(GL_TEXTURE_2D, textureSpec1Id);
-  glActiveTexture(GL_TEXTURE0 + diff2TextureIndex);
-  glBindTexture(GL_TEXTURE_2D, textureDiff2Id);
-  glActiveTexture(GL_TEXTURE0 + spec2TextureIndex);
-  glBindTexture(GL_TEXTURE_2D, textureSpec2Id);
-
-  // background clear color
-  glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-  glEnable(GL_DEPTH_TEST);
-  glEnable(GL_BLEND);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-  glDisable(GL_CULL_FACE);
-
-  // NOTE: the viewport dictates the area of the bound
-  glViewport(0, 0, currentResolution.width, currentResolution.height);
 }
 
 void MengerSpongeScene::deinit()
@@ -129,10 +109,32 @@ void MengerSpongeScene::deinit()
 
 Framebuffer MengerSpongeScene::drawFrame()
 {
+  glBindVertexArray(quadVertexAtt.arrayObject);
+
+  glActiveTexture(GL_TEXTURE0 + diff1TextureIndex);
+  glBindTexture(GL_TEXTURE_2D, textureDiff1Id);
+  glActiveTexture(GL_TEXTURE0 + spec1TextureIndex);
+  glBindTexture(GL_TEXTURE_2D, textureSpec1Id);
+  glActiveTexture(GL_TEXTURE0 + diff2TextureIndex);
+  glBindTexture(GL_TEXTURE_2D, textureDiff2Id);
+  glActiveTexture(GL_TEXTURE0 + spec2TextureIndex);
+  glBindTexture(GL_TEXTURE_2D, textureSpec2Id);
+
+  // background clear color
+  glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+  glEnable(GL_DEPTH_TEST);
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  glDisable(GL_CULL_FACE);
+
+  // NOTE: the viewport dictates the area of the bound
+  glViewport(0, 0, currentResolution.width, currentResolution.height);
+
   float32 t = getTime() - startTime;
   deltaTime = t - lastFrame;
   lastFrame = t;
 
+  cubeShader->use();
   if(((uint32)(t / frameTime) % 2) == 0) {
     cubeShader->setUniform("material.diffTexture", 0);
     cubeShader->setUniform("material.specTexture", 1);
@@ -231,8 +233,6 @@ void MengerSpongeScene::inputStatesUpdated() {
 
     currentResolution = screenResolutions[currentResolutionIndex];
 
-    glViewport(0, 0, currentResolution.width, currentResolution.height);
-
     publicPseudoDrawFramebuffer.extent.width = currentResolution.width;
     publicPseudoDrawFramebuffer.extent.height = currentResolution.height;
 
@@ -251,8 +251,6 @@ void MengerSpongeScene::inputStatesUpdated() {
     }
 
     currentResolution = screenResolutions[currentResolutionIndex];
-
-    glViewport(0, 0, currentResolution.width, currentResolution.height);
 
     publicPseudoDrawFramebuffer.extent.width = currentResolution.width;
     publicPseudoDrawFramebuffer.extent.height = currentResolution.height;

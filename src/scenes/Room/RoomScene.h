@@ -46,8 +46,8 @@ private:
                                        { 8.0f, roomPosition.y + (cubeScales[1] / 2) - 8.0f, 8.0f},
                                        { 2.0f, roomPosition.y + (cubeScales[2] / 2.0f) + 4.0f, 3.0f} };
 
+  glm::mat4 cameraProjMat;
   glm::mat4 lightProjMat;
-
   glm::mat4 roomModelMat;
 
   uint32 globalVSUniformBuffer;

@@ -55,20 +55,6 @@ void GUIScene::init(Extent2D windowExtent)
   cubeShader->setUniform("projection", projectionMat);
 
   startTime = getTime();
-
-  glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
-
-  glEnable(GL_DEPTH_TEST);
-  glEnable(GL_BLEND);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-  glLineWidth(3.0f);
-
-  glEnable(GL_CULL_FACE);
-  glFrontFace(GL_CCW);
-  glCullFace(GL_BACK);
-  
-  glBindVertexArray(cubeVertexAtt.arrayObject);
-  glViewport(0, 0, windowExtent.width, windowExtent.height);
 }
 
 void GUIScene::deinit()
@@ -85,6 +71,21 @@ void GUIScene::deinit()
 
 Framebuffer GUIScene::drawFrame()
 {
+
+  glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
+
+  glEnable(GL_DEPTH_TEST);
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  glLineWidth(3.0f);
+
+  glEnable(GL_CULL_FACE);
+  glFrontFace(GL_CCW);
+  glCullFace(GL_BACK);
+
+  glBindVertexArray(cubeVertexAtt.arrayObject);
+  glViewport(0, 0, windowExtent.width, windowExtent.height);
+
   float32 t = (float32) getTime() - startTime;
   deltaTime = t - lastFrame;
   lastFrame = t;

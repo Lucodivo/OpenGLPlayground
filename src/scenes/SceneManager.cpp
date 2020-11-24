@@ -39,13 +39,11 @@ class EmptyScene : public Scene
   {
     Scene::init(windowExtent);
     drawFramebuffer = { 0, 0, 0, 1, 1 };
-    glBindFramebuffer(GL_FRAMEBUFFER, drawFramebuffer.id);
-    glClearColor( 0.0f, 0.0f, 0.0f, 0.0f );
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
   }
   const char* title() { return "Empty Scene"; }
   Framebuffer drawFrame() {
     glBindFramebuffer(GL_FRAMEBUFFER, drawFramebuffer.id);
+    glClearColor( 0.0f, 0.0f, 0.0f, 0.0f );
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     return drawFramebuffer;
   }
@@ -69,11 +67,11 @@ void runScenes(GLFWwindow* window) {
   ReflectRefractScene reflectRefractScene = ReflectRefractScene();
   GUIScene guiScene = GUIScene(window);
   Pixel2DScene pixel2DScene = Pixel2DScene();
-  Scene* fourScenes[] = { &infiniteCubeScene, &infiniteCapsulesScene, &rayTracingSphereScene, &reflectRefractScene };
-  MultiScene multiScene = MultiScene(fourScenes);
-  Scene* scenes[] = {&mengerSpongeScene, &rayTracingSphereScene, &mandelbrotScene, &infiniteCubeScene,
-                     &infiniteCapsulesScene, &roomScene, &guiScene, &moonScene, &asteroidBeltScene,
-                     &reflectRefractScene, &kernelScene, &multiScene, &pixel2DScene, &emptyScene };
+  Scene* scenes[] = { &mengerSpongeScene, &rayTracingSphereScene, &mandelbrotScene, &infiniteCubeScene,
+                      &infiniteCapsulesScene, &roomScene, &guiScene, &moonScene, &asteroidBeltScene,
+                      &reflectRefractScene, &kernelScene, &pixel2DScene, &emptyScene, &emptyScene };
+  MultiScene multiScene = MultiScene(scenes, ArrayCount(scenes) - 3, 0);
+  scenes[ArrayCount(scenes) - 2] = &multiScene;
   uint32 sceneIndex = 0;
   loadLastSceneIndex(&sceneIndex);
   uint32 sceneCount = ArrayCount(scenes);

@@ -8,12 +8,7 @@
 #include "../../common/ObjectData.h"
 #include "../../ShaderProgram.h"
 
-struct resolution {
-  uint32 width;
-  uint32 height;
-};
-
-const resolution screenResolutions[] = {
+const Extent2D screenResolutions[] = {
         {120, 68},
         {240, 135},
         {480, 270},
@@ -64,7 +59,7 @@ private:
   Timer timer;
 
   uint32 currentResolutionIndex = 0;
-  resolution currentResolution = screenResolutions[currentResolutionIndex];
+  Extent2D currentResolution = screenResolutions[currentResolutionIndex];
 
   int32 numSamples = 1;
 

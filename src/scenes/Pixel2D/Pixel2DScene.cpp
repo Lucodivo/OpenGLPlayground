@@ -39,19 +39,6 @@ void Pixel2DScene::init(Extent2D windowExtent)
 
   lastFrame = getTime();
   startTime = lastFrame;
-
-  glBindVertexArray(quadVertexAtt.arrayObject);
-  glActiveTexture(GL_TEXTURE0 + textureIndex);
-  glBindTexture(GL_TEXTURE_2D, textureId);
-
-  // background clear color
-  glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-  glDisable(GL_DEPTH_TEST);
-
-  // Turn on free gamma correction for entire scene, only affects color attachments
-  glEnable(GL_FRAMEBUFFER_SRGB);
-
-  glViewport(0, 0, windowExtent.width, windowExtent.height);
 }
 
 void Pixel2DScene::deinit()
@@ -72,6 +59,20 @@ void Pixel2DScene::deinit()
 
 Framebuffer Pixel2DScene::drawFrame()
 {
+
+  glBindVertexArray(quadVertexAtt.arrayObject);
+  glActiveTexture(GL_TEXTURE0 + textureIndex);
+  glBindTexture(GL_TEXTURE_2D, textureId);
+
+  // background clear color
+  glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+  glDisable(GL_DEPTH_TEST);
+
+  // Turn on free gamma correction for entire scene, only affects color attachments
+  glEnable(GL_FRAMEBUFFER_SRGB);
+
+  glViewport(0, 0, windowExtent.width, windowExtent.height);
+
   float32 t = getTime() - startTime;
   deltaTime = t - lastFrame;
   lastFrame = t;
@@ -79,10 +80,14 @@ Framebuffer Pixel2DScene::drawFrame()
   glBindFramebuffer(GL_FRAMEBUFFER, drawFramebuffer.id);
   glClear(GL_COLOR_BUFFER_BIT);
 
+  pixel2DShader->use();
   glDrawElements(GL_TRIANGLES, // drawing mode
                  6, // number of elements to draw (3 vertices per triangle * 2 triangles per quad)
                  GL_UNSIGNED_INT, // type of the indices
                  0 /*offset in the EBO */);
+
+  // Turn on free gamma correction for entire scene, only affects color attachments
+  glDisable(GL_FRAMEBUFFER_SRGB);
 
   return drawFramebuffer;
 }
