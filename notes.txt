@@ -29,11 +29,11 @@ Vertex Array Object (VAO): Memory that can store the vertex attribute configurat
     - After bound using glBindVertexArrays(), any subsequent vertex attribute calls from that point will be stored in VAO
 	- VBO is actually NOT part of VAOs state; the actual association between an attribute index and a buffer is made through the glVertexAttribPointer
 Element Buffer Objects (EBO): A buffer that stores vertex attribute indices. These specify to OpenGL which vertices create a primitive (ex: triangle).
-	- Used to avoid redundant data for pimitives with shared vertex attributes.
+	- Used to avoid redundant data for primitives with shared vertex attributes.
     - The EBO bound while a VAO is bound is stored as the VAO's EBO. Unbinding the EBO while the VAO is bound will unbind the EBO from the VAO.
 
 == ECT ==
-- The areas of the graphics pipeline that are configureable are the Vertex Shader, Geometry Shader, and Fragment Shader
+- The areas of the graphics pipeline that are configurable are the Vertex Shader, Geometry Shader, and Fragment Shader
 - In Modern OpenGL we are REQUIRED to define at least a vertex and fragment shader of our own (There are no default vertex/fragment shaders on the GPU)
 - Geometry shader is optional and usually left to its default shader
 - OpenGL only processes 3D normalized device coordinates, any coordinates outside of the range [-1.0,+1.0] will be clipped/discarded.
@@ -126,7 +126,7 @@ Matrix transformations:
  basis vectors increasing in length from 1 to ~4.24
 
 Rotations:
-- Rotations in 3D are specified with an angle AND a rotaion axis.
+- Rotations in 3D are specified with an angle AND a rotation axis.
 Rotation matrix around the X-Axis (where A is the angle):
 |1 0    0     0| |X| = |X          |
 |0 cosA -sinA 0| |Y| = |YcosA-ZsinA|
@@ -167,7 +167,7 @@ Transformation Matrices for transforming coordinates between spaces:
     - View Space => Clip Space
     - Transforms coordinates within a specified range (e.g. -1000 to 1000 in each dimension) to device coordinates, (-1.0, 1.0).
         - All coordinates outside of this range will not be mapped between (-1.0, 1.0) and therefore be clipped.
-        - If only a part of a primitive is outside the clipping volume, OpenGL will reconstruct the triangle as one or more trinagels to fit inside clipping range
+        - If only a part of a primitive is outside the clipping volume, OpenGL will reconstruct the triangle as one or more triangles to fit inside clipping range
 
 Vertex coordinates first start in local space as local coordinates then are further processed to world coordinates, view coordinates, clip coordinates and eventually end up as screen coordinates.
 LOCAL SPACE ===MODEL MATRIX===> WORLD SPACE ===VIEW MATRIX===> VIEW SPACE ===PROJECTION MATRIX===> CLIP SPACE ===VIEWPORT TRANSFORMATION===> SCREEN SPACE
@@ -215,7 +215,7 @@ Diffuse Lighting: Directional impact a light object has on an object.
 Specular Lighting: Bright part of a light that appears on shiny objects
     - Specular highlights are often more inclined to the color of the light than the color of the object
 Attenuation: Reduced intensity of light, over the distance a light ray travels
-Directional Light: A light source modeled to be infinitely far away is called a directionla light since all it's light rays have the same direction.
+Directional Light: A light source modeled to be infinitely far away is called a directional light since all it's light rays have the same direction.
 Point Light: A light source with a given position somewhere in a world that illuminates in all directions where the light rays fade out over distance(attenuate)
 
 
@@ -238,7 +238,7 @@ Z-Fighting: A common visual artifact when two triangles are so closely aligned t
         - Light rays re-emerging out of the surface contribute to the surface's observed color
 - Usually rendering techniques simplify scattered light by assuming a small area of impact, eliminating the possibility of light exiting from a distant point of entry
     - Subsurface scattering techniques aim to improve visual quality by not simplifying the real physics of
-- Dialectric: non-metallic surface
+- Dielectric: non-metallic surface
 
 
 ==== Experimentation notes ====
