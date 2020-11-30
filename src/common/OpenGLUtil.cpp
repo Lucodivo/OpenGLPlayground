@@ -169,7 +169,7 @@ Framebuffer initializeFramebuffer(Extent2D framebufferExtent, FramebufferCreatio
 
   // attach texture w/ color to frame buffer
   glFramebufferTexture2D(GL_FRAMEBUFFER, // frame buffer we're targeting (draw, read, or both)
-                         GL_COLOR_ATTACHMENT0, // type of attachment
+                         GL_COLOR_ATTACHMENT0, // type of attachment and index of attachment
                          GL_TEXTURE_2D, // type of texture
                          resultBuffer.colorAttachment, // texture
                          0); // mipmap level

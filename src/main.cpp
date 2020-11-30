@@ -12,8 +12,6 @@
 #include "common/Input.h"
 #include "scenes/SceneManager.h"
 
-#define MULTI_SAMPLING_ON true
-
 int main()
 {
   loadGLFW();
@@ -59,10 +57,6 @@ void initializeGLAD()
     std::cout << "Failed to initialize GLAD" << std::endl;
     exit(-1);
   }
-
-#if MULTI_CAMPLING_ON
-  glEnable(GL_MULTISAMPLE);
-#endif
 }
 
 GLFWwindow* createWindow()

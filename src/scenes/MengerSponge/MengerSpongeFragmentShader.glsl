@@ -208,7 +208,9 @@ float sdMengerPrison(vec3 rayPos) {
 float sdMengerNoisePrison(vec3 rayPos) {
   // removing one creates a weird "light source" and "tubes" effect in the direction of the light
   // removing two creates a plane of light
-  float nosieVal = sin(20*rayPos.x)*sin(20*rayPos.y)*sin(20*rayPos.z);
+  float noiseVal = sin(20*rayPos.x)*sin(20*rayPos.y)*sin(20*rayPos.z);
+  //float ghostNoiseVal = fract(20*rayPos.x*rayPos.y*rayPos.z);
+  //float shardNoiseVal = fract(rayPos.x+rayPos.y+rayPos.z);
 
   vec3 prisonRay = mod(rayPos, boxDimen * 2.0);
   prisonRay -= boxDimen;
@@ -227,7 +229,7 @@ float sdMengerNoisePrison(vec3 rayPos) {
     mengerPrisonDist = max(mengerPrisonDist, -crossesDist);
   }
 
-  return mengerPrisonDist + nosieVal;
+  return mengerPrisonDist + noiseVal;
 }
 
 float sdMengerJank(vec3 rayPos, int numIterations) {

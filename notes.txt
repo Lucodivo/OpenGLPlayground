@@ -241,5 +241,19 @@ Z-Fighting: A common visual artifact when two triangles are so closely aligned t
 - Dielectric: non-metallic surface
 
 
++++ GLSL functions +++
+- radians(float degrees)
+- degrees(float radians)
+- sin(float angleInRadians) [as well as cos, tan, asin, acos, atan, sinh, cosh, tanh, asinh, acosh, atanh]
+- pow(float base, float exponent)
+- exp(float x) = e^x
+- exp2(float x) = 2^x
+- log(float x) = ln(x)
+- log2(float x) = log_base2(x)
+- sqrt(float x)
+- inversesqrt(float x)
+- abs, sign, floor, ceil, trunc, fract, round, roundEven
+
+
 ==== Experimentation notes ====
 - When accidentally not setting the height map up properly, I used an albedo map in GL_TEXTURE0 as the height map. It seemed to create feel of a layer of ice lying on top of the surface.

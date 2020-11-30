@@ -1,10 +1,12 @@
-#include "Input.h"
-#include "Util.h"
+#include <windows.h>
 
-#include <Windows.h>
+#include "Input.h"
+
+#include "Util.h"
 #include <Xinput.h>
 #include <iostream>
 #include <vector>
+#include <unordered_map>
 
 file_access void setKeyState(GLFWwindow* window, uint32 glfwKey, InputType keyboardInput);
 file_access void setMouseState(GLFWwindow* window, uint32 glfwKey, InputType mouseInput);
@@ -22,9 +24,9 @@ file_access MouseCoord mouseDelta = { 0.0f, 0.0f };
 file_access ControllerAnalogStick analogStickLeft = { 0, 0 };
 file_access ControllerAnalogStick analogStickRight = { 0, 0 };
 file_access float32 mouseScrollY = 0.0f;
-file_access int8 controller1L2Value = 0;
-file_access int8 controller1R2Value = 0;
-file_access std::map<InputType, InputState>* inputState = NULL;
+file_access int8 controller1TriggerLeftValue = 0;
+file_access int8 controller1TriggerRightValue = 0;
+file_access std::unordered_map<InputType, InputState>* inputState = NULL;
 file_access WindowSizeCallback windowSizeCallback = NULL;
 
 // NOTE: Casey Muratori's efficient way of handling function pointers, Handmade Hero episode 6 @ 22:06 & 1:00:21
@@ -39,12 +41,12 @@ X_INPUT_GET_STATE(XInputGetStateStub) // create stub function of type above
 file_access x_input_get_state* XInputGetState_ = XInputGetStateStub; // Create a function pointer of type above to point to stub
 #define XInputGetState XInputGetState_ // Allow us to use XInputGetState method name without conflicting with definition in Xinput.h
 
-void initializeInput(GLFWwindow* window, Extent2D windowExtent)
+void initializeInput(GLFWwindow* window)
 {
   glfwSetScrollCallback(window, glfw_mouse_scroll_callback);
   glfwSetFramebufferSizeCallback(window, glfw_framebuffer_size_callback);
 
-  inputState = new std::map<InputType, InputState>();
+  inputState = new std::unordered_map<InputType, InputState>();
 
   int32 framebufferWidth, framebufferHeight;
   glfwGetFramebufferSize(window, &framebufferWidth, &framebufferHeight);
@@ -74,7 +76,7 @@ void deinitializeInput(GLFWwindow* window)
 }
 
 InputState getInputState(InputType key) {
-  std::map<InputType, InputState>::iterator inputSearch = inputState->find(key);
+  std::unordered_map<InputType, InputState>::iterator inputSearch = inputState->find(key);
   return inputSearch != inputState->end() ? inputSearch->second : INPUT_INACTIVE;
 }
 
@@ -115,7 +117,7 @@ ControllerAnalogStick getControllerAnalogStickRight() {
 
 void setKeyState(GLFWwindow* window, uint32 glfwKey, InputType keyboardInput)
 {
-  std::map<InputType, InputState>::iterator keyIterator = inputState->find(keyboardInput);
+  std::unordered_map<InputType, InputState>::iterator keyIterator = inputState->find(keyboardInput);
   InputState oldKeyState = keyIterator != inputState->end() ? keyIterator->second : INPUT_INACTIVE;
   if (glfwGetKey(window, glfwKey) == GLFW_PRESS)
   {
@@ -133,7 +135,7 @@ void setKeyState(GLFWwindow* window, uint32 glfwKey, InputType keyboardInput)
 
 void setMouseState(GLFWwindow* window, uint32 glfwKey, InputType mouseInput)
 {
-  std::map<InputType, InputState>::iterator mouseInputIterator = inputState->find(mouseInput);
+  std::unordered_map<InputType, InputState>::iterator mouseInputIterator = inputState->find(mouseInput);
   InputState oldMouseInputState = mouseInputIterator != inputState->end() ? mouseInputIterator->second : INPUT_INACTIVE;
   if (glfwGetMouseButton(window, glfwKey) == GLFW_PRESS)
   {
@@ -151,7 +153,7 @@ void setMouseState(GLFWwindow* window, uint32 glfwKey, InputType mouseInput)
 
 void setControllerState(int16 gamepadFlags, uint32 xInputButtonFlag, InputType controllerInput)
 {
-  std::map<InputType, InputState>::iterator controllerInputIterator = inputState->find(controllerInput);
+  std::unordered_map<InputType, InputState>::iterator controllerInputIterator = inputState->find(controllerInput);
   InputState oldControllerInputState = controllerInputIterator != inputState->end() ? controllerInputIterator->second : INPUT_INACTIVE;
   if (gamepadFlags & xInputButtonFlag)
   {
@@ -224,7 +226,7 @@ void loadInputStateForFrame(GLFWwindow* window) {
       mouseDelta = windowModeChangeTossNextInput.consume() ? MouseCoord{0.0f, 0.0f} : MouseCoord{newMouseCoord.x - mousePosition.x, newMouseCoord.y - mousePosition.y};
       mousePosition = newMouseCoord;
 
-      std::map<InputType, InputState>::iterator movementIterator = inputState->find(MouseInput_Movement);
+      std::unordered_map<InputType, InputState>::iterator movementIterator = inputState->find(MouseInput_Movement);
       bool movementWasActive = movementIterator != inputState->end();
       if (mouseDelta.x != 0.0f || mouseDelta.y != 0.0f)
       {
@@ -239,7 +241,7 @@ void loadInputStateForFrame(GLFWwindow* window) {
 
     // mouse scroll state management
     {
-      std::map<InputType, InputState>::iterator scrollIterator = inputState->find(MouseInput_Scroll);
+      std::unordered_map<InputType, InputState>::iterator scrollIterator = inputState->find(MouseInput_Scroll);
       bool scrollWasActive = scrollIterator != inputState->end();
       mouseScrollY = (float32)globalMouseScroll.y;
       globalMouseScroll.y = 0.0f; // NOTE: Set to 0.0f to signify that the result has been consumed
@@ -311,36 +313,60 @@ void loadInputStateForFrame(GLFWwindow* window) {
       inputState->erase(Controller1Input_Analog_Right);
     }
 
-    std::map<InputType, InputState>::iterator l2Iterator = inputState->find(Controller1Input_Trigger_Left);
-    InputState oldL2State = l2Iterator != inputState->end() ? l2Iterator->second : INPUT_INACTIVE;
+    std::unordered_map<InputType, InputState>::iterator triggerLeftIterator = inputState->find(Controller1Input_Trigger_Left);
+    InputState oldTriggerLeftState = triggerLeftIterator != inputState->end() ? triggerLeftIterator->second : INPUT_INACTIVE;
     if (controllerState.Gamepad.bLeftTrigger > XINPUT_GAMEPAD_TRIGGER_THRESHOLD)
     {
-      if(oldL2State & INPUT_HOT_PRESS) {
+      if(oldTriggerLeftState & INPUT_HOT_PRESS) {
         (*inputState)[Controller1Input_Trigger_Left] = INPUT_ACTIVE;
-      } else if(oldL2State ^ INPUT_ACTIVE) {
+      } else if(oldTriggerLeftState ^ INPUT_ACTIVE) {
         (*inputState)[Controller1Input_Trigger_Left] = INPUT_HOT_PRESS;
       }
-    } else if(oldL2State & (INPUT_HOT_PRESS | INPUT_ACTIVE)) {
+      controller1TriggerLeftValue = controllerState.Gamepad.bLeftTrigger - XINPUT_GAMEPAD_TRIGGER_THRESHOLD;
+    } else if(oldTriggerLeftState & (INPUT_HOT_PRESS | INPUT_ACTIVE)) {
       (*inputState)[Controller1Input_Trigger_Left] = INPUT_HOT_RELEASE;
-    } else if(oldL2State & INPUT_HOT_RELEASE) { // only erase if there is something to be erased
-      inputState->erase(l2Iterator);
+      controller1TriggerLeftValue = 0;
+    } else if(oldTriggerLeftState & INPUT_HOT_RELEASE) { // only erase if there is something to be erased
+      inputState->erase(triggerLeftIterator);
     }
 
-    std::map<InputType, InputState>::iterator r2Iterator = inputState->find(Controller1Input_Trigger_Right);
-    InputState oldR2State = r2Iterator != inputState->end() ? r2Iterator->second : INPUT_INACTIVE;
+    std::unordered_map<InputType, InputState>::iterator triggerRightIterator = inputState->find(Controller1Input_Trigger_Right);
+    InputState oldTriggerRightState = triggerRightIterator != inputState->end() ? triggerRightIterator->second : INPUT_INACTIVE;
     if (controllerState.Gamepad.bRightTrigger > XINPUT_GAMEPAD_TRIGGER_THRESHOLD)
     {
-      if(oldR2State & INPUT_HOT_PRESS) {
+      if(oldTriggerRightState & INPUT_HOT_PRESS) {
         (*inputState)[Controller1Input_Trigger_Right] = INPUT_ACTIVE;
-      } else if(oldR2State ^ INPUT_ACTIVE) {
+      } else if(oldTriggerRightState ^ INPUT_ACTIVE) {
         (*inputState)[Controller1Input_Trigger_Right] = INPUT_HOT_PRESS;
       }
-    } else if(oldR2State & (INPUT_HOT_PRESS | INPUT_ACTIVE)) {
+      controller1TriggerRightValue = controllerState.Gamepad.bRightTrigger - XINPUT_GAMEPAD_TRIGGER_THRESHOLD;
+    } else if(oldTriggerRightState & (INPUT_HOT_PRESS | INPUT_ACTIVE)) {
       (*inputState)[Controller1Input_Trigger_Right] = INPUT_HOT_RELEASE;
-    } else if(oldR2State & INPUT_HOT_RELEASE) { // only erase if there is something to be erased
-      inputState->erase(r2Iterator);
+      controller1TriggerRightValue = 0;
+    } else if(oldTriggerRightState & INPUT_HOT_RELEASE) { // only erase if there is something to be erased
+      inputState->erase(triggerRightIterator);
     }
   }
+}
+
+// NOTE: values range from 0 to 225 (255 minus trigger threshold)
+int8 getControllerTriggerRaw_Right() {
+  return controller1TriggerRightValue;
+}
+
+// NOTE: values range from 0 to 225 (255 minus trigger threshold)
+int8 getControllerTriggerRaw_Left() {
+  return controller1TriggerLeftValue;
+}
+
+// NOTE: values range from 0.0 - 1.0
+float32 getControllerTrigger_Right() {
+  return (float32)controller1TriggerRightValue / (255 - XINPUT_GAMEPAD_TRIGGER_THRESHOLD);
+}
+
+// NOTE: values range from 0.0 - 1.0
+float32 getControllerTrigger_Left() {
+  return (float32)controller1TriggerLeftValue / (255 - XINPUT_GAMEPAD_TRIGGER_THRESHOLD);
 }
 
 // Callback function for when user scrolls with mouse wheel

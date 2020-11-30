@@ -3,7 +3,6 @@
 #define GLFW_INCLUDE_NONE // ensure GLFW doesn't load OpenGL headers
 
 #include <GLFW/glfw3.h>
-#include <map>
 #include <glm/glm.hpp>
 
 #include "../LearnOpenGLPlatform.h"
@@ -47,20 +46,22 @@ enum InputState
   INPUT_INACTIVE = 1 << 3
 };
 
-void initializeInput(GLFWwindow* window, Extent2D windowExtent);
+void initializeInput(GLFWwindow* window);
 void deinitializeInput(GLFWwindow* window);
 void loadInputStateForFrame(GLFWwindow* window);
+
 bool hotPress(InputType key); // returns true if input was just activated
 bool hotRelease(InputType key); // returns true if input was just deactivated
-// TODO: hotPressRelease(fun onPress, fun onRelease);
 bool isActive(InputType key); // returns true if key is pressed or held down
-
 InputState getInputState(InputType key); // Note: for special use cases (ex: double click), use hotPress/hotRelease/isActive in most cases
+
 MouseCoord getMousePosition();
 MouseCoord getMouseDelta();
 float32 getMouseScrollY();
-float32 getControllerL2(); // NOTE: values range from 31 - 255
-float32 getControllerR2(); // NOTE: values range from 31 - 255;
+int8 getControllerTriggerRaw_Left(); // NOTE: values range from 0 - 225 (255 minus trigger threshold)
+int8 getControllerTriggerRaw_Right(); // NOTE: values range from 0 - 225 (255 minus trigger threshold)
+float32 getControllerTrigger_Left(); // NOTE: values range from 0.0 - 1.0
+float32 getControllerTrigger_Right(); // NOTE: values range from 0.0 - 1.0
 Extent2D getWindowExtent();
 ControllerAnalogStick getControllerAnalogStickLeft();
 ControllerAnalogStick getControllerAnalogStickRight();

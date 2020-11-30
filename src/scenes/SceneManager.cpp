@@ -104,7 +104,7 @@ void runScenes(GLFWwindow* window) {
     }
   };
 
-  initializeInput(window, windowExtent);
+  initializeInput(window);
   subscribeWindowSizeCallback(windowSizeCallback);
   scenes[sceneIndex]->init(windowExtent);
   sceneCursorMode = isCursorEnabled(window);

@@ -15,7 +15,7 @@
 #define ZOOM_SPEED_FAST 3.0f
 #define MOUSE_ACTION_TIME_SECONDS 0.15f
 
-// TODO: Use fixed-point arithmatic to zoom further into the mandelbrot set
+// TODO: Use fixed-point arithmatic to zoom further into the mandelbrot set, has very chunky pixels around 440,000 zoom
 class MandelbrotScene final : public Scene {
 public:
   MandelbrotScene(GLFWwindow* window);
