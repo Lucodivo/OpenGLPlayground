@@ -56,6 +56,13 @@ void MandelbrotScene::deinit()
 
 Framebuffer MandelbrotScene::drawFrame()
 {
+  local_access float32 previousZoom = zoom - 0.1;
+  local_access glm::vec2 previousOffset = glm::vec2{centerOffset.x - 0.1, centerOffset.y - 0.1};
+  // we don't need to draw if we have not zoomed in since last frame
+  if(previousZoom == zoom && previousOffset == centerOffset) { return drawFramebuffer; }
+  previousZoom = zoom;
+  previousOffset = centerOffset;
+
   glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
   glDisable(GL_DEPTH_TEST);
   glViewport(0, 0, windowExtent.width, windowExtent.height);
