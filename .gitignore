@@ -6,7 +6,7 @@ Debug/
 src/fonts/
 build/
 samples/
-cmake-build-debug/
+cmake-build*/
 src/dependencies/
 src/data/fun/
 src/data/skyboxes/

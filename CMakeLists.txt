@@ -1,8 +1,20 @@
 cmake_minimum_required (VERSION 3.5)
 project (LearnOpenGL)
 
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
+
 set(LIB_DIR "C:/developer/dependencies/libs")
 set(INCL_DIR "C:/developer/dependencies/include")
+
+# Note: CMAKE_SOURCE_DIR is top level of the source tree (where top level CMakeLists.txt exists)
+file(GLOB_RECURSE SOURCE_FILES ${CMAKE_SOURCE_DIR}/src/*.cpp ${CMAKE_SOURCE_DIR}/src/*.h)
+
+file(GLOB IMGUI_SOURCE_FILES ${INCL_DIR}/imgui/*.cpp ${INCL_DIR}/imgui/*.h)
+
+link_directories(${LIB_DIR})
+include_directories(${INCL_DIR})
+
+add_library(glad STATIC "${LIB_DIR}/glad.c")
 
 if(MSVC)
     add_compile_options(/W3)
@@ -10,44 +22,11 @@ else ()
     add_compile_options(-Wall -Wall -Wpedantic)
 endif()
 
-# Add .lib files
-link_directories(${LIB_DIR})
-
-# project source files
-file(GLOB_RECURSE SOURCE_FILES
-        ${CMAKE_SOURCE_DIR}/src/*.c
-        ${CMAKE_SOURCE_DIR}/src/*.cpp)
-# project header files
-file(GLOB_RECURSE HEADER_FILES
-        ${CMAKE_SOURCE_DIR}/src/*.h
-        ${CMAKE_SOURCE_DIR}/src/*.hpp)
-
-# Dear IMGUI source files
-file(GLOB IMGUI_SOURCE_FILES
-        ${INCL_DIR}/imgui/*.cpp)
-# Dear IMGUI header files
-file(GLOB IMGUI_HEADER_FILES
-        ${INCL_DIR}/imgui/*.h)
-
 # Define the executable
-add_executable(${PROJECT_NAME} ${HEADER_FILES} ${SOURCE_FILES} ${IMGUI_HEADER_FILES} ${IMGUI_SOURCE_FILES})
-
-# We need a CMAKE_DIR with some code to find external dependencies
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
-
-# STB_IMAGE
-add_library(stb_image "${LIB_DIR}/stb_image.cpp")
-
-# GLAD
-add_library(glad "${LIB_DIR}/glad.c")
+add_executable(${PROJECT_NAME} ${SOURCE_FILES} ${IMGUI_SOURCE_FILES})
 
 # Put all libraries into a variable
-set(LIBS glfw3 opengl32 assimpd freetype stb_image glad)
-
-# Define the include DIRs
-include_directories(
-        ${INCL_DIR}
-)
+set(LIBS glfw3-x64-d opengl32 glad assimp freetype)
 
 # Define the link libraries
 target_link_libraries(${PROJECT_NAME} ${LIBS})

@@ -1,10 +1,12 @@
 #include "OpenGLUtil.h"
 
-#include <stb/stb_image.h>
 #include <glad/glad.h>
 #include <iostream>
 #include <windows.h>
 #include <time.h>
+
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb/stb_image.h>
 
 #define SNAPSHOT_NAME_FORMAT "build/SaveData/snapshot_%Y%m%d_%H%M%S.bmp"
 #define SNAPSHOT_NAME_SIZE 44
