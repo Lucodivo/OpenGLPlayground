@@ -11,11 +11,8 @@ src/dependencies/
 src/data/fun/
 src/data/skyboxes/
 src/data/models/
-src/data/floor.jpg
-src/data/cement.png
-src/data/brick.jpg
-src/data/brick_normal.jpg
 src/data/hardwood.jpg
 src/data/moon.png
 src/data/PBR/
+src/data/save.bin
 imgui.ini

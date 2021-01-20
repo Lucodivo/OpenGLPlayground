@@ -22,7 +22,7 @@
 #include "Pixel2D/Pixel2DScene.h"
 #include "Multi/MultiScene.h"
 
-#define SAVE_FILE_RELATIVE_PATH "build/SaveData/save.bin"
+#define SAVE_FILE_RELATIVE_PATH "src/data/save.bin"
 
 file_access bool sceneManagerIsActive = true;
 
