@@ -181,7 +181,7 @@ Framebuffer AsteroidBeltScene::drawFrame()
   reflectModelInstanceShader->use();
   reflectModelInstanceShader->setUniform("view", viewMat);
   reflectModelInstanceShader->setUniform("cameraPos", camera.Position);
-  reflectModelInstanceShader->setUniform("orbit", glm::rotate(glm::mat4(), t * glm::radians(-planetRotationSpeed), glm::vec3(0.0f, 1.0f, 0.0f)));
+  reflectModelInstanceShader->setUniform("orbit", glm::rotate(glm::mat4(1.0f), t * glm::radians(-planetRotationSpeed), glm::vec3(0.0f, 1.0f, 0.0f)));
   for (uint32 i = 0; i < asteroidModel->meshes.size(); i++)
   {
     glBindVertexArray(asteroidModel->meshes[i]->VAO);

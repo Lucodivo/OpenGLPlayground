@@ -210,7 +210,7 @@ void loadLastSceneIndex(uint32* sceneIndex)
     *sceneIndex = std::atoi(line.c_str());
     myfile.close();
   }  else {
-    std::cout << "Unable to open file\n";
+    std::cout << "Last scene index not cached\n";
   }
 }
 

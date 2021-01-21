@@ -107,7 +107,7 @@ void KernelScene::init(Extent2D windowExtent)
   cubeShader->bindBlockIndex("globalBlockFS", globalFSBufferBindIndex);
   modelShader->bindBlockIndex("globalBlockFS", globalFSBufferBindIndex);
 
-  nanoSuitModelMatrix = glm::scale(glm::mat4(), glm::vec3(modelScale));  // it's a bit too big for our scene, so scale it down
+  nanoSuitModelMatrix = glm::scale(glm::mat4(1.0f), glm::vec3(modelScale));  // it's a bit too big for our scene, so scale it down
   nanoSuitModelMatrix = glm::translate(nanoSuitModelMatrix, glm::vec3(0.0f, -6.0f, 0.0f)); // translate it down so it's at the center of the scene
 
   cubeShader->use();
@@ -301,7 +301,7 @@ Framebuffer KernelScene::drawFrame(){
     float32 angularSpeed = 7.3f * (i + 1);
 
     // orbit around the specified axis from the translated distance
-    cubeModelMats[i] = glm::rotate(glm::mat4(), t * glm::radians(angularSpeed), glm::vec3(50.0f - (i * 10), 100.0f, -50.0f + (i * 10)));
+    cubeModelMats[i] = glm::rotate(glm::mat4(1.0f), t * glm::radians(angularSpeed), glm::vec3(50.0f - (i * 10), 100.0f, -50.0f + (i * 10)));
     // translate to position in world
     cubeModelMats[i] = glm::translate(cubeModelMats[i], cubePositions[i]);
     // rotate with time

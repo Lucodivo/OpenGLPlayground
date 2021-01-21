@@ -86,7 +86,7 @@ void ReflectRefractScene::init(Extent2D windowExtent)
   windowAspectRatio = (float32)windowExtent.width / (float32)windowExtent.height;
   const glm::mat4 projectionMat = glm::perspective(glm::radians(camera.Zoom), windowAspectRatio, 0.1f, 100.0f);
 
-  nanoSuitModelMat = glm::scale(glm::mat4(), glm::vec3(modelScale));  // it's a bit too big for our scene, so scale it down
+  nanoSuitModelMat = glm::scale(glm::mat4(1.0f), glm::vec3(modelScale));  // it's a bit too big for our scene, so scale it down
   nanoSuitModelMat = glm::translate(nanoSuitModelMat, modelPosition); // translate it down so it's at the center of the scene
 
   explodingReflectionShader->use();
@@ -205,7 +205,7 @@ Framebuffer ReflectRefractScene::drawFrame()
 
   for (int i = 0; i < ArrayCount(cubePositions); i++)
   {
-    glm::mat4 model = glm::rotate(glm::mat4(), currTime * glm::radians(angularSpeed), orbitAxis); // orbit with time
+    glm::mat4 model = glm::rotate(glm::mat4(1.0f), currTime * glm::radians(angularSpeed), orbitAxis); // orbit with time
     model = glm::translate(model, cubePositions[i]);
     model = glm::rotate(model, currTime * glm::radians(angularSpeed), rotationAxis); // rotate with time
 

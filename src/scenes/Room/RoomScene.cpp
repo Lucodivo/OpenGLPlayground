@@ -73,15 +73,15 @@ void RoomScene::init(Extent2D windowExtent)
   singleColorShader->bindBlockIndex("globalBlockVS", globalVSBufferBindIndex);
 
   // room data
-  roomModelMat = glm::translate(glm::mat4(), roomPosition);
+  roomModelMat = glm::translate(glm::mat4(1.0f), roomPosition);
   roomModelMat = glm::scale(roomModelMat, glm::vec3(roomScale));
 
   // cube data
-  cubeModelMat[0] = glm::translate(glm::mat4(), cubePositions[0]);
+  cubeModelMat[0] = glm::translate(glm::mat4(1.0f), cubePositions[0]);
   cubeModelMat[0] = glm::scale(cubeModelMat[0], glm::vec3(cubeScales[0]));
-  cubeModelMat[1] = glm::translate(glm::mat4(), cubePositions[1]);
+  cubeModelMat[1] = glm::translate(glm::mat4(1.0f), cubePositions[1]);
   cubeModelMat[1] = glm::scale(cubeModelMat[1], glm::vec3(cubeScales[1]));
-  cubeModelMat[2] = glm::translate(glm::mat4(), cubePositions[2]);
+  cubeModelMat[2] = glm::translate(glm::mat4(1.0f), cubePositions[2]);
   cubeModelMat[2] = glm::scale(cubeModelMat[2], glm::vec3(cubeScales[2]));
 }
 

@@ -120,7 +120,7 @@ Framebuffer InfiniteCubeScene::drawFrame()
   glBindVertexArray(cubeVertexAtt.arrayObject);
 
   // rotate with time
-  glm::mat4 cubeModelMatrix = glm::mat4();
+  glm::mat4 cubeModelMatrix = glm::mat4(1.0f);
   cubeModelMatrix = glm::rotate(cubeModelMatrix, t * glm::radians(cubeRotationAngle), glm::vec3(1.0f, 0.3f, 0.5f));
 
   cubeShader->use();

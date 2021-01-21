@@ -94,7 +94,7 @@ void MoonScene::init(Extent2D windowExtent)
   }
 
   // floor data
-  floorModelMat = glm::mat4();
+  floorModelMat = glm::mat4(1.0f);
   floorModelMat = glm::translate(floorModelMat, floorPosition);
   floorModelMat = glm::scale(floorModelMat, glm::vec3(floorScale, floorScale, floorScale));
   floorModelMat = glm::rotate(floorModelMat, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
@@ -196,17 +196,17 @@ Framebuffer MoonScene::drawFrame()
   glm::vec3 lightCameraPosition = glm::normalize(lightPosition) * lightCameraDistance;
 
   // cube data
-  glm::mat4 cubeModelMat1 = glm::mat4();
+  glm::mat4 cubeModelMat1 = glm::mat4(1.0f);
   const float32 cubeScale1 = 4.0f * ((sin(t) + 1) / 2);
   const glm::vec3 cubePosition1 = glm::vec3(0.0f, floorPosition.y + (cubeScale1 / 2.0f), 0.0f);
   cubeModelMat1 = glm::translate(cubeModelMat1, cubePosition1);
   cubeModelMat1 = glm::scale(cubeModelMat1, glm::vec3(cubeScale1));
-  glm::mat4 cubeModelMat2 = glm::mat4();
+  glm::mat4 cubeModelMat2 = glm::mat4(1.0f);
   const glm::vec3 cubePosition2 = glm::vec3(sin(t / 16.0f) * 8.0f, floorPosition.y + (cubeScale2 / 2) + 2.0f, cos(t / 16.0f) * 8.0f);
   cubeModelMat2 = glm::translate(cubeModelMat2, cubePosition2);
   cubeModelMat2 = glm::rotate(cubeModelMat2, glm::radians(t * 8.0f), glm::vec3(0.4f, 0.6f, 0.3f));
   cubeModelMat2 = glm::scale(cubeModelMat2, glm::vec3(cubeScale2));
-  glm::mat4 cubeModelMat3 = glm::mat4();
+  glm::mat4 cubeModelMat3 = glm::mat4(1.0f);
   const glm::vec3 cubePosition3 = glm::vec3(cos(t / 8.0f) * 4.0f, floorPosition.y + (cubeScale3 / 2.0f) + 4.0f, sin(t / 8.0f) * 4.0f);
   cubeModelMat3 = glm::translate(cubeModelMat3, cubePosition3);
   cubeModelMat3 = glm::rotate(cubeModelMat3, glm::radians(t * 16.0f), glm::vec3(2.7f, -1.0f, 3.0f));

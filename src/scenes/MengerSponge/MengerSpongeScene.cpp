@@ -176,8 +176,8 @@ Framebuffer MengerSpongeScene::drawFrame()
                  0 /* offset in the EBO */);
 
   // NOTE: Cube will be positioned at <0,0>
-  glm::mat4 rotateMatrix = glm::rotate(glm::mat4(), t * glm::radians(20.0f), cubeRotAxis);
-  glm::mat4 cubeModel = glm::scale(glm::mat4(), glm::vec3(cubeScale)); // scale is uniform
+  glm::mat4 rotateMatrix = glm::rotate(glm::mat4(1.0f), t * glm::radians(20.0f), cubeRotAxis);
+  glm::mat4 cubeModel = glm::scale(glm::mat4(1.0f), glm::vec3(cubeScale)); // scale is uniform
   cubeModel = cubeModel * rotateMatrix;
 
   glBindVertexArray(cubeVertexAtt.arrayObject);

@@ -46,9 +46,9 @@ void GUIScene::init(Extent2D windowExtent)
   cubes[2].boundingBoxMin = startingBoundingBoxMin + cubes[2].worldPos;
   cubes[2].boundingBoxMax = startingBoundingBoxMax + cubes[2].worldPos;
 
-  cubeModelMats[0] = glm::translate(glm::mat4(), cubes[0].worldPos);
-  cubeModelMats[1] = glm::translate(glm::mat4(), cubes[1].worldPos);
-  cubeModelMats[2] = glm::translate(glm::mat4(), cubes[2].worldPos);
+  cubeModelMats[0] = glm::translate(glm::mat4(1.0f), cubes[0].worldPos);
+  cubeModelMats[1] = glm::translate(glm::mat4(1.0f), cubes[1].worldPos);
+  cubeModelMats[2] = glm::translate(glm::mat4(1.0f), cubes[2].worldPos);
 
   // set constant uniforms
   cubeShader->use();
