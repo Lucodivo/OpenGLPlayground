@@ -28,7 +28,7 @@ public:
 
 private:
 
-  Extent2D oldWindowExtent = { 0, 0 };
+  Extent2D prevWindowExtent = { 0, 0 };
 
   Framebuffer drawFramebuffer;
 

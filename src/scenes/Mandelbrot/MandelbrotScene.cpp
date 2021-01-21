@@ -19,16 +19,16 @@ void MandelbrotScene::init(Extent2D windowExtent)
 {
   Scene::init(windowExtent);
 
-  if(oldWindowExtent.width != 0) // Adjust the center offset in the event that the window size has changed since last init
+  if(prevWindowExtent.width != 0) // Adjust the center offset in the event that the window size has changed since last init
   {
-    float32 widthRatio = (float32)windowExtent.width / oldWindowExtent.width;
-    float32 heightRatio = (float32)windowExtent.height / oldWindowExtent.height;
+    float32 widthRatio = (float32)windowExtent.width / prevWindowExtent.width;
+    float32 heightRatio = (float32)windowExtent.height / prevWindowExtent.height;
     centerOffset *= glm::vec2(widthRatio, heightRatio);
   }
 
   drawFramebuffer = initializeFramebuffer(windowExtent, FramebufferCreate_NoDepthStencil);
 
-  oldWindowExtent = { windowExtent.width, windowExtent.height };
+  prevWindowExtent = {windowExtent.width, windowExtent.height };
 
   mandelbrotShader = new ShaderProgram(UVCoordVertexShaderFileLoc, MandelbrotFragmentShaderFileLoc);
   mandelbrotShader->use();
@@ -56,12 +56,22 @@ void MandelbrotScene::deinit()
 
 Framebuffer MandelbrotScene::drawFrame()
 {
-  local_access float32 previousZoom = zoom - 0.1;
-  local_access glm::vec2 previousOffset = glm::vec2{centerOffset.x - 0.1, centerOffset.y - 0.1};
+  local_access float32 previousZoom = zoom - 0.5f; // NOTE: values initially set to slight offset for the check below
+  local_access glm::vec2 previousOffset = glm::vec2{centerOffset.x, centerOffset.y};
+  local_access uint32 previousColorFavorIndex = currentColorFavorIndex;
+  local_access Extent2D prevWindowExtent = windowExtent;
+
   // we don't need to draw if we have not zoomed in since last frame
-  if(previousZoom == zoom && previousOffset == centerOffset) { return drawFramebuffer; }
+  if(previousZoom == zoom && previousOffset == centerOffset
+      && previousColorFavorIndex == currentColorFavorIndex
+      && prevWindowExtent.height == windowExtent.height
+      && prevWindowExtent.width == windowExtent.width)
+  {
+    return drawFramebuffer;
+  }
   previousZoom = zoom;
   previousOffset = centerOffset;
+  previousColorFavorIndex = currentColorFavorIndex;
 
   glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
   glDisable(GL_DEPTH_TEST);
@@ -141,8 +151,8 @@ void MandelbrotScene::framebufferSizeChangeRequest(Extent2D windowExtent)
   mandelbrotShader->setUniform("viewPortResolution", glm::vec2(windowExtent.width, windowExtent.height));
 
   // The center needs to be adjusted when the viewport size changes in order to maintain the same position
-  float32 widthRatio = (float32)windowExtent.width / oldWindowExtent.width;
-  float32 heightRatio = (float32)windowExtent.height / oldWindowExtent.height;
-  oldWindowExtent = windowExtent;
+  float32 widthRatio = (float32)windowExtent.width / prevWindowExtent.width;
+  float32 heightRatio = (float32)windowExtent.height / prevWindowExtent.height;
+  prevWindowExtent = windowExtent;
   centerOffset *= glm::vec2(widthRatio, heightRatio);
 }
