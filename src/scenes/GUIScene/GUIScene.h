@@ -20,6 +20,7 @@ struct Cube {
   glm::vec3 boundingBoxMax;
 };
 
+// TODO: GUIScene doesn't work entirely correctly in MultiScene. Is it worth changing?
 class GUIScene final : public FirstPersonScene {
 public:
   GUIScene(GLFWwindow* window);

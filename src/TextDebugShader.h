@@ -1,7 +1,6 @@
 #pragma once
 
 #include <glad/glad.h>
-#include <glm/detail/type_mat.hpp>
 #include <map>
 #include <ft2build.h>
 #include FT_FREETYPE_H

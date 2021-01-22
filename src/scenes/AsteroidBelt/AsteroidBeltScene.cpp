@@ -170,7 +170,7 @@ Framebuffer AsteroidBeltScene::drawFrame()
   modelShader->setUniform("cameraPos", camera.Position);
 
   // draw Planet
-  glm::mat4 model;
+  glm::mat4 model(1.0f);
   model = glm::translate(model, glm::vec3(0.0f, -3.0f, 0.0f));
   model = glm::rotate(model, t * glm::radians(planetRotationSpeed), glm::vec3(0.0f, 1.0f, 0.0f));
   model = glm::scale(model, glm::vec3(4.0f, 4.0f, 4.0f));

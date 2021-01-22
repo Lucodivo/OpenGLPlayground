@@ -190,7 +190,7 @@ Framebuffer MoonScene::drawFrame()
 
   // light data
   glm::vec3 lightPosition = glm::vec3(cos(t/20) * lightRadius, lightHeightOffset + sin(t / 10) * lightHeightHalfVariance, sin(t / 20) * lightRadius);
-  glm::mat4 lightModel;
+  glm::mat4 lightModel(1.0f);
   lightModel = glm::translate(lightModel, lightPosition);
   lightModel = glm::scale(lightModel, glm::vec3(lightScale));
   glm::vec3 lightCameraPosition = glm::normalize(lightPosition) * lightCameraDistance;

@@ -240,7 +240,7 @@ Framebuffer KernelScene::drawFrame(){
   // oscillate with time
   const glm::vec3 lightPosition = glm::vec3(lightOrbitRadius * sinf(t * lightOrbitSpeed), sineVal, lightOrbitRadius * cosf(t * lightOrbitSpeed));
   // orbit with time
-  glm::mat4 lightModelMat; // default constructor is identity matrix
+  glm::mat4 lightModelMat(1.0f); // default constructor is identity matrix
   lightModelMat = glm::translate(lightModelMat, lightPosition);
   lightModelMat = glm::scale(lightModelMat, glm::vec3(lightScale));
 

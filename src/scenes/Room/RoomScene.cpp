@@ -151,7 +151,7 @@ Framebuffer RoomScene::drawFrame()
 
   // light data
   glm::vec3 lightPosition = glm::vec3(sin(t) * lightRadius, sin(1.5f * t) * lightAmplitude, cos(t) * lightRadius);
-  glm::mat4 lightModel;
+  glm::mat4 lightModel(1.0f);
   lightModel = glm::translate(lightModel, lightPosition);
   lightModel = glm::scale(lightModel, glm::vec3(lightScale));
 
