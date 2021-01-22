@@ -5,6 +5,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 
 set(LIB_DIR "C:/developer/dependencies/libs")
 set(INCL_DIR "C:/developer/dependencies/include")
+set(EXT_DIR "${CMAKE_SOURCE_DIR}/external/glm")
 
 # Note: CMAKE_SOURCE_DIR is top level of the source tree (where top level CMakeLists.txt exists)
 file(GLOB_RECURSE SOURCE_FILES ${CMAKE_SOURCE_DIR}/src/*.cpp ${CMAKE_SOURCE_DIR}/src/*.h)
@@ -12,7 +13,7 @@ file(GLOB_RECURSE SOURCE_FILES ${CMAKE_SOURCE_DIR}/src/*.cpp ${CMAKE_SOURCE_DIR}
 file(GLOB IMGUI_SOURCE_FILES ${INCL_DIR}/imgui/*.cpp ${INCL_DIR}/imgui/*.h)
 
 link_directories(${LIB_DIR})
-include_directories(${INCL_DIR})
+include_directories(${INCL_DIR} ${EXT_DIR})
 
 add_library(glad STATIC "${LIB_DIR}/glad.c")
 
