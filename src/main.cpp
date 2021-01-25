@@ -1,8 +1,8 @@
 #define GLFW_INCLUDE_NONE // ensure GLFW doesn't load OpenGL headers
 
 #include "imgui/imgui.h"
-#include "imgui/imgui_impl_glfw.h"
-#include "imgui/imgui_impl_opengl3.h"
+#include "imgui/backends/imgui_impl_glfw.h"
+#include "imgui/backends/imgui_impl_opengl3.h"
 
 #include <iostream>
 #include <GLFW/glfw3.h>

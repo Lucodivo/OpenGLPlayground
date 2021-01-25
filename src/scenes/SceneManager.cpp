@@ -1,7 +1,7 @@
 #include "SceneManager.h"
 
-#include <imgui/imgui_impl_opengl3.h>
-#include <imgui/imgui_impl_glfw.h>
+#include <imgui/backends/imgui_impl_opengl3.h>
+#include <imgui/backends/imgui_impl_glfw.h>
 #include <fstream>
 
 #include "../TextDebugShader.h"

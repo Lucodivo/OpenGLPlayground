@@ -4,6 +4,10 @@
 
 #pragma once
 
+
+#define GLFW_INCLUDE_NONE // ensure GLFW doesn't load OpenGL headers
+#include <GLFW/glfw3.h>
+
 #include "../FirstPersonScene.h"
 #include "../../common/ObjectData.h"
 #include "../../ShaderProgram.h"

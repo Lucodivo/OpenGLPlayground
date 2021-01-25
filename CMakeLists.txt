@@ -5,12 +5,14 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 
 set(LIB_DIR "C:/developer/dependencies/libs")
 set(INCL_DIR "C:/developer/dependencies/include")
-set(EXT_DIR "${CMAKE_SOURCE_DIR}/external/glm")
+set(EXT_DIR "${CMAKE_SOURCE_DIR}/external" "${CMAKE_SOURCE_DIR}/external/glm" "${CMAKE_SOURCE_DIR}/external/imgui")
 
 # Note: CMAKE_SOURCE_DIR is top level of the source tree (where top level CMakeLists.txt exists)
 file(GLOB_RECURSE SOURCE_FILES ${CMAKE_SOURCE_DIR}/src/*.cpp ${CMAKE_SOURCE_DIR}/src/*.h)
 
-file(GLOB IMGUI_SOURCE_FILES ${INCL_DIR}/imgui/*.cpp ${INCL_DIR}/imgui/*.h)
+file(GLOB IMGUI_SOURCE_FILES ${CMAKE_SOURCE_DIR}/external/imgui/*.cpp ${CMAKE_SOURCE_DIR}/external/imgui/*.h
+                            ${CMAKE_SOURCE_DIR}/external/imgui/backends/imgui_impl_glfw.h ${CMAKE_SOURCE_DIR}/external/imgui/backends/imgui_impl_glfw.cpp
+                            ${CMAKE_SOURCE_DIR}/external/imgui/backends/imgui_impl_opengl3.h ${CMAKE_SOURCE_DIR}/external/imgui/backends/imgui_impl_opengl3.cpp )
 
 link_directories(${LIB_DIR})
 include_directories(${INCL_DIR} ${EXT_DIR})
