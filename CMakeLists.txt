@@ -5,19 +5,19 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 
 set(LIB_DIR "C:/developer/dependencies/libs")
 set(INCL_DIR "C:/developer/dependencies/include")
-set(EXT_DIR "${CMAKE_SOURCE_DIR}/external" "${CMAKE_SOURCE_DIR}/external/glm" "${CMAKE_SOURCE_DIR}/external/imgui")
+set(EXT_DIR "${CMAKE_SOURCE_DIR}/external")
 
 # Note: CMAKE_SOURCE_DIR is top level of the source tree (where top level CMakeLists.txt exists)
 file(GLOB_RECURSE SOURCE_FILES ${CMAKE_SOURCE_DIR}/src/*.cpp ${CMAKE_SOURCE_DIR}/src/*.h)
 
-file(GLOB IMGUI_SOURCE_FILES ${CMAKE_SOURCE_DIR}/external/imgui/*.cpp ${CMAKE_SOURCE_DIR}/external/imgui/*.h
-                            ${CMAKE_SOURCE_DIR}/external/imgui/backends/imgui_impl_glfw.h ${CMAKE_SOURCE_DIR}/external/imgui/backends/imgui_impl_glfw.cpp
-                            ${CMAKE_SOURCE_DIR}/external/imgui/backends/imgui_impl_opengl3.h ${CMAKE_SOURCE_DIR}/external/imgui/backends/imgui_impl_opengl3.cpp )
+file(GLOB IMGUI_SOURCE_FILES ${EXT_DIR}/imgui/*.cpp ${EXT_DIR}/imgui/*.h
+                            ${EXT_DIR}/imgui/backends/imgui_impl_glfw.h ${EXT_DIR}/imgui/backends/imgui_impl_glfw.cpp
+                            ${EXT_DIR}/imgui/backends/imgui_impl_opengl3.h ${EXT_DIR}/imgui/backends/imgui_impl_opengl3.cpp )
 
 link_directories(${LIB_DIR})
-include_directories(${INCL_DIR} ${EXT_DIR})
+include_directories(${INCL_DIR} ${EXT_DIR} "${EXT_DIR}/glm" "${EXT_DIR}/imgui")
 
-add_library(glad STATIC "${LIB_DIR}/glad.c")
+add_library(glad STATIC "${EXT_DIR}/glad/glad.c" )
 
 if(MSVC)
     add_compile_options(/W3)

@@ -53,11 +53,15 @@ void TextDebugShader::initDebugTextCharacters()
 {
   FT_Library ft;
   if (FT_Init_FreeType(&ft))
+  {
     std::cout << "ERROR::FREETYPE: Could not init FreeType Library" << std::endl;
+  }
 
   FT_Face face;
-  if (FT_New_Face(ft, "src/fonts/arial.ttf", 0, &face))
+  if (FT_New_Face(ft, "src/data/fonts/arial.ttf", 0, &face))
+  {
     std::cout << "ERROR::FREETYPE: Failed to load font" << std::endl;
+  }
 
   FT_Set_Pixel_Sizes(face, 0, 48);
   glPixelStorei(GL_UNPACK_ALIGNMENT, 1); // Disable byte-alignment restriction
