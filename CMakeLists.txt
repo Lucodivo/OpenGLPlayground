@@ -29,7 +29,7 @@ endif()
 add_executable(${PROJECT_NAME} ${SOURCE_FILES} ${IMGUI_SOURCE_FILES})
 
 # Put all libraries into a variable
-set(LIBS glfw3-x64-d opengl32 glad assimp freetype)
+set(LIBS glfw3-x64-d opengl32 glad assimp)
 
 # Define the link libraries
 target_link_libraries(${PROJECT_NAME} ${LIBS})

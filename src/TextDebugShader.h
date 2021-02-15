@@ -2,21 +2,18 @@
 
 #include <glad/glad.h>
 #include <map>
-#include <ft2build.h>
-#include FT_FREETYPE_H
 #include <iostream>
 
 #include "LearnOpenGLPlatform.h"
 #include "ShaderProgram.h"
 #include "common/FileLocations.h"
 
-struct Glyph
-{
-  GLuint textureID;  // ID handle of the glyph texture
-  glm::ivec2 size;       // Size of glyph
-  glm::ivec2 bearing;    // Offset from baseline to left/top of glyph
-  GLuint advance;    // Offset to advance to next glyph
-};
+#define STB_TRUETYPE_IMPLEMENTATION  // force following include to generate implementation
+#include "stb/stb_truetype.h"
+
+const uint32 tffBufferSize = 1 << 22; //4MB
+const uint32 bitmapWidth = 512;
+const uint32 bitmapHeight = 128;
 
 class TextDebugShader {
 public:
@@ -26,21 +23,23 @@ public:
   void updateWindowDimens(Extent2D windowExtent);
 
 private:
-  std::map<GLchar, Glyph> Characters;
+  uint32 fontTextureID;
+  stbtt_bakedchar cdata[129]; // ASCII 0...127 is 128 glyphs
+  float32 characterHeight;
 
   ShaderProgram shader;
-  uint32 vao, vbo;
+  uint32 vao, vbo, ebo;
   Extent2D windowExtent;
   glm::mat4 projectionMat;
 
   void initDebugTextCharacters();
-  void initDebugTextBuffers();
+  void initDebugTextVertexAttributes();
 };
 
 TextDebugShader::TextDebugShader(Extent2D windowExtent): shader(textVertexShaderFileLoc, textFragmentShaderFileLoc) {
   updateWindowDimens(windowExtent);
   initDebugTextCharacters();
-  initDebugTextBuffers();
+  initDebugTextVertexAttributes();
 }
 
 TextDebugShader::~TextDebugShader() {
@@ -51,74 +50,49 @@ TextDebugShader::~TextDebugShader() {
 
 void TextDebugShader::initDebugTextCharacters()
 {
-  FT_Library ft;
-  if (FT_Init_FreeType(&ft))
-  {
-    std::cout << "ERROR::FREETYPE: Could not init FreeType Library" << std::endl;
-  }
+  uint8* ttf_buffer = new uint8[tffBufferSize];
+  uint8* temp_bitmap = new uint8[bitmapWidth * bitmapHeight];
+  fread(ttf_buffer, 1, tffBufferSize, fopen("src/data/fonts/arial.ttf", "rb"));
+  stbtt_BakeFontBitmap(ttf_buffer,0, 32.0, temp_bitmap, bitmapWidth, bitmapHeight, 0, 128, cdata); // no guarantee this fits!
+  // can free ttf_buffer at this point
+  glGenTextures(1, &fontTextureID);
+  glBindTexture(GL_TEXTURE_2D, fontTextureID);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, bitmapWidth, bitmapHeight, 0, GL_RED, GL_UNSIGNED_BYTE, temp_bitmap);
+  // can free temp_bitmap at this point
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glBindTexture(GL_TEXTURE_2D, 0);
 
-  FT_Face face;
-  if (FT_New_Face(ft, "src/data/fonts/arial.ttf", 0, &face))
-  {
-    std::cout << "ERROR::FREETYPE: Failed to load font" << std::endl;
-  }
+  characterHeight = cdata['A'].y1 - cdata['A'].y0;
 
-  FT_Set_Pixel_Sizes(face, 0, 48);
-  glPixelStorei(GL_UNPACK_ALIGNMENT, 1); // Disable byte-alignment restriction
-
-  for (GLubyte c = 0; c < 128; c++)
-  {
-    // Load character glyph
-    if (FT_Load_Char(face, c, FT_LOAD_RENDER))
-    {
-      std::cout << "ERROR::FREETYTPE: Failed to load Glyph" << std::endl;
-      continue;
-    }
-    // Generate texture
-    GLuint texture;
-    glGenTextures(1, &texture);
-    glBindTexture(GL_TEXTURE_2D, texture);
-    glTexImage2D(
-            GL_TEXTURE_2D,
-            0,
-            GL_RED,
-            face->glyph->bitmap.width,
-            face->glyph->bitmap.rows,
-            0,
-            GL_RED,
-            GL_UNSIGNED_BYTE,
-            face->glyph->bitmap.buffer
-    );
-    // Set texture options
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    // Now store character for later use
-    Glyph glyph = {
-            texture,
-            glm::ivec2(face->glyph->bitmap.width, face->glyph->bitmap.rows),
-            glm::ivec2(face->glyph->bitmap_left, face->glyph->bitmap_top),
-            (GLuint)face->glyph->advance.x
-    };
-    Characters.insert(std::pair<GLchar, Glyph>(c, glyph));
-  }
-
-  FT_Done_Face(face);
-  FT_Done_FreeType(ft);
+  delete[] ttf_buffer;
+  delete[] temp_bitmap;
 }
 
-void TextDebugShader::initDebugTextBuffers()
+void TextDebugShader::initDebugTextVertexAttributes()
 {
+  const uint8 verticesPerQuad = 4;
+  const uint8 floatsPerAttribute = 4; // 2 floats for screen coord, 2 floats for texture coord
+  // These indices assume the vertex data is supplied in the order of { x0y0, x0y1, x1y0, x1y1 }
+  // which will result in a CCW winding order
+  const uint32 indexBuffer[] =  {0, 2, 1, 1, 2, 3 };
+
   glGenVertexArrays(1, &vao);
   glGenBuffers(1, &vbo);
+  glGenBuffers(1, &ebo);
   glBindVertexArray(vao);
   glBindBuffer(GL_ARRAY_BUFFER, vbo);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 6 * 4, NULL, GL_DYNAMIC_DRAW);
+
+  glBufferData(GL_ARRAY_BUFFER, verticesPerQuad * floatsPerAttribute * sizeof(GLfloat), NULL, GL_DYNAMIC_DRAW);
   glEnableVertexAttribArray(0);
-  glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), 0);
+  glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, floatsPerAttribute * sizeof(GLfloat), 0);
+
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indexBuffer), indexBuffer, GL_STATIC_DRAW);
+
   glBindBuffer(GL_ARRAY_BUFFER, 0);
   glBindVertexArray(0);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
 void TextDebugShader::updateWindowDimens(Extent2D windowExtent)
@@ -129,6 +103,9 @@ void TextDebugShader::updateWindowDimens(Extent2D windowExtent)
   shader.setUniform("projection", projectionMat);
 }
 
+/*
+ * arguments x & y indicate lower left corner offset of text
+ */
 void TextDebugShader::renderText(std::string text, GLfloat x, GLfloat y, GLfloat scale, glm::vec3 color)
 {
   // store original values before rendering text
@@ -150,6 +127,7 @@ void TextDebugShader::renderText(std::string text, GLfloat x, GLfloat y, GLfloat
   glActiveTexture(GL_TEXTURE0); // We will only be using GL_TEXTURE0 to render text
   glGetIntegerv(GL_TEXTURE_BINDING_2D, &originalTexture0);
 
+  // start rendering text
   glViewport(0, 0, windowExtent.width, windowExtent.height);
 
   // turn on blend values to render text
@@ -162,36 +140,36 @@ void TextDebugShader::renderText(std::string text, GLfloat x, GLfloat y, GLfloat
   shader.setUniform("textColor", color);
   glBindVertexArray(vao);
 
-  // Iterate through all characters
-  std::string::const_iterator c;
-  for (c = text.begin(); c != text.end(); c++)
-  {
-    Glyph character = Characters[*c];
+  // assume orthographic projection with units = screen pixels, origin at top left
+  glBindTexture(GL_TEXTURE_2D, fontTextureID);
+  glBindBuffer(GL_ARRAY_BUFFER, vbo);
 
-    GLfloat xpos = x + character.bearing.x * scale;
-    GLfloat ypos = y - (character.size.y - character.bearing.y) * scale;
+  float32 scaleOffsetOverstepX = (x * scale) - x;
+  float32 scaleOffsetOverstepY = (y * scale) - y;
+  y += characterHeight; // we want bottom left corner of text but stb_truetype wants upper left
 
-    GLfloat w = character.size.x * scale;
-    GLfloat h = character.size.y * scale;
-    // Update VBO for each character
-    GLfloat vertices[6][4] = {
-            {xpos,     ypos + h, 0.0, 0.0},
-            {xpos,     ypos,     0.0, 1.0},
-            {xpos + w, ypos,     1.0, 1.0},
+  for(uint32 i = 0; i < text.length(); ++i) {
+    uint32 c = text[i];
+    if (c >= 0 && c < 128) {
+      stbtt_aligned_quad characterQuad;
+      stbtt_GetBakedQuad(cdata, bitmapWidth, bitmapHeight, c, &x, &y, &characterQuad, 1);//1=opengl & d3d10+,0=d3d9
+      GLfloat vertices[4][4] = {
+              /*screen coord*/                                                                                    /* texture coord */
+              {characterQuad.x0 * scale - scaleOffsetOverstepX, characterQuad.y0 * scale - scaleOffsetOverstepY,  characterQuad.s0, characterQuad.t1},
+              {characterQuad.x0 * scale - scaleOffsetOverstepX, characterQuad.y1 * scale - scaleOffsetOverstepY,  characterQuad.s0, characterQuad.t0},
+              {characterQuad.x1 * scale - scaleOffsetOverstepX, characterQuad.y0 * scale - scaleOffsetOverstepY,  characterQuad.s1, characterQuad.t1},
+              {characterQuad.x1 * scale - scaleOffsetOverstepX, characterQuad.y1 * scale - scaleOffsetOverstepY,  characterQuad.s1, characterQuad.t0},
+      };
 
-            {xpos,     ypos + h, 0.0, 0.0},
-            {xpos + w, ypos,     1.0, 1.0},
-            {xpos + w, ypos + h, 1.0, 0.0}
-    };
-    // Render glyph texture over quad
-    glBindTexture(GL_TEXTURE_2D, character.textureID);
-    // Update content of VBO memory
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
-    // Render quad
-    glDrawArrays(GL_TRIANGLES, 0, 6);
-    // Now advance cursors for next glyph (note that advance is number of 1/64 pixels)
-    x += (character.advance >> 6) * scale; // Bitshift by 6 to get value in pixels (2^6 = 64)
+      // Update VBO for each character
+      glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
+
+      // Render quad
+      glDrawElements(GL_TRIANGLES, // drawing mode
+                     3 * 2, // 3 vertices per triangle * 2 triangles per quad
+                     GL_UNSIGNED_INT, // type of the indices
+                     0); // offset in the EBO
+    }
   }
 
   // return to values to state before rendering text
