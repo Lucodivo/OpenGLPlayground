@@ -11,9 +11,9 @@
 #define STB_TRUETYPE_IMPLEMENTATION  // force following include to generate implementation
 #include "stb/stb_truetype.h"
 
-const uint32 tffBufferSize = 1 << 22; //4MB
+const uint32 tffBufferSize = 1 << 22; // NOTE: 4MB is max size for .tff file
 const uint32 bitmapWidth = 512;
-const uint32 bitmapHeight = 128;
+const uint32 bitmapHeight = 512;
 
 class TextDebugShader {
 public:

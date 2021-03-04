@@ -71,12 +71,16 @@ Scene::draw() and saves the data to a simple .bmp image file.
 
 ## Special Thanks
 
-Joey de Vries' amazing OpenGL tutorial: [Learn Open](https://learnopengl.com/)<br/>
-Inigo Quilez' fantastic ray marching articles: [website](https://www.iquilezles.org/)<br/>
-Dear ImGui, an extremely user friendly imgui library: [Dear ImGui](https://github.com/ocornut/imgui)<br/>
-Assimp library for easy loading of .obj files: [assimp](https://github.com/assimp/assimp)<br/>
+Learning Resources: <br/>
+Joey de Vries' amazing [Learn OpenGL website](https://learnopengl.com/) <br/>
+Inigo Quilez' fantastic [graphics articles](https://www.iquilezles.org/) <br/>
 
-Free art used for this project:<br/>
-* Skybox Artists - [StumpyStrust](https://opengameart.org/users/stumpystrust), [CustomMapMakers](http://www.custommapmakers.org/skyboxes.php), [Pieter ‘Spiney’ Verhoeve](https://opengameart.org/users/spiney)<br/>
+Dependencies: <br/>
+[Dear ImGui](https://github.com/ocornut/imgui), an extremely user friendly imgui library<br/>
+[assimp](https://github.com/assimp/assimp), for easy loading of .obj files<br/>
+[stb](https://github.com/nothings/stb), awesome header-only dependencies (specifically stb_image & stb_truetype)
+
+Art used for this project:
+* Skybox Artists - [StumpyStrust](https://opengameart.org/users/stumpystrust), [CustomMapMakers](http://www.custommapmakers.org/skyboxes.php), [Pieter ‘Spiney’ Verhoeve](https://opengameart.org/users/spiney) <br/>
 * Model Artists - [ivangeta79](https://sketchfab.com/ivangeta79), [Kyra Anastasia Kabler](https://www.kyraanastasia.com/)
 * Textures - [Free PBR](https://freepbr.com/)

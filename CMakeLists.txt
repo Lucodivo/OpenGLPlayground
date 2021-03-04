@@ -1,8 +1,6 @@
 cmake_minimum_required (VERSION 3.5)
 project (LearnOpenGL)
 
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
-
 set(LIB_DIR "C:/developer/dependencies/libs")
 set(INCL_DIR "C:/developer/dependencies/include")
 set(EXT_DIR "${CMAKE_SOURCE_DIR}/external")

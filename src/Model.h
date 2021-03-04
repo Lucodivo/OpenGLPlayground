@@ -1,5 +1,6 @@
 #pragma once
 
+// TODO: Replace assimp with something like tiny_obj_loader to remove the need for building another external dependency
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
