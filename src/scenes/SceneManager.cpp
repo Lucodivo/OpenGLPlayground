@@ -94,7 +94,7 @@ void runScenes(GLFWwindow* window) {
       glfwSetWindowShouldClose(window, GL_TRUE);
     }
 
-    if((isActive(KeyboardInput_Alt_Right) && hotPress(KeyboardInput_Enter)) || hotPress(Controller1Input_Select))
+    if(((isActive(KeyboardInput_Alt_Right) || isActive(KeyboardInput_Alt_Left)) && hotPress(KeyboardInput_Enter)) || hotPress(Controller1Input_Select))
     {
       toggleWindowSize(window, VIEWPORT_INIT_WIDTH, VIEWPORT_INIT_HEIGHT);
     }

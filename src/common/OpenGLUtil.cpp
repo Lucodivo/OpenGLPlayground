@@ -109,7 +109,7 @@ void load2DTexture(const char* imgLocation, uint32& textureId, bool flipImageVer
     if (height != NULL) *height = h;
   } else
   {
-    std::cout << "Failed to load texture" << std::endl;
+    std::cout << "Failed to load texture: " << imgLocation << std::endl;
   }
   stbi_image_free(data); // free texture image memory
 }
