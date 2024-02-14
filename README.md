@@ -1,4 +1,4 @@
-# OpenGLScenes
+# OpenGL Playground
 A playground for learning OpenGL and real-time graphics. <br/>
 This project contains many "scenes" which serve as contained experiments using various methods of real-time rendering.<br/>
 Here are some examples of these real-time scenes:
